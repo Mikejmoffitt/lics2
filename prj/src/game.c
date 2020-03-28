@@ -45,6 +45,10 @@ static inline void exec_end_of_frame(void)
 		exec_next = GE_INVALID;
 		exec_elapsed = 0;
 	}
+	else
+	{
+		exec_elapsed++;
+	}
 }
 
 // Exec functions =============================================================
@@ -74,9 +78,11 @@ static void ge_init(void)
 		{
 			// TODO: Do something about a failed init, for non-MD platforms...
 			exec_change(GE_SHUTDOWN);
+			pal_set(0, PALRGB(7, 0, 0));
 			return;
 		}
 	}
+	pal_set(0, PALRGB(7, 7, 0));
 
 	exec_change(FIRST_EXEC);
 }
@@ -116,10 +122,18 @@ static void ge_game_start(void)
 
 static void ge_game_ingame(void)
 {
+	pal_set(0, PALRGB(0, 7, 0));
 	if (exec_elapsed == 0)
 	{
+		gfx_load(gfx_get(GFX_LYLE), 0);
+		pal_set(0, PALRGB(7, 7, 7));
 		obj_clear();
 		obj_spawn(32, 32, OBJ_TEMPLATE, 0);
+		obj_spawn(32, 32, OBJ_CUBE_MANAGER, 0);
+		for (int i = 0; i < 64; i++)
+		{
+			pal_set(i, PALRGB(i % 8, (i / 2) % 8, (i / 4) % 8));
+		}
 	}
 
 	obj_exec();
@@ -160,5 +174,7 @@ void game_main(void)
 		if (!dispatch_funcs[exec]) return;
 		dispatch_funcs[exec]();
 		megadrive_finish();
+
+		exec_end_of_frame();
 	}
 }

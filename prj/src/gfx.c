@@ -8,6 +8,7 @@
 static const Gfx gfx[] =
 {
 	GFX(lyle),
+	GFX(cubes),
 	GFX(template),
 };
 
@@ -23,6 +24,6 @@ const Gfx *gfx_get(GfxId id)
 
 void gfx_load(const Gfx *g, uint16_t vram_pos)
 {
-	dma_q_transfer_vram(vram_pos, (void *)g->data, g->size, 2);
+	dma_q_transfer_vram(vram_pos, (void *)g->data, g->size / 2, 2);
 }
 

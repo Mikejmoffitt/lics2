@@ -4,8 +4,6 @@
 #include "system.h"
 #include "gfx.h"
 
-const uint16_t VRAM_LEN = 4;
-
 static uint16_t vram_loaded;
 
 static void vram_load(void)

@@ -6,6 +6,7 @@
 typedef enum GfxId
 {
 	GFX_LYLE,
+	GFX_CUBES,
 	GFX_TEMPLATE,
 
 } GfxId;
