@@ -1,5 +1,5 @@
 # Configuration
-OUTPUT_FILE := hello-ex
+OUTPUT_FILE := lyle
 OUTPUT_EXT := gen
 OUTPUT_VERSION := wip
 
