@@ -7,9 +7,9 @@
 
 static const Gfx gfx[] =
 {
-	GFX(lyle),
-	GFX(cubes),
-	GFX(template),
+	[GFX_LYLE] = GFX(obj_128_lyle),
+	[GFX_CUBES] = GFX(obj_129_cubes),
+	[GFX_TEMPLATE] = GFX(obj_255_template),
 };
 
 int gfx_init(void)
@@ -22,8 +22,11 @@ const Gfx *gfx_get(GfxId id)
 	return &gfx[id];
 }
 
-void gfx_load(const Gfx *g, uint16_t vram_pos)
+uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
 {
-	dma_q_transfer_vram(vram_pos, (void *)g->data, g->size / 2, 2);
+	// DMA operates in terms of words rather than bytes
+	const uint16_t transfer_words = g->size / 2;
+	dma_q_transfer_vram(load_pos, (void *)g->data, transfer_words, 2);
+	return load_pos / 32;
 }
 

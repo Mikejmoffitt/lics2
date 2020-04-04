@@ -33,8 +33,7 @@ static inline void spr_init(void);
 
 // Place a sprite. Tile index is VRAM position / 32.
 #define spr_put(x, y, attr, size) \
-_spr_put((((x) << 16) | (y)), ((attr << 16) | (size)))
-static inline void _spr_put(int32_t xy, uint32_t attrsize);
+_spr_put(x, y, ((attr << 16) | (size)))
 // Terminate the sprite list and schedule a DMA. Resets g_sprite_next.
 void spr_finish(void);
 
@@ -46,7 +45,7 @@ static inline void spr_init(void)
 }
 
 // Place a sprite.
-static inline void _spr_put(int32_t xy, uint32_t attrsize)
+static inline void _spr_put(int16_t x, int16_t y, uint32_t attrsize)
 {
 	if (g_sprite_count >= SPR_MAX)
 	{
@@ -54,8 +53,8 @@ static inline void _spr_put(int32_t xy, uint32_t attrsize)
 	}
 	SprSlot *spr = &g_sprite_table[g_sprite_count];
 	spr->link = g_sprite_count + 1;
-	spr->xpos = (xy >> 16) + 128;
-	spr->ypos = (xy & 0xFFFF) + 128;
+	spr->xpos = x + 128;
+	spr->ypos = y + 128;
 	spr->attr = attrsize >> 16;
 	spr->size = attrsize & 0xFF;
 	g_sprite_count++;

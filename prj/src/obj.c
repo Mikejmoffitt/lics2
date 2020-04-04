@@ -8,11 +8,15 @@
 
 #include "obj/cube_manager.h"
 #include "obj/template.h"
+#include "obj/lyle.h"
+#include "obj/map.h"
+
+#include "md/megadrive.h"
 
 // TODO: Place this in a more dynamic / less shitty way.
-#define OBJ_VRAM_BASE 0x400
+#define OBJ_VRAM_BASE 0x2000
 
-static ObjSlot objects[OBJ_COUNT_MAX];
+ObjSlot g_objects[OBJ_COUNT_MAX];
 static uint16_t obj_vram_pos;
 
 // Setup and teardown functions for all object types. Leave NULL if an object
@@ -25,18 +29,19 @@ typedef struct SetupFuncs
 
 static const SetupFuncs setup_funcs[] =
 {
+	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
+	[OBJ_MAP] = {o_load_map, o_unload_map},
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
 };
 
 // Object list execution ======================================================
 int obj_init(void)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(objects); i++)
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &objects[i].obj;
+		Obj *o = &g_objects[i].obj;
 		o->status = OBJ_STATUS_NULL;
-		o->type = OBJ_NULL;
 	}
 
 	obj_clear();
@@ -57,7 +62,6 @@ static inline void obj_explode(Obj *o)
 	// TODO: (Possibly) spawn powerup.
 	// TODO: Explosion sound.
 	o->status = OBJ_STATUS_NULL;
-	o->type = OBJ_NULL;
 }
 
 static inline uint16_t obj_hurt_process(Obj *o)
@@ -81,35 +85,40 @@ static inline uint16_t obj_hurt_process(Obj *o)
 
 static inline void obj_check_player(Obj *o)
 {
-	// TODO: Check for player, set/clear touching player bit in o->flags
+	O_Lyle *l = lyle_get();
+	if (!l || !obj_touching_obj(&l->head, o)) o->flags &= ~(OBJ_FLAG_TOUCHING_PLAYER);
 	if (!(o->flags & OBJ_FLAG_TOUCHING_PLAYER)) return;
 	
 	if (o->flags & OBJ_FLAG_DEADLY)
 	{
-		// TODO: Kill the player.
+		lyle_kill();
 	}
 	else if (o->flags & OBJ_FLAG_HARMFUL)
 	{
-		// TODO: Handle dealing damage to player
+		lyle_get_hurt();
 	}
 	else if (o->flags & OBJ_FLAG_BOUNCE_L)
 	{
-		// TODO: Handle bouncing player left
+		l->head.direction = OBJ_DIRECTION_LEFT;
+		lyle_get_bounced();
 	}
 	else if (o->flags & OBJ_FLAG_BOUNCE_R)
 	{
-		// TODO: Handle bouncing player right
+		l->head.direction = OBJ_DIRECTION_RIGHT;
+		lyle_get_bounced();
 	}
 }
 
 void obj_exec(void)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(objects); i++)
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &objects[i].obj;
-		if (o->status == OBJ_STATUS_NULL || o->type == OBJ_NULL) continue;
+		Obj *o = &g_objects[i].obj;
+		if (o->status == OBJ_STATUS_NULL) continue;
+//		pal_set(0, PALRGB(0, i % 8, 4));  // TODO: Remove profiling
+		o->offscreen = obj_is_offscreen(o);
 		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) &&
-		    obj_is_offscreen(o))
+		    o->offscreen)
 		{
 			continue;
 		}
@@ -123,12 +132,14 @@ void obj_exec(void)
 
 		obj_check_player(o);
 	}
+//	pal_set(0, PALRGB(0, 0, 0));  // TODO: Remove profiling
 }
+
 void obj_clear(void)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(objects); i++)
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &objects[i].obj;
+		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 		o->status = OBJ_STATUS_NULL;
 		if (!setup_funcs[o->type].unload_func) continue;
@@ -140,10 +151,11 @@ void obj_clear(void)
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(objects); i++)
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &objects[i].obj;
+		Obj *o = &g_objects[i].obj;
 		if (o->status != OBJ_STATUS_NULL) continue;
+		memset(o, 0, sizeof(g_objects[i]));
 		o->status = OBJ_STATUS_ACTIVE;
 		o->type = type;
 		o->x = INTTOFIX32(x);
@@ -155,11 +167,34 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 }
 
 // VRAM load positions are reset to zero when obj_clear is called.
-uint16_t obj_vram_alloc(uint16_t words)
+uint16_t obj_vram_alloc(uint16_t bytes)
 {
+	bytes &= 0xFFFE;
 	uint16_t ret = obj_vram_pos;
-	obj_vram_pos += words;
+	obj_vram_pos += bytes;
 	return ret;
+}
+
+void obj_cube_impact(Obj *o, Cube *c)
+{
+	if (o->cube_func) o->cube_func(o, c);
+	else obj_standard_cube_response(o, c);
+}
+
+void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp)
+{
+	o->left = left;
+	o->right = right;
+	o->top = top;
+
+	o->x += right;
+	o->y -= top;
+
+	o->hp = hp;
+	o->flags = flags;
+	o->direction = OBJ_DIRECTION_RIGHT;
+	o->hurt_stun = 0;
+	o->offscreen = 0;
 }
 
 // Utility or commonly reused functions

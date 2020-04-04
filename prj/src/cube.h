@@ -1,6 +1,8 @@
 #ifndef CUBE_H
 #define CUBE_H
 
+// Cubes are managed by obj/cube_manager.h
+
 #include "util/fixed.h"
 #include <stdint.h>
 
@@ -11,18 +13,17 @@ typedef enum CubeStatus
 	CUBE_STATUS_AIR,
 	CUBE_STATUS_KICKED,
 	CUBE_STATUS_FIZZLE,
-	CUBE_STATUS_FIZZLERED,
 	CUBE_STATUS_EXPLODE,
 } CubeStatus;
 
 typedef enum CubeType
 {
+	CUBE_TYPE_NULL = 0,
 	CUBE_TYPE_BLUE = 0x0100,
 	CUBE_TYPE_PHANTOM = 0x0200,
 	CUBE_TYPE_GREEN = 0x0300,
 	CUBE_TYPE_GREENBLUE = 0x0301,
 	CUBE_TYPE_RED = 0x0400,
-	CUBE_TYPE_YELLOW = 0x0800,
 	CUBE_TYPE_YELLOW_HPUP = 0x0800,
 	CUBE_TYPE_YELLOW_HPUP2 = 0x0801,
 	CUBE_TYPE_YELLOW_CPUP = 0x0820,
@@ -64,22 +65,33 @@ typedef enum CubeType
 
 } CubeType;
 
-typedef enum CubeDirection
-{
-	CUBE_DIRECTION_RIGHT,
-	CUBE_DIRECTION_LEFT,
-} CubeDirection;
-
 typedef struct Cube
 {
 	CubeStatus status;
 	CubeType type;
-	CubeDirection direction;
 	fix32_t x, y;
 	fix16_t dx, dy;
+	fix16_t left, right;
+	fix16_t top;
 	int8_t bounce_count;
 	int8_t collision_timeout;
-	uint16_t spawn_counter;
+	uint8_t spawn_count;
+	uint8_t fizzle_count;
 } Cube;
+
+// If needed, initialize constants used by cubes.
+void cube_set_constants(void);
+
+// Execute logic for a single cube.
+void cube_run(Cube *c);
+
+// Reverses dx and sets it to kcube_on_cube_dx.
+void cube_bounce_dx(Cube *c);
+
+void cube_destroy(Cube *c);
+
+// Called when touching a spawner cube.
+void cube_restrict_spawn(Cube *c);
+
 
 #endif  // CUBE_H

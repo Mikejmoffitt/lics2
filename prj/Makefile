@@ -16,7 +16,7 @@ SOURCES_C := $(shell find $(SRCDIR)/ -type f -name '*.c')
 SOURCES_ASM := $(shell find $(SRCDIR)/ -type f -name '*.s')
 COMMONSOURCES_C := $(shell find $(COMMONSRCDIR)/ -type f -name '*.c')
 COMMONSOURCES_ASM := $(shell find $(COMMONSRCDIR)/ -type f -name '*.s')
-RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*.bin')
-LIBS :=
+RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*')
+LIBS := 
 
 include ../common/md-rules.mk

@@ -8,7 +8,7 @@
 
 #include "cube.h"
 
-#define OBJ_BYTES 64
+#define OBJ_BYTES 128
 #define OBJ_COUNT_MAX 32
 
 #define OBJ_ACTIVE_DISTANCE 32
@@ -38,8 +38,8 @@ typedef enum ObjFlags
 
 typedef enum ObjDirection
 {
-	OBJ_DIR_RIGHT,
-	OBJ_DIR_LEFT
+	OBJ_DIRECTION_RIGHT,
+	OBJ_DIRECTION_LEFT
 } ObjDirection;
 
 typedef struct Obj Obj;
@@ -56,11 +56,12 @@ struct Obj
 	// Positions and dimensions, in game-world coordinates.
 	fix32_t x, y;
 	fix16_t dx, dy;
-	fix16_t w;  // Actually half-width.
-	fix16_t h;
+	fix16_t left, right;
+	fix16_t top;
 
 	int16_t hp;
-	uint16_t hurt_stun; // Decrements; decreases HP on zero.
+	uint8_t hurt_stun; // Decrements; decreases HP on zero.
+	uint8_t offscreen;
 };
 
 typedef union ObjSlot
@@ -69,26 +70,45 @@ typedef union ObjSlot
 	uint8_t raw_mem[OBJ_BYTES];
 } ObjSlot;
 
+// Object list is public so it may be scanned.
+extern ObjSlot g_objects[OBJ_COUNT_MAX];
+
 int obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
 
 // VRAM load positions are reset to zero when obj_clear is called.
-uint16_t obj_vram_alloc(uint16_t words);
+uint16_t obj_vram_alloc(uint16_t bytes);
+
+// Called by cubes.c when a collision against an object is detected.
+// Calls an object's cube handler, or the default if there is none.
+void obj_cube_impact(Obj *o, Cube *c);
 
 // Utility or commonly reused functions =======================================
+void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
 void obj_standard_physics(Obj *o);
 void obj_standard_cube_response(Obj *o, Cube *c);
 
 void obj_get_hurt(Obj *o, int16_t damage);
 
-static inline uint16_t obj_touching_obj(Obj *a, Obj *b)
+static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 {
-	return !((a->x + a->w < b->x - b->w) ||
-	         (a->x - a->w < b->x + b->w) ||
-	         (a->y < b->y - b->h) ||
-	         (a->y + a->h > b->y));
+	return !((a->x + a->right < b->x + b->left) ||
+	         (a->x + a->left < b->x + b->right) ||
+	         (a->y < b->y + b->top) ||
+	         (a->y + a->top > b->y));
 }
+
+static inline int obj_touching_cube(const Obj *o, const Cube *c)
+{
+	const fix32_t margin = INTTOFIX32(1);
+	return (c->x + c->left <= o->x + o->right + margin &&
+	        c->x + c->right >= o->x + o->left - margin &&
+	        c->y + c->top <= o->y + margin &&
+	        c->y >= o->y + o->top - margin);
+}
+
+
 
 #endif  // OBJ_H

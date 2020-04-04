@@ -5,6 +5,10 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 
+// TODO: This is a test hack, please remove
+#include "obj/cube_manager.h"
+#include "res.h"
+
 #include <stdlib.h>
 
 typedef enum Exec
@@ -25,7 +29,7 @@ typedef enum Exec
 
 static Exec exec_next;  // exec takes this at the end of the current exec.
 static Exec exec;
-static uint32_t exec_elapsed;  // Reset when exec is set.
+uint32_t g_elapsed;  // Reset when exec is set.
 
 static int app_alive;
 
@@ -34,7 +38,7 @@ static int app_alive;
 static inline void exec_change(Exec next)
 {
 	exec_next = next;
-	exec_elapsed = 0;
+	g_elapsed = 0;
 }
 
 static inline void exec_end_of_frame(void)
@@ -43,11 +47,11 @@ static inline void exec_end_of_frame(void)
 	{
 		exec = exec_next;
 		exec_next = GE_INVALID;
-		exec_elapsed = 0;
+		g_elapsed = 0;
 	}
 	else
 	{
-		exec_elapsed++;
+		g_elapsed++;
 	}
 }
 
@@ -78,11 +82,9 @@ static void ge_init(void)
 		{
 			// TODO: Do something about a failed init, for non-MD platforms...
 			exec_change(GE_SHUTDOWN);
-			pal_set(0, PALRGB(7, 0, 0));
 			return;
 		}
 	}
-	pal_set(0, PALRGB(7, 7, 0));
 
 	exec_change(FIRST_EXEC);
 }
@@ -122,18 +124,21 @@ static void ge_game_start(void)
 
 static void ge_game_ingame(void)
 {
-	pal_set(0, PALRGB(0, 7, 0));
-	if (exec_elapsed == 0)
+	if (g_elapsed == 0)
 	{
-		gfx_load(gfx_get(GFX_LYLE), 0);
-		pal_set(0, PALRGB(7, 7, 7));
 		obj_clear();
-		obj_spawn(32, 32, OBJ_TEMPLATE, 0);
-		obj_spawn(32, 32, OBJ_CUBE_MANAGER, 0);
-		for (int i = 0; i < 64; i++)
-		{
-			pal_set(i, PALRGB(i % 8, (i / 2) % 8, (i / 4) % 8));
-		}
+
+		// The order of objects is important.
+		obj_spawn(64, 73, OBJ_LYLE, 0);
+		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
+		obj_spawn(0, 0, OBJ_MAP, 0);
+		obj_spawn(0, 0, OBJ_BG, 0);
+
+		map_load(32);
+
+		// TODO: This is a test hack, please remove
+
+		cube_manager_spawn(INTTOFIX32(128), INTTOFIX32(128), CUBE_TYPE_GREEN, CUBE_STATUS_IDLE, 0, 0);
 	}
 
 	obj_exec();

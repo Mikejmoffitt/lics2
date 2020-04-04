@@ -83,6 +83,7 @@ MIchael Moffitt 2018 */
 #define VDPPORT_DATA	(*(volatile uint16_t*)0xC00000)
 #define VDPPORT_CTRL	(*(volatile uint16_t*)0xC00004)
 #define VDPPORT_CTRL32	(*(volatile uint32_t*)0xC00004)
+#define VDPPORT_HVCOUNT (*(volatile uint16_t*)0xC00008)
 
 #define VDP_REG_WRITE(reg, val) do { VDPPORT_CTRL = 0x8000 | (reg << 8) | (val); } while(0)
 
@@ -214,10 +215,6 @@ uint16_t vdp_get_hscroll_base(void);
 // Scroll plane config
 static inline void vdp_set_hscroll_mode(VdpHscrollMode mode);
 static inline void vdp_set_vscroll_mode(VdpVscrollMode mode);
-void vdp_set_scroll_x(VdpPlane plane, uint16_t value);
-void vdp_set_scroll_y(VdpPlane plane, uint16_t value);
-void vdp_hsram_upload(void *hsram_data);
-void vdp_vsram_upload(void *vsram_data);
 static inline void vdp_set_plane_size(VdpPlaneSize size);
 static inline void vdp_set_window_top(uint8_t height);
 static inline void vdp_set_window_bottom(uint8_t height);
@@ -391,6 +388,21 @@ static inline uint16_t vdp_peek(uint16_t addr)
 	return VDPPORT_DATA;
 }
 
+// HV Counter
+static inline uint16_t vdp_get_hv_count(void)
+{
+	return VDPPORT_HVCOUNT;
+}
+
+static inline uint8_t vdp_get_h_count(void)
+{
+	return VDPPORT_HVCOUNT & 0x00FF;
+}
+
+static inline uint8_t vdp_get_v_count(void)
+{
+	return (VDPPORT_HVCOUNT) >> 8;
+}
 
 
 #endif // VDP_H
