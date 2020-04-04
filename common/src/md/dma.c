@@ -142,13 +142,11 @@ static inline uint32_t calc_dma_cost(DmaCmd *cmd)
 	return ((cmd->type & 0xFF) == DMA_OP_BUS_VRAM) ? (cmd->n << 1) : (cmd->n);
 }
 
-// Aaah, I'm sorry! It's *really* a DMA stack!
-void dma_q_process(void)
+static void internal_dma_queue_proc(uint32_t budget_rem)
 {
-	uint32_t budget_rem = dma_budget;
-
 	while (dma_queue_read_pos != dma_queue_write_pos && budget_rem > 0)
 	{
+		sys_di();
 		DmaCmd *cmd = &dma_queue[dma_queue_read_pos];
 		dma_queue_read_pos = (dma_queue_read_pos + 1) % DMA_QUEUE_DEPTH;
 		uint16_t cost = calc_dma_cost(cmd);
@@ -158,6 +156,7 @@ void dma_q_process(void)
 		switch(cmd->type & 0xFF00)
 		{
 			default:
+				sys_ei();
 				continue;
 			case DMA_CMD_OP_TRANSFER:
 				dma_transfer(cmd->type, cmd->dest, (const void *)(cmd->src),
@@ -181,13 +180,27 @@ void dma_q_process(void)
 		if (cost >= budget_rem &&
 		            (vdp_get_reg(VDP_MODESET2) & VDP_MODESET2_DISP_EN))
 		{
+			sys_ei();
 			return;
 		}
 		else
 		{
 			budget_rem -= cost;
 		}
+		sys_ei();
 	}
+}
+
+void dma_q_process(void)
+{
+	internal_dma_queue_proc(dma_budget);
+	uint32_t budget_rem = dma_budget;
+}
+
+// Finish all remaining DMAs in the queue.
+void dma_q_complete(void)
+{
+	internal_dma_queue_proc(1000000);
 }
 
 void dma_q_flush(void)

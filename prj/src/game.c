@@ -5,9 +5,8 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 
-// TODO: This is a test hack, please remove
-#include "obj/cube_manager.h"
-#include "res.h"
+#include "obj/map.h"
+#include "obj/lyle.h"
 
 #include <stdlib.h>
 
@@ -124,24 +123,58 @@ static void ge_game_start(void)
 
 static void ge_game_ingame(void)
 {
+	static uint8_t next_room_id = 1;
+	static uint8_t next_room_entrance = 0;
+	static fix16_t lyle_entry_dx = 0;
+	static fix16_t lyle_entry_dy = 0;
+	static int16_t lyle_cp = 0;
+	static int16_t lyle_phantom_cnt = 0;
+
 	if (g_elapsed == 0)
 	{
+		vdp_set_display_en(0);
 		obj_clear();
 
 		// The order of objects is important.
 		obj_spawn(64, 73, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
-		obj_spawn(0, 0, OBJ_MAP, 0);
 		obj_spawn(0, 0, OBJ_BG, 0);
+		obj_spawn(0, 0, OBJ_MAP, 0);
 
-		map_load(32);
+		map_load(next_room_id, next_room_entrance);
 
-		// TODO: This is a test hack, please remove
+		O_Lyle *l = lyle_get();
+		l->head.dx = lyle_entry_dx;
+		l->head.dy = lyle_entry_dy;
+		l->phantom_cnt = lyle_phantom_cnt;
+		l->cp = lyle_cp;
 
-		cube_manager_spawn(INTTOFIX32(128), INTTOFIX32(128), CUBE_TYPE_GREEN, CUBE_STATUS_IDLE, 0, 0);
+		dma_q_set_budget(100000);
+		dma_q_complete();
+		dma_q_set_budget(DMA_Q_BUDGET_AUTO);
+
+		vdp_set_display_en(1);
+
+		return;
 	}
 
+	if (g_elapsed < 30) return;
+
+	pal_set(0, PALRGB(6, 1, 2));
 	obj_exec();
+	pal_set(0, PALRGB(3, 4, 5));
+
+	if (lyle_has_exited())
+	{
+		next_room_id = map_get_next_room_id();
+		next_room_entrance = map_get_next_room_entrance();
+		const O_Lyle *l = lyle_get();
+		lyle_entry_dx = l->head.dx;
+		lyle_entry_dy = l->head.dy;
+		lyle_phantom_cnt = l->phantom_cnt;
+		lyle_cp = l->cp;
+		exec_change(GE_GAME_INGAME);
+	}
 }
 
 static void ge_gameover(void)

@@ -28,12 +28,11 @@ typedef enum ObjFlags
 	OBJ_FLAG_BOUNCE_L = 0x4000,  // Pushes the player to the left on contact.
 	OBJ_FLAG_BOUNCE_R = 0x2000,  // Pushes the player to the right on contact.
 	OBJ_FLAG_DEADLY = 0x1000,  // Kills the player immediately on contact.
+	OBJ_FLAG_SENSITIVE = 0x0800,  // Innocuous player contact.
 
-	OBJ_FLAG_TANGIBLE = 0x0800,  // Can be hit by a cube and get hurt.
+	OBJ_FLAG_TANGIBLE = 0x0040,  // Can be hit by a cube and get hurt.
 
-	OBJ_FLAG_ALWAYS_ACTIVE = 0x0400,  // Active even if off-screen.
-
-	OBJ_FLAG_TOUCHING_PLAYER = 0x0001,
+	OBJ_FLAG_ALWAYS_ACTIVE = 0x0010,  // Active even if off-screen.
 } ObjFlags;
 
 typedef enum ObjDirection
@@ -59,9 +58,10 @@ struct Obj
 	fix16_t left, right;
 	fix16_t top;
 
-	int16_t hp;
+	int8_t hp;
 	uint8_t hurt_stun; // Decrements; decreases HP on zero.
 	uint8_t offscreen;
+	int8_t touching_player;
 };
 
 typedef union ObjSlot
@@ -95,7 +95,7 @@ void obj_get_hurt(Obj *o, int16_t damage);
 static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 {
 	return !((a->x + a->right < b->x + b->left) ||
-	         (a->x + a->left < b->x + b->right) ||
+	         (a->x + a->left > b->x + b->right) ||
 	         (a->y < b->y + b->top) ||
 	         (a->y + a->top > b->y));
 }

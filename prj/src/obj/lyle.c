@@ -134,7 +134,6 @@ static void set_constants(void)
 	constants_set = 1;
 }
 
-
 static uint16_t vram_pos;
 
 static void vram_load(void)
@@ -190,7 +189,7 @@ static inline void teleport_seq(O_Lyle *l)
 			l->holding_cube = NULL;
 		}
 		l->tele_out_cnt--;
-		// if (l->tele_out_cnt == 0)  // TODO: Trigger room transition.
+		if (l->tele_out_cnt == 0) l->has_exited = 1;
 	}
 	else if (l->tele_in_cnt > 0)
 	{
@@ -681,6 +680,17 @@ static inline void cube_collision(O_Lyle *l)
 	}
 }
 
+static inline void exit_check(O_Lyle *l)
+{
+	const fix32_t x_margin = INTTOFIX32(8);
+	const fix32_t bottom_margin = INTTOFIX32(8);
+	const fix32_t top_margin = INTTOFIX32(16);
+	if (l->head.x < x_margin && l->head.dx < 0) l->has_exited = 1;
+	else if (l->head.x > map_get_right() - x_margin && l->head.dx > 0) l->has_exited = 1;
+	else if (l->head.y > map_get_bottom() - bottom_margin && l->head.dy > 0) l->has_exited = 1;
+	else if (l->head.y + top_margin < 0 && l->head.dy < 0) l->has_exited = 1;
+}
+
 static inline void move(O_Lyle *l)
 {
 	l->on_cube = NULL;
@@ -688,6 +698,7 @@ static inline void move(O_Lyle *l)
 	bg_horizontal_collision(l);
 	eval_grounded(l);
 	cube_collision(l);
+	exit_check(l);
 
 	// Variable gravity based on the jump button.
 	if (!l->grounded && !l->ext_disable)
@@ -737,34 +748,34 @@ static inline void cp(O_Lyle *l)
 	{
 		if (l->buttons & BTN_B)
 		{
-			l->cp_cnt++;
-			if (l->cp_cnt == kcube_fx + 1)
+			l->phantom_cnt++;
+			if (l->phantom_cnt == kcube_fx + 1)
 			{
 				// TODO: Cue cube spawn sound
 			}
-			else if (l->cp_cnt == kcp_spawn_fast + 1)
+			else if (l->phantom_cnt == kcp_spawn_fast + 1)
 			{
 				// TODO: Cue cube spawn sound
 			}
 		}
 		else
 		{
-			if (l->cp_cnt > kcube_fx)
+			if (l->phantom_cnt > kcube_fx)
 			{
 				// TODO: Stop cube spawn sound
 			}
-			l->cp_cnt = 0;
+			l->phantom_cnt = 0;
 		}
 		const uint16_t spawn_period = kcp_spawn_slow;  // TODO: kcp_spawn_fast for fast phantom
-		if (l->cp_cnt >= spawn_period)
+		if (l->phantom_cnt >= spawn_period)
 		{
 			l->holding_cube = CUBE_TYPE_PHANTOM;
-			l->cp_cnt = 0;
+			l->phantom_cnt = 0;
 			l->cp -= cube_price;
 		}
 	}
 
-	if (l->cp_cnt > kcube_fx && g_elapsed % 2)
+	if (l->phantom_cnt > kcube_fx && g_elapsed % 2)
 	{
 		// TODO: Spawn sparkle particles
 	}
@@ -851,7 +862,7 @@ static void calc_anim_frame(O_Lyle *l)
 	}
 	
 	// Offset frame to an "arms up" variant
-	if ((l->cp_cnt > kcube_fx || l->holding_cube) &&
+	if ((l->phantom_cnt > kcube_fx || l->holding_cube) &&
 	    l->anim_frame < 0x08)
 	{
 		l->anim_frame += 0x08;
@@ -1029,7 +1040,7 @@ void lyle_get_hurt(void)
 	lyle_get_bounced();
 	lyle->hurt_cnt = khurt_time;
 	lyle->invuln_cnt = kinvuln_time;
-	lyle->cp_cnt = 0;
+	lyle->phantom_cnt = 0;
 
 	if (lyle->head.hp > 0) lyle->head.hp--;
 
@@ -1079,4 +1090,17 @@ int16_t lyle_get_cp(void)
 {
 	if (!lyle) return 0;
 	return lyle->cp;
+}
+
+void lyle_set_pos(fix32_t x, fix32_t y)
+{
+	if (!lyle) return;
+	lyle->head.x = x;
+	lyle->head.y = y;
+}
+
+int8_t lyle_has_exited(void)
+{
+	if (!lyle) return 0;
+	return lyle->has_exited;
 }

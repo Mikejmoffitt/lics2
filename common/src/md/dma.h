@@ -91,6 +91,9 @@ void dma_q_copy_vram(uint16_t dest, uint16_t src, uint16_t n, uint16_t stride);
 // Run at the start of Vblank to process pending DMA requests.
 void dma_q_process(void);
 
+// Finish all remaining DMAs in the queue.
+void dma_q_complete(void);
+
 // Remove any remaining pending DMA transfers from the DMA queue.
 void dma_q_flush(void);
 

@@ -18,12 +18,13 @@ typedef struct O_Lyle
 	MdButton buttons;
 	MdButton buttons_prev;
 
-	int16_t hurt_cnt;
+	int8_t has_exited;
+	int8_t hurt_cnt;
 	int16_t tele_out_cnt;
 	int16_t tele_in_cnt;
 	int16_t invuln_cnt;
 	int16_t cp_restore_cnt;
-	int16_t cp_cnt;
+	int16_t phantom_cnt;
 	int8_t throwdown_cnt;
 	int8_t throw_cnt;
 	int8_t kick_cnt;
@@ -59,8 +60,13 @@ void lyle_kill(void);
 
 fix32_t lyle_get_x(void);
 fix32_t lyle_get_y(void);
+void lyle_set_pos(fix32_t x, fix32_t y);
 
 int16_t lyle_get_hp(void);
 int16_t lyle_get_cp(void);
+
+// Returns 1 if Lyle has reached a screen edge or teleported.
+int8_t lyle_has_exited(void);
+
 
 #endif  // OBJ_LYLE_H

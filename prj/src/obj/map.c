@@ -7,6 +7,8 @@
 #include "md/megadrive.h"
 #include "game.h"
 #include "common.h"
+#include "obj/entrance.h"
+#include "obj/lyle.h"
 
 #include "res.h"
 
@@ -352,7 +354,6 @@ static void main_func(Obj *o)
 
 	m->x_scroll_prev = m->x_scroll;
 	m->y_scroll_prev = m->y_scroll;
-
 }
 
 void o_load_map(Obj *o, uint16_t data)
@@ -378,15 +379,19 @@ void o_unload_map(void)
 	map = NULL;
 }
 
+static inline void place_lyle(O_Map *m)
+{
+}
+
 // Public functions -----------------------------------------------------------
 
 // Load a map by ID number. In particular:
 // * Sets the current map pointer
-// * Populates the object list with entities from the map file ( --> lyle.c )
-// * Sets the BG based on map file (--> bg.c )
+// * Populates the object list with entities from the map file
+// * Sets the BG based on map file
 // * Queues DMA for the sprite, enemy palettes
 // * Queues DMA for the tileset
-void map_load(uint8_t id)
+void map_load(uint8_t id, uint8_t entrance_num)
 {
 	if (!map) return;
 	map->current_map = map_by_id[id].data;
@@ -396,23 +401,37 @@ void map_load(uint8_t id)
 	map->bottom = INTTOFIX32(map->current_map->h * GAME_SCREEN_H_PIXELS);
 	map->fresh_room = 1;
 
-	// TODO: This is really BG's job.
+	// TODO: Set up BG.
+	// TODO: This palette is really BG's job.
 	pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
 	           sizeof(res_pal_bg_common_bin) / 2);
 
+	// Set up tiles and palettes.
 	const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
-
 	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
 	pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
+	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_enemy_bin) / 2);
 
-	if (map->current_map->w <= 1)
+	// Set Vscroll based on room geometry.
+	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
+	else vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
+
+	// Build the object list.
+	for (uint16_t i = 0; i < ARRAYSIZE(map->current_map->objects); i++)
 	{
-		vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
+		const MapObj *b = &map->current_map->objects[i];
+		const Obj *o = obj_spawn(b->x, b->y, (ObjType)b->type, b->data);
+		if (o->type == OBJ_ENTRANCE)
+		{
+			const O_Entrance *e = (O_Entrance *)o;
+			if (e->to_entrance_num == entrance_num)
+			{
+				lyle_set_pos(o->x, o->y);
+			}
+		}
 	}
-	else
-	{
-		vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
-	}
+
+	// Seek for the desired entrance, and move Lyle to it.
 }
 
 fix32_t map_get_right(void)
@@ -447,4 +466,20 @@ int16_t map_get_x_scroll(void)
 int16_t map_get_y_scroll(void)
 {
 	return map->y_scroll;
+}
+
+void map_set_next_room(uint8_t id, uint8_t entrance)
+{
+	map->next_room_id = id;
+	map->next_room_entrance = entrance;
+}
+
+uint8_t map_get_next_room_id(void)
+{
+	return map->next_room_id;
+}
+
+uint8_t map_get_next_room_entrance(void)
+{
+	return map->next_room_entrance;
 }
