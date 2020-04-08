@@ -15,9 +15,6 @@ typedef struct O_Lyle
 	Cube *on_cube;
 	CubeType holding_cube;
 
-	MdButton buttons;
-	MdButton buttons_prev;
-
 	int8_t has_exited;
 	int8_t hurt_cnt;
 	int16_t tele_out_cnt;
@@ -30,10 +27,7 @@ typedef struct O_Lyle
 	int8_t kick_cnt;
 	int8_t lift_cnt;
 
-	int16_t death_counter;
-	int16_t dying_seq;
-
-	int16_t cp;
+	int8_t cp;
 
 	uint8_t anim_cnt;
 	uint8_t anim_frame;

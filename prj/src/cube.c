@@ -19,6 +19,7 @@ static fix16_t kbounce_coef;
 static fix16_t kbounce_cutoff;
 static fix16_t kceiling_dy;
 static fix16_t kdx_degrade;
+static fix16_t kdy_degrade;
 static uint8_t kcollision_timeout;
 static uint8_t kfizzle_duration;
 static uint16_t kspawn_seq[2];
@@ -27,13 +28,14 @@ void cube_set_constants(void)
 {
 	static int16_t constants_set = 0;
 	if (constants_set) return;
-	kgravity = INTTOFIX16(PALSCALE_2ND(0.15f));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.1388888888f));
 	kcube_on_cube_dy = INTTOFIX16(PALSCALE_1ST(-1.833));
 	kcube_on_cube_dx = INTTOFIX16(PALSCALE_1ST(1));
 	kbounce_coef = INTTOFIX16(0.35);
 	kbounce_cutoff = INTTOFIX16(PALSCALE_1ST(-1.04));  // TODO: Check this one - it was imbalanced in the first port; pal was -1.3
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.5));
 	kdx_degrade = INTTOFIX16(PALSCALE_1ST(0.8333333333));
+	kdy_degrade = INTTOFIX16(0.42);
 	kspawn_seq[0] = PALSCALE_DURATION(72);
 	kspawn_seq[1] = PALSCALE_DURATION(120);
 	kfizzle_duration = PALSCALE_DURATION(7);
@@ -155,51 +157,61 @@ static inline void clamp_dx(Cube *c)
 
 static inline void cube_bg_bounce_sides(Cube *c)
 {
-	pal_set(0, PALRGB(6, 0, 6));
-	const int16_t cx_left = FIX32TOINT(c->x + c->left);
-	const int16_t cx_right = FIX32TOINT(c->x + c->right);
+	const int16_t cx_r = FIX32TOINT(c->x + c->right);
+	const int16_t cx_l = FIX32TOINT(c->x + c->left);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
-	const int16_t cy_bottom = FIX32TOINT(c->y);
+	const int16_t cy_bot = FIX32TOINT(c->y);
+	if (c->dy > 0 && map_collision(FIX32TOINT(c->x), cy_bot + 2)) return;
 
-	// If we are lodged in the ground, skip this check
-	if (map_collision(INTTOFIX32(c->x), cy_bottom)) return;
-
-	// Check walls
-	uint16_t side_chk[2];
-	if (c->dx < 0)
+	if (c->dx > 0)
 	{
-		side_chk[0] = map_collision(cx_left, cy_top);
-		side_chk[1] = map_collision(cx_left, cy_bottom);
-	}
-	else
-	{
-		side_chk[0] = map_collision(cx_right, cy_top);
-		side_chk[1] = map_collision(cx_right, cy_bottom);
-	}
-
-	if (side_chk[0] || side_chk[1])
-	{
-		cube_bounce_dx(c);
-		// TODO: Queue cube bounce sound.
-		if (side_chk[0]) c->x = (c->x / INTTOFIX16(8)) * INTTOFIX16(8);
-		if (c->status == CUBE_STATUS_KICKED)
+		if (map_collision(cx_r + 1, cy_top) ||
+		    map_collision(cx_r + 1, cy_bot))
 		{
-			c->status = CUBE_STATUS_AIR;
-			c->dy = kcube_on_cube_dy;
+			// X position (in pixels) of wall being touched.
+			const int16_t touching_tile_x = ((cx_r + 1) / 8) * 8;
+			c->x = INTTOFIX32(touching_tile_x) - c->right - 1;
+			cube_bounce_dx(c);
 			c->bounce_count = 1;
+			if (c->status == CUBE_STATUS_KICKED)
+			{
+				c->status = CUBE_STATUS_AIR;
+				c->bounce_count = CUBE_INITIAL_BOUNCE_COUNT;
+				c->dy = kcube_on_cube_dy;
+			}
+			// TODO: Queue cube bounce sound.
+		}
+	}
+	else if (c->dx < 0)
+	{
+		if (map_collision(cx_l - 1, cy_top) ||
+		    map_collision(cx_l - 1, cy_bot))
+		{
+			// X position (in pixels) of wall being touched. We want the right
+			// side of the tile, so 7 is added.
+			const int16_t touching_tile_x = ((cx_l + 1) / 8) * 8;
+			c->x = INTTOFIX32(touching_tile_x) - c->left + 1;
+			cube_bounce_dx(c);
+			c->bounce_count = 1;
+			if (c->status == CUBE_STATUS_KICKED)
+			{
+				c->status = CUBE_STATUS_AIR;
+				c->bounce_count = CUBE_INITIAL_BOUNCE_COUNT;
+				c->dy = kcube_on_cube_dy;
+			}
+			// TODO: Queue cube bounce sound.
 		}
 	}
 }
 
 static inline void cube_bg_bounce_top(Cube *c)
 {
-	int16_t cx = FIX32TOINT(c->x);
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	uint16_t gnd_chk[2];
-	gnd_chk[0] = map_collision(cx_left, cy_top);
-	gnd_chk[1] = map_collision(cx_right, cy_top);
+	gnd_chk[0] = map_collision(cx_left, cy_top - 1);
+	gnd_chk[1] = map_collision(cx_right, cy_top - 1);
 	// Both left and right tests count as a collison.
 	if (gnd_chk[0] && gnd_chk[1])
 	{
@@ -209,7 +221,7 @@ static inline void cube_bg_bounce_top(Cube *c)
 	else if (gnd_chk[0] || gnd_chk[1])
 	{
 		// One edge is missing. Check for the center.
-		const uint16_t center_chk = map_collision(FIX32TOINT(c->x), cy_top);
+		const uint16_t center_chk = map_collision(FIX32TOINT(c->x), cy_top - 1);
 
 		if (center_chk)
 		{
@@ -219,14 +231,16 @@ static inline void cube_bg_bounce_top(Cube *c)
 		}
 		else
 		{
+			// TODO: Make this more precise, I do not trust it.
 			// If the center doesn't have a collision, align it to the wall.
+			int16_t cx = FIX32TOINT(c->x);
 			if (gnd_chk[0])
 			{
 				cx = ((cx + 8) / 8) * 8;
 			}
 			else
 			{
-				cx = ((cx - 2) / 8) * 8;
+				cx = ((cx - 1) / 8) * 8;
 			}
 			c->x = INTTOFIX32(cx);
 		}
@@ -235,20 +249,19 @@ static inline void cube_bg_bounce_top(Cube *c)
 
 static inline void cube_do_ground_recoil(Cube *c)
 {
-	int16_t cy = FIX32TOINT(c->y);
-	cy = (cy / 8) * 8;
+	// Align cube vertically to the ground.
+	const int16_t cy_bottom = FIX32TOINT(c->y);
+	const int16_t touching_tile_y = ((cy_bottom + 1) / 8) * 8;
 
-	c->dy = -c->dy * kbounce_coef;
-	
-	// Degrade dx
-	if (c->dx > kdx_degrade) c->dx -= kdx_degrade;
-	else if (c->dx < -kdx_degrade) c->dx += kdx_degrade;
+	c->y = INTTOFIX32(touching_tile_y) - INTTOFIX32(1);
+
+	// Bounce - about 35% of original dy.
+	c->dy = -FIX16MUL(c->dy, kdy_degrade);
 
 	// See if the cube should stop moving.
-	if (c->bounce_count <= 0 && c->dx == 0)
+	if (c->bounce_count <= 0 && c->dx == 0 && c->dy >= kbounce_cutoff)
 	{
 		c->dy = 0;
-		cy = ((cy / 8) * 8) - 1;
 		c->status = CUBE_STATUS_IDLE;
 	}
 	else if (c->bounce_count == 0)
@@ -265,7 +278,11 @@ static inline void cube_do_ground_recoil(Cube *c)
 		c->bounce_count = 1;
 	}
 
-	c->y = INTTOFIX32(cy);
+	// Degrade dx
+	if (c->dx > kdx_degrade) c->dx -= kdx_degrade;
+	else if (c->dx < -kdx_degrade) c->dx += kdx_degrade;
+	else c->dx = 0;
+
 
 	// TODO: Play bounce sound
 
@@ -273,13 +290,14 @@ static inline void cube_do_ground_recoil(Cube *c)
 
 static inline void cube_bg_bounce_ground(Cube *c)
 {
+	if (c->dy < 0) return;
 	int16_t cx = FIX32TOINT(c->x);
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_bottom = FIX32TOINT(c->y);
 	uint16_t gnd_chk[2];
-	gnd_chk[0] = map_collision(cx_left, cy_bottom);
-	gnd_chk[1] = map_collision(cx_right, cy_bottom);
+	gnd_chk[0] = map_collision(cx_left, cy_bottom + 1);
+	gnd_chk[1] = map_collision(cx_right, cy_bottom + 1);
 	// Both left and right tests count as a collison.
 	if (gnd_chk[0] && gnd_chk[1])
 	{
@@ -288,7 +306,7 @@ static inline void cube_bg_bounce_ground(Cube *c)
 	else if (gnd_chk[0] || gnd_chk[1])
 	{
 		// One edge is missing. Check for the center.
-		const uint16_t center_chk = map_collision(FIX32TOINT(c->x), cy_bottom);
+		const uint16_t center_chk = map_collision(cx, cy_bottom + 1);
 
 		if (center_chk)
 		{
@@ -316,20 +334,20 @@ static inline void cube_bg_collision(Cube *c)
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	const int16_t cy_bottom = FIX32TOINT(c->y);
-	if (map_collision(cx_left, cy_bottom) ||
-	    map_collision(cx_right, cy_bottom) ||
-	    map_collision(cx_left, cy_top) ||
-	    map_collision(cx_right, cy_top))
+	if (c->type == CUBE_TYPE_GREEN || c->type == CUBE_TYPE_GREENBLUE)
 	{
-		if (c->type != CUBE_TYPE_GREEN && c->type != CUBE_TYPE_GREENBLUE)
+		if (c->dy > 0) cube_bg_bounce_ground(c);
+		else if (c->dy < 0) cube_bg_bounce_top(c);
+		if (c->dx != 0) cube_bg_bounce_sides(c);
+	}
+	else
+	{
+		if (map_collision(cx_left, cy_bottom) ||
+		    map_collision(cx_right, cy_bottom) ||
+		    map_collision(cx_left, cy_top) ||
+		    map_collision(cx_right, cy_top))
 		{
 			cube_destroy(c);
-		}
-		else
-		{
-			if (c->dx != 0) cube_bg_bounce_sides(c);
-			if (c->dy > 0) cube_bg_bounce_ground(c);
-			else if (c->dy < 0) cube_bg_bounce_top(c);
 		}
 	}
 }
@@ -349,6 +367,7 @@ static inline void cube_movement(Cube *c)
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 
+	// Allow the cube to free-drop
 	if (c->status == CUBE_STATUS_KICKED)
 	{
 		// In free air, change into an air cube falling straight down.
@@ -500,7 +519,17 @@ static inline void cube_render(Cube *c)
 		render_type = CUBE_TYPE_BLUE;
 	}
 
-	// TODO: Take camera position into account.
+	if (system_is_debug_enabled() && io_pad_read(0) & BTN_A)
+	{
+		int16_t sp_x = FIX32TOINT(c->x) - map_get_x_scroll();
+		int16_t sp_y = FIX32TOINT(c->y) - map_get_y_scroll();
+		spr_put(sp_x, sp_y, SPR_ATTR(1, 0, 0, 0, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(c->right), sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(c->left),  sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(c->right), sp_y + FIX32TOINT(c->top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(c->left),  sp_y + FIX32TOINT(c->top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		return;
+	}
 	cube_manager_draw_cube(FIX32TOINT(c->x + c->left),
 	                       FIX32TOINT(c->y + c->top), render_type);
 
@@ -524,6 +553,7 @@ void cube_run(Cube *c)
 		}
 		spawn_touch_check(c);
 	}
+
 	if (c->status == CUBE_STATUS_FIZZLE || c->status == CUBE_STATUS_EXPLODE)
 	{
 		if (c->fizzle_count > 0)
@@ -541,10 +571,7 @@ void cube_run(Cube *c)
 		// Collision is processed one frame late to mimic the original
 		// game's behavior... so says the old code.
 		cube_scan_objects(c);
-		if (c->status != CUBE_STATUS_FIZZLE && c->status != CUBE_STATUS_EXPLODE)
-		{
-			cube_bg_collision(c);
-		}
+		cube_bg_collision(c);
 		cube_movement(c);
 		if (c->status == CUBE_STATUS_AIR ||
 		    c->status == CUBE_STATUS_KICKED)

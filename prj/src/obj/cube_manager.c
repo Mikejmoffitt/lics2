@@ -32,7 +32,7 @@ static void main_func(Obj *o)
 {
 	(void)o;
 	uint16_t i = ARRAYSIZE(g_cubes);
-	while(i--)
+	while (i--)
 	{
 		Cube *c = &g_cubes[i];
 		if (c->status == CUBE_STATUS_NULL) continue;
@@ -83,7 +83,5 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 
 void o_unload_cube_manager(void)
 {
-	if (!vram_pos) return;
-
 	vram_pos = 0;
 }

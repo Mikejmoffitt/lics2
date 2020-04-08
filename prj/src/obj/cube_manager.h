@@ -90,9 +90,9 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 		}
 		else
 		{
-			c->left = INTTOFIX16(-8);
-			c->right = INTTOFIX16(7);
-			c->top = INTTOFIX16(-16);
+			c->left = INTTOFIX16(-7);
+			c->right = INTTOFIX16(8);
+			c->top = INTTOFIX16(-15);
 		}
 
 		c->bounce_count = 0;

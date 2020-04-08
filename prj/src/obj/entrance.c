@@ -35,7 +35,6 @@ static void main_func(Obj *o)
 	if (sp_x < -32 || sp_x > GAME_SCREEN_W_PIXELS) return;
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
-	// TODO: Dying sequence stuff
 	spr_put(sp_x, sp_y,
 	        SPR_ATTR(vram_pos,
 	                 e->head.direction == OBJ_DIRECTION_LEFT, 0,
@@ -54,7 +53,7 @@ void o_load_entrance(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	O_Entrance *e = (O_Entrance *)o;
-	e->entrance_num = data & 0x0F;
+	e->entrance_num = data & 0x000F;
 	e->to_room_id = (data & 0xFF00) >> 8;
 	e->to_entrance_num = (data & 0x00F0) >> 4;
 }

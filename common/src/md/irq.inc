@@ -33,6 +33,4 @@ _v_irq6:
 	and then block on it transitioning low in order to synchronize.
 	*/
 	clr.w	g_vblank_wait
-	jsr	io_poll
-	jsr	dma_q_process
 	rte

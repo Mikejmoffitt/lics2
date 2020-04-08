@@ -1,0 +1,8 @@
+*.swp
+*/*.swp
+*.o
+*/*.o
+*.gen
+prj/res.h
+prj/obj/*/*.*
+prj/obj/*.*

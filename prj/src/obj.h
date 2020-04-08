@@ -8,8 +8,7 @@
 
 #include "cube.h"
 
-#define OBJ_BYTES 128
-#define OBJ_COUNT_MAX 32
+#define OBJ_COUNT_MAX 16
 
 #define OBJ_ACTIVE_DISTANCE 32
 
@@ -47,11 +46,6 @@ struct Obj
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
 
-	ObjStatus status;
-	ObjFlags flags;
-	ObjType type;
-	ObjDirection direction;
-
 	// Positions and dimensions, in game-world coordinates.
 	fix32_t x, y;
 	fix16_t dx, dy;
@@ -62,7 +56,14 @@ struct Obj
 	uint8_t hurt_stun; // Decrements; decreases HP on zero.
 	uint8_t offscreen;
 	int8_t touching_player;
+
+	ObjStatus status;
+	ObjFlags flags;
+	ObjType type;
+	ObjDirection direction;
 };
+
+#define OBJ_BYTES 128
 
 typedef union ObjSlot
 {
@@ -77,6 +78,7 @@ int obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
+uint8_t obj_max_index(void);
 
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes);
@@ -84,6 +86,7 @@ uint16_t obj_vram_alloc(uint16_t bytes);
 // Called by cubes.c when a collision against an object is detected.
 // Calls an object's cube handler, or the default if there is none.
 void obj_cube_impact(Obj *o, Cube *c);
+
 
 // Utility or commonly reused functions =======================================
 void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);

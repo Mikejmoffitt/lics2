@@ -3,6 +3,9 @@
 #include "md/megadrive.h"
 
 static int16_t is_ntsc_cache;
+static int16_t is_debug_enabled;
+
+static volatile char activity[64];
 
 int system_init(void)
 {
@@ -20,4 +23,14 @@ uint16_t system_rand(void)
 {
 	// TODO: Implement a better random, maybe an LSFR
 	return vdp_get_hv_count();
+}
+
+int16_t system_is_debug_enabled(void)
+{
+	return is_debug_enabled;
+}
+
+void system_set_debug_enabled(int16_t en)
+{
+	is_debug_enabled = en;
 }

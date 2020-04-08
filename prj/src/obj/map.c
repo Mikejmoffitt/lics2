@@ -323,7 +323,6 @@ static inline void draw_full(O_Map *m)
 static void main_func(Obj *o)
 {
 	O_Map *m = (O_Map *)o;
-	// TODO: set m->x_scroll and m->y_scroll based on Lyle's position.
 
 	uint16_t i = ARRAYSIZE(h_scroll_buffer);
 	while (i--)
@@ -379,10 +378,6 @@ void o_unload_map(void)
 	map = NULL;
 }
 
-static inline void place_lyle(O_Map *m)
-{
-}
-
 // Public functions -----------------------------------------------------------
 
 // Load a map by ID number. In particular:
@@ -407,31 +402,38 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	           sizeof(res_pal_bg_common_bin) / 2);
 
 	// Set up tiles and palettes.
-	const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
-	pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_enemy_bin) / 2);
+	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
+	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
+	{
+		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
+		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
+		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
+		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_enemy_bin) / 2);
+	}
 
 	// Set Vscroll based on room geometry.
 	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
 	else vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
 
 	// Build the object list.
-	for (uint16_t i = 0; i < ARRAYSIZE(map->current_map->objects); i++)
+	uint16_t found_entrance = 0;
+	for (uint8_t i = 0; i < ARRAYSIZE(map->current_map->objects); i++)
 	{
 		const MapObj *b = &map->current_map->objects[i];
 		const Obj *o = obj_spawn(b->x, b->y, (ObjType)b->type, b->data);
-		if (o->type == OBJ_ENTRANCE)
+		if (!o) continue;
+
+		// If we have found the desired entrance number, move Lyle to it.
+		if (!found_entrance && o->type == OBJ_ENTRANCE)
 		{
 			const O_Entrance *e = (O_Entrance *)o;
-			if (e->to_entrance_num == entrance_num)
+			if (e->entrance_num == entrance_num)
 			{
 				lyle_set_pos(o->x, o->y);
+				found_entrance = 1;
 			}
 		}
 	}
-
-	// Seek for the desired entrance, and move Lyle to it.
 }
 
 fix32_t map_get_right(void)
@@ -452,8 +454,8 @@ void map_set_scroll(int16_t x, int16_t y)
 	if (y < 0) y = 0;
 	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
 	const int16_t bottom_bound = (map->current_map->h - 1) * GAME_SCREEN_H_PIXELS;
-	if (x >= right_bound) x = right_bound - 1;
-	if (y >= bottom_bound) y = bottom_bound - 1;
+	if (x >= right_bound) x = right_bound;
+	if (y >= bottom_bound) y = bottom_bound;
 	map->x_scroll = x;
 	map->y_scroll = y;
 }

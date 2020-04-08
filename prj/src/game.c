@@ -10,6 +10,10 @@
 
 #include <stdlib.h>
 
+#include "res.h"
+
+#include "util/text.h"
+
 typedef enum Exec
 {
 	GE_INIT = 0,
@@ -59,30 +63,22 @@ typedef struct InitFunc
 {
 	char name[32];
 	int (*init_func)(void);
-	void (*shutdown_func)(void);
-	int status;
 } InitFunc;
 
-static InitFunc init_funcs[] =
+static const InitFunc init_funcs[] =
 {
-	{"system", system_init, NULL, 0},
-	{"gfx", gfx_init, NULL, 0},
-	{"obj", obj_init, NULL, 0},
+	{"system", system_init},
+	{"gfx", gfx_init},
+	{"obj", obj_init},
 };
 
 static void ge_init(void)
 {
 	for (unsigned int i = 0; i < ARRAYSIZE(init_funcs); i++)
 	{
-		InitFunc *f = &init_funcs[i];
+		const InitFunc *f = &init_funcs[i];
 		if (!f->init_func) continue;
-		f->status = f->init_func();
-		if (f->status <= 0)
-		{
-			// TODO: Do something about a failed init, for non-MD platforms...
-			exec_change(GE_SHUTDOWN);
-			return;
-		}
+		f->init_func();
 	}
 
 	exec_change(FIRST_EXEC);
@@ -90,16 +86,6 @@ static void ge_init(void)
 
 static void ge_shutdown(void)
 {
-	for (unsigned int i = 0; i < ARRAYSIZE(init_funcs); i++)
-	{
-		InitFunc *f = &init_funcs[i];
-		if (f->shutdown_func &&
-		    f->status > 0)
-		{
-			f->shutdown_func();
-		}
-		f->status = 0;
-	}
 }
 
 static void ge_intro(void)
@@ -119,11 +105,28 @@ static void ge_config(void)
 
 static void ge_game_start(void)
 {
+
+}
+
+static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
+{
+	char nums[3];
+	nums[2] = '\0';
+
+	const uint8_t low = num & 0x0F;
+	const uint8_t high = (num & 0xF0) >> 4;
+
+	if (low < 10) nums[1] = '0' + low;
+	else nums[1] = 'A' + (low - 0xA);
+	if (high < 10) nums[0] = '0' + high;
+	else nums[0] = 'A' + (high - 0xA);
+
+	text_puts(p, x, y, nums);
 }
 
 static void ge_game_ingame(void)
 {
-	static uint8_t next_room_id = 1;
+	static uint8_t next_room_id = 3;
 	static uint8_t next_room_entrance = 0;
 	static fix16_t lyle_entry_dx = 0;
 	static fix16_t lyle_entry_dy = 0;
@@ -135,34 +138,29 @@ static void ge_game_ingame(void)
 		vdp_set_display_en(0);
 		obj_clear();
 
+		system_set_debug_enabled(1);
+
 		// The order of objects is important.
-		obj_spawn(64, 73, OBJ_LYLE, 0);
+		obj_spawn(32, 32, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_BG, 0);
 		obj_spawn(0, 0, OBJ_MAP, 0);
 
 		map_load(next_room_id, next_room_entrance);
+		dma_q_transfer_vram(32, res_gfx_pixel_bin, sizeof(res_gfx_pixel_bin) / 2, 2);
 
 		O_Lyle *l = lyle_get();
 		l->head.dx = lyle_entry_dx;
 		l->head.dy = lyle_entry_dy;
 		l->phantom_cnt = lyle_phantom_cnt;
 		l->cp = lyle_cp;
-
-		dma_q_set_budget(100000);
-		dma_q_complete();
-		dma_q_set_budget(DMA_Q_BUDGET_AUTO);
-
-		vdp_set_display_en(1);
-
 		return;
 	}
-
-	if (g_elapsed < 30) return;
-
-	pal_set(0, PALRGB(6, 1, 2));
+	else if (g_elapsed == 2)
+	{
+		vdp_set_display_en(1);
+	}
 	obj_exec();
-	pal_set(0, PALRGB(3, 4, 5));
 
 	if (lyle_has_exited())
 	{
@@ -206,6 +204,8 @@ static void (*dispatch_funcs[])(void) =
 
 void game_main(void)
 {
+	text_init(res_font_bin, sizeof(res_font_bin), 0x8000, NULL, 1);
+
 	app_alive = 1;
 	while (app_alive)
 	{

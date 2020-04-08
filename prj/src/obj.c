@@ -24,6 +24,8 @@
 ObjSlot g_objects[OBJ_COUNT_MAX];
 static uint16_t obj_vram_pos;
 
+static uint16_t highest_obj_idx;
+
 // Setup and teardown functions for all object types. Leave NULL if an object
 // does not require any special setup/teardown.
 typedef struct SetupFuncs
@@ -35,12 +37,10 @@ typedef struct SetupFuncs
 static const SetupFuncs setup_funcs[] =
 {
 	[OBJ_ENTRANCE] = {o_load_entrance, o_unload_entrance},
-
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
 	[OBJ_MAP] = {o_load_map, o_unload_map},
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
-
 };
 
 // Object list execution ======================================================
@@ -132,12 +132,14 @@ static inline void obj_check_player(Obj *o)
 
 void obj_exec(void)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+	uint16_t highest_obj = 0;
+	for (uint16_t i = 0; i < highest_obj_idx + 1; i++)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
-		pal_set(0, PALRGB(0, i % 8, 4));  // TODO: Remove profiling
-		
+
+		if (i > highest_obj) highest_obj = i;
+
 		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) &&
 		    (o->offscreen = obj_is_offscreen(o)))
 		{
@@ -155,11 +157,13 @@ void obj_exec(void)
 
 		if (o->main_func) o->main_func(o);
 	}
-	pal_set(0, PALRGB(0, 0, 0));  // TODO: Remove profiling
+
+	if (highest_obj_idx > highest_obj) highest_obj_idx = highest_obj;
 }
 
 void obj_clear(void)
 {
+	highest_obj_idx = 0;
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
@@ -174,26 +178,35 @@ void obj_clear(void)
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 {
-	// This is a hack to work around an old wart the old codebase, which
+	// This is a hack to work around an old wart from the old codebase, which
 	// represented a cube on the map as an "enemy" object in the file.
 	if (type == OBJ_CUBE)
 	{
-		cube_manager_spawn(INTTOFIX32(x), INTTOFIX32(y + 16), (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
+		cube_manager_spawn(INTTOFIX32(x + 8), INTTOFIX32(y + 15), (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
 		return NULL;
 	}
+	
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status != OBJ_STATUS_NULL) continue;
+		if (!setup_funcs[type].load_func) continue;
+
+		if (i > highest_obj_idx) highest_obj_idx = i;
 		memset(o, 0, sizeof(g_objects[i]));
 		o->status = OBJ_STATUS_ACTIVE;
 		o->type = type;
 		o->x = INTTOFIX32(x);
 		o->y = INTTOFIX32(y);
-		if (setup_funcs[type].load_func) setup_funcs[type].load_func(o, data);
+		setup_funcs[type].load_func(o, data);
 		return o;
 	}
 	return NULL;
+}
+
+uint8_t obj_max_index(void)
+{
+	return highest_obj_idx;
 }
 
 // VRAM load positions are reset to zero when obj_clear is called.

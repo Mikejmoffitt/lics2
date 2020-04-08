@@ -16,24 +16,32 @@
 // Access for Lyle singleton.
 static O_Lyle *lyle;
 
+static MdButton buttons;
+static MdButton buttons_prev;
+
 // Integer constants that are too small to meaningfully scale.
 #define LYLE_ACTION_THROW_TIME 2
 #define LYLE_ACTION_LIFT_TIME 2
 #define LYLE_ACTION_KICK_TIME 3
+
+// Hitboxes
+#define LYLE_LEFT INTTOFIX16(-4)
+#define LYLE_RIGHT INTTOFIX16(4)
+#define LYLE_TOP INTTOFIX16(-19)
 
 #define LYLE_CUBEJUMP_DISABLE_TIME 2
 
 #define LYLE_START_CP 5
 #define LYLE_MAX_CP 30
 
-// Tolerance to the bottom check for collisions so Lyle can "step up" on cubes
-#define LYLE_STEP_UP INTTOFIX32(-3)
+// Tolerance to the bottom check for collisions so Lyle can "step up" on horizontal collisions
+#define LYLE_STEP_UP INTTOFIX32(-4)
 
 // TODO: Find real numbers from the MMF code.
 #define LYLE_CP_SPAWN_PRICE 4
 #define LYLE_CP_SPAWN_CHEAP 2
 
-#define LYLE_DRAW_LEFT -7
+#define LYLE_DRAW_LEFT -8
 #define LYLE_DRAW_TOP -23
 
 #define LYLE_PALETTE 3
@@ -49,14 +57,16 @@ static fix16_t kceiling_dy;
 static fix16_t khurt_dx;
 static fix16_t kdx_snap;  // 0.1
 
-static fix16_t ktoss_cube_dx_short;  // 0.83333333333 : 1.0
-static fix16_t ktoss_cube_dy_short;  // -1.77 : -2.0  should be -1.6666666667
+static fix16_t ktoss_cube_dx_short;
+static fix16_t ktoss_cube_dy_short;
 
-static fix16_t ktoss_cube_dy_up;  // -4.2 : -5.0 should be -4.1666666667
+static fix16_t ktoss_cube_dy_up;
 
-static fix16_t ktoss_cube_dx_strong;  // 3.33333333 : 4
-static fix16_t ktoss_cube_dx_normal;  // 1.66666667 : 2
-static fix16_t ktoss_cube_dy_normal;  // -0.833333333333 : -1.0
+static fix16_t ktoss_cube_dx_strong;
+static fix16_t ktoss_cube_dy_strong;
+
+static fix16_t ktoss_cube_dx_normal;
+static fix16_t ktoss_cube_dy_normal;
 
 static fix16_t ktoss_cube_dy_down;
 static fix16_t kbounce_cube_dx;
@@ -88,22 +98,23 @@ static void set_constants(void)
 	static int16_t constants_set = 0;
 	if (constants_set) return;
 
-	kdx_max = INTTOFIX16(PALSCALE_1ST(1.5));  // Was 1.54 : 1.8
-	kdy_max = INTTOFIX16(PALSCALE_1ST(6.666667));  // Was just 6.67 : 8.0
-	kx_accel = INTTOFIX16(PALSCALE_2ND(0.125));  // Was 0.125 : 0.18
-	kgravity = INTTOFIX16(PALSCALE_2ND(0.21));  // Was 0.21 : 0.3024
-	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.10));  // Was 0.10 : 0.144
-	kjump_dy = INTTOFIX16(PALSCALE_1ST(-2.9833333));  // was -2.94 : -3.58
+	kdx_max = INTTOFIX16(PALSCALE_1ST(1.41666666667));
+	kdy_max = INTTOFIX16(PALSCALE_1ST(6.66777776667));
+	kx_accel = INTTOFIX16(PALSCALE_2ND(0.10416666667));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.15972222222));  // Was 0.21 : 0.3024
+	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.0902777777777));  // Was 0.10 : 0.144
+	kjump_dy = INTTOFIX16(PALSCALE_1ST(-3.08333333333));  // was -2.94 : -3.58
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));  // was -0.42 : -0.5
 	khurt_dx = INTTOFIX16(PALSCALE_1ST(-1.91666667));  // was -1.92 : -2.3
 	kdx_snap = INTTOFIX16(PALSCALE_1ST(0.1));
 
 	ktoss_cube_dx_short = INTTOFIX16(PALSCALE_1ST(0.83333333333));
-	ktoss_cube_dy_short = INTTOFIX16(PALSCALE_1ST(-1.666666667));
+	ktoss_cube_dy_short = INTTOFIX16(PALSCALE_1ST(-2.5));
 	ktoss_cube_dy_up = INTTOFIX16(PALSCALE_1ST(-4.16666666667));
 	ktoss_cube_dx_strong = INTTOFIX16(PALSCALE_1ST(3.333333333));
+	ktoss_cube_dy_strong = INTTOFIX16(PALSCALE_1ST(-1.666666667));
 	ktoss_cube_dx_normal = INTTOFIX16(PALSCALE_1ST(1.666666667));
-	ktoss_cube_dy_normal = INTTOFIX16(PALSCALE_1ST(-0.833333333));
+	ktoss_cube_dy_normal = INTTOFIX16(PALSCALE_1ST(-2.5));
 	ktoss_cube_dy_down = INTTOFIX16(PALSCALE_1ST(3.333333333333));
 	kbounce_cube_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333333));
 	kbounce_cube_dy = INTTOFIX16(PALSCALE_1ST(-1.833));
@@ -169,8 +180,8 @@ static inline void eval_grounded(O_Lyle *l)
 	}
 
 	// Check the left and right bottom pixels below Lyle's hitbox
-	const uint16_t px_r = FIX32TOINT(l->head.x + l->head.right) - 1;
-	const uint16_t px_l = FIX32TOINT(l->head.x + l->head.left) + 1;
+	const uint16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+	const uint16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 	const uint16_t py = FIX32TOINT(l->head.y) + 1;
 	l->grounded = (map_collision(px_r, py) || map_collision(px_l, py));
 }
@@ -220,19 +231,19 @@ static inline void x_acceleration(O_Lyle *l)
 	}
 
 	// deceleration
-	if (!(l->buttons & (BTN_RIGHT | BTN_LEFT)))
+	if (!(buttons & (BTN_RIGHT | BTN_LEFT)))
 	{
 		decelerate_with_ddx(l, kx_accel);
 	}
 
 	// going left and right
-	if (l->buttons & BTN_RIGHT)
+	if (buttons & BTN_RIGHT)
 	{
 		l->head.dx += kx_accel;
 		l->head.direction = OBJ_DIRECTION_RIGHT;
 		walking_sound(l);
 	}
-	else if (l->buttons & BTN_LEFT)
+	else if (buttons & BTN_LEFT)
 	{
 		l->head.dx -= kx_accel;
 		l->head.direction = OBJ_DIRECTION_LEFT;
@@ -242,7 +253,7 @@ static inline void x_acceleration(O_Lyle *l)
 	// snap dx to 0 if it is near
 	// TODO: Is this needed?
 	if (l->head.dx > -kdx_snap &&
-	    l->head.dx < kdx_snap && !(l->buttons & (BTN_RIGHT | BTN_LEFT)))
+	    l->head.dx < kdx_snap && !(buttons & (BTN_RIGHT | BTN_LEFT)))
 	{
 		l->head.dx = 0;
 	}
@@ -256,25 +267,25 @@ static inline void toss_cubes(O_Lyle *l)
 {
 	if (l->control_disabled) return;
 	if (!l->holding_cube) return;
-	if ((l->buttons & BTN_B) && !(l->buttons_prev & BTN_B))
+	if ((buttons & BTN_B) && !(buttons_prev & BTN_B))
 	{
 		fix16_t c_dx = 0;
 		fix16_t c_dy = 0;
 		// Holding down; short toss
-		if ((l->buttons & BTN_DOWN) && (l->grounded || l->on_cube))
+		if ((buttons & BTN_DOWN) && (l->grounded || l->on_cube))
 		{
 			c_dx = ktoss_cube_dx_short;
 			c_dy = ktoss_cube_dy_short;
 		}
-		else if (l->buttons & BTN_UP)
+		else if (buttons & BTN_UP)
 		{
 			c_dx = 0;
 			c_dy = ktoss_cube_dy_up;
 		}
-		else if (l->buttons & (BTN_RIGHT | BTN_LEFT))
+		else if (buttons & (BTN_RIGHT | BTN_LEFT))
 		{
 			c_dx = ktoss_cube_dx_strong;
-			c_dy = ktoss_cube_dy_normal;
+			c_dy = ktoss_cube_dy_strong;
 		}
 		else
 		{
@@ -314,7 +325,7 @@ static inline void lift_cubes(O_Lyle *l)
 	if (l->action_cnt > 0 || l->control_disabled) return;
 
 	if (l->on_cube && l->lift_cnt == 0 &&
-	    l->buttons & BTN_B && !(l->buttons_prev & BTN_B))
+	    buttons & BTN_B && !(buttons_prev & BTN_B))
 	{
 		l->lift_cnt = klift_time;
 		l->action_cnt = LYLE_ACTION_LIFT_TIME;
@@ -330,7 +341,7 @@ static inline void lift_cubes(O_Lyle *l)
 			c->status = CUBE_STATUS_NULL;
 
 			// Repro of MMF1 version bug where you can jump while lifting.
-			if (l->buttons & BTN_C) l->head.dy = kjump_dy;
+			if (buttons & BTN_C) l->head.dy = kjump_dy;
 			l->action_cnt = LYLE_ACTION_LIFT_TIME;
 			// TODO: Cue cube lift sound
 		}
@@ -349,7 +360,7 @@ static inline void jump(O_Lyle *l)
 	if (l->lift_cnt || l->control_disabled) return;
 
 	// C button pressed down.
-	if ((l->buttons & BTN_C) && !(l->buttons_prev & BTN_C))
+	if ((buttons & BTN_C) && !(buttons_prev & BTN_C))
 	{
 		if (l->grounded || l->on_cube)
 		{
@@ -394,63 +405,32 @@ static inline void jump(O_Lyle *l)
 
 static inline void bg_vertical_collision(O_Lyle *l)
 {
-	int16_t py = FIX32TOINT(l->head.y);
-
 	l->head.x -= l->head.dx;
 
-	const int16_t px_r_corner = FIX32TOINT(l->head.x + l->head.right) - 1;
-	const int16_t px_l_corner = FIX32TOINT(l->head.x + l->head.left) + 1;
+	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
-	if (l->ext_disable) return;
+	const int16_t py_bottom = FIX32TOINT(l->head.y);
 	if (l->head.dy > 0)
 	{
-		if (map_collision(px_r_corner, py) ||
-		    map_collision(px_l_corner, py))
+		if (map_collision(px_r, py_bottom + 1) ||
+		    map_collision(px_l, py_bottom + 1))
 		{
+			const int16_t touching_tile_y = ((py_bottom + 1) / 8) * 8;
+
+			l->head.y = INTTOFIX32(touching_tile_y) - 1;
 			l->head.dy = 0;
-			// Snap to nearest 8px boundary
-			// TODO: This logic looks a little fucky, play with it more
-			py = 8 * (py / 8) - 1;
-
-			// Loop to check if we are stuck.
-			uint8_t i = 8;
-			while (i--)
-			{
-				if (map_collision(px_r_corner, py) ||
-			        map_collision(px_l_corner, py))
-				{
-					py -= 1;
-				}
-				else
-				{
-					break;
-				}
-			}
-
 			eval_grounded(l);
-			// If we somehow popped above the ground, rectify it
-			// TODO: Remove, shouldn't this be pointless
-			if (!l->grounded)
-			{
-				py += 8;
-				eval_grounded(l);
-			}
-			l->head.y = INTTOFIX32(py);
 		}
 	}
 	else if (l->head.dy < 0)
 	{
-		if (map_collision(px_r_corner, py_top) ||
-		    map_collision(px_l_corner, py_top))
+		if (map_collision(px_r, py_top - 1) ||
+		    map_collision(px_l, py_top - 1))
 		{
-			// Snap to nearest 8px boundary
-			// TODO: This logic looks a little fucky, play with it more
-			py = 8 * ((py + 4) / 8) + 3;
-			if (l->head.dy < kceiling_dy)
-			{
-				l->head.dy = kceiling_dy;
-			}
-			l->head.y = INTTOFIX32(py);
+			const int16_t touching_tile_y = ((py_top + 1) / 8) * 8;
+			l->head.y = INTTOFIX32(touching_tile_y) - l->head.top + 1;
+			if (l->head.dy < kceiling_dy) l->head.dy = kceiling_dy;
 		}
 	}
 
@@ -459,36 +439,36 @@ static inline void bg_vertical_collision(O_Lyle *l)
 
 static inline void bg_horizontal_collision(O_Lyle *l)
 {
-	int16_t px = FIX32TOINT(l->head.x);
 	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
 	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
-	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top) + 1;
-	const int16_t py_mid = FIX32TOINT(l->head.y + (l->head.top) / 2);
+	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
+	const int16_t py_mid = FIX32TOINT(l->head.y + ((l->head.top) / 2));
 	const int16_t py_bot = FIX32TOINT(l->head.y + LYLE_STEP_UP);
-	if (l->ext_disable) return;
 	if (l->head.dx > 0)
 	{
-		if (map_collision(px_r, py_top) ||
-		    map_collision(px_r, py_mid) ||
-		    map_collision(px_r, py_bot))
+		if (map_collision(px_r + 1, py_top) ||
+		    map_collision(px_r + 1, py_mid) ||
+		    map_collision(px_r + 1, py_bot))
 		{
-			px = (8 * (px / 8)) + 3;
-			l->head.x = INTTOFIX32(px);
+			// X position (in pixels) of wall being touched.
+			const int16_t touching_tile_x = ((px_r + 1) / 8) * 8;
+			l->head.x = INTTOFIX32(touching_tile_x) - l->head.right - 1;
 			l->head.dx = 0;
 		}
 	}
 	else if (l->head.dx < 0)
 	{
-		if (map_collision(px_l, py_top) ||
-		    map_collision(px_l, py_mid) ||
-		    map_collision(px_l, py_bot))
+		if (map_collision(px_l - 1, py_top) ||
+		    map_collision(px_l - 1, py_mid) ||
+		    map_collision(px_l - 1, py_bot))
 		{
-			px = (8 * (px / 8)) + 5;
-			l->head.x = INTTOFIX32(px);
+			// X position (in pixels) of wall being touched. We want the right
+			// side of the tile, so 7 is added.
+			const int16_t touching_tile_x = ((px_l + 1) / 8) * 8;
+			l->head.x = INTTOFIX32(touching_tile_x) - l->head.left + 1;
 			l->head.dx = 0;
 		}
 	}
-
 }
 
 // TODO: Are we going to have to do collisions in the pixel domain?
@@ -497,40 +477,30 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 // confirmed that Lyle is already touching the Cube.
 static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 {
-	if (c->type == CUBE_TYPE_SPAWNER) return;
-	
-	// TODO: Originally I subtracted dx preemptively...
-	const fix32_t preemptive_x = l->head.x - l->head.dx;
+	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
 
-	if (c->x + c->left > preemptive_x + l->head.right ||
-	    c->x + c->right < preemptive_x + l->head.left)
-	{
-		return;
-	}
+	l->head.x += l->head.dx;
 
-	// We are in the correct horizontal range...
-	if (l->head.dy > 0)
+	if (l->head.x + l->head.right >= c->x + c->left &&
+	    l->head.x + l->head.left <= c->x + c->right)
 	{
-		// Feet stuck in cube?
-		if (l->head.y > c->y + c->top - 1&& l->head.y + l->head.top < c->y)
+		if (l->head.dy > 0 &&
+		    l->head.y + 1 >= c->y + c->top &&
+		    l->head.y < c->y + (c->top / 2))
 		{
-			// Snap to cube
 			l->head.y = c->y + c->top - 1;
 			l->head.dy = 0;
 		}
-	}
-	else if (l->head.dy < 0)
-	{
-		// Head stuck in cube?
-		if (l->head.y + l->head.top < c->y && l->head.y > c->y)
+		else if (l->head.dy < 0 &&
+		         l->head.y - 1 <= c->y &&
+		         l->head.y + l->head.top > c->y + (c->top / 2))
 		{
-			l->head.y = c->y - l->head.top;
-			if (l->head.dy < kceiling_dy)
-			{
-				l->head.dy = kceiling_dy;
-			}
+			l->head.y = c->y + l->head.top + 1;
+			if (l->head.dy < kceiling_dy) l->head.dy = kceiling_dy;
 		}
 	}
+
+	l->head.x -= l->head.dx;
 }
 
 // This function is called to handle horizontal collision events once it is
@@ -539,105 +509,127 @@ static inline void cube_horizontal_collision(O_Lyle *l, Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
 
-	if (!(c->y + c->top <= l->head.y - 1 &&
-	      c->y >= l->head.y + l->head.top + 1))
+	if (l->head.y >= c->y + c->top &&
+	    l->head.y + l->head.top <= c->y)
 	{
-		return;
-	}
-	// If the cube is to the right of the player...
-	if (l->head.dx > 0 && c->x + c->left > l->head.x)
-	{
-		l->head.x = c->x + c->left - l->head.right - 1;
-		l->head.dx = 0;
-	}
-	// and to the left
-	else if (l->head.dx < 0 && c->x + c->right < l->head.x)
-	{
-		l->head.x = c->x + c->right - l->head.left + 1;
-		l->head.dx = 0;
+		if (l->head.dx > 0 &&
+		    l->head.x + l->head.right + 1 >= c->x + c->left &&
+		    l->head.x < c->x)
+		{
+			l->head.x = c->x + c->left - l->head.right - 1;
+			l->head.dx = 0;
+		}
+		else if (l->head.dx < 0 &&
+		         l->head.x + l->head.left - 1 <= c->x + c->right &&
+		         l->head.x > c->x)
+		{
+			l->head.x = c->x + c->right - l->head.left + 1;
+			l->head.dx = 0;
+		}
 	}
 }
 
 static inline void cube_eval_standing(O_Lyle *l, Cube *c)
 {
-	if (c->type == CUBE_TYPE_SPAWNER) return;
-	if (c->x + c->left <= l->head.x + l->head.right - 1 &&
-	    c->x + c->right >= l->head.x + l->head.left + 1 &&
-	    l->head.y + 1 >= c->y + c->top &&
-	    l->head.y + l->head.top < c->y + c->top)  // TODO: Suspicious
+	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
+	
+	if (l->head.x + l->head.right >= c->x + c->left &&
+	    l->head.x + l->head.left <= c->x + c->right)
 	{
-		// If we are already standing on a cube, evaluate against another.
-		if (l->on_cube)
+		if (l->head.y + 1 >= c->y + c->top &&
+		    l->head.y < c->y + (c->top / 2))
 		{
-			fix16_t old_x_distance = l->head.x - l->on_cube->x;
-			fix16_t new_x_distance = l->head.x - c->x;
-			if (old_x_distance < 0) old_x_distance = -old_x_distance;
-			if (new_x_distance < 0) new_x_distance = -new_x_distance;
-			// If the new cube is closer, adopt it as the standing cube.
-			if (new_x_distance < old_x_distance) l->on_cube = c;
-		}
-		else
-		{
-			l->on_cube = c;
+			// If we are already standing on a cube, evaluate against another.
+			if (l->on_cube)
+			{
+				fix16_t old_x_distance = l->head.x - l->on_cube->x;
+				fix16_t new_x_distance = l->head.x - c->x;
+				if (old_x_distance < 0) old_x_distance = -old_x_distance;
+				if (new_x_distance < 0) new_x_distance = -new_x_distance;
+				// If the new cube is closer, adopt it as the standing cube.
+				if (new_x_distance < old_x_distance) l->on_cube = c;
+			}
+			else
+			{
+				l->on_cube = c;
+			}
 		}
 	}
 }
 
 static inline void cube_kick(O_Lyle *l, Cube *c)
 {
-	if (c->status != CUBE_STATUS_IDLE) return;
+	if (c->status != CUBE_STATUS_IDLE || c->type == CUBE_TYPE_SPAWNER) return;
 	if (!(l->grounded || l->on_cube)) return;
 	if (l->action_cnt > 0) return;
+	if (!((buttons & BTN_B) && !(buttons_prev & BTN_B))) return;
 
-	if ((l->buttons & BTN_B) && !(l->buttons_prev & BTN_B) &&
-	    c->y + c->top <= l->head.y - 1 &&
-	    c->y >= l->head.y + l->head.top / 2)
+	if (l->head.y >= c->y + c->top &&
+	    l->head.y + l->head.top / 2 <= c->y)
 	{
-		if (l->head.x == c->x + c->left - l->head.right - 1 &&
-		    l->head.direction == OBJ_DIRECTION_RIGHT)
+		if (l->head.direction == OBJ_DIRECTION_RIGHT &&
+		    l->head.x + l->head.right + 1 >= c->x + c->left &&
+		    l->head.x < c->x)
 		{
 			l->kick_cnt = kkick_anim_len;
 			c->status = CUBE_STATUS_KICKED;
 			c->dx = kcube_kick_dx;
 			l->action_cnt = LYLE_ACTION_KICK_TIME;
 			// TODO: Play cube bounce sound
-			// TODO: Do we care about a cube's "direction"?
 		}
-		else if (l->head.x == c->x + c->right - l->head.left + 1 &&
-		         l->head.direction == OBJ_DIRECTION_LEFT)
+		else if (l->head.direction == OBJ_DIRECTION_LEFT &&
+		         l->head.x + l->head.left - 1 <= c->x + c->right &&
+		         l->head.x > c->x)
 		{
 			l->kick_cnt = kkick_anim_len;
 			c->status = CUBE_STATUS_KICKED;
 			c->dx = -kcube_kick_dx;
 			l->action_cnt = LYLE_ACTION_KICK_TIME;
 			// TODO: Play cube bounce sound
-			// TODO: Do we care about a cube's "direction"?
 		}
 	}
 }
 
 static inline void cube_collision(O_Lyle *l)
 {
-	pal_set(0, 0);
-	if (l->ext_disable) return;
 	int i = ARRAYSIZE(g_cubes);
+	l->on_cube = NULL;
 	while (i--)
 	{
 		Cube *c = &g_cubes[i];
 		if (c->status == CUBE_STATUS_NULL) continue;
-		if (obj_touching_cube(&l->head, c))
+
+		// Bounce cubes off of ones lyle is holding
+		if (l->holding_cube)
 		{
-			// TODO: If SRAM says we have't touched a cube, show the message.
+			if (c->status == CUBE_STATUS_AIR &&
+			    c->x + c->left <= l->head.x + l->head.right + 1 &&
+			    c->x + c->right >= l->head.x + l->head.left - 1 &&
+			    c->y + c->top <= l->head.y - INTTOFIX32(24) &&
+			    c->y >= l->head.y + l->head.top - INTTOFIX32(15))
+			{
+				if (c->dx == 0)
+				{
+					c->dx = g_elapsed % 2 ? kbounce_cube_dx : -kbounce_cube_dx;
+				}
+				c->dy = kbounce_cube_dy;
+				// TODO: Cue cube bounce sound
+			}
+		}
+
+		if (c->status == CUBE_STATUS_IDLE)
+		{
+			cube_vertical_collision(l, c);
+			cube_horizontal_collision(l, c);
+			cube_eval_standing(l, c);
+			cube_kick(l, c);
+		}
+		else if (obj_touching_cube(&l->head, c))
+		{
+			// TODO: If SRAM says we have't touched a cube before, show the message.
 			if (c->type == CUBE_TYPE_SPAWNER)
 			{
 				cube_restrict_spawn(c);
-			}
-			else if (c->status == CUBE_STATUS_IDLE)
-			{
-				cube_vertical_collision(l, c);
-				cube_horizontal_collision(l, c);
-				cube_eval_standing(l, c);
-				cube_kick(l, c);
 			}
 			else if (c->status == CUBE_STATUS_AIR && l->throw_cnt == 0 &&
 			         l->kick_cnt == 0 && l->throwdown_cnt == 0)
@@ -654,26 +646,8 @@ static inline void cube_collision(O_Lyle *l)
 					else
 					{
 						lyle_get_bounced();
-						l->head.dy = l->head.dy << 1;
+						l->head.dy = l->head.dy / 2;
 					}
-				}
-			}
-
-			// Bounce cubes off of ones lyle is holding
-			if (l->holding_cube)
-			{
-				if (c->status == CUBE_STATUS_AIR &&
-				    c->x + c->left <= l->head.x + l->head.right + 1 &&
-				    c->x + c->right >= l->head.x + l->head.left - 1 &&
-				    c->y + c->top <= l->head.y - INTTOFIX32(24) &&
-				    c->y >= l->head.y + l->head.top - INTTOFIX32(15))
-				{
-					if (c->dx == 0)
-					{
-						c->dx = g_elapsed % 2 ? kbounce_cube_dx : -kbounce_cube_dx;
-					}
-					c->dy = kbounce_cube_dy;
-					// TODO: Cue cube bounce sound
 				}
 			}
 		}
@@ -691,31 +665,32 @@ static inline void exit_check(O_Lyle *l)
 	else if (l->head.y + top_margin < 0 && l->head.dy < 0) l->has_exited = 1;
 }
 
+static inline void gravity(O_Lyle *l)
+{
+	if (l->grounded || l->on_cube || l->control_disabled) return;
+	// TODO: Alternate gravity when dying. Or, just use another object...
+
+	if ((buttons & BTN_C) && l->head.dy < 0)
+	{
+		l->head.dy += kgravity_weak;
+	}
+	else
+	{
+		l->head.dy += kgravity;
+	}
+
+	if (l->head.dy > kdy_max) l->head.dy = kdy_max;
+}
+
 static inline void move(O_Lyle *l)
 {
-	l->on_cube = NULL;
+	obj_standard_physics(&l->head);
 	bg_vertical_collision(l);
 	bg_horizontal_collision(l);
 	eval_grounded(l);
 	cube_collision(l);
 	exit_check(l);
-
-	// Variable gravity based on the jump button.
-	if (!l->grounded && !l->ext_disable)
-	{
-		// TODO: Alternate gravity when dying. Or, just use another object...
-
-		if (((l->buttons & BTN_C) && !l->control_disabled) && l->head.dy < 0)
-		{
-			l->head.dy += kgravity_weak;
-		}
-		else
-		{
-			l->head.dy += kgravity;
-		}
-
-		if (l->head.dy > kdy_max) l->head.dy = kdy_max;
-	}
+	gravity(l);
 }
 
 static inline void check_spikes(O_Lyle *l)
@@ -746,7 +721,7 @@ static inline void cp(O_Lyle *l)
 	const uint16_t cube_price = LYLE_CP_SPAWN_PRICE;
 	if (!l->holding_cube && l->cp >= cube_price)
 	{
-		if (l->buttons & BTN_B)
+		if (buttons & BTN_B)
 		{
 			l->phantom_cnt++;
 			if (l->phantom_cnt == kcube_fx + 1)
@@ -832,7 +807,7 @@ static void calc_anim_frame(O_Lyle *l)
 	}
 	else if (l->grounded || l->on_cube)  // Grounded
 	{
-		if (!(l->buttons & (BTN_LEFT | BTN_RIGHT))) // standing
+		if (!(buttons & (BTN_LEFT | BTN_RIGHT))) // standing
 		{
 			l->anim_frame = 0x00;
 		}
@@ -937,16 +912,28 @@ static inline void draw(O_Lyle *l)
 	int16_t sp_x = FIX32TOINT(l->head.x) + xoff - map_get_x_scroll();
 	int16_t sp_y = FIX32TOINT(l->head.y) + yoff - map_get_y_scroll();
 
+	// TODO: Dying sequence stuff
 	if (sp_x < -32 || sp_x > GAME_SCREEN_W_PIXELS) return;
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
-	// TODO: Dying sequence stuff
-	spr_put(sp_x, sp_y,
-	        SPR_ATTR(vram_pos + tile_offset,
-	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
-	                 LYLE_PALETTE, 0),
-	        size);
-
+	if (system_is_debug_enabled() && buttons & BTN_A)
+	{
+		sp_x = FIX32TOINT(l->head.x) - map_get_x_scroll();
+		sp_y = FIX32TOINT(l->head.y) - map_get_y_scroll();
+		spr_put(sp_x, sp_y, SPR_ATTR(1, 0, 0, 0, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(l->head.right), sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(l->head.left),  sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(l->head.right), sp_y + FIX32TOINT(l->head.top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+		spr_put(sp_x + FIX32TOINT(l->head.left),  sp_y + FIX32TOINT(l->head.top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
+	}
+	else
+	{
+		spr_put(sp_x, sp_y,
+		        SPR_ATTR(vram_pos + tile_offset,
+		                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
+		                 LYLE_PALETTE, 0),
+		        size);
+	}
 
 }
 
@@ -963,22 +950,21 @@ static inline void set_map_scroll(const O_Lyle *l)
 
 static void main_func(Obj *o)
 {
-	pal_set(0, 0);
 	O_Lyle *l = (O_Lyle *)o;
 	lyle = l;
 
-	l->buttons_prev = l->buttons;
-	l->buttons = io_pad_read(0);
+	buttons_prev = buttons;
+	buttons = io_pad_read(0);
 
 	l->control_disabled = is_control_disabled(l);
 	teleport_seq(l);
 	x_acceleration(l);
 	toss_cubes(l);
 	lift_cubes(l);
-	jump(l);
-	obj_standard_physics(o);
-	move(l);
 	cp(l);
+	jump(l);
+
+	move(l);
 	eval_grounded(l);
 	calc_anim_frame(l);
 	// entrance_collision(l);  // TODO: Remove this, because entrances can
@@ -1005,8 +991,7 @@ void o_load_lyle(Obj *o, uint16_t data)
 	set_constants();
 
 	// Lyle is not marked tangible because he does his own cube detection.
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, INTTOFIX16(-5),
-	               INTTOFIX16(5), INTTOFIX16(-18), 5);
+	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 5);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;

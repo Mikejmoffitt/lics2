@@ -73,8 +73,8 @@ typedef struct Cube
 	fix16_t dx, dy;
 	fix16_t left, right;
 	fix16_t top;
-	int8_t bounce_count;
-	int8_t collision_timeout;
+	uint8_t bounce_count;
+	uint8_t collision_timeout;
 	uint8_t spawn_count;
 	uint8_t fizzle_count;
 } Cube;
