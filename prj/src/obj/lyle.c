@@ -44,8 +44,6 @@ static MdButton buttons_prev;
 #define LYLE_DRAW_LEFT -8
 #define LYLE_DRAW_TOP -23
 
-#define LYLE_PALETTE 3
-
 // Constants!
 static fix16_t kdx_max;
 static fix16_t kdy_max;
@@ -667,7 +665,7 @@ static inline void exit_check(O_Lyle *l)
 
 static inline void gravity(O_Lyle *l)
 {
-	if (l->grounded || l->on_cube || l->control_disabled) return;
+	if (l->grounded || l->on_cube) return;
 	// TODO: Alternate gravity when dying. Or, just use another object...
 
 	if ((buttons & BTN_C) && l->head.dy < 0)
@@ -931,7 +929,7 @@ static inline void draw(O_Lyle *l)
 		spr_put(sp_x, sp_y,
 		        SPR_ATTR(vram_pos + tile_offset,
 		                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
-		                 LYLE_PALETTE, 0),
+		                 LYLE_PAL_LINE, 0),
 		        size);
 	}
 
@@ -1022,6 +1020,7 @@ void lyle_get_hurt(void)
 	if (!lyle) return;
 	if (lyle->tele_out_cnt > 0) return;
 	if (lyle->invuln_cnt != 0) return;
+	if (lyle->hurt_cnt != 0) return;
 	lyle_get_bounced();
 	lyle->hurt_cnt = khurt_time;
 	lyle->invuln_cnt = kinvuln_time;

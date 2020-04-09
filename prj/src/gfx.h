@@ -15,14 +15,19 @@
 #define ENEMY_CRAM_POSITION 32
 #define LYLE_CRAM_POSITION 48
 
+#define BG_PAL_LINE (BG_CRAM_POSITION / 16)
+#define ENEMY_PAL_LINE (ENEMY_CRAM_POSITION / 16)
+#define LYLE_PAL_LINE (LYLE_CRAM_POSITION / 16)
+
 #define MAP_TILE_VRAM_POSITION 0
 
 typedef enum GfxId
 {
+	GFX_METAGRUB,
+
 	GFX_LYLE,
 	GFX_CUBES,
 	GFX_TEMPLATE,
-
 } GfxId;
 
 typedef struct Gfx

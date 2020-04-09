@@ -7,8 +7,11 @@
 
 static const Gfx gfx[] =
 {
+	[GFX_METAGRUB] = GFX(obj_3_metagrub),
+
 	[GFX_LYLE] = GFX(obj_128_lyle),
 	[GFX_CUBES] = GFX(obj_129_cubes),
+
 	[GFX_TEMPLATE] = GFX(obj_255_template),
 };
 

@@ -51,12 +51,9 @@ static void cube_scan_objects(Cube *c)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
-		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
-		if (o->offscreen) continue;
-		if (o->x + o->left <= c->x + c->right &&
-		    o->x + o->right >= c->x + c->left &&
-		    o->y + o->top <= c->y + 0 &&
-		    o->y >= c->y + c->top)
+//		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
+//		if (o->offscreen) continue;
+		if (obj_touching_cube(o, c))
 		{
 			obj_cube_impact(o, c);
 		}

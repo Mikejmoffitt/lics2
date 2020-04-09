@@ -53,8 +53,8 @@ struct Obj
 	fix16_t top;
 
 	int8_t hp;
-	uint8_t hurt_stun; // Decrements; decreases HP on zero.
-	uint8_t offscreen;
+	int8_t hurt_stun; // Decrements; decreases HP on zero.
+	int8_t offscreen;
 	int8_t touching_player;
 
 	ObjStatus status;

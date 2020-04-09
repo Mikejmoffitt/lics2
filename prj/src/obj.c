@@ -6,15 +6,17 @@
 
 #include "cube.h"
 
-
 #include "obj/entrance.h"
+#include "obj/metagrub.h"
 
-#include "obj/cube_manager.h"
-#include "obj/template.h"
 #include "obj/lyle.h"
+#include "obj/cube_manager.h"
 #include "obj/map.h"
+#include "obj/template.h"
 
 #include "md/megadrive.h"
+
+#include "palscale.h"
 
 #define OBJ_OFFSCREEN_MARGIN INTTOFIX32(64)
 
@@ -26,6 +28,17 @@ static uint16_t obj_vram_pos;
 
 static uint16_t highest_obj_idx;
 
+static uint16_t constants_set;
+static int8_t khurt_stun_time;
+
+static inline void set_constants(void)
+{
+	if (constants_set) return;
+
+	khurt_stun_time = PALSCALE_DURATION(24);
+	constants_set = 1;
+}
+
 // Setup and teardown functions for all object types. Leave NULL if an object
 // does not require any special setup/teardown.
 typedef struct SetupFuncs
@@ -34,9 +47,22 @@ typedef struct SetupFuncs
 	void (*unload_func)(void);  // Run when obj_clear is called.
 } SetupFuncs;
 
+// Since cubes are represented in the level data as objects, those objects are
+// caught and passed in to the cube manager. Then, the object slot is freed.
+static void cube_spawn_stub(Obj *o, uint16_t data)
+{
+	cube_manager_spawn(o->x + INTTOFIX32(8), o->y + INTTOFIX32(15),
+	                   (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
+	o->status = OBJ_STATUS_NULL;
+}
+
 static const SetupFuncs setup_funcs[] =
 {
+	[OBJ_NULL] = {NULL, NULL},
 	[OBJ_ENTRANCE] = {o_load_entrance, o_unload_entrance},
+	[OBJ_CUBE] = {cube_spawn_stub, NULL},
+	[OBJ_METAGRUB] = {o_load_metagrub, o_unload_metagrub},
+
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
 	[OBJ_MAP] = {o_load_map, o_unload_map},
@@ -53,6 +79,7 @@ int obj_init(void)
 	}
 
 	obj_clear();
+	set_constants();
 
 	return 1;
 }
@@ -83,17 +110,14 @@ static inline uint16_t obj_hurt_process(Obj *o)
 	if (o->hurt_stun > 0)
 	{
 		o->hurt_stun--;
-		if (o->hurt_stun == 0)
-		{
-			o->hp--;
-			if (o->hp == 0)
-			{
-				obj_explode(o);
-				// TODO: Spawn explosion particle
-			}
-		}
+	}
+
+	if (o->hurt_stun == 0 && o->hp <= 0)
+	{
+		obj_explode(o);
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -145,12 +169,14 @@ void obj_exec(void)
 		{
 			continue;
 		}
-		if (o->flags & OBJ_FLAG_TANGIBLE &&
-		    obj_hurt_process(o))
+		if (o->flags & OBJ_FLAG_TANGIBLE)
 		{
-			continue;
+		    obj_hurt_process(o);
 		}
 
+		if (o->flags & (OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_L |
+		                OBJ_FLAG_BOUNCE_R | OBJ_FLAG_DEADLY |
+		                OBJ_FLAG_SENSITIVE))
 		{
 			obj_check_player(o);
 		}
@@ -178,14 +204,6 @@ void obj_clear(void)
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 {
-	// This is a hack to work around an old wart from the old codebase, which
-	// represented a cube on the map as an "enemy" object in the file.
-	if (type == OBJ_CUBE)
-	{
-		cube_manager_spawn(INTTOFIX32(x + 8), INTTOFIX32(y + 15), (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
-		return NULL;
-	}
-	
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
@@ -247,28 +265,42 @@ void obj_standard_physics(Obj *o)
 	o->y += o->dy;
 }
 
-void obj_standard_cube_response(Obj *o, Cube *c)
-{
-	(void)c;
-	if (o->hurt_stun != 0) return;
-
-	// TODO: Switch on cube type.
-
-	// TODO: Phantom: if player has double phantom, subtract 1 extra hp
-	// TODO: Red: subtract 2 extra hp
-	// TODO: Green: Bounce the cube.
-	
-	// TODO: If none of the above, and not exploding or fizzling, destroy cube.
-}
-
 void obj_get_hurt(Obj *o, int16_t damage)
 {
 	if (o->hurt_stun != 0) return;
 	o->hp -= damage;
-	if (o->hp <= 0)
+	o->hurt_stun = khurt_stun_time;
+}
+
+void obj_standard_cube_response(Obj *o, Cube *c)
+{
+	(void)c;
+	if (o->hurt_stun > 0) return;
+
+	int8_t damage = 1;
+	switch (c->type)
 	{
-		obj_explode(o);
-		o->hp = 0;
+		default:
+			cube_destroy(c);
+			break;
+		case CUBE_TYPE_RED:
+			damage = 3;
+			cube_destroy(c);
+			break;
+		case CUBE_TYPE_PHANTOM:
+			damage = 2; // TODO: Gate this if player has double phantom.
+			cube_destroy(c);
+			break;
+		case CUBE_TYPE_GREEN:
+			cube_bounce_dx(c);
+			c->dy = -c->dy;
+			c->status = CUBE_STATUS_AIR;
+			break;
+		case CUBE_TYPE_ORANGE:
+			damage = 5;
+			cube_destroy(c);
+			break;
 	}
-	o->hurt_stun = system_is_ntsc() ? 24 : 30;
+	
+	obj_get_hurt(o, damage);
 }
