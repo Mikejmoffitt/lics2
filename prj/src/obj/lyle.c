@@ -692,7 +692,7 @@ static inline void cube_collision(O_Lyle *l)
 
 static inline void exit_check(O_Lyle *l)
 {
-	const fix32_t x_margin = INTTOFIX32(3);
+	const fix32_t x_margin = INTTOFIX32(6);
 	const fix32_t bottom_margin = INTTOFIX32(8);
 	const fix32_t top_margin = INTTOFIX32(16);
 	if (l->head.x < x_margin && l->head.dx < 0) l->has_exited = 1;

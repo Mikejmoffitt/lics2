@@ -10,6 +10,8 @@
 #include "obj/metagrub.h"
 #include "obj/flip.h"
 
+#include "obj/teleporter.h"
+
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
 #include "obj/map.h"
@@ -68,6 +70,8 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_CUBE] = {cube_spawn_stub, NULL},
 	[OBJ_METAGRUB] = {o_load_metagrub, o_unload_metagrub},
 	[OBJ_FLIP] = {o_load_flip, o_unload_flip},
+
+	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},

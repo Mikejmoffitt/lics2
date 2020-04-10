@@ -35,10 +35,11 @@ static void main_func(Obj *o)
 	if (sp_x < -32 || sp_x > GAME_SCREEN_W_PIXELS) return;
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
+/*
 	spr_put(sp_x, sp_y,
 	        SPR_ATTR(vram_pos,
 	                 e->head.direction == OBJ_DIRECTION_LEFT, 0,
-	                 3, 0), SPR_SIZE(2, 4));
+	                 3, 0), SPR_SIZE(2, 4));*/
 }
 
 void o_load_entrance(Obj *o, uint16_t data)

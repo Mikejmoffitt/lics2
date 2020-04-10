@@ -132,6 +132,7 @@ static void ge_game_ingame(void)
 	static fix16_t lyle_entry_dy = 0;
 	static int16_t lyle_cp = 0;
 	static int16_t lyle_phantom_cnt = 0;
+	static int8_t lyle_tele_in_cnt = 0;
 	pal_set(0, 0);
 
 	if (g_elapsed == 0)
@@ -154,6 +155,9 @@ static void ge_game_ingame(void)
 		l->head.dy = lyle_entry_dy;
 		l->phantom_cnt = lyle_phantom_cnt;
 		l->cp = lyle_cp;
+		l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
+		                                     OBJ_DIRECTION_RIGHT;
+		l->tele_in_cnt = lyle_tele_in_cnt;
 		return;
 	}
 	else if (g_elapsed == 2)
@@ -179,6 +183,7 @@ static void ge_game_ingame(void)
 		lyle_entry_dy = l->head.dy;
 		lyle_phantom_cnt = l->phantom_cnt;
 		lyle_cp = l->cp;
+		lyle_tele_in_cnt = l->tele_in_cnt;
 		exec_change(GE_GAME_INGAME);
 	}
 }
