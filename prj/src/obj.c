@@ -8,6 +8,7 @@
 
 #include "obj/entrance.h"
 #include "obj/metagrub.h"
+#include "obj/flip.h"
 
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
@@ -51,8 +52,12 @@ typedef struct SetupFuncs
 // caught and passed in to the cube manager. Then, the object slot is freed.
 static void cube_spawn_stub(Obj *o, uint16_t data)
 {
-	cube_manager_spawn(o->x + INTTOFIX32(8), o->y + INTTOFIX32(15),
-	                   (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
+	Cube *c = cube_manager_spawn(o->x, o->y,
+	                             (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
+	if (!c) return;
+	c->x -= c->left;
+	c->x += INTTOFIX32(0.5);
+	c->y -= c->top;
 	o->status = OBJ_STATUS_NULL;
 }
 
@@ -62,6 +67,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_ENTRANCE] = {o_load_entrance, o_unload_entrance},
 	[OBJ_CUBE] = {cube_spawn_stub, NULL},
 	[OBJ_METAGRUB] = {o_load_metagrub, o_unload_metagrub},
+	[OBJ_FLIP] = {o_load_flip, o_unload_flip},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
@@ -195,8 +201,12 @@ void obj_clear(void)
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 		o->status = OBJ_STATUS_NULL;
-		if (!setup_funcs[o->type].unload_func) continue;
-		setup_funcs[o->type].unload_func();
+	}
+
+	for (uint16_t i = 0; i < ARRAYSIZE(setup_funcs); i++)
+	{
+		if (!setup_funcs[i].unload_func) continue;
+		setup_funcs[i].unload_func();
 	}
 
 	obj_vram_pos = OBJ_VRAM_BASE;

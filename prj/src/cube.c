@@ -51,8 +51,8 @@ static void cube_scan_objects(Cube *c)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
-//		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
-//		if (o->offscreen) continue;
+		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
+		if (o->offscreen) continue;
 		if (obj_touching_cube(o, c))
 		{
 			obj_cube_impact(o, c);
@@ -160,7 +160,7 @@ static inline void cube_bg_bounce_sides(Cube *c)
 	const int16_t cy_bot = FIX32TOINT(c->y);
 	if (c->dy > 0 && map_collision(FIX32TOINT(c->x), cy_bot + 2)) return;
 
-	if (c->dx > 0)
+	if (c->dx > 0 && c->x + c->right < map_get_right())
 	{
 		if (map_collision(cx_r + 1, cy_top) ||
 		    map_collision(cx_r + 1, cy_bot))
@@ -179,14 +179,14 @@ static inline void cube_bg_bounce_sides(Cube *c)
 			// TODO: Queue cube bounce sound.
 		}
 	}
-	else if (c->dx < 0)
+	else if (c->dx < 0 && c->x + c->left > 0)
 	{
 		if (map_collision(cx_l - 1, cy_top) ||
 		    map_collision(cx_l - 1, cy_bot))
 		{
 			// X position (in pixels) of wall being touched. We want the right
 			// side of the tile, so 7 is added.
-			const int16_t touching_tile_x = ((cx_l + 1) / 8) * 8;
+			const int16_t touching_tile_x = 8 + ((cx_l - 1) / 8) * 8;
 			c->x = INTTOFIX32(touching_tile_x) - c->left + 1;
 			cube_bounce_dx(c);
 			c->bounce_count = 1;
@@ -207,6 +207,7 @@ static inline void cube_bg_bounce_top(Cube *c)
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	uint16_t gnd_chk[2];
+	if (c->y + c->top < 0) return;
 	gnd_chk[0] = map_collision(cx_left, cy_top - 1);
 	gnd_chk[1] = map_collision(cx_right, cy_top - 1);
 	// Both left and right tests count as a collison.
@@ -287,12 +288,12 @@ static inline void cube_do_ground_recoil(Cube *c)
 
 static inline void cube_bg_bounce_ground(Cube *c)
 {
-	if (c->dy < 0) return;
-	int16_t cx = FIX32TOINT(c->x);
+	const int16_t cx = FIX32TOINT(c->x);
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_bottom = FIX32TOINT(c->y);
 	uint16_t gnd_chk[2];
+	if (c->y > map_get_bottom()) return;
 	gnd_chk[0] = map_collision(cx_left, cy_bottom + 1);
 	gnd_chk[1] = map_collision(cx_right, cy_bottom + 1);
 	// Both left and right tests count as a collison.
@@ -314,13 +315,14 @@ static inline void cube_bg_bounce_ground(Cube *c)
 			// If the center doesn't have a collision, align it to the wall.
 			if (gnd_chk[0])
 			{
-				cx = ((cx + 8) / 8) * 8;
+				const int16_t touching_tile_x = 8 + ((cx_left - 1) / 8) * 8;
+				c->x = INTTOFIX32(touching_tile_x) - c->left + 1;
 			}
 			else
 			{
-				cx = ((cx - 2) / 8) * 8;
+				const int16_t touching_tile_x = ((cx_right + 1) / 8) * 8;
+				c->x = INTTOFIX32(touching_tile_x) - c->right - 1;
 			}
-			c->x = INTTOFIX32(cx);
 		}
 	}
 }
@@ -333,9 +335,9 @@ static inline void cube_bg_collision(Cube *c)
 	const int16_t cy_bottom = FIX32TOINT(c->y);
 	if (c->type == CUBE_TYPE_GREEN || c->type == CUBE_TYPE_GREENBLUE)
 	{
+		if (c->dx != 0) cube_bg_bounce_sides(c);
 		if (c->dy > 0) cube_bg_bounce_ground(c);
 		else if (c->dy < 0) cube_bg_bounce_top(c);
-		if (c->dx != 0) cube_bg_bounce_sides(c);
 	}
 	else
 	{
@@ -358,7 +360,6 @@ static inline void cube_movement(Cube *c)
 	}
 	c->x += c->dx;
 
-	int16_t cx = FIX32TOINT(c->x);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	const int16_t cy_bottom = FIX32TOINT(c->y);
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
@@ -371,13 +372,13 @@ static inline void cube_movement(Cube *c)
 		if (!map_collision(cx_left, cy_bottom + 1) &&
 		    !map_collision(cx_right, cy_bottom + 1))
 		{
+			c->x = c->dx < 0 ? INTTOFIX32(-1 + ((cx_left + 4) / 8) * 8) - c->left:
+			                   INTTOFIX32((((cx_right) / 8) * 8)) - c->right;
 			c->dx = 0;
 			c->status = CUBE_STATUS_AIR;
 			c->dy = kgravity;
 			// Lock to the grid.
 			// TODO: I don't know about that +4
-			cx = ((cx + 4) / 8) * 8;
-			c->x = INTTOFIX32(cx);
 		}
 	}
 
@@ -516,17 +517,6 @@ static inline void cube_render(Cube *c)
 		render_type = CUBE_TYPE_BLUE;
 	}
 
-	if (system_is_debug_enabled() && io_pad_read(0) & BTN_A)
-	{
-		int16_t sp_x = FIX32TOINT(c->x) - map_get_x_scroll();
-		int16_t sp_y = FIX32TOINT(c->y) - map_get_y_scroll();
-		spr_put(sp_x, sp_y, SPR_ATTR(1, 0, 0, 0, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(c->right), sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(c->left),  sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(c->right), sp_y + FIX32TOINT(c->top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(c->left),  sp_y + FIX32TOINT(c->top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		return;
-	}
 	cube_manager_draw_cube(FIX32TOINT(c->x + c->left),
 	                       FIX32TOINT(c->y + c->top), render_type);
 

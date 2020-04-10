@@ -257,8 +257,46 @@ static inline void x_acceleration(O_Lyle *l)
 	}
 
 	// limit top speed
-	if (l->head.dx > kdx_max) l->head.dx = kdx_max;
-	else if (l->head.dx < -kdx_max) l->head.dx = -kdx_max;
+	fix16_t dx_max = kdx_max;
+	if (l->holding_cube == CUBE_TYPE_ORANGE) dx_max /= 2;
+	if (l->head.dx > dx_max) l->head.dx = dx_max;
+	else if (l->head.dx < -dx_max) l->head.dx = -dx_max;
+}
+
+// Push the cube out of nearby walls. This is used when spawning a nwe cube,
+// to prevent the player from accidentally wasting a new cube.
+static inline void align_cube_to_touching_wall(Cube *c)
+{
+	const int16_t cx_left = FIX32TOINT(c->x + c->left);
+	const int16_t cx_right = FIX32TOINT(c->x + c->right);
+	const int16_t cy_bottom = FIX32TOINT(c->y);
+	const int16_t cy_top = FIX32TOINT(c->y + c->top);
+	uint16_t gnd_chk[2];
+	gnd_chk[0] = map_collision(cx_left, cy_bottom + 1);
+	gnd_chk[1] = map_collision(cx_right, cy_bottom + 1);
+	if (gnd_chk[0] && !gnd_chk[1])
+	{
+		const int16_t touching_tile_x = 8 + ((cx_left - 1) / 8) * 8;
+		c->x = INTTOFIX32(touching_tile_x) - c->left + 1;
+	}
+	else if (gnd_chk[1] && !gnd_chk[0])
+	{
+		const int16_t touching_tile_x = ((cx_right + 1) / 8) * 8;
+		c->x = INTTOFIX32(touching_tile_x) - c->right - 1;
+	}
+
+	gnd_chk[0] = map_collision(cx_left, cy_top - 1);
+	gnd_chk[1] = map_collision(cx_right, cy_top - 1);
+	if (gnd_chk[0] || gnd_chk[1])
+	{
+		uint8_t i = 16;
+		while (i-- &&
+		       (map_collision(FIX32TOINT(c->x + c->left), FIX32TOINT(c->y + c->top)) ||
+		        map_collision(FIX32TOINT(c->x + c->right), FIX32TOINT(c->y + c->top))))
+		{
+			c->y += INTTOFIX32(2);
+		}
+	}
 }
 
 static inline void toss_cubes(O_Lyle *l)
@@ -296,17 +334,15 @@ static inline void toss_cubes(O_Lyle *l)
 		fix32_t c_y = l->head.y - INTTOFIX32(23);
 		fix32_t c_x = l->head.x;
 
-		// TODO: Check if the newly created cube would be in a wall, and push
-		// it down if needed by two tiles at most.
-
 		// Convert a greenblue cube to blue.
 		if (l->holding_cube == CUBE_TYPE_GREENBLUE)
 		{
 			l->holding_cube = CUBE_TYPE_BLUE;
 		}
 
-		cube_manager_spawn(c_x, c_y, l->holding_cube, CUBE_STATUS_AIR,
-		                   c_dx, c_dy);
+		Cube *c = cube_manager_spawn(c_x, c_y, l->holding_cube, CUBE_STATUS_AIR,
+		                             c_dx, c_dy);
+		align_cube_to_touching_wall(c);
 
 		// TODO: cue cube toss sound
 
@@ -369,21 +405,8 @@ static inline void jump(O_Lyle *l)
 		else if (l->holding_cube && !l->cubejump_disable)
 		{
 			l->throwdown_cnt = kcubejump_anim_len;
-
-			// If the wall behind the player is solid, snap the cube's X to it
-			// so the tube does not fizzle immediately on throw.
 			fix32_t c_x = l->head.x;
 			fix32_t c_y = l->head.y;
-			fix32_t back_x = (l->head.direction == OBJ_DIRECTION_LEFT) ?
-			                 (c_x + l->head.right + INTTOFIX16(4)) :
-			                 (c_x + l->head.left - INTTOFIX16(4));
-
-			// Align the cube
-			if (map_collision(FIX32TOINT(back_x), FIX32TOINT(l->head.y)))
-			{
-				c_x = INTTOFIX32(8 * ((FIX32TOINT(c_x) + 4 ) / 8));
-			}
-			
 
 			// Convert greenblue to blue
 			if (l->holding_cube == CUBE_TYPE_GREENBLUE)
@@ -391,10 +414,13 @@ static inline void jump(O_Lyle *l)
 				l->holding_cube = CUBE_TYPE_BLUE;
 			}
 
-			cube_manager_spawn(c_x, c_y, l->holding_cube, CUBE_STATUS_AIR,
-			                   0, ktoss_cube_dy_down);
+			Cube *c = cube_manager_spawn(c_x, c_y, l->holding_cube, CUBE_STATUS_AIR,
+			                             0, ktoss_cube_dy_down);
+
+			align_cube_to_touching_wall(c);
 
 			l->holding_cube = CUBE_TYPE_NULL;
+
 			// TODO: cue cube toss sound
 			l->head.dy = kjump_dy;
 		}
@@ -409,7 +435,7 @@ static inline void bg_vertical_collision(O_Lyle *l)
 	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
 	const int16_t py_bottom = FIX32TOINT(l->head.y);
-	if (l->head.dy > 0)
+	if (l->head.dy > 0 && l->head.y < map_get_bottom())
 	{
 		if (map_collision(px_r, py_bottom + 1) ||
 		    map_collision(px_l, py_bottom + 1))
@@ -420,13 +446,20 @@ static inline void bg_vertical_collision(O_Lyle *l)
 			l->head.dy = 0;
 			eval_grounded(l);
 		}
+		// Make sure we aren't stuck in a wall, and push out if needed.
+		uint8_t i = 3;
+		while (i-- && (map_collision(px_r, FIX32TOINT(l->head.y)) ||
+		               map_collision(px_l, FIX32TOINT(l->head.y))))
+		{
+			l->head.y -= INTTOFIX32(8);
+		}
 	}
-	else if (l->head.dy < 0)
+	else if (l->head.dy < 0 && l->head.y + l->head.top > 0)
 	{
 		if (map_collision(px_r, py_top - 1) ||
 		    map_collision(px_l, py_top - 1))
 		{
-			const int16_t touching_tile_y = ((py_top + 1) / 8) * 8;
+			const int16_t touching_tile_y = 8 + ((py_top - 1) / 8) * 8;
 			l->head.y = INTTOFIX32(touching_tile_y) - l->head.top + 1;
 			if (l->head.dy < kceiling_dy) l->head.dy = kceiling_dy;
 		}
@@ -442,7 +475,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
 	const int16_t py_mid = FIX32TOINT(l->head.y + ((l->head.top) / 2));
 	const int16_t py_bot = FIX32TOINT(l->head.y + LYLE_STEP_UP);
-	if (l->head.dx > 0)
+	if (l->head.dx > 0 && l->head.x + l->head.right < map_get_right())
 	{
 		if (map_collision(px_r + 1, py_top) ||
 		    map_collision(px_r + 1, py_mid) ||
@@ -454,7 +487,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 			l->head.dx = 0;
 		}
 	}
-	else if (l->head.dx < 0)
+	else if (l->head.dx < 0 && l->head.x + l->head.left > 0)
 	{
 		if (map_collision(px_l - 1, py_top) ||
 		    map_collision(px_l - 1, py_mid) ||
@@ -462,7 +495,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 		{
 			// X position (in pixels) of wall being touched. We want the right
 			// side of the tile, so 7 is added.
-			const int16_t touching_tile_x = ((px_l + 1) / 8) * 8;
+			const int16_t touching_tile_x = 8 + ((px_l - 1) / 8) * 8;
 			l->head.x = INTTOFIX32(touching_tile_x) - l->head.left + 1;
 			l->head.dx = 0;
 		}
@@ -476,8 +509,6 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
-
-	l->head.x += l->head.dx;
 
 	if (l->head.x + l->head.right >= c->x + c->left &&
 	    l->head.x + l->head.left <= c->x + c->right)
@@ -497,8 +528,6 @@ static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 			if (l->head.dy < kceiling_dy) l->head.dy = kceiling_dy;
 		}
 	}
-
-	l->head.x -= l->head.dx;
 }
 
 // This function is called to handle horizontal collision events once it is
@@ -506,6 +535,8 @@ static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 static inline void cube_horizontal_collision(O_Lyle *l, Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
+
+	l->head.y -= l->head.dy;
 
 	if (l->head.y >= c->y + c->top &&
 	    l->head.y + l->head.top <= c->y)
@@ -525,14 +556,21 @@ static inline void cube_horizontal_collision(O_Lyle *l, Cube *c)
 			l->head.dx = 0;
 		}
 	}
+
+	l->head.y += l->head.dy;
 }
 
 static inline void cube_eval_standing(O_Lyle *l, Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
+
+	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
+	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
+	if (map_collision(px_r, py_top) || map_collision(px_l, py_top)) return;
 	
-	if (l->head.x + l->head.right >= c->x + c->left &&
-	    l->head.x + l->head.left <= c->x + c->right)
+	if (l->head.x + l->head.right > c->x + c->left &&
+	    l->head.x + l->head.left < c->x + c->right)
 	{
 		if (l->head.y + 1 >= c->y + c->top &&
 		    l->head.y < c->y + (c->top / 2))
@@ -617,8 +655,8 @@ static inline void cube_collision(O_Lyle *l)
 
 		if (c->status == CUBE_STATUS_IDLE)
 		{
-			cube_vertical_collision(l, c);
 			cube_horizontal_collision(l, c);
+			cube_vertical_collision(l, c);
 			cube_eval_standing(l, c);
 			cube_kick(l, c);
 		}
@@ -654,7 +692,7 @@ static inline void cube_collision(O_Lyle *l)
 
 static inline void exit_check(O_Lyle *l)
 {
-	const fix32_t x_margin = INTTOFIX32(8);
+	const fix32_t x_margin = INTTOFIX32(3);
 	const fix32_t bottom_margin = INTTOFIX32(8);
 	const fix32_t top_margin = INTTOFIX32(16);
 	if (l->head.x < x_margin && l->head.dx < 0) l->has_exited = 1;
@@ -680,11 +718,29 @@ static inline void gravity(O_Lyle *l)
 	if (l->head.dy > kdy_max) l->head.dy = kdy_max;
 }
 
+static inline void head_pushout(O_Lyle *l)
+{
+	if (!l->grounded && !l->on_cube) return;
+
+	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
+	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
+	if (map_collision(px_r, py_top))
+	{
+		l->head.x -= INTTOFIX32(1);
+	}
+	else if (map_collision(px_l, py_top))
+	{
+		l->head.x += INTTOFIX32(1);
+	}
+}
+
 static inline void move(O_Lyle *l)
 {
 	obj_standard_physics(&l->head);
 	bg_vertical_collision(l);
 	bg_horizontal_collision(l);
+	head_pushout(l);
 	eval_grounded(l);
 	cube_collision(l);
 	exit_check(l);
@@ -859,7 +915,6 @@ static inline void draw(O_Lyle *l)
 	const uint16_t odd_frame = g_elapsed % 2;
 	if (l->holding_cube)
 	{
-		// TODO: Position cube differently if it is orange.
 		cube_manager_draw_cube(FIX32TOINT(l->head.x) + LYLE_DRAW_LEFT,
 		                       FIX32TOINT(l->head.y) + LYLE_DRAW_TOP - 15,
 		                       l->holding_cube);
@@ -914,25 +969,11 @@ static inline void draw(O_Lyle *l)
 	if (sp_x < -32 || sp_x > GAME_SCREEN_W_PIXELS) return;
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
-	if (system_is_debug_enabled() && buttons & BTN_A)
-	{
-		sp_x = FIX32TOINT(l->head.x) - map_get_x_scroll();
-		sp_y = FIX32TOINT(l->head.y) - map_get_y_scroll();
-		spr_put(sp_x, sp_y, SPR_ATTR(1, 0, 0, 0, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(l->head.right), sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(l->head.left),  sp_y, SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(l->head.right), sp_y + FIX32TOINT(l->head.top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-		spr_put(sp_x + FIX32TOINT(l->head.left),  sp_y + FIX32TOINT(l->head.top), SPR_ATTR(1, 0, 0, 3, 0), SPR_SIZE(1, 1));
-	}
-	else
-	{
-		spr_put(sp_x, sp_y,
-		        SPR_ATTR(vram_pos + tile_offset,
-		                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
-		                 LYLE_PAL_LINE, 0),
-		        size);
-	}
-
+	spr_put(sp_x, sp_y,
+	        SPR_ATTR(vram_pos + tile_offset,
+	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
+	                 LYLE_PAL_LINE, 0),
+	        size);
 }
 
 static inline void set_map_scroll(const O_Lyle *l)

@@ -7,12 +7,43 @@
 
 static const Gfx gfx[] =
 {
-	[GFX_METAGRUB] = GFX(obj_3_metagrub),
-
 	[GFX_LYLE] = GFX(obj_128_lyle),
 	[GFX_CUBES] = GFX(obj_129_cubes),
-
 	[GFX_TEMPLATE] = GFX(obj_255_template),
+
+	[GFX_ENTRANCE] = GFX(obj_1_entrance),
+	[GFX_METAGRUB] = GFX(obj_3_metagrub),
+	[GFX_FLIP] = GFX(obj_4_flip),
+	[GFX_BOINGO] = GFX(obj_5_boingo),
+	[GFX_ITEM] = GFX(obj_6_item),
+	[GFX_GAXTER] = GFX(obj_7_gaxter),
+	[GFX_BUGGO] = GFX(obj_9_buggo),
+	[GFX_DANCYFLOWER] = GFX(obj_11_dancyflower),
+	[GFX_JRAFF] = GFX(obj_12_jraff),
+	[GFX_PILLA] = GFX(obj_13_pilla),
+	[GFX_HEDGEDOG] = GFX(obj_14_hedgedog),
+	[GFX_SHOOT] = GFX(obj_15_shoot),
+	[GFX_LASER] = GFX(obj_16_laser),
+	[GFX_KILLZAM] = GFX(obj_17_killzam),
+	[GFX_FLARGY] = GFX(obj_18_flargy),
+	[GFX_PLANT] = GFX(obj_19_plant),
+	[GFX_TOSSMUFFIN] = GFX(obj_20_tossmuffin),
+	[GFX_TELEPORTER] = GFX(obj_21_teleporter),
+	[GFX_MAGIBEAR] = GFX(obj_22_magibear),
+	[GFX_LAVA] = GFX(obj_23_lava),
+	[GFX_COW] = GFX(obj_24_cow),
+	[GFX_ELEVATOR] = GFX(obj_31_elevator),
+	[GFX_FISSINS1] = GFX(obj_33_fissins1),
+	[GFX_BOSS1] = GFX(obj_34_boss1),
+	[GFX_FISSINS2] = GFX(obj_39_fissins2),
+	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
+
+	[GFX_EX_ITEMS] = GFX(ex_items),
+	[GFX_EX_PROJECTILES] = GFX(ex_projectiles),
+	[GFX_EX_PARTICLES] = GFX(ex_particles),
+
+	[GFX_TITLE_BOGOLOGO] = GFX(title_bogologo),
+	[GFX_TITLE_TITLELOGO] = GFX(title_titlelogo),
 };
 
 int gfx_init(void)

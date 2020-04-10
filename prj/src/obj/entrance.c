@@ -16,7 +16,7 @@ static void vram_load(void)
 {
 	if (vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_TEMPLATE);
+	const Gfx *g = gfx_get(GFX_ENTRANCE);
 	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
@@ -38,7 +38,7 @@ static void main_func(Obj *o)
 	spr_put(sp_x, sp_y,
 	        SPR_ATTR(vram_pos,
 	                 e->head.direction == OBJ_DIRECTION_LEFT, 0,
-	                 0, 0), SPR_SIZE(2, 4));
+	                 3, 0), SPR_SIZE(2, 4));
 }
 
 void o_load_entrance(Obj *o, uint16_t data)
@@ -47,7 +47,7 @@ void o_load_entrance(Obj *o, uint16_t data)
 
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_SENSITIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-32), 127);
+	obj_basic_init(o, OBJ_FLAG_SENSITIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-31), 127);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;

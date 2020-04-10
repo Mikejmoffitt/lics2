@@ -40,32 +40,29 @@ static void vram_load(void)
 
 static inline void metagrub_draw(Obj *o)
 {
-	int16_t sp_x = FIX32TOINT(o->x) - map_get_x_scroll();
-	int16_t sp_y = FIX32TOINT(o->y) - map_get_y_scroll();
+	int16_t x_offset, y_offset;
 	uint16_t tile = vram_pos;
 	const uint8_t dir = o->direction == OBJ_DIRECTION_LEFT;
 	const uint8_t pal = LYLE_PAL_LINE;
 	uint8_t size;
 
-	if (o->hurt_stun > 0)
-	{
-		sp_x += (system_rand() % 8) - 3;
-		sp_y += (system_rand() % 8) - 3;
-	}
-
 	if (o->dx != 0)
 	{
-		sp_x -= 13;
-		sp_y -= 5;
+		x_offset = -13;
+		y_offset = -5;
 		tile += 4;
 		size = SPR_SIZE(3, 1);
 	}
 	else
 	{
-		sp_x -= 9;
-		sp_y -= 8;
+		x_offset = -9;
+		y_offset = -8;
 		size = SPR_SIZE(2, 2);
 	}
+
+	int16_t sp_x, sp_y;
+	obj_render_setup(o, &sp_x, &sp_y, x_offset, y_offset,
+	                 map_get_x_scroll(), map_get_y_scroll());
 
 	spr_put(sp_x, sp_y, SPR_ATTR(tile, dir, 0, pal, 0), size);
 }

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "system.h"
 #include "util/fixed.h"
 #include "obj_types.h"
 
@@ -92,6 +93,21 @@ void obj_cube_impact(Obj *o, Cube *c);
 void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
 void obj_standard_physics(Obj *o);
 void obj_standard_cube_response(Obj *o, Cube *c);
+
+// Sets up sprite rendering position based on sprite's coordinates, stun, and
+// map scroll.
+static inline void obj_render_setup(Obj *o, int16_t *sp_x, int16_t *sp_y,
+                                    int16_t x_offset, int16_t y_offset,
+                                    int16_t x_scroll, int16_t y_scroll)
+{
+	*sp_x = FIX32TOINT(o->x) + x_offset - x_scroll;
+	*sp_y = FIX32TOINT(o->y) + y_offset - y_scroll;
+	if (o->hurt_stun > 0)
+	{
+		*sp_x += (system_rand() % 8) - 3;
+		*sp_y += (system_rand() % 8) - 3;
+	}
+}
 
 void obj_get_hurt(Obj *o, int16_t damage);
 

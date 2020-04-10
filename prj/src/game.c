@@ -126,12 +126,13 @@ static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
 
 static void ge_game_ingame(void)
 {
-	static uint8_t next_room_id = 3;
+	static uint8_t next_room_id = 1;
 	static uint8_t next_room_entrance = 0;
 	static fix16_t lyle_entry_dx = 0;
 	static fix16_t lyle_entry_dy = 0;
 	static int16_t lyle_cp = 0;
 	static int16_t lyle_phantom_cnt = 0;
+	pal_set(0, 0);
 
 	if (g_elapsed == 0)
 	{
@@ -147,7 +148,6 @@ static void ge_game_ingame(void)
 		obj_spawn(0, 0, OBJ_MAP, 0);
 
 		map_load(next_room_id, next_room_entrance);
-		dma_q_transfer_vram(32, res_gfx_pixel_bin, sizeof(res_gfx_pixel_bin) / 2, 2);
 
 		O_Lyle *l = lyle_get();
 		l->head.dx = lyle_entry_dx;
@@ -162,10 +162,18 @@ static void ge_game_ingame(void)
 	}
 	obj_exec();
 
-	if (lyle_has_exited())
+	if (lyle_has_exited() || io_pad_read(0) & BTN_A)
 	{
-		next_room_id = map_get_next_room_id();
-		next_room_entrance = map_get_next_room_entrance();
+		if (io_pad_read(0) & BTN_A)
+		{
+			next_room_id++;
+			next_room_entrance = 0;
+		}
+		else
+		{
+			next_room_id = map_get_next_room_id();
+			next_room_entrance = map_get_next_room_entrance();
+		}
 		const O_Lyle *l = lyle_get();
 		lyle_entry_dx = l->head.dx;
 		lyle_entry_dy = l->head.dy;

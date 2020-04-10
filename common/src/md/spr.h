@@ -47,10 +47,7 @@ static inline void spr_init(void)
 // Place a sprite.
 static inline void _spr_put(int16_t x, int16_t y, uint32_t attrsize)
 {
-	if (g_sprite_count >= SPR_MAX)
-	{
-		return;
-	}
+	if (g_sprite_count >= SPR_MAX) return;
 	SprSlot *spr = &g_sprite_table[g_sprite_count];
 	spr->link = g_sprite_count + 1;
 	spr->xpos = x + 128;

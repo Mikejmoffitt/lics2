@@ -58,6 +58,8 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_ORANGE:
+			y -= 16;
+			x -= 8;
 			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, 1, 0),
 			        SPR_SIZE(4, 4));
 			break;
@@ -84,13 +86,13 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 		c->dy = dy;
 		if (c->type == CUBE_TYPE_ORANGE)
 		{
-			c->left = INTTOFIX16(-16);
+			c->left = INTTOFIX16(-15);
 			c->right = INTTOFIX16(15);
 			c->top = INTTOFIX16(-32);
 		}
 		else
 		{
-			c->left = INTTOFIX16(-7);
+			c->left = INTTOFIX16(-8);
 			c->right = INTTOFIX16(8);
 			c->top = INTTOFIX16(-15);
 		}

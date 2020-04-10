@@ -360,11 +360,6 @@ void o_load_map(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Map) <= sizeof(ObjSlot));
 	(void)data;
 
-	if (map)
-	{
-		o->status = OBJ_STATUS_NULL;
-		return;
-	}
 	map = (O_Map *)o;
 	g_map_data = NULL;
 
@@ -375,7 +370,6 @@ void o_load_map(Obj *o, uint16_t data)
 
 void o_unload_map(void)
 {
-	map = NULL;
 }
 
 // Public functions -----------------------------------------------------------
@@ -388,7 +382,7 @@ void o_unload_map(void)
 // * Queues DMA for the tileset
 void map_load(uint8_t id, uint8_t entrance_num)
 {
-	if (!map) return;
+	SYSTEM_ASSERT(map != NULL);
 	map->current_map = map_by_id[id].data;
 	g_map_data = map->current_map->map_data;
 	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;

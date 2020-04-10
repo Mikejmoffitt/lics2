@@ -37,7 +37,5 @@ void o_load_template(Obj *o, uint16_t data)
 
 void o_unload_template(void)
 {
-	if (!vram_pos) return;
-
 	vram_pos = 0;
 }
