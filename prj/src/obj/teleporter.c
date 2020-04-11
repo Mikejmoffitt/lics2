@@ -7,6 +7,7 @@
 #include "md/megadrive.h"
 #include "palscale.h"
 #include "obj/lyle.h"
+#include "obj/map.h"
 #include "game.h"
 
 // Constants.
@@ -61,7 +62,6 @@ static inline void render(O_Teleporter *t)
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(aura_tile, 0, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
-
 }
 
 static void main_func(Obj *o)

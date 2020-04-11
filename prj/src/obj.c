@@ -9,6 +9,7 @@
 #include "obj/entrance.h"
 #include "obj/metagrub.h"
 #include "obj/flip.h"
+#include "obj/boingo.h"
 
 #include "obj/teleporter.h"
 
@@ -70,6 +71,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_CUBE] = {cube_spawn_stub, NULL},
 	[OBJ_METAGRUB] = {o_load_metagrub, o_unload_metagrub},
 	[OBJ_FLIP] = {o_load_flip, o_unload_flip},
+	[OBJ_BOINGO] = {o_load_boingo, o_unload_boingo},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 

@@ -90,6 +90,9 @@ void cube_bounce_dx(Cube *c);
 
 void cube_destroy(Cube *c);
 
+// Constrains cube'x DX
+void cube_clamp_dx(Cube *c);
+
 // Called when touching a spawner cube.
 void cube_restrict_spawn(Cube *c);
 

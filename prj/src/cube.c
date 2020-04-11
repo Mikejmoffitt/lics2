@@ -146,7 +146,7 @@ void cube_destroy(Cube *c)
 	}
 }
 
-static inline void clamp_dx(Cube *c)
+void cube_clamp_dx(Cube *c)
 {
 	if (c->dx > 0) c->dx = kcube_on_cube_dx;
 	else if (c->dx < 0) c->dx = -kcube_on_cube_dx;
@@ -423,7 +423,7 @@ static inline void green_cube_col(Cube *c, Cube *d)
 		}
 		else
 		{
-			clamp_dx(c);
+			cube_clamp_dx(c);
 		}
 		c->dy = kcube_on_cube_dy;
 		// TODO: Cue sound for cube bounce

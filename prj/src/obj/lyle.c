@@ -924,12 +924,12 @@ static inline void draw(O_Lyle *l)
 	// Teleporter in flashing
 	if (l->tele_out_cnt > 0)
 	{
-		if (odd_frame && l->tele_out_cnt >= ktele_anim) return;
+		if ((g_elapsed % 8 > 3) && l->tele_out_cnt >= ktele_anim) return;
 		if (l->tele_out_cnt < ktele_anim) return;
 	}
 	else if (l->tele_in_cnt > 0)
 	{
-		if (odd_frame && l->tele_in_cnt <= ktele_anim) return;
+		if ((g_elapsed % 8 > 3) && l->tele_in_cnt <= ktele_anim) return;
 		if (l->tele_in_cnt > ktele_anim) return;
 	}
 	
