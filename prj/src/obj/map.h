@@ -55,10 +55,28 @@ void o_unload_map(void);
 // * Queues DMA for the tileset
 void map_load(uint8_t id, uint8_t entrance_num);
 
-uint8_t map_get_current_tileset(void);
+// Map metadata.
+uint8_t map_get_music_track(void);
+
+static inline uint8_t map_is_tile_harmful(uint8_t tile)
+{
+	return tile >= 0xE0;
+}
+
+static inline uint8_t map_is_tile_solid(uint8_t tile)
+{
+	return tile >= 0x80 && tile < 0xE0;
+}
+
+static inline uint16_t map_data_at(int16_t x, int16_t y)
+{
+	const uint16_t check_addr = (y / 8) * (g_map_row_size) + (x / 8);
+	return g_map_data[check_addr];
+}
 
 static inline uint16_t map_collision(int16_t x, int16_t y)
 {
+	return map_is_tile_solid(map_data_at(x, y) & 0xFF);
 	const uint16_t check_addr = (y / 8) * (g_map_row_size) + (x / 8);
 	const uint8_t m = g_map_data[check_addr];  // Originally had AND with 0x7FFF
 	return (m >= 0x80) && (m < 0xE0);

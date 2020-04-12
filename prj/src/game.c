@@ -4,6 +4,7 @@
 #include "common.h"
 #include "gfx.h"
 #include "md/megadrive.h"
+#include "music.h"
 
 #include "obj/map.h"
 #include "obj/lyle.h"
@@ -13,6 +14,8 @@
 #include "res.h"
 
 #include "util/text.h"
+
+#include "echo/echo.h"
 
 typedef enum Exec
 {
@@ -70,6 +73,7 @@ static const InitFunc init_funcs[] =
 	{"system", system_init},
 	{"gfx", gfx_init},
 	{"obj", obj_init},
+	{"music", music_init},
 };
 
 static void ge_init(void)
@@ -158,6 +162,9 @@ static void ge_game_ingame(void)
 		l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
 		                                     OBJ_DIRECTION_RIGHT;
 		l->tele_in_cnt = lyle_tele_in_cnt;
+
+		music_play(map_get_music_track());
+
 		return;
 	}
 	else if (g_elapsed == 2)

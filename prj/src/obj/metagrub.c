@@ -118,7 +118,6 @@ void o_load_metagrub(Obj *o, uint16_t data)
 {
 	(void)data;
 	vram_load();
-	O_Metagrub *e = (O_Metagrub *)o;
 
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-7), 1);

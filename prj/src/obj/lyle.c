@@ -161,7 +161,7 @@ static inline uint16_t is_control_disabled(O_Lyle *l)
 
 static inline void walking_sound(O_Lyle *l)
 {
-	// TODO: Cue walkg sounds.
+	// TODO: Cue walkig sounds.
 }
 
 static inline void eval_grounded(O_Lyle *l)
@@ -735,20 +735,17 @@ static inline void head_pushout(O_Lyle *l)
 	}
 }
 
-static inline void move(O_Lyle *l)
-{
-	obj_standard_physics(&l->head);
-	bg_vertical_collision(l);
-	bg_horizontal_collision(l);
-	head_pushout(l);
-	eval_grounded(l);
-	cube_collision(l);
-	exit_check(l);
-	gravity(l);
-}
-
 static inline void check_spikes(O_Lyle *l)
 {
+	if (l->hurt_cnt > 0) return;
+	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
+	const int16_t py_bottom = FIX32TOINT(l->head.y);
+	if (map_is_tile_harmful(map_data_at(px_r, py_bottom)) ||
+	    map_is_tile_harmful(map_data_at(px_l, py_bottom)))
+	{
+		lyle_get_hurt();
+	}
 	// TODO: Check agains BG for tiles in spikes range
 	// TODO: Would be nice to instead have a LUT applied to the tileset.
 }
@@ -1003,7 +1000,16 @@ static void main_func(Obj *o)
 	cp(l);
 	jump(l);
 
-	move(l);
+	obj_standard_physics(&l->head);
+	bg_vertical_collision(l);
+	bg_horizontal_collision(l);
+	head_pushout(l);
+	eval_grounded(l);
+	cube_collision(l);
+	exit_check(l);
+	gravity(l);
+
+	check_spikes(l);
 	eval_grounded(l);
 	calc_anim_frame(l);
 	// entrance_collision(l);  // TODO: Remove this, because entrances can

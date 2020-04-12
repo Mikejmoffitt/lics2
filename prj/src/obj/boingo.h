@@ -20,6 +20,7 @@ typedef struct O_Boingo
 	int8_t anim_cnt;
 	int8_t anim_frame;
 	int8_t jumping;
+	int8_t transition_to_normal;
 } O_Boingo;
 
 void o_load_boingo(Obj *o, uint16_t data);

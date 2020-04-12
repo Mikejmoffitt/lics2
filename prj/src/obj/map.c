@@ -479,3 +479,10 @@ uint8_t map_get_next_room_entrance(void)
 {
 	return map->next_room_entrance;
 }
+
+uint8_t map_get_music_track(void)
+{
+	if (!map) return 0;
+	if (!map->current_map) return 0;
+	return map->current_map->music;
+}

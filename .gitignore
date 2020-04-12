@@ -6,3 +6,7 @@
 prj/res.h
 prj/obj/*/*.*
 prj/obj/*.*
+prj/music/out
+prj/music/out/*
+util/xm2esf/TEMP
+prj/*.gen

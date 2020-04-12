@@ -8,6 +8,7 @@
 int system_init(void);
 uint16_t system_is_ntsc(void);
 uint16_t system_rand(void);
+void system_set_debug_enabled(int16_t en);
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x

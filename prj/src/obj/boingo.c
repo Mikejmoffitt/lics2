@@ -75,15 +75,16 @@ static inline void render(O_Boingo *b)
 	{
 		if (b->boingo_type == BOINGO_TYPE_CUBE_ACTIVE)
 		{
-			// Cube
+			// The cube.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y - b->anim_frame, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			const uint16_t tile = vram_pos + (b->anim_frame ? 26 : 24);
+			const uint16_t tile = vram_pos + (b->anim_frame ? 30 : 28);
 			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 		}
@@ -108,18 +109,25 @@ static inline void render(O_Boingo *b)
 	{
 		if (b->boingo_type == BOINGO_TYPE_CUBE_ACTIVE)
 		{
-			// The cube.
+			// Cube
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y + b->anim_frame, SPR_ATTR(vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
-
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			const uint16_t tile = vram_pos + (b->anim_frame ? 30 : 28);
+			const uint16_t tile = vram_pos + (b->anim_frame ? 26 : 24);
 			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
+
+		}
+		else if (b->boingo_type == BOINGO_TYPE_CUBE)
+		{
+			obj_render_setup(o, &sp_x, &sp_y, -8, -15,
+			                 map_get_x_scroll(), map_get_y_scroll());
+			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
+			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		}
 		else
 		{
@@ -176,8 +184,14 @@ static void main_func(Obj *o)
 
 	if (o->hurt_stun > 0)
 	{
-		render(o);
+		render(b);
 		return;
+	}
+
+	if (b->transition_to_normal)
+	{
+		b->boingo_type = BOINGO_TYPE_NORMAL;
+		b->transition_to_normal = 0;
 	}
 
 	if (b->boingo_type == BOINGO_TYPE_CUBE)
@@ -195,7 +209,7 @@ static void main_func(Obj *o)
 		{
 			obj_standard_physics(o);
 			o->dy += kgravity;
-			bg_collisions(o);
+			bg_collisions(b);
 		}
 		else
 		{
@@ -252,14 +266,20 @@ static void cube_func(Obj *o, Cube *c)
 
 	if (b->boingo_type == BOINGO_TYPE_CUBE)
 	{
-		cube_clamp_dx(c);
-		c->dy = kcube_bounce_dy;
+		if (c->status == CUBE_STATUS_AIR)
+		{
+			// Just setting some random high dx to give the cube some direction
+			// since the clamp will put it within a reasonable range.
+			if (c->dx == 0) c->dx = INTTOFIX32(system_rand() % 2 ? 5 : -5);
+			cube_clamp_dx(c);
+			c->dy = kcube_bounce_dy;
+		}
 		// TODO: Play cube bounce sound.
 		return;
 	}
 	else if (b->boingo_type == BOINGO_TYPE_CUBE_ACTIVE)
 	{
-		b->boingo_type == BOINGO_TYPE_NORMAL;
+		b->transition_to_normal = 1;
 		// TODO: Spawn fizzle particles.
 		// TODO: Play explode sound.
 		o->cube_func = NULL;
@@ -284,15 +304,15 @@ void o_load_boingo(Obj *o, uint16_t data)
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-9), INTTOFIX16(9), INTTOFIX16(-15), 1);
 	o->main_func = main_func;
+	b->boingo_type = (BoingoType)data;
 	if (b->boingo_type == BOINGO_TYPE_CUBE)
 	{
 		o->cube_func = cube_func;
 		o->hp = 3;
 	}
 
-	o->x += INTTOFIX32(3);
+	o->x -= INTTOFIX32(1);
 
-	b->boingo_type = (BoingoType)data;
 
 }
 

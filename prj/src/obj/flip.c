@@ -76,11 +76,15 @@ static void main_func(Obj *o)
 	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y)))
 	{
 		o->dx = -kdx;
+		f->x_min = o->x - INTTOFIX32(100);
+		f->x_max = o->x;
 	}
 	else if (o->dx < 0 &&
 	         map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y)))
 	{
 		o->dx = kdx;
+		f->x_min = o->x;
+		f->x_max = o->x + INTTOFIX32(100);
 	}
 
 	o->direction = (o->dx >= 0) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
@@ -98,8 +102,7 @@ static void main_func(Obj *o)
 		if (o->dy < -kdy_cutoff) f->moving_up = 1;
 	}
 
-//	if (o->dy == 0 && f->moving_up) o->y = f->y_orig
-	;obj_standard_physics(o);
+	obj_standard_physics(o);
 
 	// Animation.
 	if (f->anim_cnt == kanim_len)
@@ -132,6 +135,7 @@ void o_load_flip(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 	o->y += INTTOFIX32(4);
 	o->direction = OBJ_DIRECTION_LEFT;
+	o->dx = -kdx;
 
 	f->x_min = o->x - INTTOFIX32(100);
 	f->x_max = o->x;
