@@ -6,8 +6,8 @@
 FILE "..\..\prj\music\xm\bgm8\bgm8.xm"
 TYPE BGM LOOP
 
-TEMPO 7
-PSG 3
+TEMPO 6
+PSG 0
 NOISE 0
 FM 5
 PCM 1
@@ -18,22 +18,20 @@ FM3 3
 FM4 4
 FM5 5
 PCMC 6
-PSG2 7
-PSG3 8
 
 [Instruments]
 1 0E
-2 0A
+2 32
 3 1B
 4 1A
 5 2
 6 1C
-7 3
+7 31
 8 0
 9 0
 10 6
 11 15
-12 0
+12 31
 13 0
 14 0
 15 0
@@ -156,18 +154,10 @@ FM2 -5
 FM3 -5
 FM4 -5
 FM5 -5
-PSGN 0
-PSG1 -5
-PSG2 -17
-PSG3 -17
 [Volume]
-FM1 58
-FM2 58
-FM3 58
-FM4 58
-FM5 58
-PSGN 56
-PSG1 48
-PSG2 48
-PSG3 48
+FM1 56
+FM2 56
+FM3 56
+FM4 56
+FM5 56
 [END]

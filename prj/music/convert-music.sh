@@ -7,16 +7,14 @@ mkdir -p ./out
 for s in `find raw_samples/* -type f -printf '%f '`
 do
 	out_name=$(echo "$s" | cut -f 1 -d '.')
-	echo converting raw_samples/$s out/$out_name.ewf
-	../../util/pcm2ewf-lin64 raw_samples/$s out/$out_name.ewf
+	../../util/pcm2ewf-lin64 raw_samples/$s out/$out_name.ewf &
 done
 
 # Convert VGI instruments
 for i in `find instruments/* -type f -printf '%f '`
 do
 	out_name=$(echo "$i" | cut -f 1 -d '.')
-	echo converting instruments/$i out/$i.eif
-	../../util/vgi2eif-lin64 instruments/$i out/$out_name.eif
+	../../util/vgi2eif-lin64 instruments/$i out/$out_name.eif &
 done
 
 # Just copy envelopes, I guess

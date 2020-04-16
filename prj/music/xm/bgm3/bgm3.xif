@@ -3,7 +3,7 @@
 FILE "..\..\prj\music\xm\bgm3\bgm3.xm"
 
 TYPE BGM LOOP
-TEMPO 4
+TEMPO 3
 PSG 0
 NOISE 0
 FM 5
@@ -25,7 +25,7 @@ PCMC 6
 6 F
 7 F
 8 12
-9 1
+9 1D
 10 1
 11 0E
 12 0E

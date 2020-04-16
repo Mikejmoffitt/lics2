@@ -5,7 +5,7 @@
 
 FILE "..\..\prj\music\xm\bgm5\bgm5.xm"
 TYPE BGM LOOP
-TEMPO 7
+TEMPO 6
 PSG 0
 NOISE 1
 FM 5
@@ -18,20 +18,20 @@ FM5 5
 PCMC 6
 PSGN 7
 [Instruments]
-1 16
+1 25
 2 0
 3 0
 4 1
 5 4
 6 6
 7 5
-8 10
+8 26
 9 0
 10 0
 11 0
 12 0
 13 0
-14 0
+14 27
 15 2
 16 0
 17 0
@@ -154,10 +154,10 @@ FM4 -1
 FM5 -1
 PSGN 30
 [Volume]
-FM1 49
-FM2 52
-FM3 52
-FM4 52
-FM5 52
-PSGN 60
+FM1 56
+FM2 56
+FM3 56
+FM4 56
+FM5 56
+PSGN 64
 [END]

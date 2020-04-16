@@ -2,10 +2,10 @@
 # FROM DAT OERG866 YEYEYE
 FILE "..\..\prj\music\xm\bgm2\bgm2.xm"
 TYPE BGM LOOP
-TEMPO 6
+TEMPO 4
 PSG 0
 NOISE 0
-FM 5
+FM 4
 PCM 1
 FM1 1
 FM2 2
@@ -13,12 +13,12 @@ FM3 3
 FM4 4
 PCMC 5
 [Instruments]
-1 E
+1 22
 2 4
 3 9
 4 8
-5 B
-6 B
+5 24
+6 23
 7 2
 8 D
 9 1
@@ -142,15 +142,16 @@ PCMC 5
 127 0
 128 0
 [Pitch]
-FM1 5
-FM2 5
-FM3 5
-FM4 5
-FM5 5
+FM1 4
+FM2 4
+FM3 4
+FM4 4
+FM5 4
 [Volume]
 FM1 56
 FM2 56
-FM3 52
-FM4 52
-FM5 52
+FM3 56
+FM4 56
+FM5 56
+PCMC 64
 [END]

@@ -5,8 +5,8 @@
 
 FILE "..\..\prj\music\xm\bgm1\bgm1.xm"
 TYPE BGM LOOP
-TEMPO 5
-PSG 2
+TEMPO 4
+PSG 0
 NOISE 1
 FM 5
 PCM 1
@@ -16,8 +16,7 @@ FM3 3
 FM4 4
 FM5 5
 PCMC 6
-PSG2 7
-PSGN 8
+PSGN 7
 [Instruments]
 1 0
 2 0
@@ -153,16 +152,12 @@ FM2 0
 FM3 0
 FM4 0
 FM5 0
-PSG1 -36
-PSG2 -36
 PSGN 30
 [Volume]
-FM1 40
-FM2 40
-FM3 40
+FM1 60
+FM2 60
+FM3 60
 FM4 60
-FM5 52
-PSG1 40
-PSG2 34
+FM5 60
 PSGN 64
 [END]
