@@ -11,6 +11,7 @@
 #include "obj/flip.h"
 #include "obj/boingo.h"
 #include "obj/gaxter1.h"
+#include "obj/gaxter2.h"
 
 #include "obj/teleporter.h"
 
@@ -74,6 +75,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_FLIP] = {o_load_flip, o_unload_flip},
 	[OBJ_BOINGO] = {o_load_boingo, o_unload_boingo},
 	[OBJ_GAXTER1] = {o_load_gaxter1, o_unload_gaxter1},
+	[OBJ_GAXTER2] = {o_load_gaxter2, o_unload_gaxter2},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 

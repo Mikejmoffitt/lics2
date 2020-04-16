@@ -163,7 +163,8 @@ static void ge_game_ingame(void)
 		                                     OBJ_DIRECTION_RIGHT;
 		l->tele_in_cnt = lyle_tele_in_cnt;
 
-		music_play(map_get_music_track());
+		music_play(8);
+//		music_play(map_get_music_track());
 
 		return;
 	}
