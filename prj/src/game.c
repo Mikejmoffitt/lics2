@@ -8,6 +8,7 @@
 
 #include "obj/map.h"
 #include "obj/lyle.h"
+#include "obj/particle_manager.h"
 
 #include <stdlib.h>
 
@@ -130,6 +131,7 @@ static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
 
 static void ge_game_ingame(void)
 {
+	static uint8_t track_id = 1;
 	static uint8_t next_room_id = 1;
 	static uint8_t next_room_entrance = 0;
 	static fix16_t lyle_entry_dx = 0;
@@ -147,6 +149,7 @@ static void ge_game_ingame(void)
 		system_set_debug_enabled(1);
 
 		// The order of objects is important.
+		obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 		obj_spawn(32, 32, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_BG, 0);
@@ -163,8 +166,8 @@ static void ge_game_ingame(void)
 		                                     OBJ_DIRECTION_RIGHT;
 		l->tele_in_cnt = lyle_tele_in_cnt;
 
-		music_play(8);
-//		music_play(map_get_music_track());
+		track_id = map_get_music_track();
+		music_play(track_id);
 
 		return;
 	}
@@ -173,6 +176,17 @@ static void ge_game_ingame(void)
 		vdp_set_display_en(1);
 	}
 	obj_exec();
+
+	static uint8_t pad_prev;
+	if (io_pad_read(0) & BTN_START && !(pad_prev & BTN_START))
+	{
+		track_id++;
+		if (track_id > 15) track_id = 0;
+		music_play(track_id);
+		const O_Lyle *l = lyle_get();
+		particle_manager_spawn(l->head.x, l->head.y, PARTICLE_TYPE_SPARKLE);
+	}
+	pad_prev = io_pad_read(0);
 
 	if (lyle_has_exited() || io_pad_read(0) & BTN_A)
 	{

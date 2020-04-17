@@ -58,8 +58,6 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_ORANGE:
-			y -= 16;
-			x -= 8;
 			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, 1, 0),
 			        SPR_SIZE(4, 4));
 			break;

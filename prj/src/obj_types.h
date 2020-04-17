@@ -58,10 +58,11 @@ typedef enum ObjType
 	// instantiated from map data.
 
 	OBJ_LYLE = 128,
-	OBJ_CUBE_MANAGER  = 129,
+	OBJ_CUBE_MANAGER = 129,
 	OBJ_MAP = 130,
 	OBJ_BG = 131,
 	OBJ_HUD = 132,
+	OBJ_PARTICLE_MANAGER = 133,
 
 	OBJ_TEMPLATE = 255,
 } ObjType;

@@ -9,6 +9,7 @@
 #include "palscale.h"
 #include "cube.h"
 #include "obj/cube_manager.h"
+#include "obj/particle_manager.h"
 #include "obj/map.h"
 
 #include "res.h"
@@ -75,21 +76,21 @@ static fix16_t kdrop_cube_dy;
 
 static fix16_t kcube_kick_dx;
 
-static uint16_t kthrow_anim_len;
-static uint16_t kkick_anim_len;
-static uint16_t kcubejump_anim_len;
-static uint16_t klift_time;
+static int16_t kthrow_anim_len;
+static int16_t kkick_anim_len;
+static int16_t kcubejump_anim_len;
+static int16_t klift_time;
 
-static uint16_t khurt_time;
-static uint16_t khurt_timeout;
-static uint16_t kinvuln_time;
-static uint16_t kcp_restore_period;
-static uint16_t kcp_restore_period_fast;
-static uint16_t kcp_spawn_fast;
-static uint16_t kcp_spawn_slow;
-static uint16_t kcube_fx;
-static uint16_t kanim_speed;
-static uint16_t ktele_anim;
+static int16_t khurt_time;
+static int16_t khurt_timeout;
+static int16_t kinvuln_time;
+static int16_t kcp_restore_period;
+static int16_t kcp_restore_period_fast;
+static int16_t kcp_spawn_fast;
+static int16_t kcp_spawn_slow;
+static int16_t kcube_fx;
+static int16_t kanim_speed;
+static int16_t ktele_anim;
 
 static void set_constants(void)
 {
@@ -222,7 +223,7 @@ static inline void decelerate_with_ddx(O_Lyle *l, fix16_t ddx)
 
 static inline void x_acceleration(O_Lyle *l)
 {
-	if (l->control_disabled || l->lift_cnt > 0)
+	if (is_control_disabled(l) || l->lift_cnt > 0)
 	{
 		decelerate_with_ddx(l, kx_accel / 2);
 		return;
@@ -301,7 +302,7 @@ static inline void align_cube_to_touching_wall(Cube *c)
 
 static inline void toss_cubes(O_Lyle *l)
 {
-	if (l->control_disabled) return;
+	if (is_control_disabled(l)) return;
 	if (!l->holding_cube) return;
 	if ((buttons & BTN_B) && !(buttons_prev & BTN_B))
 	{
@@ -354,31 +355,27 @@ static inline void toss_cubes(O_Lyle *l)
 
 static inline void lift_cubes(O_Lyle *l)
 {
-	// TODO: Check if the player has the lift ability.
-	// if (!save_have_lift()) l->lift_fail = 1;
-	if (l->action_cnt > 0 || l->control_disabled) return;
+	if (l->action_cnt > 0 || is_control_disabled(l)) return;
 
 	if (l->on_cube && l->lift_cnt == 0 &&
 	    buttons & BTN_B && !(buttons_prev & BTN_B))
 	{
 		l->lift_cnt = klift_time;
+		if (l->on_cube->type == CUBE_TYPE_ORANGE) l->lift_cnt *= 2;
 		l->action_cnt = LYLE_ACTION_LIFT_TIME;
 		l->head.dx = 0;
 	}
 	if (l->lift_cnt == 1 && l->on_cube)
 	{
-		if (l->lift_fail) l->lift_fail = 0;
-		else
-		{
-			Cube *c = l->on_cube;
-			l->holding_cube = c->type;
-			c->status = CUBE_STATUS_NULL;
+		// TODO: Check if the player has the lift ability; have lifts fail if not.
+		Cube *c = l->on_cube;
+		l->holding_cube = c->type;
+		c->status = CUBE_STATUS_NULL;
 
-			// Repro of MMF1 version bug where you can jump while lifting.
-			if (buttons & BTN_C) l->head.dy = kjump_dy;
-			l->action_cnt = LYLE_ACTION_LIFT_TIME;
-			// TODO: Cue cube lift sound
-		}
+		// Repro of MMF1 version bug where you can jump while lifting.
+		if (buttons & BTN_C) l->head.dy = kjump_dy;
+		l->action_cnt = LYLE_ACTION_LIFT_TIME;
+		// TODO: Cue cube lift sound
 	}
 }
 
@@ -391,7 +388,7 @@ static inline void jump(O_Lyle *l)
 		l->cubejump_disable = LYLE_CUBEJUMP_DISABLE_TIME;
 	}
 
-	if (l->lift_cnt || l->control_disabled) return;
+	if (l->lift_cnt || is_control_disabled(l)) return;
 
 	// C button pressed down.
 	if ((buttons & BTN_C) && !(buttons_prev & BTN_C))
@@ -763,7 +760,7 @@ static inline void cp(O_Lyle *l)
 	}
 	// Bail out if in the middle of something that voids this ability
 	if (l->lift_cnt > 0 || l->hurt_cnt > 0 || l->action_cnt > 0 ||
-	    l->control_disabled)
+	    is_control_disabled(l))
 	{
 		return;
 	}
@@ -803,6 +800,10 @@ static inline void cp(O_Lyle *l)
 
 	if (l->phantom_cnt > kcube_fx && g_elapsed % 2)
 	{
+		// TODO: Adjust particle spawn rate not based on elapsed, but a time
+		// scalable constant.
+		particle_manager_spawn(l->head.x, l->head.y - INTTOFIX32(32),
+		                       PARTICLE_TYPE_SPARKLE);
 		// TODO: Spawn sparkle particles
 	}
 }
@@ -912,8 +913,12 @@ static inline void draw(O_Lyle *l)
 	const uint16_t odd_frame = g_elapsed % 2;
 	if (l->holding_cube)
 	{
-		cube_manager_draw_cube(FIX32TOINT(l->head.x) + LYLE_DRAW_LEFT,
-		                       FIX32TOINT(l->head.y) + LYLE_DRAW_TOP - 15,
+		const int16_t x_offset = (l->holding_cube == CUBE_TYPE_ORANGE) ?
+		                         -16 : -8;
+		const int16_t y_offset = (l->holding_cube == CUBE_TYPE_ORANGE) ?
+		                         LYLE_DRAW_TOP - 31 : LYLE_DRAW_TOP - 15;
+		cube_manager_draw_cube(FIX32TOINT(l->head.x) + x_offset,
+		                       FIX32TOINT(l->head.y) + y_offset,
 		                       l->holding_cube);
 	}
 	if (l->invuln_cnt && odd_frame) return;
@@ -992,7 +997,6 @@ static void main_func(Obj *o)
 	buttons_prev = buttons;
 	buttons = io_pad_read(0);
 
-	l->control_disabled = is_control_disabled(l);
 	teleport_seq(l);
 	x_acceleration(l);
 	toss_cubes(l);

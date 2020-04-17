@@ -5,6 +5,7 @@
 #include "common.h"
 #include "system.h"
 #include "obj/cube_manager.h"
+#include "obj/particle_manager.h"
 #include "obj/map.h"
 #include "game.h"
 
@@ -519,9 +520,6 @@ static inline void cube_render(Cube *c)
 
 	cube_manager_draw_cube(FIX32TOINT(c->x + c->left),
 	                       FIX32TOINT(c->y + c->top), render_type);
-
-
-
 }
 
 void cube_run(Cube *c)
@@ -551,6 +549,7 @@ void cube_run(Cube *c)
 		else
 		{
 			c->status = CUBE_STATUS_NULL;
+			return;
 		}
 	}
 	else if (c->status != CUBE_STATUS_IDLE)
@@ -570,12 +569,12 @@ void cube_run(Cube *c)
 	// Spawn particles if needed.
 	if (c->status == CUBE_STATUS_FIZZLE)
 	{
-		// TODO: Spawn fizzle particle in center of cube.
+		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_FIZZLE);
 		return;
 	}
 	else if (c->status == CUBE_STATUS_EXPLODE)
 	{
-		// TODO: Spawn explosion particle in center of cube.
+		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_EXPLOSION);
 		return;
 	}
 

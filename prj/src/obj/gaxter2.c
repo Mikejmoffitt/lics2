@@ -11,23 +11,27 @@
 #include "cube.h"
 #include "palscale.h"
 
-#define GAXTER2_DEADZONE INTTOFIX32(20)
-
 // Constants.
 
-static uint16_t constants_set;
+static fix16_t kddy;
+static fix16_t kdy_cutoff;
+static fix16_t kdx;
+static int8_t kanim_len;
+static int16_t kshot_clock_max;
+static int16_t kshot_clock_flicker_time;
 
-static uint8_t kanim_len;
-static fix16_t kaccel;
-static fix16_t ktop_speed;
+static int16_t constants_set;
 
 static void set_constants(void)
 {
 	if (constants_set) return;
 
+	kddy = INTTOFIX16(PALSCALE_2ND(0.18));
+	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.17));
+	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
 	kanim_len = PALSCALE_DURATION(2);
-	kaccel = INTTOFIX16(PALSCALE_2ND(0.1429));
-	ktop_speed = INTTOFIX16(PALSCALE_1ST(2.25));
+	kshot_clock_max = PALSCALE_DURATION(120);
+	kshot_clock_flicker_time = PALSCALE_DURATION(84);
 
 	constants_set = 1;
 }
@@ -52,13 +56,14 @@ static inline void render(O_Gaxter2 *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -8, -8,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (f->anim_frame * 4),
+	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 12 + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
-	                    LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
 static void main_func(Obj *o)
 {
+	(void)o;
 	O_Gaxter2 *f = (O_Gaxter2 *)o;
 	const O_Lyle *l = lyle_get();
 
@@ -68,29 +73,60 @@ static void main_func(Obj *o)
 		return;
 	}
 
-	// Lazily accelerate towards the player.
-	if (o->x < l->head.x - GAXTER2_DEADZONE && o->dx < ktop_speed)
+	// Horizontal movement.
+	if (o->x >= f->x_max) o->dx = -kdx;
+	else if (o->x <= f->x_min) o->dx = kdx;
+
+	// Collision and direction.
+	if (o->dx > 0 &&
+	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y)))
 	{
-		o->dx += kaccel;
-		o->direction = OBJ_DIRECTION_RIGHT;
+		o->dx = -kdx;
+		f->x_min = o->x - INTTOFIX32(100);
+		f->x_max = o->x;
 	}
-	else if (o->x > l->head.x + GAXTER2_DEADZONE && o->dx > -ktop_speed)
+	else if (o->dx < 0 &&
+	         map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y)))
 	{
-		o->dx -= kaccel;
-		o->direction = OBJ_DIRECTION_LEFT;
+		o->dx = kdx;
+		f->x_min = o->x;
+		f->x_max = o->x + INTTOFIX32(100);
 	}
-	if (o->y < l->head.y - GAXTER2_DEADZONE && o->dy < ktop_speed)
+
+	o->direction = (o->x < l->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+
+	// Vertical sinusoidal movement.
+	if (f->moving_up)
 	{
-		o->dy += kaccel;
+		o->dy += kddy;
+		if (o->dy > kdy_cutoff) f->moving_up = 0;
+
 	}
-	else if (o->y > l->head.y + GAXTER2_DEADZONE && o->dy > -ktop_speed)
+	else
 	{
-		o->dy -= kaccel;
+		o->dy -= kddy;
+		if (o->dy < -kdy_cutoff) f->moving_up = 1;
+	}
+
+	// Shot clock.
+	if (f->shot_clock >= kshot_clock_max)
+	{
+		f->shot_clock = 0;
+		// TODO: Fire the projectile.
+	}
+	else
+	{
+		f->shot_clock++;
+	}
+
+	if (f->shot_clock >= kshot_clock_flicker_time)
+	{
+		// TODO: Flicker the projectile on the end of Gaxter's appendage.
 	}
 
 	obj_standard_physics(o);
 
-	// Animate.
+	// Animation.
 	if (f->anim_cnt == kanim_len)
 	{
 		f->anim_cnt = 0;
@@ -107,7 +143,7 @@ static void main_func(Obj *o)
 	{
 		f->anim_cnt++;
 	}
-
+	
 	render(f);
 }
 
@@ -116,14 +152,23 @@ static void main_func(Obj *o)
 void o_load_gaxter2(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Gaxter2) <= sizeof(ObjSlot));
+	O_Gaxter2 *f = (O_Gaxter2 *)o;
 	(void)data;
 	vram_load();
 	set_constants();
 
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
-	               INTTOFIX16(-6), INTTOFIX16(6), INTTOFIX16(-10), 2);
+	               INTTOFIX16(-11), INTTOFIX16(11), INTTOFIX16(-12), 2);
 	o->main_func = main_func;
+	o->cube_func = NULL;
+	o->y += INTTOFIX32(4);
 	o->direction = OBJ_DIRECTION_LEFT;
+	o->dx = -kdx;
+
+	f->x_min = o->x - INTTOFIX32(50);
+	f->x_max = o->x;
+	f->moving_up = 1;
+
 }
 
 void o_unload_gaxter2(void)

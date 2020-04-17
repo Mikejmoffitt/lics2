@@ -15,19 +15,16 @@ typedef struct O_Lyle
 	Cube *on_cube;
 	CubeType holding_cube;
 
-	int8_t has_exited;
-	int8_t hurt_cnt;
+	int16_t hurt_cnt;
 	int16_t tele_out_cnt;
 	int16_t tele_in_cnt;
 	int16_t invuln_cnt;
 	int16_t cp_restore_cnt;
 	int16_t phantom_cnt;
-	int8_t throwdown_cnt;
-	int8_t throw_cnt;
-	int8_t kick_cnt;
-	int8_t lift_cnt;
-
-	int8_t cp;
+	int16_t throwdown_cnt;
+	int16_t throw_cnt;
+	int16_t kick_cnt;
+	int16_t lift_cnt;
 
 	uint8_t anim_cnt;
 	uint8_t anim_frame;
@@ -35,10 +32,11 @@ typedef struct O_Lyle
 	uint8_t action_cnt;
 	uint8_t grounded;
 
-	uint8_t ext_disable;
-	uint8_t cubejump_disable;
-	uint8_t lift_fail;
-	uint8_t control_disabled;  // Set at the start of lyle's main function.
+	int8_t ext_disable;
+	int8_t cubejump_disable;
+
+	int8_t cp;
+	int8_t has_exited;  // TODO: Use map exit trigger instead.
 } O_Lyle;
 
 void o_load_lyle(Obj *o, uint16_t data);

@@ -8,6 +8,7 @@
 #include "palscale.h"
 #include "obj/lyle.h"
 #include "obj/map.h"
+#include "obj/particle_manager.h"
 #include "game.h"
 
 // Constants.
@@ -93,7 +94,9 @@ static void main_func(Obj *o)
 
 		if (g_elapsed % 2)
 		{
-			// TODO: Generate sparkles.
+			particle_manager_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
+			                       o->y + INTTOFIX32(-16 + (system_rand() % 32)),
+			                       PARTICLE_TYPE_SPARKLE);
 		}
 	}
 
@@ -111,7 +114,9 @@ static void main_func(Obj *o)
 			}
 			if (g_elapsed % 2)
 			{
-				// TODO: Generate sparkles.
+				particle_manager_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
+				                       o->y + INTTOFIX32(-16 + (system_rand() % 32)),
+				                       PARTICLE_TYPE_SPARKLE);
 			}
 		}
 		// Player finished teleporting in

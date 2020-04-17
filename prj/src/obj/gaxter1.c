@@ -15,9 +15,9 @@
 
 // Constants.
 
-static uint16_t constants_set;
+static int16_t constants_set;
 
-static uint8_t kanim_len;
+static int8_t kanim_len;
 static fix16_t kaccel;
 static fix16_t ktop_speed;
 

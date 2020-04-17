@@ -15,9 +15,9 @@
 static fix16_t kddy;
 static fix16_t kdy_cutoff;
 static fix16_t kdx;
-static uint8_t kanim_len;
+static int8_t kanim_len;
 
-static uint16_t constants_set;
+static int16_t constants_set;
 
 static void set_constants(void)
 {

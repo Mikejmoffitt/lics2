@@ -18,6 +18,9 @@
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
 #include "obj/map.h"
+
+#include "obj/particle_manager.h"
+
 #include "obj/template.h"
 
 #include "md/megadrive.h"
@@ -82,6 +85,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
 	[OBJ_MAP] = {o_load_map, o_unload_map},
+
+	[OBJ_PARTICLE_MANAGER] = {o_load_particle_manager, o_unload_particle_manager},
+
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
 };
 
@@ -115,7 +121,12 @@ static inline uint16_t obj_is_offscreen(const Obj *o)
 
 static inline void obj_explode(Obj *o)
 {
-	// TODO: Explosion particles.
+	particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_FIZZLERED);
+	particle_manager_spawn(o->x + o->right, o->y, PARTICLE_TYPE_FIZZLERED);
+	particle_manager_spawn(o->x + o->left, o->y, PARTICLE_TYPE_FIZZLERED);
+	particle_manager_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+	particle_manager_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+	particle_manager_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
 	// TODO: (Possibly) spawn powerup.
 	// TODO: Explosion sound.
 	o->status = OBJ_STATUS_NULL;
