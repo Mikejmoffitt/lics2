@@ -64,12 +64,12 @@ static void cube_scan_objects(Cube *c)
 void cube_destroy(Cube *c)
 {
 	c->dx = 0;
-	c->fizzle_count = kfizzle_duration;
 	if (c->status == CUBE_STATUS_EXPLODE ||
 	    c->status == CUBE_STATUS_FIZZLE)
 	{
 		return;
 	}
+	c->fizzle_count = kfizzle_duration;
 	if (c->type == CUBE_TYPE_RED)
 	{
 		c->status = CUBE_STATUS_EXPLODE;
@@ -159,6 +159,10 @@ static inline void cube_bg_bounce_sides(Cube *c)
 	const int16_t cx_l = FIX32TOINT(c->x + c->left);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	const int16_t cy_bot = FIX32TOINT(c->y);
+
+	if (INTTOFIX32(cx_r + 1) > map_get_right()) return;
+	if (INTTOFIX32(cx_l - 1) < 0) return;
+
 	if (c->dy > 0 && map_collision(FIX32TOINT(c->x), cy_bot + 2)) return;
 
 	if (c->dx > 0 && c->x + c->right < map_get_right())
@@ -294,7 +298,7 @@ static inline void cube_bg_bounce_ground(Cube *c)
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
 	const int16_t cy_bottom = FIX32TOINT(c->y);
 	uint16_t gnd_chk[2];
-	if (c->y > map_get_bottom()) return;
+	if (INTTOFIX32(cy_bottom + 1) > map_get_bottom()) return;
 	gnd_chk[0] = map_collision(cx_left, cy_bottom + 1);
 	gnd_chk[1] = map_collision(cx_right, cy_bottom + 1);
 	// Both left and right tests count as a collison.
@@ -339,6 +343,11 @@ static inline void cube_bg_collision(Cube *c)
 		if (c->dx != 0) cube_bg_bounce_sides(c);
 		if (c->dy > 0) cube_bg_bounce_ground(c);
 		else if (c->dy < 0) cube_bg_bounce_top(c);
+	}
+	else if (INTTOFIX32(cx_left) < 0 || INTTOFIX32(cx_right) > map_get_right() ||
+	         INTTOFIX32(cy_top) < 0 || INTTOFIX32(cy_bottom) > map_get_bottom())
+	{
+		return;
 	}
 	else
 	{

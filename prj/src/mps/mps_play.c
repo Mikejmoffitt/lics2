@@ -188,7 +188,7 @@ static void mps_reset_channels(void)
 
 		if (i < 6)
 		{
-//			fm_keyoff(i);
+			fm_keyoff(i);
 		}
 
 	}
@@ -196,7 +196,7 @@ static void mps_reset_channels(void)
 //	fm_set_lfo(0, 0);
 
 	// Default PSG mode is noise
-//	psg_set_noise(PSG_NOISE_WHITE, 3);
+	psg_set_noise(PSG_NOISE_WHITE, 3);
 	sys_z80_bus_release();
 }
 
@@ -265,7 +265,7 @@ static inline void mps_handle_note(MpsChannelState *chan, MpsCell *cell)
 		{	
 			chan->target_frequency = fm_map_note_freq(cell->note);
 			chan->target_octave = cell->octave;
-			//fm_set_note(chan->num, cell->note, cell->octave, 0);
+//			fm_set_note(chan->num, cell->note, cell->octave, 0);
 			sys_z80_bus_req();
 			if (chan->prev_instrument_id != cell->instrument && cell->instrument != MPS_INSTRUMENT_EMPTY)
 			{

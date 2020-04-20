@@ -7,9 +7,11 @@
 
 #include "palscale.h"
 #include "util/fixed.h"
-#include "cube.h"
+#include "common.h"
 
 #include "obj/map.h"
+
+static O_ParticleManager *particle_manager;
 
 static uint16_t vram_pos;
 
@@ -17,6 +19,9 @@ static int16_t ksparkle_life;
 static int16_t kfizzle_life;
 static int16_t kexplosion_life;
 static int16_t ksand_life;
+static int8_t kanim_speed;
+static int8_t kanim_speed_explosion;
+static int8_t kanim_speed_sand;
 
 static Particle particles[16];
 
@@ -29,7 +34,9 @@ static void set_constants(void)
 	kfizzle_life = PALSCALE_DURATION(16);
 	kexplosion_life = PALSCALE_DURATION(21);
 	ksand_life = PALSCALE_DURATION(20);
-
+	kanim_speed = PALSCALE_DURATION(4.4);
+	kanim_speed_explosion = PALSCALE_DURATION(3.2);
+	kanim_speed_sand = PALSCALE_DURATION(2.3);
 	constants_set = 1;
 }
 
@@ -51,6 +58,28 @@ static inline void particle_run(Particle *p)
 	}
 
 	// Animate
+	p->anim_cnt++;
+	int8_t anim_speed_check;
+	if (p->type == PARTICLE_TYPE_EXPLOSION)
+	{
+		anim_speed_check = kanim_speed_explosion;
+	}
+	else if (p->type == PARTICLE_TYPE_SAND)
+	{
+		anim_speed_check = kanim_speed_sand;
+	}
+	else
+	{
+		anim_speed_check = kanim_speed;
+	}
+
+	if (p->anim_cnt >= anim_speed_check)
+	{
+		p->anim_cnt = 0;
+		p->anim_frame++;
+	}
+
+	// Render
 	int8_t center;
 	uint8_t size;
 	uint8_t pal;
@@ -64,19 +93,19 @@ static inline void particle_run(Particle *p)
 			center = 8;
 			size = SPR_SIZE(2, 2);
 			pal = BG_PAL_LINE;
-			if (p->life > 16) tile_offset = 12;
-			else if (p->life > 12) tile_offset = 0;
-			else if (p->life > 8) tile_offset = 4;
-			else if (p->life > 4) tile_offset = 8;
+			if (p->anim_frame == 0) tile_offset = 12;
+			else if (p->anim_frame == 1) tile_offset = 0;
+			else if (p->anim_frame == 2) tile_offset = 4;
+			else if (p->anim_frame == 3) tile_offset = 8;
 			else tile_offset = 12;
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 		case PARTICLE_TYPE_FIZZLERED:
 			center = 8;
 			size = SPR_SIZE(2, 2);
-			if (p->life > 12) tile_offset = 16;
-			else if (p->life > 8) tile_offset = 20;
-			else if (p->life > 4) tile_offset = 24;
+			if (p->anim_frame == 0) tile_offset = 16;
+			else if (p->anim_frame == 1) tile_offset = 20;
+			else if (p->anim_frame == 2) tile_offset = 24;
 			else tile_offset = 28;
 			if (p->type == PARTICLE_TYPE_FIZZLERED)
 			{
@@ -90,13 +119,13 @@ static inline void particle_run(Particle *p)
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
 			pal = LYLE_PAL_LINE;
-			if ((p->life > 18) || (p->life < 16 && p->life > 12))
+			if (p->anim_frame == 0 || p->anim_frame == 2)
 			{
 				center = 12;
 				size = SPR_SIZE(3, 3);
 				tile_offset = 52;
 			}
-			else if ((p->life > 15 && p->life < 19) || (p->life > 6 && p->life < 10))
+			else if (p->anim_frame == 1 || p->anim_frame == 4)
 			{
 				center = 8;
 				size = SPR_SIZE(2, 2);
@@ -113,10 +142,10 @@ static inline void particle_run(Particle *p)
 			center = 4;
 			size = SPR_SIZE(1, 1);
 			pal = LYLE_PAL_LINE;
-			if (p->life >= 8) tile_offset = 77;
-			else if (p->life >= 6) tile_offset = 78;
-			else if (p->life >= 4) tile_offset = 77;
-			else if (p->life >= 2) tile_offset = 79;
+			if (p->anim_frame == 0) tile_offset = 77;
+			if (p->anim_frame == 1) tile_offset = 78;
+			if (p->anim_frame == 2) tile_offset = 77;
+			if (p->anim_frame == 3) tile_offset = 79;
 			else tile_offset = 80;
 			break;
 	}
@@ -148,12 +177,13 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 	(void)data;
 	SYSTEM_ASSERT(sizeof(O_ParticleManager) <= sizeof(ObjSlot));
 
-	// If VRAM is already loaded, then a particle manager already is present.
-	if (vram_pos)
+	if (particle_manager || vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
 	}
+
+	particle_manager = (O_ParticleManager *)o;
 
 	set_constants();
 	vram_load();
@@ -167,10 +197,12 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 void o_unload_particle_manager(void)
 {
 	vram_pos = 0;
+	particle_manager = 0;
 }
 
 void particle_manager_clear(void)
 {
+	if (!particle_manager) return;
 	uint16_t i = ARRAYSIZE(particles);
 	while (i--)
 	{
@@ -178,9 +210,10 @@ void particle_manager_clear(void)
 	}
 }
 
-void particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
+Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 {
-	if (type == PARTICLE_TYPE_NULL) return;
+	if (!particle_manager) return NULL;
+	if (type == PARTICLE_TYPE_NULL) return NULL;
 	uint16_t i = ARRAYSIZE(particles);
 	while (i--)
 	{
@@ -195,7 +228,7 @@ void particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 		switch (type)
 		{
 			default:
-				return;
+				return NULL;
 			case PARTICLE_TYPE_SPARKLE:
 				p->life = ksparkle_life;
 				break;
@@ -233,6 +266,10 @@ void particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 			p->dx /= 2;
 			p->dy /= 2;
 		}
-		return;
+
+		p->anim_cnt = 0;
+		p->anim_frame = 0;
+		return p;
 	}
+	return NULL;
 }

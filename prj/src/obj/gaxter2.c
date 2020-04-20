@@ -7,6 +7,7 @@
 #include "md/megadrive.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
+#include "obj/projectile_manager.h"
 
 #include "cube.h"
 #include "palscale.h"
@@ -16,9 +17,11 @@
 static fix16_t kddy;
 static fix16_t kdy_cutoff;
 static fix16_t kdx;
+static fix16_t kshot_speed;
 static int8_t kanim_len;
 static int16_t kshot_clock_max;
 static int16_t kshot_clock_flicker_time;
+static int16_t kshot_flicker_speed;
 
 static int16_t constants_set;
 
@@ -29,9 +32,12 @@ static void set_constants(void)
 	kddy = INTTOFIX16(PALSCALE_2ND(0.18));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.17));
 	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
-	kanim_len = PALSCALE_DURATION(2);
+	kshot_speed = INTTOFIX16(PALSCALE_1ST(2.3));
+	kanim_len = PALSCALE_DURATION(2.2);
 	kshot_clock_max = PALSCALE_DURATION(120);
 	kshot_clock_flicker_time = PALSCALE_DURATION(84);
+	kshot_flicker_speed = PALSCALE_DURATION(4.4);
+
 
 	constants_set = 1;
 }
@@ -56,6 +62,20 @@ static inline void render(O_Gaxter2 *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -8, -8,
 	                 map_get_x_scroll(), map_get_y_scroll());
+
+	// Flicker the projectile on the end of Gaxter's appendage.
+	if (f->shot_clock >= kshot_clock_flicker_time && f->shot_clock % 2)
+	{
+		const int16_t ball_x = sp_x + 4 +
+		                       FIX32TOINT((o->direction == OBJ_DIRECTION_LEFT ?
+		                                  o->left : o->right)) / 2;
+		const int16_t ball_y = sp_y + 13;
+		const int8_t is_flickering = (f->shot_flicker_cnt >= (kshot_flicker_speed / 2)) ? 1 : 0;
+		const uint16_t tile_offset = 24 + (is_flickering ? 1 : 0);
+		spr_put(ball_x, ball_y, SPR_ATTR(vram_pos + tile_offset, 0, 0,
+		        LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+
+	}
 	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 12 + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
@@ -63,7 +83,6 @@ static inline void render(O_Gaxter2 *f)
 
 static void main_func(Obj *o)
 {
-	(void)o;
 	O_Gaxter2 *f = (O_Gaxter2 *)o;
 	const O_Lyle *l = lyle_get();
 
@@ -72,6 +91,9 @@ static void main_func(Obj *o)
 		render(f);
 		return;
 	}
+
+	f->shot_flicker_cnt++;
+	if (f->shot_flicker_cnt >= kshot_flicker_speed) f->shot_flicker_cnt = 0;
 
 	// Horizontal movement.
 	if (o->x >= f->x_max) o->dx = -kdx;
@@ -82,7 +104,7 @@ static void main_func(Obj *o)
 	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y)))
 	{
 		o->dx = -kdx;
-		f->x_min = o->x - INTTOFIX32(100);
+		f->x_min = o->x - INTTOFIX32(50);
 		f->x_max = o->x;
 	}
 	else if (o->dx < 0 &&
@@ -90,7 +112,7 @@ static void main_func(Obj *o)
 	{
 		o->dx = kdx;
 		f->x_min = o->x;
-		f->x_max = o->x + INTTOFIX32(100);
+		f->x_max = o->x + INTTOFIX32(50);
 	}
 
 	o->direction = (o->x < l->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
@@ -112,16 +134,23 @@ static void main_func(Obj *o)
 	if (f->shot_clock >= kshot_clock_max)
 	{
 		f->shot_clock = 0;
-		// TODO: Fire the projectile.
+		const fix32_t shot_y = o->y + INTTOFIX32(8);
+		if (o->direction == OBJ_DIRECTION_LEFT)
+		{
+			projectile_manager_shoot(o->x + (o->left / 2), shot_y,
+			                         PROJECTILE_TYPE_BALL,
+			                         -kshot_speed, kshot_speed);
+		}
+		else
+		{
+			projectile_manager_shoot(o->x + (o->right / 2), shot_y,
+			                         PROJECTILE_TYPE_BALL,
+			                         kshot_speed, kshot_speed);
+		}
 	}
 	else
 	{
 		f->shot_clock++;
-	}
-
-	if (f->shot_clock >= kshot_clock_flicker_time)
-	{
-		// TODO: Flicker the projectile on the end of Gaxter's appendage.
 	}
 
 	obj_standard_physics(o);

@@ -486,3 +486,15 @@ uint8_t map_get_music_track(void)
 	if (!map->current_map) return 0;
 	return map->current_map->music;
 }
+
+void map_set_exit_trigger(MapExitTrigger t)
+{
+	if (!map) return;
+	map->exit_trigger = t;
+}
+
+MapExitTrigger map_get_exit_trigger(void)
+{
+	if (!map) return MAP_EXIT_NONE;
+	return map->exit_trigger;
+}

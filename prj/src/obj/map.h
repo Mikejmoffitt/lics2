@@ -15,10 +15,22 @@
 
 #include <stdint.h>
 
+typedef enum MapExitTrigger
+{
+	MAP_EXIT_NONE,
+	MAP_EXIT_TOP,
+	MAP_EXIT_BOTTOM,
+	MAP_EXIT_LEFT,
+	MAP_EXIT_RIGHT,
+	MAP_EXIT_TELEPORT,
+	AMP_EXIT_OTHER
+} MapExitTrigger;
+
 typedef struct O_Map
 {
 	Obj head;
 	const MapFile *current_map;
+	MapExitTrigger exit_trigger;
 
 	int16_t fresh_room;
 
@@ -93,5 +105,8 @@ int16_t map_get_y_scroll(void);
 void map_set_next_room(uint8_t id, uint8_t entrance);
 uint8_t map_get_next_room_id(void);
 uint8_t map_get_next_room_entrance(void);
+
+void map_set_exit_trigger(MapExitTrigger t);
+MapExitTrigger map_get_exit_trigger(void);
 
 #endif  // MAP_H

@@ -36,7 +36,6 @@ typedef struct O_Lyle
 	int8_t cubejump_disable;
 
 	int8_t cp;
-	int8_t has_exited;  // TODO: Use map exit trigger instead.
 } O_Lyle;
 
 void o_load_lyle(Obj *o, uint16_t data);
@@ -56,9 +55,5 @@ void lyle_set_pos(fix32_t x, fix32_t y);
 
 int16_t lyle_get_hp(void);
 int16_t lyle_get_cp(void);
-
-// Returns 1 if Lyle has reached a screen edge or teleported.
-int8_t lyle_has_exited(void);
-
 
 #endif  // OBJ_LYLE_H

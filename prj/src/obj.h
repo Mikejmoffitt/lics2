@@ -47,6 +47,11 @@ struct Obj
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
 
+	ObjStatus status;
+	ObjFlags flags;
+	ObjType type;
+	ObjDirection direction;
+
 	// Positions and dimensions, in game-world coordinates.
 	fix32_t x, y;
 	fix16_t dx, dy;
@@ -57,11 +62,6 @@ struct Obj
 	int8_t hurt_stun; // Decrements; decreases HP on zero.
 	int8_t offscreen;
 	int8_t touching_player;
-
-	ObjStatus status;
-	ObjFlags flags;
-	ObjType type;
-	ObjDirection direction;
 };
 
 #define OBJ_BYTES 128

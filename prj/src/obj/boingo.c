@@ -25,10 +25,9 @@ static fix16_t kcube_bounce_dy;
 static int8_t kanim_speed;
 static fix16_t kceiling_dy;
 
-static uint16_t constants_set;
-
 static void set_constants(void)
 {
+	static uint16_t constants_set;
 	if (constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.167));
@@ -43,7 +42,7 @@ static void set_constants(void)
 	kjump_str_table[7] = INTTOFIX16(PALSCALE_1ST(0.83 + 4.2));
 
 	kjump_delay = PALSCALE_DURATION(24);
-	kjump_delay_angry = PALSCALE_DURATION(6);
+	kjump_delay_angry = PALSCALE_DURATION(6.3);
 	kdx = INTTOFIX16(PALSCALE_1ST(1));
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 	kanim_speed = PALSCALE_DURATION(11);

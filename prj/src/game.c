@@ -6,17 +6,16 @@
 #include "md/megadrive.h"
 #include "music.h"
 
+#include "util/text.h"
+#include "palscale.h"
+#include "res.h"
+
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/particle_manager.h"
+#include "obj/projectile_manager.h"
 
 #include <stdlib.h>
-
-#include "res.h"
-
-#include "util/text.h"
-
-#include "echo/echo.h"
 
 typedef enum Exec
 {
@@ -149,6 +148,7 @@ static void ge_game_ingame(void)
 		system_set_debug_enabled(1);
 
 		// The order of objects is important.
+		obj_spawn(0, 0, OBJ_PROJECTILE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 		obj_spawn(32, 32, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
@@ -184,11 +184,10 @@ static void ge_game_ingame(void)
 		if (track_id > 15) track_id = 0;
 		music_play(track_id);
 		const O_Lyle *l = lyle_get();
-		particle_manager_spawn(l->head.x, l->head.y, PARTICLE_TYPE_SPARKLE);
 	}
 	pad_prev = io_pad_read(0);
 
-	if (lyle_has_exited() || io_pad_read(0) & BTN_A)
+	if (map_get_exit_trigger() || io_pad_read(0) & BTN_A)
 	{
 		if (io_pad_read(0) & BTN_A)
 		{
@@ -202,7 +201,15 @@ static void ge_game_ingame(void)
 		}
 		const O_Lyle *l = lyle_get();
 		lyle_entry_dx = l->head.dx;
-		lyle_entry_dy = l->head.dy;
+		if (map_get_exit_trigger() == MAP_EXIT_TOP)
+		{
+			// TODO: Determine appropriate bottom entrance dy
+			lyle_entry_dy = INTTOFIX16(PALSCALE_1ST(-3.0));
+		}
+		else
+		{
+			lyle_entry_dy = l->head.dy;
+		}
 		lyle_phantom_cnt = l->phantom_cnt;
 		lyle_cp = l->cp;
 		lyle_tele_in_cnt = l->tele_in_cnt;

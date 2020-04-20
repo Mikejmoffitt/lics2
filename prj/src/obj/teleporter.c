@@ -14,8 +14,9 @@
 // Constants.
 
 static int8_t kactive_len;
-static int8_t kanim_len;
+static int16_t kanim_len;
 static int8_t ktele_sound_trigger;
+static int8_t kanim_speed;
 
 static uint16_t constants_set;
 
@@ -26,6 +27,7 @@ static void set_constants(void)
 	kactive_len = PALSCALE_DURATION(90);
 	kanim_len = PALSCALE_DURATION(120);
 	ktele_sound_trigger = PALSCALE_DURATION(75);
+	kanim_speed = PALSCALE_DURATION(2.5);
 
 	constants_set = 1;
 }
@@ -106,7 +108,7 @@ static void main_func(Obj *o)
 		// TODO: Mark in SRAM that teleporter[t->id] has been discovered.
 
 		// If the player is teleporting IN, disable the teleporter once the anim is over.
-		if (l->tele_in_cnt > 1)
+		if (l->tele_in_cnt > 0)
 		{
 			if (l->tele_in_cnt == ktele_sound_trigger)
 			{
@@ -118,11 +120,11 @@ static void main_func(Obj *o)
 				                       o->y + INTTOFIX32(-16 + (system_rand() % 32)),
 				                       PARTICLE_TYPE_SPARKLE);
 			}
+			
+			if (l->tele_in_cnt == 8) t->disabled = 1;
 		}
-		// Player finished teleporting in
-		else if (l->tele_in_cnt == 1) t->disabled = 1;
 		// Normal active player is ready to teleport.
-		else
+		else if (l->tele_in_cnt == 0)
 		{
 			l->head.dx = 0;
 			l->head.dy = 0;
@@ -135,7 +137,7 @@ static void main_func(Obj *o)
 
 	// Animate.
 
-	if (t->anim_cnt == 2)
+	if (t->anim_cnt == kanim_speed)
 	{
 		if (t->anim_frame < 3) t->anim_frame++;
 		else t->anim_frame = 0;

@@ -12,6 +12,7 @@
 #include "obj/boingo.h"
 #include "obj/gaxter1.h"
 #include "obj/gaxter2.h"
+#include "obj/buggo.h"
 
 #include "obj/teleporter.h"
 
@@ -20,6 +21,7 @@
 #include "obj/map.h"
 
 #include "obj/particle_manager.h"
+#include "obj/projectile_manager.h"
 
 #include "obj/template.h"
 
@@ -79,6 +81,8 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_BOINGO] = {o_load_boingo, o_unload_boingo},
 	[OBJ_GAXTER1] = {o_load_gaxter1, o_unload_gaxter1},
 	[OBJ_GAXTER2] = {o_load_gaxter2, o_unload_gaxter2},
+	[OBJ_BUGGO1] = {o_load_buggo, o_unload_buggo},
+	[OBJ_BUGGO2] = {o_load_buggo, o_unload_buggo},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 
@@ -87,6 +91,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_MAP] = {o_load_map, o_unload_map},
 
 	[OBJ_PARTICLE_MANAGER] = {o_load_particle_manager, o_unload_particle_manager},
+	[OBJ_PROJECTILE_MANAGER] = {o_load_projectile_manager, o_unload_projectile_manager},
 
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
 };

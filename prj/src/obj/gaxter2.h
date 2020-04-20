@@ -14,6 +14,7 @@ typedef struct O_Gaxter2
 	int8_t tile_offset;
 	int8_t anim_cnt;
 	int8_t anim_frame;
+	int16_t shot_flicker_cnt;
 
 } O_Gaxter2;
 

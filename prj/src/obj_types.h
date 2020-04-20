@@ -63,6 +63,7 @@ typedef enum ObjType
 	OBJ_BG = 131,
 	OBJ_HUD = 132,
 	OBJ_PARTICLE_MANAGER = 133,
+	OBJ_PROJECTILE_MANAGER = 134,
 
 	OBJ_TEMPLATE = 255,
 } ObjType;

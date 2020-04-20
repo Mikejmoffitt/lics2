@@ -102,7 +102,7 @@ static void set_constants(void)
 	kx_accel = INTTOFIX16(PALSCALE_2ND(0.10416666667));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.15972222222));  // Was 0.21 : 0.3024
 	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.0902777777777));  // Was 0.10 : 0.144
-	kjump_dy = INTTOFIX16(PALSCALE_1ST(-3.08333333333));  // was -2.94 : -3.58
+	kjump_dy = INTTOFIX16(PALSCALE_1ST(-2.98));  // was -2.94 : -3.58
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));  // was -0.42 : -0.5
 	khurt_dx = INTTOFIX16(PALSCALE_1ST(-1.91666667));  // was -1.92 : -2.3
 	kdx_snap = INTTOFIX16(PALSCALE_1ST(0.1));
@@ -121,7 +121,7 @@ static void set_constants(void)
 	kdrop_cube_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333333));
 	kdrop_cube_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
 
-	kcube_kick_dx = INTTOFIX16(2.5);
+	kcube_kick_dx = INTTOFIX16(PALSCALE_1ST(2.5));
 
 	kthrow_anim_len = PALSCALE_DURATION(10);  // was 10 : 8
 	kkick_anim_len = PALSCALE_DURATION(10);
@@ -137,8 +137,8 @@ static void set_constants(void)
 	kcp_spawn_fast = PALSCALE_DURATION(36);  // was 36 : 30
 	kcp_spawn_slow = PALSCALE_DURATION(72);  // was 72 : 60
 
-	kcube_fx = PALSCALE_DURATION(6);
-	kanim_speed = PALSCALE_DURATION(6);
+	kcube_fx = PALSCALE_DURATION(6.3);
+	kanim_speed = PALSCALE_DURATION(6.8);
 	ktele_anim = PALSCALE_DURATION(75);  // was 75 : 62
 
 	constants_set = 1;
@@ -199,7 +199,7 @@ static inline void teleport_seq(O_Lyle *l)
 			l->holding_cube = NULL;
 		}
 		l->tele_out_cnt--;
-		if (l->tele_out_cnt == 0) l->has_exited = 1;
+		if (l->tele_out_cnt == 0) map_set_exit_trigger(MAP_EXIT_TELEPORT);
 	}
 	else if (l->tele_in_cnt > 0)
 	{
@@ -432,7 +432,7 @@ static inline void bg_vertical_collision(O_Lyle *l)
 	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
 	const int16_t py_bottom = FIX32TOINT(l->head.y);
-	if (l->head.dy > 0 && l->head.y < map_get_bottom())
+	if (l->head.dy > 0 && INTTOFIX32(py_bottom + 1) < map_get_bottom())
 	{
 		if (map_collision(px_r, py_bottom + 1) ||
 		    map_collision(px_l, py_bottom + 1))
@@ -451,7 +451,7 @@ static inline void bg_vertical_collision(O_Lyle *l)
 			l->head.y -= INTTOFIX32(8);
 		}
 	}
-	else if (l->head.dy < 0 && l->head.y + l->head.top > 0)
+	else if (l->head.dy < 0 && INTTOFIX32(py_top - 1) > 0)
 	{
 		if (map_collision(px_r, py_top - 1) ||
 		    map_collision(px_l, py_top - 1))
@@ -472,7 +472,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
 	const int16_t py_mid = FIX32TOINT(l->head.y + ((l->head.top) / 2));
 	const int16_t py_bot = FIX32TOINT(l->head.y + LYLE_STEP_UP);
-	if (l->head.dx > 0 && l->head.x + l->head.right < map_get_right())
+	if (l->head.dx > 0 && INTTOFIX32(px_r + 1) < map_get_right())
 	{
 		if (map_collision(px_r + 1, py_top) ||
 		    map_collision(px_r + 1, py_mid) ||
@@ -484,7 +484,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 			l->head.dx = 0;
 		}
 	}
-	else if (l->head.dx < 0 && l->head.x + l->head.left > 0)
+	else if (l->head.dx < 0 && INTTOFIX32(px_l - 1) > 0)
 	{
 		if (map_collision(px_l - 1, py_top) ||
 		    map_collision(px_l - 1, py_mid) ||
@@ -518,10 +518,10 @@ static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 			l->head.dy = 0;
 		}
 		else if (l->head.dy < 0 &&
-		         l->head.y - 1 <= c->y &&
+		         l->head.y + l->head.top - 1 <= c->y &&
 		         l->head.y + l->head.top > c->y + (c->top / 2))
 		{
-			l->head.y = c->y + l->head.top + 1;
+			l->head.y = c->y - l->head.top + 1;
 			if (l->head.dy < kceiling_dy) l->head.dy = kceiling_dy;
 		}
 	}
@@ -690,12 +690,24 @@ static inline void cube_collision(O_Lyle *l)
 static inline void exit_check(O_Lyle *l)
 {
 	const fix32_t x_margin = INTTOFIX32(6);
-	const fix32_t bottom_margin = INTTOFIX32(8);
+	const fix32_t bottom_margin = INTTOFIX32(2);
 	const fix32_t top_margin = INTTOFIX32(16);
-	if (l->head.x < x_margin && l->head.dx < 0) l->has_exited = 1;
-	else if (l->head.x > map_get_right() - x_margin && l->head.dx > 0) l->has_exited = 1;
-	else if (l->head.y > map_get_bottom() - bottom_margin && l->head.dy > 0) l->has_exited = 1;
-	else if (l->head.y + top_margin < 0 && l->head.dy < 0) l->has_exited = 1;
+	if (l->head.x < x_margin && l->head.dx < 0)
+	{
+		map_set_exit_trigger(MAP_EXIT_LEFT);
+	}
+	else if (l->head.x > map_get_right() - x_margin && l->head.dx > 0)
+	{
+		map_set_exit_trigger(MAP_EXIT_RIGHT);
+	}
+	else if (l->head.y > map_get_bottom() - bottom_margin && l->head.dy > 0)
+	{
+		map_set_exit_trigger(MAP_EXIT_BOTTOM);
+	}
+	else if (l->head.y + l->head.top < top_margin && l->head.dy < 0)
+	{
+		map_set_exit_trigger(MAP_EXIT_TOP);
+	}
 }
 
 static inline void gravity(O_Lyle *l)
@@ -1132,10 +1144,4 @@ void lyle_set_pos(fix32_t x, fix32_t y)
 	if (!lyle) return;
 	lyle->head.x = x;
 	lyle->head.y = y;
-}
-
-int8_t lyle_has_exited(void)
-{
-	if (!lyle) return 0;
-	return lyle->has_exited;
 }
