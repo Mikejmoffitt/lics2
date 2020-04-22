@@ -11,6 +11,7 @@ int system_init(void)
 {
 	megadrive_init();
 	is_ntsc_cache = (vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
+	vdp_set_raster_height(is_ntsc_cache ? 224 : 240);
 	return 1;
 }
 
