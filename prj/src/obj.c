@@ -13,6 +13,7 @@
 #include "obj/gaxter1.h"
 #include "obj/gaxter2.h"
 #include "obj/buggo.h"
+#include "obj/dancyflower.h"
 
 #include "obj/teleporter.h"
 
@@ -83,6 +84,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_GAXTER2] = {o_load_gaxter2, o_unload_gaxter2},
 	[OBJ_BUGGO1] = {o_load_buggo, o_unload_buggo},
 	[OBJ_BUGGO2] = {o_load_buggo, o_unload_buggo},
+	[OBJ_DANCYFLOWER] = {o_load_dancyflower, o_unload_dancyflower},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 
