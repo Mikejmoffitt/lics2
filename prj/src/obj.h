@@ -9,7 +9,8 @@
 
 #include "cube.h"
 
-#define OBJ_COUNT_MAX 16
+#define OBJ_COUNT_MAX 64
+#define OBJ_BYTES 80
 
 #define OBJ_ACTIVE_DISTANCE 32
 
@@ -64,7 +65,6 @@ struct Obj
 	int8_t touching_player;
 };
 
-#define OBJ_BYTES 128
 
 typedef union ObjSlot
 {
@@ -74,6 +74,11 @@ typedef union ObjSlot
 
 // Object list is public so it may be scanned.
 extern ObjSlot g_objects[OBJ_COUNT_MAX];
+
+// Get the index of the highest-active object + 1. This can be treated as the
+// number of active objects, except that within the bound, there may be some
+// marked as OBJ_TYPE_NULL (inactive).
+static inline uint16_t obj_get_upper_bound(void) { return OBJ_COUNT_MAX; }
 
 int obj_init(void);
 void obj_exec(void);
@@ -88,10 +93,13 @@ uint16_t obj_vram_alloc(uint16_t bytes);
 // Calls an object's cube handler, or the default if there is none.
 void obj_cube_impact(Obj *o, Cube *c);
 
-
 // Utility or commonly reused functions =======================================
 void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
-void obj_standard_physics(Obj *o);
+static inline void obj_standard_physics(Obj *o)
+{
+	o->x += o->dx;
+	o->y += o->dy;
+}
 void obj_standard_cube_response(Obj *o, Cube *c);
 
 // Sets up sprite rendering position based on sprite's coordinates, stun, and
@@ -122,10 +130,11 @@ static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 static inline int obj_touching_cube(const Obj *o, const Cube *c)
 {
 	const fix32_t margin = INTTOFIX32(1);
-	return (c->x + c->left <= o->x + o->right + margin &&
-	        c->x + c->right >= o->x + o->left - margin &&
-	        c->y + c->top <= o->y + margin &&
-	        c->y >= o->y + o->top - margin);
+	if (c->y < o->y + o->top - margin) return 0;
+	if (c->y + c->top > o->y + margin) return 0;
+	if (c->x + c->left > o->x + o->right + margin) return 0;
+	if (c->x + c->right < o->x + o->left - margin) return 0;
+	return 1;
 }
 
 

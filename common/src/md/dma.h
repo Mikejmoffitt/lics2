@@ -77,18 +77,18 @@ static inline void dma_wait(void);
 void dma_q_set_budget(uint16_t max_bytes);
 
 // Schedule a DMA for next vblank from 68K mem to VRAM
-void dma_q_transfer_vram(uint16_t dest, const void *src, uint16_t n,
+void dma_q_transfer_vram(uint16_t dest, const void *src, uint16_t words,
                          uint16_t stride);
-void dma_q_transfer_cram(uint16_t dest, const void *src, uint16_t n,
+void dma_q_transfer_cram(uint16_t dest, const void *src, uint16_t words,
                          uint16_t stride);
-void dma_q_transfer_vsram(uint16_t dest, const void *src, uint16_t n,
+void dma_q_transfer_vsram(uint16_t dest, const void *src, uint16_t words,
                           uint16_t stride);
 
 // Schedule a DMA for next vblank to fill n words at dest with val.
-void dma_q_fill_vram(uint16_t dest, uint16_t val, uint16_t n, uint16_t stride);
+void dma_q_fill_vram(uint16_t dest, uint16_t val, uint16_t bytes, uint16_t stride);
 
 // Schedule a DMA for next vblank to copy n words from VRAM src to VRAM dest.
-void dma_q_copy_vram(uint16_t dest, uint16_t src, uint16_t n, uint16_t stride);
+void dma_q_copy_vram(uint16_t dest, uint16_t src, uint16_t bytes, uint16_t stride);
 
 // Run at the start of Vblank to process pending DMA requests.
 void dma_q_process(void);
@@ -103,27 +103,27 @@ void dma_q_flush(void);
 static inline void dma_set_stride(uint16_t stride);
 
 // Run a DMA copy. n is in words.
-void dma_transfer(uint16_t bus, uint16_t dest, const void *src, uint16_t n);
+void dma_transfer(uint16_t bus, uint16_t dest, const void *src, uint16_t words);
 
 // Run a DMA fill. n is in words.
-void dma_fill(uint16_t bus, uint16_t dest, uint16_t val, uint16_t n);
+void dma_fill(uint16_t bus, uint16_t dest, uint16_t val, uint16_t bytes);
 
 // Run a VRAM-to-VRAM DMA copy. n is in words.
-void dma_copy(uint16_t bus, uint16_t dest, uint16_t src, uint16_t n);
+void dma_copy(uint16_t bus, uint16_t dest, uint16_t src, uint16_t bytes);
 
 // Copy n words from 68K mem src to VDP vram_dest immediately.
 static inline void dma_transfer_vram(uint16_t dest, const void *src,
-                                     uint16_t n);
+                                     uint16_t words);
 static inline void dma_transfer_cram(uint16_t dest, const void *src,
-                                     uint16_t n);
+                                     uint16_t words);
 static inline void dma_transfer_vsram(uint16_t dest, const void *src,
-                                      uint16_t n);
+                                      uint16_t words);
 
 // Fill n bytes at dest with val immediately.
-static inline void dma_fill_vram(uint16_t dest, uint16_t val, uint16_t n);
+static inline void dma_fill_vram(uint16_t dest, uint16_t val, uint16_t bytes);
 
 // Copy n words from VDP VRAM src to VDP VRAM dest immediately.
-static inline void dma_copy_vram(uint16_t dest, uint16_t src, uint16_t n);
+static inline void dma_copy_vram(uint16_t dest, uint16_t src, uint16_t bytes);
 
 // ----------------------------------------------------------------------------
 static inline void dma_wait(void)

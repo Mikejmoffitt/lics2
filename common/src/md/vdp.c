@@ -52,6 +52,14 @@ void vdp_init(void)
 	vdp_set_hscroll_base(VRAM_HSCR_BASE);
 }
 
+void vdp_wait_vblank_status(void)
+{
+	while (!(vdp_get_status() & VDP_STATUS_VBLANK))
+	{
+		__asm__ volatile ("\tnop\n");
+	}
+}
+
 void vdp_wait_vblank(void)
 {
 	g_vblank_wait = 1;

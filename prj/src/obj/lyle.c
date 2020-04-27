@@ -98,7 +98,7 @@ static void set_constants(void)
 	if (constants_set) return;
 
 	kdx_max = INTTOFIX16(PALSCALE_1ST(1.41666666667));
-	kdy_max = INTTOFIX16(PALSCALE_1ST(6.66777776667));
+	kdy_max = INTTOFIX16(PALSCALE_1ST(6.66666666667));
 	kx_accel = INTTOFIX16(PALSCALE_2ND(0.10416666667));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.15972222223));  // Was 0.21 : 0.3024
 	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.0903777777777));  // Was 0.10 : 0.144
@@ -505,6 +505,7 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 // confirmed that Lyle is already touching the Cube.
 static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 {
+	if (l->head.dy == 0) return;
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
 
 	if (l->head.x + l->head.right >= c->x + c->left &&
@@ -531,6 +532,7 @@ static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
 // confirmed that Lyle is already touching the Cube.
 static inline void cube_horizontal_collision(O_Lyle *l, Cube *c)
 {
+	if (l->head.dx == 0) return;
 	if (c->status == CUBE_STATUS_AIR || c->type == CUBE_TYPE_SPAWNER) return;
 
 	l->head.y -= l->head.dy;
@@ -632,6 +634,11 @@ static inline void cube_collision(O_Lyle *l)
 		Cube *c = &g_cubes[i];
 		if (c->status == CUBE_STATUS_NULL) continue;
 
+		// Simple collision checking
+		if (l->head.y < c->y + c->top - 1) continue;
+		if (l->head.x + l->head.right + 1 < c->x + c->left) continue;
+		if (l->head.x + l->head.left - 1 > c->x + c->right) continue;
+		
 		// Bounce cubes off of ones lyle is holding
 		if (l->holding_cube)
 		{
@@ -650,6 +657,14 @@ static inline void cube_collision(O_Lyle *l)
 			}
 		}
 
+		// Gross vertical bounds check (bottom is done after holding cube)
+		if (l->head.y + l->head.top > c->y + 1) continue;
+
+		if (c->type == CUBE_TYPE_SPAWNER)
+		{
+			cube_restrict_spawn(c);
+		}
+
 		if (c->status == CUBE_STATUS_IDLE)
 		{
 			cube_horizontal_collision(l, c);
@@ -659,12 +674,7 @@ static inline void cube_collision(O_Lyle *l)
 		}
 		else if (obj_touching_cube(&l->head, c))
 		{
-			// TODO: If SRAM says we have't touched a cube before, show the message.
-			if (c->type == CUBE_TYPE_SPAWNER)
-			{
-				cube_restrict_spawn(c);
-			}
-			else if (c->status == CUBE_STATUS_AIR && l->throw_cnt == 0 &&
+			if (c->status == CUBE_STATUS_AIR && l->throw_cnt == 0 &&
 			         l->kick_cnt == 0 && l->throwdown_cnt == 0)
 			{
 				if (l->hurt_cnt < khurt_time - khurt_timeout &&
@@ -747,15 +757,20 @@ static inline void head_pushout(O_Lyle *l)
 static inline void check_spikes(O_Lyle *l)
 {
 	if (l->hurt_cnt > 0) return;
+	const int16_t px = FIX32TOINT(l->head.x);
+	const int16_t py_bottom = FIX32TOINT(l->head.y);
+	if (map_is_tile_harmful(map_data_at(px, py_bottom)))
+	{
+		lyle_get_hurt();
+	}
+	return;
 	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
 	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
-	const int16_t py_bottom = FIX32TOINT(l->head.y);
 	if (map_is_tile_harmful(map_data_at(px_r, py_bottom)) ||
 	    map_is_tile_harmful(map_data_at(px_l, py_bottom)))
 	{
 		lyle_get_hurt();
 	}
-	// TODO: Check agains BG for tiles in spikes range
 	// TODO: Would be nice to instead have a LUT applied to the tileset.
 }
 
@@ -1016,23 +1031,29 @@ static void main_func(Obj *o)
 	cp(l);
 	jump(l);
 
+	system_profile(PALRGB(7, 0, 0));
 	obj_standard_physics(&l->head);
 	bg_vertical_collision(l);
 	bg_horizontal_collision(l);
 	head_pushout(l);
 	eval_grounded(l);
+	system_profile(PALRGB(0, 4, 3));
 	cube_collision(l);
+	system_profile(PALRGB(3, 1, 1));
 	exit_check(l);
 	gravity(l);
 
+	system_profile(PALRGB(3, 1, 5));
 	check_spikes(l);
-	eval_grounded(l);
+	// eval_grounded(l);  // TODO: Make sure this is truly unecessary.
+	system_profile(PALRGB(6, 6, 7));
 	calc_anim_frame(l);
-	// entrance_collision(l);  // TODO: Remove this, because entrances can
-	                           // be objects that collide normally
+	system_profile(PALRGB(1, 1, 1));
 	counters(l);
 	set_map_scroll(l);
+	system_profile(PALRGB(4, 4, 0));
 	draw(l);
+	system_profile(PALRGB(0, 0, 0));
 }
 
 void o_load_lyle(Obj *o, uint16_t data)

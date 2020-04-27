@@ -15,7 +15,7 @@
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 
 static O_ProjectileManager *projectile_manager;
-static Projectile projectiles[16];
+static Projectile projectiles[10];
 
 static int16_t kparticle_rate;
 static int16_t kdeathorb_flash_time;
@@ -266,6 +266,7 @@ static inline void projectile_run(Projectile *p)
 
 static void main_func(Obj *o)
 {
+	system_profile(PALRGB(7, 0, 7));
 	O_ProjectileManager *p = (O_ProjectileManager *)o;
 
 	p->particle_cnt++;
@@ -282,10 +283,12 @@ static void main_func(Obj *o)
 	uint16_t i = ARRAYSIZE(projectiles);
 	while (i--)
 	{
+		system_profile(PALRGB(3, i % 2 ? 0 : 4, 3));
 		Projectile *p = &projectiles[i];
 		if (p->type == PROJECTILE_TYPE_NULL) continue;
 		projectile_run(p);
 	}
+	system_profile(PALRGB(0, 0, 0));
 }
 
 void o_load_projectile_manager(Obj *o, uint16_t data)

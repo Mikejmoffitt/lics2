@@ -51,11 +51,17 @@ static inline void render(O_Teleporter *t)
 	Obj *o = &t->head;
 	int16_t sp_x, sp_y;
 
-	// The base.
 	obj_render_setup(o, &sp_x, &sp_y, -16, 15,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	const uint16_t base_tile = vram_pos + ((t->disabled || t->anim_frame >= 2) ? 24 : 16);
-	spr_put(sp_x, sp_y, SPR_ATTR(base_tile, 0, 0,
+	// The "L" insignias flashing, if applicable.
+	if (!((t->disabled || t->anim_frame >= 2)))
+	{
+		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 16, 0, 0,
+		                    BG_PAL_LINE, 0), SPR_SIZE(4, 2));
+	}
+
+	// The base.
+	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 24, 0, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 
 	// The aura.

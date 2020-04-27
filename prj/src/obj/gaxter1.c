@@ -88,6 +88,11 @@ static void main_func(Obj *o)
 		o->dy -= kaccel;
 	}
 
+	if (o->dx > ktop_speed) o->dx = ktop_speed;
+	else if (o->dx < -ktop_speed) o->dx = -ktop_speed;
+	if (o->dy > ktop_speed) o->dy = ktop_speed;
+	else if (o->dy < -ktop_speed) o->dy = -ktop_speed;
+
 	obj_standard_physics(o);
 
 	// Animate.

@@ -4,6 +4,7 @@
 #include "obj.h"
 #include "system.h"
 #include "gfx.h"
+#include "game.h"
 
 #include "palscale.h"
 #include "util/fixed.h"
@@ -48,14 +49,35 @@ static void vram_load(void)
 	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
+static const uint16_t sparkle_anim[] =
+{
+	12, 0, 4, 8, 12,
+};
+
+static const uint16_t fizzle_anim[] =
+{
+	16, 20, 24, 28, 28
+};
+
+static const uint16_t sand_anim[] =
+{
+	77, 78, 77, 79, 80, 80
+};
+
 static inline void particle_run(Particle *p)
 {
+	// Delete off-screen particles.
+	const fix32_t margin = 16;
+	int16_t px = FIX32TOINT(p->x) - map_get_x_scroll();
+	int16_t py = FIX32TOINT(p->y) - map_get_y_scroll();
+	if (py < -margin) goto delete_particle;
+	if (py > GAME_SCREEN_H_PIXELS + margin) goto delete_particle;
+	if (px < -margin) goto delete_particle;
+	if (px > GAME_SCREEN_W_PIXELS + margin) goto delete_particle;
+
 	// Move
-	if (p->type != PARTICLE_TYPE_SPARKLE)
-	{
-		p->x += p->dx;
-		p->y += p->dy;
-	}
+	p->x += p->dx;
+	p->y += p->dy;
 
 	// Animate
 	p->anim_cnt++;
@@ -79,97 +101,74 @@ static inline void particle_run(Particle *p)
 		p->anim_frame++;
 	}
 
-	// Render
-	int8_t center;
-	uint8_t size;
-	uint8_t pal;
-	uint16_t tile_offset;
+	p->life--;
+	if (p->life <= 0) p->type = PARTICLE_TYPE_NULL;
 
+	// Render
 	switch (p->type)
 	{
 		default:
 			return;
 		case PARTICLE_TYPE_SPARKLE:
-			center = 8;
-			size = SPR_SIZE(2, 2);
-			pal = BG_PAL_LINE;
-			if (p->anim_frame == 0) tile_offset = 12;
-			else if (p->anim_frame == 1) tile_offset = 0;
-			else if (p->anim_frame == 2) tile_offset = 4;
-			else if (p->anim_frame == 3) tile_offset = 8;
-			else tile_offset = 12;
+			spr_put(px - 8, py - 8,
+			        SPR_ATTR(vram_pos + sparkle_anim[p->anim_frame],
+			        0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case PARTICLE_TYPE_FIZZLE:
+			spr_put(px - 8, py - 8,
+			        SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame],
+			        0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			break;
 		case PARTICLE_TYPE_FIZZLERED:
-			center = 8;
-			size = SPR_SIZE(2, 2);
-			if (p->anim_frame == 0) tile_offset = 16;
-			else if (p->anim_frame == 1) tile_offset = 20;
-			else if (p->anim_frame == 2) tile_offset = 24;
-			else tile_offset = 28;
-			if (p->type == PARTICLE_TYPE_FIZZLERED)
-			{
-				tile_offset += 16;
-				pal = LYLE_PAL_LINE;
-			}
-			else
-			{
-				pal = BG_PAL_LINE;
-			}
+			spr_put(px - 8, py - 8,
+			        SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame] + 16,
+			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
-			pal = LYLE_PAL_LINE;
 			if (p->anim_frame == 0 || p->anim_frame == 2)
 			{
-				center = 12;
-				size = SPR_SIZE(3, 3);
-				tile_offset = 52;
+				spr_put(px - 12, py - 12,
+				        SPR_ATTR(vram_pos + 52,
+				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(3, 3));
 			}
 			else if (p->anim_frame == 1 || p->anim_frame == 4)
 			{
-				center = 8;
-				size = SPR_SIZE(2, 2);
-				tile_offset = 48;
+				spr_put(px - 8, py - 8,
+				        SPR_ATTR(vram_pos + 48,
+				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			}
 			else
 			{
-				center = 16;
-				size = SPR_SIZE(4, 4);
-				tile_offset = 61;
+				spr_put(px - 16, py - 16,
+				        SPR_ATTR(vram_pos + 61,
+				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(4, 4));
 			}
 			break;
 		case PARTICLE_TYPE_SAND:
-			center = 4;
-			size = SPR_SIZE(1, 1);
-			pal = LYLE_PAL_LINE;
-			if (p->anim_frame == 0) tile_offset = 77;
-			if (p->anim_frame == 1) tile_offset = 78;
-			if (p->anim_frame == 2) tile_offset = 77;
-			if (p->anim_frame == 3) tile_offset = 79;
-			else tile_offset = 80;
+			spr_put(px - 4, py - 4,
+			        SPR_ATTR(vram_pos + sand_anim[p->anim_frame],
+			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 			break;
 	}
+	return;
 
-	const int16_t tx = FIX32TOINT(p->x) - center - map_get_x_scroll();
-	const int16_t ty = FIX32TOINT(p->y) - center - map_get_y_scroll();
-	if (tx < -32 || tx > 336 || ty < -32 || ty > 256) return;
-
-	spr_put(tx, ty, SPR_ATTR(vram_pos + tile_offset, 0, 0, pal, 0), size);
-
-	p->life--;
-	if (p->life <= 0) p->type = PARTICLE_TYPE_NULL;
+delete_particle:
+	p->type = PARTICLE_TYPE_NULL;
 }
 
 static void main_func(Obj *o)
 {
 	(void)o;
 	uint16_t i = ARRAYSIZE(particles);
+	system_profile(PALRGB(2, 2, 0));
 	while (i--)
 	{
+		system_profile(PALRGB(2, 2, i % 2 ? 6 : 1));
 		Particle *p = &particles[i];
 		if (p->type == PARTICLE_TYPE_NULL) continue;
 		particle_run(p);
 	}
+	system_profile(PALRGB(0, 0, 0));
 }
 
 void o_load_particle_manager(Obj *o, uint16_t data)
@@ -212,12 +211,16 @@ void particle_manager_clear(void)
 
 Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 {
+	Particle *ret = NULL;
 	if (!particle_manager) return NULL;
 	if (type == PARTICLE_TYPE_NULL) return NULL;
 	uint16_t i = ARRAYSIZE(particles);
+	uint16_t seek_idx = particle_manager->spawn_start_index;
 	while (i--)
 	{
-		Particle *p = &particles[i];
+		Particle *p = &particles[seek_idx];
+		seek_idx++;
+		if (seek_idx >= ARRAYSIZE(particles)) seek_idx = 0;
 		if (p->type != PARTICLE_TYPE_NULL) continue;
 
 		p->type = type;
@@ -269,7 +272,9 @@ Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 
 		p->anim_cnt = 0;
 		p->anim_frame = 0;
-		return p;
+		ret = p;
+		break;
 	}
-	return NULL;
+	particle_manager->spawn_start_index = seek_idx;
+	return ret;
 }

@@ -77,7 +77,7 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
 	o->main_func = main_func;
 	
-	kphantom_anim_counter_max = PALSCALE_DURATION(8);
+	kphantom_anim_counter_max = PALSCALE_DURATION(6);
 
 }
 

@@ -193,22 +193,27 @@ static inline void draw_horizontal(O_Map *m)
 {
 	if (m->x_scroll == m->x_scroll_prev) return;
 	const uint16_t right_side = (m->x_scroll > m->x_scroll_prev);
+	const int16_t scroll_idx_x = m->x_scroll / 8;
+	const int16_t scroll_idx_y = m->y_scroll / 8;
+
+	const uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_A);
 
 	// VRAM address at which the vertical seam occurs
 	const uint16_t v_seam_vram_offset = 2 * GAME_PLANE_H_CELLS *
 	                                    GAME_PLANE_W_CELLS;
 
 	// X and Y components of the source index (top-left visible corner)
-	uint16_t map_src_x = m->x_scroll / 8;
-	map_src_x += (right_side ? GAME_SCREEN_W_CELLS : 0);
-	uint16_t map_src_y = g_map_row_size * (m->y_scroll / 8);
+	const uint16_t map_src_x = right_side ?
+	                           GAME_SCREEN_W_CELLS + scroll_idx_x :
+	                           scroll_idx_x;
+	const uint16_t map_src_y = g_map_row_size * (m->y_scroll / 8);
 
 	// What is the position of the tile shown at m->x_scroll, m->y_scroll?
-	const uint16_t x_scroll_tile = (m->x_scroll / 8) % GAME_PLANE_W_CELLS;
-	const uint16_t y_scroll_tile = (m->y_scroll / 8) % GAME_PLANE_H_CELLS;
+	const uint16_t x_scroll_tile = (scroll_idx_x) % GAME_PLANE_W_CELLS;
+	const uint16_t y_scroll_tile = (scroll_idx_y) % GAME_PLANE_H_CELLS;
 
 	// Destination; points at the top of the seam. Operates in terms of VRAM address.
-	uint16_t dma_dest = vdp_get_plane_base(VDP_PLANE_A) +
+	uint16_t dma_dest = plane_base +
 	                    (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 
 	// Dsource
@@ -242,7 +247,7 @@ static inline void draw_horizontal(O_Map *m)
 		map_dma_h_len[current_dma]++;
 		dma_dest += GAME_PLANE_W_CELLS * 2;
 		// Have we crossed the vertical seam?
-		if (dma_dest >= vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset)
+		if (current_dma == 0 && dma_dest >= plane_base + v_seam_vram_offset)
 		{
 			// Loop back around, and split to the next DMA.
 			dma_dest -= v_seam_vram_offset;
@@ -322,6 +327,7 @@ static inline void draw_full(O_Map *m)
 
 static void main_func(Obj *o)
 {
+	system_profile(PALRGB(3, 3, 3));
 	O_Map *m = (O_Map *)o;
 
 	uint16_t i = ARRAYSIZE(h_scroll_buffer);
@@ -347,9 +353,12 @@ static void main_func(Obj *o)
 	}
 	else
 	{
+		system_profile(PALRGB(7, 3, 3));
 		draw_vertical(m);
+		system_profile(PALRGB(3, 7, 3));
 		draw_horizontal(m);
 	}
+	system_profile(PALRGB(0, 0, 0));
 
 	m->x_scroll_prev = m->x_scroll;
 	m->y_scroll_prev = m->y_scroll;
@@ -390,24 +399,22 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	map->bottom = INTTOFIX32(map->current_map->h * GAME_SCREEN_H_PIXELS);
 	map->fresh_room = 1;
 
-	// TODO: Set up BG.
-	// TODO: This palette is really BG's job.
-	pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
-	           sizeof(res_pal_bg_common_bin) / 2);
-
 	// Set up tiles and palettes.
 	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
 	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
 	{
 		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
-		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
+		SYSTEM_ASSERT(tsa->tile_data_size <= MAP_TILE_VRAM_LENGTH);
 		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
 		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_enemy_bin) / 2);
+		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
 	}
 
-	// Set Vscroll based on room geometry.
+	// Set scroll mode based on room geometry.
 	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
 	else vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
+	if (map->current_map->h <= 1) vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
+	else vdp_set_hscroll_mode(VDP_HSCROLL_PLANE);
 
 	// Build the object list.
 	uint16_t found_entrance = 0;
@@ -485,6 +492,13 @@ uint8_t map_get_music_track(void)
 	if (!map) return 0;
 	if (!map->current_map) return 0;
 	return map->current_map->music;
+}
+
+uint8_t map_get_background(void)
+{
+	if (!map) return 0;
+	if (!map->current_map) return 0;
+	return map->current_map->background;
 }
 
 void map_set_exit_trigger(MapExitTrigger t)

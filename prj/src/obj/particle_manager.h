@@ -29,6 +29,7 @@ typedef struct Particle
 typedef struct O_ParticleManager
 {
 	Obj head;
+	int16_t spawn_start_index;
 } O_ParticleManager;
 
 void o_load_particle_manager(Obj *o, uint16_t data);

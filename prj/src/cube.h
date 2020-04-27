@@ -65,9 +65,12 @@ typedef enum CubeType
 
 } CubeType;
 
-typedef struct Cube
+typedef struct Cube Cube;
+
+struct Cube
 {
 	CubeStatus status;
+	Cube *spawned_cube;
 	CubeType type;
 	fix32_t x, y;
 	fix16_t dx, dy;
@@ -77,7 +80,7 @@ typedef struct Cube
 	uint8_t collision_timeout;
 	uint8_t spawn_count;
 	uint8_t fizzle_count;
-} Cube;
+};
 
 // If needed, initialize constants used by cubes.
 void cube_set_constants(void);

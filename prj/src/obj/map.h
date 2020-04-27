@@ -69,6 +69,7 @@ void map_load(uint8_t id, uint8_t entrance_num);
 
 // Map metadata.
 uint8_t map_get_music_track(void);
+uint8_t map_get_background(void);
 
 static inline uint8_t map_is_tile_harmful(uint8_t tile)
 {
@@ -89,9 +90,6 @@ static inline uint16_t map_data_at(int16_t x, int16_t y)
 static inline uint16_t map_collision(int16_t x, int16_t y)
 {
 	return map_is_tile_solid(map_data_at(x, y) & 0xFF);
-	const uint16_t check_addr = (y / 8) * (g_map_row_size) + (x / 8);
-	const uint8_t m = g_map_data[check_addr];  // Originally had AND with 0x7FFF
-	return (m >= 0x80) && (m < 0xE0);
 }
 
 fix32_t map_get_right(void);

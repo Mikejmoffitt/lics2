@@ -38,7 +38,7 @@ static void set_constants(void)
 	kbuggo2_spark_time = PALSCALE_DURATION(144);
 	kbuggo2_spark_dx = INTTOFIX16(PALSCALE_1ST(2.5));
 
-	kanim_speed = PALSCALE_DURATION(5);
+	kanim_speed = PALSCALE_DURATION(7);
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 
 	kdx = INTTOFIX16(PALSCALE_1ST(.20833333333333334));
@@ -65,7 +65,7 @@ static inline void render(O_Buggo *f)
 
 	Obj *o = &f->head;
 	int16_t sp_x, sp_y;
-	obj_render_setup(o, &sp_x, &sp_y, -8, -8,
+	obj_render_setup(o, &sp_x, &sp_y, -8, -7,
 	                 map_get_x_scroll(), map_get_y_scroll());
 	if (o->type == OBJ_BUGGO1)
 	{
@@ -150,6 +150,23 @@ static void main_func(Obj *o)
 		o->dx = -kdx;
 	}
 
+	// Collision.
+	if (o->dx > 0 &&
+	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y)))
+	{
+		o->direction = OBJ_DIRECTION_LEFT;
+		o->dx = -kdx;
+		f->x_min = o->x - INTTOFIX32(50);
+		f->x_max = o->x;
+	}
+	else if (o->dx < 0 &&
+	         map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y)))
+	{
+		o->direction = OBJ_DIRECTION_RIGHT;
+		o->dx = kdx;
+		f->x_min = o->x;
+		f->x_max = o->x + INTTOFIX32(50);
+	}
 	// Shooting.
 	if (o->type == OBJ_BUGGO1)
 	{
@@ -182,9 +199,9 @@ static void main_func(Obj *o)
 		{
 			f->shot_clock = 0;
 			f->spin_cnt = kbuggo2_spark_time / 2;
-			projectile_manager_shoot(o->x, o->y + INTTOFIX32(7), PROJECTILE_TYPE_SPARK,
+			projectile_manager_shoot(o->x, o->y + INTTOFIX32(8), PROJECTILE_TYPE_SPARK,
 			                         kbuggo2_spark_dx, 0);
-			projectile_manager_shoot(o->x, o->y + INTTOFIX32(7), PROJECTILE_TYPE_SPARK,
+			projectile_manager_shoot(o->x, o->y + INTTOFIX32(8), PROJECTILE_TYPE_SPARK,
 			                         -kbuggo2_spark_dx, 0);
 
 		}
@@ -224,7 +241,7 @@ void o_load_buggo(Obj *o, uint16_t data)
 	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-7),
 	               o->type == OBJ_BUGGO1 ? 2 : 1);
 	o->main_func = main_func;
-	f->x_min = o->x - INTTOFIX32(100);
+	f->x_min = o->x - INTTOFIX32(50);
 	f->x_max = o->x;
 	o->dx = -kdx;
 

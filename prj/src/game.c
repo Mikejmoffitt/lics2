@@ -131,31 +131,28 @@ static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
 static void ge_game_ingame(void)
 {
 	static uint8_t track_id = 1;
-	static uint8_t next_room_id = 1;
+	static uint8_t next_room_id = 9;
 	static uint8_t next_room_entrance = 0;
 	static fix16_t lyle_entry_dx = 0;
 	static fix16_t lyle_entry_dy = 0;
 	static int16_t lyle_cp = 0;
 	static int16_t lyle_phantom_cnt = 0;
 	static int8_t lyle_tele_in_cnt = 0;
-	pal_set(0, 0);
+	system_profile(0);
 
 	if (g_elapsed == 0)
 	{
 		vdp_set_display_en(0);
 		obj_clear();
 
-		system_set_debug_enabled(1);
-
 		// The order of objects is important.
 		obj_spawn(0, 0, OBJ_PROJECTILE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 		obj_spawn(32, 32, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
-		obj_spawn(0, 0, OBJ_BG, 0);
 		obj_spawn(0, 0, OBJ_MAP, 0);
-
 		map_load(next_room_id, next_room_entrance);
+		obj_spawn(0, 0, OBJ_BG, 0);
 
 		O_Lyle *l = lyle_get();
 		l->head.dx = lyle_entry_dx;
@@ -246,7 +243,7 @@ static void (*dispatch_funcs[])(void) =
 
 void game_main(void)
 {
-	text_init(res_font_bin, sizeof(res_font_bin), 0x8000, NULL, 1);
+	system_set_debug_enabled(0);
 
 	app_alive = 1;
 	while (app_alive)

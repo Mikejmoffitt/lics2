@@ -6,6 +6,8 @@
 
 #include "cube.h"
 
+#include "gfx.h"
+
 #include "obj/entrance.h"
 #include "obj/metagrub.h"
 #include "obj/flip.h"
@@ -14,12 +16,15 @@
 #include "obj/gaxter2.h"
 #include "obj/buggo.h"
 #include "obj/dancyflower.h"
+#include "obj/jraff.h"
+#include "obj/pilla.h"
 
 #include "obj/teleporter.h"
 
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
 #include "obj/map.h"
+#include "obj/bg.h"
 
 #include "obj/particle_manager.h"
 #include "obj/projectile_manager.h"
@@ -32,9 +37,6 @@
 
 #define OBJ_OFFSCREEN_MARGIN INTTOFIX32(64)
 
-// TODO: Place this in a more dynamic / less shitty way.
-#define OBJ_VRAM_BASE 0x2000
-
 ObjSlot g_objects[OBJ_COUNT_MAX];
 static uint16_t obj_vram_pos;
 
@@ -42,6 +44,11 @@ static uint16_t highest_obj_idx;
 
 static uint16_t constants_set;
 static int8_t khurt_stun_time;
+
+//uint16_t obj_get_upper_bound(void)
+//{
+//	return highest_obj_idx;
+//}
 
 static inline void set_constants(void)
 {
@@ -85,12 +92,15 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_BUGGO1] = {o_load_buggo, o_unload_buggo},
 	[OBJ_BUGGO2] = {o_load_buggo, o_unload_buggo},
 	[OBJ_DANCYFLOWER] = {o_load_dancyflower, o_unload_dancyflower},
+	[OBJ_JRAFF] = {o_load_jraff, o_unload_jraff},
+	[OBJ_PILLA] = {o_load_pilla, o_unload_pilla},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
 	[OBJ_MAP] = {o_load_map, o_unload_map},
+	[OBJ_BG] = {o_load_bg, o_unload_bg},
 
 	[OBJ_PARTICLE_MANAGER] = {o_load_particle_manager, o_unload_particle_manager},
 	[OBJ_PROJECTILE_MANAGER] = {o_load_projectile_manager, o_unload_projectile_manager},
@@ -101,11 +111,7 @@ static const SetupFuncs setup_funcs[] =
 // Object list execution ======================================================
 int obj_init(void)
 {
-	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
-	{
-		Obj *o = &g_objects[i].obj;
-		o->status = OBJ_STATUS_NULL;
-	}
+	SYSTEM_ASSERT(sizeof(g_objects[0]) % sizeof(uint32_t) == 0);
 
 	obj_clear();
 	set_constants();
@@ -193,20 +199,16 @@ void obj_exec(void)
 	uint16_t highest_obj = 0;
 	for (uint16_t i = 0; i < highest_obj_idx + 1; i++)
 	{
+		system_profile(PALRGB(0, 0, i % 2 ? 1 : 0));
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 
 		if (i > highest_obj) highest_obj = i;
 
-		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) &&
-		    (o->offscreen = obj_is_offscreen(o)))
-		{
-			continue;
-		}
-		if (o->flags & OBJ_FLAG_TANGIBLE)
-		{
-		    obj_hurt_process(o);
-		}
+		o->offscreen = obj_is_offscreen(o);
+		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) && o->offscreen) continue;
+
+		if (o->flags & OBJ_FLAG_TANGIBLE) obj_hurt_process(o);
 
 		if (o->flags & (OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_L |
 		                OBJ_FLAG_BOUNCE_R | OBJ_FLAG_DEADLY |
@@ -226,9 +228,7 @@ void obj_clear(void)
 	highest_obj_idx = 0;
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &g_objects[i].obj;
-		if (o->status == OBJ_STATUS_NULL) continue;
-		o->status = OBJ_STATUS_NULL;
+		g_objects[i].obj.status = OBJ_STATUS_NULL;
 	}
 
 	for (uint16_t i = 0; i < ARRAYSIZE(setup_funcs); i++)
@@ -237,7 +237,7 @@ void obj_clear(void)
 		setup_funcs[i].unload_func();
 	}
 
-	obj_vram_pos = OBJ_VRAM_BASE;
+	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
@@ -249,7 +249,11 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 		if (!setup_funcs[type].load_func) continue;
 
 		if (i > highest_obj_idx) highest_obj_idx = i;
-		memset(o, 0, sizeof(g_objects[i]));
+		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
+		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
+		{
+			raw_mem_uint32[j] = 0;
+		}
 		o->status = OBJ_STATUS_ACTIVE;
 		o->type = type;
 		o->x = INTTOFIX32(x);
@@ -297,11 +301,6 @@ void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t
 }
 
 // Utility or commonly reused functions
-void obj_standard_physics(Obj *o)
-{
-	o->x += o->dx;
-	o->y += o->dy;
-}
 
 void obj_get_hurt(Obj *o, int16_t damage)
 {

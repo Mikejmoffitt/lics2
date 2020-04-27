@@ -30,8 +30,6 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 {
 	x -= map_get_x_scroll();
 	y -= map_get_y_scroll();
-	if (x < -32 || x > GAME_SCREEN_W_PIXELS) return;
-	if (y < -32 || y > GAME_SCREEN_H_PIXELS) return;
 	switch(type)
 	{
 		case CUBE_TYPE_GREENBLUE:
@@ -82,6 +80,7 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 		c->status = status;
 		c->dx = dx;
 		c->dy = dy;
+		c->spawned_cube = NULL;
 		if (c->type == CUBE_TYPE_ORANGE)
 		{
 			c->left = INTTOFIX16(-15);

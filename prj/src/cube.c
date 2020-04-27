@@ -47,17 +47,15 @@ void cube_set_constants(void)
 
 static void cube_scan_objects(Cube *c)
 {
-	uint16_t i = ARRAYSIZE(g_objects);
+	uint16_t i = obj_get_upper_bound();
+	SYSTEM_ASSERT(i <= ARRAYSIZE(g_objects));
 	while (i--)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
 		if (o->offscreen) continue;
-		if (obj_touching_cube(o, c))
-		{
-			obj_cube_impact(o, c);
-		}
+		if (obj_touching_cube(o, c)) obj_cube_impact(o, c);
 	}
 }
 
@@ -87,63 +85,9 @@ void cube_destroy(Cube *c)
 		// TODO: Queue regular cube burst sound
 	}
 
-	switch (c->type)
+	if (c->type >= CUBE_TYPE_YELLOW_HPUP)
 	{
-		case CUBE_TYPE_RED:
-		case CUBE_TYPE_ORANGE:
-			c->status = CUBE_STATUS_EXPLODE;
-			break;
-		default:
-			c->status = CUBE_STATUS_FIZZLE;
-			break;
-		case CUBE_TYPE_YELLOW_HPUP:
-			// TODO: Powerup manager spawn HPUP
-			break;
-		case CUBE_TYPE_YELLOW_HPUP2:
-			// TODO: Powerup manager spawn HPUP2
-			break;
-		case CUBE_TYPE_YELLOW_CPUP:
-			// TODO: Powerup manager spawn CPUP
-			break;
-		case CUBE_TYPE_YELLOW_CPUP2:
-			// TODO: Powerup manager spawn CPUP2
-			break;
-		case CUBE_TYPE_YELLOW_CPORB0:
-		case CUBE_TYPE_YELLOW_CPORB1:
-		case CUBE_TYPE_YELLOW_CPORB2:
-		case CUBE_TYPE_YELLOW_CPORB3:
-		case CUBE_TYPE_YELLOW_CPORB4:
-		case CUBE_TYPE_YELLOW_CPORB5:
-		case CUBE_TYPE_YELLOW_CPORB6:
-		case CUBE_TYPE_YELLOW_CPORB7:
-		case CUBE_TYPE_YELLOW_CPORB8:
-		case CUBE_TYPE_YELLOW_CPORB9:
-		case CUBE_TYPE_YELLOW_CPORB10:
-		case CUBE_TYPE_YELLOW_CPORB11:
-		case CUBE_TYPE_YELLOW_CPORB12:
-		case CUBE_TYPE_YELLOW_CPORB13:
-		case CUBE_TYPE_YELLOW_CPORB14:
-		case CUBE_TYPE_YELLOW_CPORB15:
-			// TODO: Powerup manager spawn CP orb based on low nybble
-			break;
-		case CUBE_TYPE_YELLOW_HPORB0:
-		case CUBE_TYPE_YELLOW_HPORB1:
-		case CUBE_TYPE_YELLOW_HPORB2:
-		case CUBE_TYPE_YELLOW_HPORB3:
-		case CUBE_TYPE_YELLOW_HPORB4:
-		case CUBE_TYPE_YELLOW_HPORB5:
-		case CUBE_TYPE_YELLOW_HPORB6:
-		case CUBE_TYPE_YELLOW_HPORB7:
-		case CUBE_TYPE_YELLOW_HPORB8:
-		case CUBE_TYPE_YELLOW_HPORB9:
-		case CUBE_TYPE_YELLOW_HPORB10:
-		case CUBE_TYPE_YELLOW_HPORB11:
-		case CUBE_TYPE_YELLOW_HPORB12:
-		case CUBE_TYPE_YELLOW_HPORB13:
-		case CUBE_TYPE_YELLOW_HPORB14:
-		case CUBE_TYPE_YELLOW_HPORB15:
-			// TODO: Powerup manager spawn HP orb based on low nybble
-			break;
+		// TODO: Spawn powerups based on type.
 	}
 }
 
@@ -344,20 +288,17 @@ static inline void cube_bg_collision(Cube *c)
 		if (c->dy > 0) cube_bg_bounce_ground(c);
 		else if (c->dy < 0) cube_bg_bounce_top(c);
 	}
-	else if (INTTOFIX32(cx_left) < 0 || INTTOFIX32(cx_right) > map_get_right() ||
-	         INTTOFIX32(cy_top) < 0 || INTTOFIX32(cy_bottom) > map_get_bottom())
+	else if (cx_left < 0 || c->x + c->right > map_get_right() ||
+	         cy_top < 0 || c->y > map_get_bottom())
 	{
 		return;
 	}
 	else
 	{
-		if (map_collision(cx_left, cy_bottom) ||
-		    map_collision(cx_right, cy_bottom) ||
-		    map_collision(cx_left, cy_top) ||
-		    map_collision(cx_right, cy_top))
-		{
-			cube_destroy(c);
-		}
+		if ((c->dx > 0 || c->dy > 0) && map_collision(cx_right, cy_bottom)) cube_destroy(c);
+		else if ((c->dx < 0 || c->dy > 0) && map_collision(cx_left, cy_bottom)) cube_destroy(c);
+		else if ((c->dx > 0 || c->dy < 0) && map_collision(cx_right, cy_top)) cube_destroy(c);
+		else if ((c->dx < 0 || c->dy < 0) && map_collision(cx_left, cy_top)) cube_destroy(c);
 	}
 }
 
@@ -393,7 +334,6 @@ static inline void cube_movement(Cube *c)
 	}
 
 	// Check for cube out of bounds.
-	// TODO: Implement once map is in, so we have actual bounds.
 	if (cx_right > map_get_right() ||
 	    cx_left < 0 ||
 	    cy_bottom > map_get_bottom() ||
@@ -487,65 +427,62 @@ static inline void cube_on_cube_collisions(Cube *c)
 	}
 }
 
-// Simplified collision for spawner cubes that reset the spawn count if a blue
-// cube exists in the same location.
-static inline void spawn_touch_check(Cube *c)
-{
-	uint16_t i = ARRAYSIZE(g_cubes);
-	while (i--)
-	{
-		Cube *d = &g_cubes[i];
-		if (d->status == CUBE_STATUS_NULL) continue;
-		if (d->type != CUBE_TYPE_BLUE) continue;
-		if (d->x != c->x || d->y != c->y) continue;
-		c->spawn_count = 0;
-		d->spawn_count = 2;  // spawn_count is used to make blue cubes flash.
-		break;
-	}
-}
-
-static inline void cube_render(Cube *c)
-{
-	CubeType render_type = c->type;
-	// Render the cube.
-	if (c->type == CUBE_TYPE_SPAWNER)
-	{
-		if (c->spawn_count < kspawn_seq[0] && c->spawn_count > 0) return;
-		if ((g_elapsed >> 2) % 2 == 0) return;
-	}
-	else if (c->type == CUBE_TYPE_BLUE)
-	{
-		// Blue cubes flash the spawner colors if there is a spawner below them.
-		if ((g_elapsed % 8) > 4 && c->spawn_count > 0 && (g_elapsed >> 2) % 2 == 0)
-		{
-			render_type = CUBE_TYPE_SPAWNER;
-		}
-	}
-
-	if (render_type == CUBE_TYPE_SPAWNER && (g_elapsed % 8) < 4)
-	{
-		render_type = CUBE_TYPE_BLUE;
-	}
-
-	cube_manager_draw_cube(FIX32TOINT(c->x + c->left),
-	                       FIX32TOINT(c->y + c->top), render_type);
-}
-
 void cube_run(Cube *c)
 {
-	if (c->type == CUBE_TYPE_BLUE)
+	if (c->status == CUBE_STATUS_AIR || c->status == CUBE_STATUS_KICKED)
 	{
-		if (c->spawn_count > 0) c->spawn_count--;
+		system_profile(PALRGB(6, 6, 7));
+		// Collision is processed one frame late to mimic the original
+		// game's behavior... so says the old code.
+		cube_scan_objects(c);
+		system_profile(PALRGB(6, 3, 7));
+		if (c->status == CUBE_STATUS_AIR ||
+		    c->status == CUBE_STATUS_KICKED)
+		{
+			system_profile(PALRGB(4, 0, 7));
+			cube_bg_collision(c);
+			system_profile(PALRGB(4, 2, 5));
+			cube_movement(c);
+			system_profile(PALRGB(3, 5, 3));
+			cube_on_cube_collisions(c);
+		}
 	}
-	else if (c->type == CUBE_TYPE_SPAWNER)
+	system_profile(PALRGB(0, 1, 0));
+
+	// Check if the cube is off-screen, and skip some things if so.
+	const fix32_t margin = 32;
+	const int16_t x_scroll = map_get_x_scroll();
+	const int16_t y_scroll = map_get_y_scroll();
+	const int16_t cx = FIX32TOINT(c->x + c->left);
+	const int16_t cy = FIX32TOINT(c->y + c->top);
+	if (cy > y_scroll + GAME_SCREEN_H_PIXELS + margin) goto off_screen;
+	if (cy < y_scroll - margin) goto off_screen;
+	if (cx > x_scroll + GAME_SCREEN_W_PIXELS + margin) goto off_screen;
+	if (cx < x_scroll - margin) goto off_screen;
+	
+	// Things that only happen when cubes are on-screen:
+	system_profile(PALRGB(7, 3, 0));
+
+	if (c->type == CUBE_TYPE_SPAWNER)
 	{
 		if (c->spawn_count < kspawn_seq[1]) c->spawn_count++;
+		if (c->spawned_cube)
+		{
+			if (c->spawned_cube->status == CUBE_STATUS_IDLE)
+			{
+				c->spawn_count = 0;
+			}
+			else
+			{
+				c->spawned_cube = NULL;
+			}
+		}
 		if (c->spawn_count == kspawn_seq[1])
 		{
-			cube_manager_spawn(c->x, c->y, CUBE_TYPE_BLUE, CUBE_STATUS_IDLE,
-			                   0, 0);
+			c->spawned_cube = cube_manager_spawn(c->x, c->y, CUBE_TYPE_BLUE,
+			                                     CUBE_STATUS_IDLE, 0, 0);
+			c->spawned_cube->spawn_count = 1;  // Mark blue cube to flash.
 		}
-		spawn_touch_check(c);
 	}
 
 	if (c->status == CUBE_STATUS_FIZZLE || c->status == CUBE_STATUS_EXPLODE)
@@ -555,27 +492,10 @@ void cube_run(Cube *c)
 			c->fizzle_count--;
 			cube_scan_objects(c);
 		}
-		else
-		{
-			c->status = CUBE_STATUS_NULL;
-			return;
-		}
-	}
-	else if (c->status != CUBE_STATUS_IDLE)
-	{
-		// Collision is processed one frame late to mimic the original
-		// game's behavior... so says the old code.
-		cube_scan_objects(c);
-		cube_bg_collision(c);
-		cube_movement(c);
-		if (c->status == CUBE_STATUS_AIR ||
-		    c->status == CUBE_STATUS_KICKED)
-		{
-			cube_on_cube_collisions(c);
-		}
+		if (c->fizzle_count <= 0) c->status = CUBE_STATUS_NULL;
 	}
 
-	// Spawn particles if needed.
+	// Spawn particles.
 	if (c->status == CUBE_STATUS_FIZZLE)
 	{
 		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_FIZZLE);
@@ -586,8 +506,42 @@ void cube_run(Cube *c)
 		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_EXPLOSION);
 		return;
 	}
+	system_profile(PALRGB(3, 0, 7));
 
-	cube_render(c);
+	// Render the cube.
+	CubeType render_type = c->type;
+	// Render the cube.
+	if (c->type == CUBE_TYPE_SPAWNER)
+	{
+		if (c->spawn_count < kspawn_seq[0]) return;
+		if ((g_elapsed >> 2) % 2 == 0) return;
+	}
+	else if (c->type == CUBE_TYPE_BLUE)
+	{
+		// Blue cubes flash the spawner colors if there is a spawner below them.
+		if (c->spawn_count > 0 && (g_elapsed >> 2) % 2 == 0)
+		{
+			render_type = CUBE_TYPE_SPAWNER;
+		}
+	}
+
+	system_profile(PALRGB(7, 7, 7));
+	cube_manager_draw_cube(cx, cy, render_type);
+	system_profile(PALRGB(0, 0, 0));
+	return;
+
+off_screen:
+	if (c->fizzle_count > 0)
+	{
+		c->fizzle_count = 0;
+		c->status = CUBE_STATUS_NULL;
+	}
+	if (c->type == CUBE_TYPE_SPAWNER)
+	{
+		if (c->spawn_count < kspawn_seq[1] - 1) c->spawn_count = kspawn_seq[1] - 1;
+	}
+
+	system_profile(PALRGB(0, 0, 0));
 }
 
 void cube_bounce_dx(Cube *c)
@@ -600,7 +554,7 @@ void cube_bounce_dx(Cube *c)
 // Called externally when Lyle touches a cube.
 void cube_restrict_spawn(Cube *c)
 {
-	if (c->spawn_count == kspawn_seq[1] - 1)
+	if (c->spawn_count == kspawn_seq[1] - 2)
 	{
 		c->spawn_count--;
 	}

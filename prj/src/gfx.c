@@ -44,6 +44,21 @@ static const Gfx gfx[] =
 
 	[GFX_TITLE_BOGOLOGO] = GFX(title_bogologo),
 	[GFX_TITLE_TITLELOGO] = GFX(title_titlelogo),
+
+	[GFX_BG_1] = GFX(bg_bg1),
+	[GFX_BG_2] = GFX(bg_bg2),
+	[GFX_BG_3] = GFX(bg_bg3),
+	[GFX_BG_4] = GFX(bg_bg4),
+	[GFX_BG_5] = GFX(bg_bg5),
+	[GFX_BG_6] = GFX(bg_bg1),
+	[GFX_BG_7] = GFX(bg_bg7),
+	[GFX_BG_9] = GFX(bg_bg9),
+	[GFX_BG_10] = GFX(bg_bg10),
+	[GFX_BG_11] = GFX(bg_bg11),
+	[GFX_BG_12] = GFX(bg_bg10),
+	[GFX_BG_13] = GFX(bg_bg13),
+	[GFX_BG_14] = GFX(bg_bg13),
+	[GFX_BG_15] = GFX(bg_bg15),
 };
 
 int gfx_init(void)
@@ -58,6 +73,7 @@ const Gfx *gfx_get(GfxId id)
 
 uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
 {
+	if (!g->data) return;
 	// DMA operates in terms of words rather than bytes
 	const uint16_t transfer_words = g->size / 2;
 	dma_q_transfer_vram(load_pos, (void *)g->data, transfer_words, 2);

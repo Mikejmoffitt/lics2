@@ -26,11 +26,11 @@ typedef struct O_Lyle
 	int16_t kick_cnt;
 	int16_t lift_cnt;
 
-	uint8_t anim_cnt;
-	uint8_t anim_frame;
+	int8_t anim_cnt;
+	int8_t anim_frame;
 
-	uint8_t action_cnt;
-	uint8_t grounded;
+	int8_t action_cnt;
+	int8_t grounded;
 
 	int8_t ext_disable;
 	int8_t cubejump_disable;
