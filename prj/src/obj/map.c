@@ -109,7 +109,9 @@ static const MapAssets map_by_id[] =
 	[47] = MAP_ASSETS(47_technocolumn),
 	[48] = MAP_ASSETS(48_technoatrium),
 	[49] = MAP_ASSETS(49_technocorridor),
-	[50] = MAP_ASSETS(50_technotopper)
+	[50] = MAP_ASSETS(50_technotopper),
+	[51] = MAP_ASSETS(51_toxicpool),
+	[52] = MAP_ASSETS(52_tvroom),
 };
 
 static inline void draw_vertical(O_Map *m)

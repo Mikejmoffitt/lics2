@@ -272,19 +272,12 @@ const LineInstruction blue_line_instructions[] =
 	{52, 57, 52, 85}
 };
 
-// Woooow this one's pretty ugly
-// On the other hand, it's working well enough.
-// TODO: Clean up and profile
-static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
+static void undersand_purple_columns(int16_t x_scroll)
 {
-	(void)y_scroll;
 	const Gfx *g = gfx_get(GFX_BG_9);
 	const uint8_t *bmp = (const uint8_t *)g->data;
-	set_h_scroll_plane(-x_scroll/2);
-
 	const uint16_t scroll_off = ((uint8_t)(x_scroll) / 4) % 64;
 	const uint16_t data_off = scroll_off % 2 ? 64 : 0;
-
 	// The purple parts in the back.
 	for (int16_t i = 0; i < 2; i++)
 	{
@@ -298,7 +291,12 @@ static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
 			}
 		}
 	}
+}
 
+static void undersand_green_columns(void)
+{
+	const Gfx *g = gfx_get(GFX_BG_9);
+	const uint8_t *bmp = (const uint8_t *)g->data;
 	// For transparent parts that don't align with even pixels, some bit fussing
 	// is needed so as to support transparency properly.
 	for (int16_t y = 5; y < 8; y++)
@@ -344,7 +342,29 @@ static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
 		scratch_plot(4, y, bmp[(4 * (y % 8)) + (3 * 32)]);
 	}
 	scratch_plot(4, 8, bmp[(5 * 32)]);
+}
 
+// Woooow this one's pretty ugly
+// On the other hand, it's working well enough.
+// TODO: Clean up and profile
+static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
+{
+	(void)y_scroll;
+
+	undersand_purple_columns(x_scroll);
+	undersand_green_columns();
+
+	set_h_scroll_plane(-x_scroll/2);
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
+}
+
+static void bg_columns_2_func(int16_t x_scroll, int16_t y_scroll)
+{
+	(void)y_scroll;
+
+	undersand_purple_columns(x_scroll);
+
+	set_h_scroll_plane(-x_scroll/2);
 	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
 }
 
@@ -447,7 +467,7 @@ static void technozone_vertical(int16_t y_scroll)
 	if (g_elapsed % 2 == 0 || g_elapsed < 2)
 	{
 		// Erase the blue pattern from before.
-		for (int16_t i = 0; i < ARRAYSIZE(blue_line_instructions); i++)
+		for (uint16_t i = 0; i < ARRAYSIZE(blue_line_instructions); i++)
 		{
 			const LineInstruction *l = &blue_line_instructions[i];
 			if (l->x1 == l->x2) scratch_clear_line_down(16 + l->x1, y_off + l->y1 - 6, (l->y2 - l->y1 + 1) + 6);
@@ -459,7 +479,7 @@ static void technozone_vertical(int16_t y_scroll)
 	{
 		technozone_purple_overlay(1);
 
-		for (int16_t i = 0; i < ARRAYSIZE(blue_line_instructions); i++)
+		for (uint16_t i = 0; i < ARRAYSIZE(blue_line_instructions); i++)
 		{
 			const LineInstruction *l = &blue_line_instructions[i];
 			if (l->x1 == l->x2) scratch_or_line_down(16 + l->x1, y_off + l->y1, 0x11, (l->y2 - l->y1 + 1));
@@ -545,8 +565,11 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[7] = bg_orange_balls_func,
 	[9] = bg_undersand_columns_func,
 	[10] = bg_crazy_city_func,
+
 	[12] = bg_crazy_city_low_func,
+
 	[19] = bg_technozone_func,
+	[20] = bg_columns_2_func,
 };
 
 static void main_func(Obj *o)
