@@ -59,6 +59,8 @@ static const Gfx gfx[] =
 	[GFX_BG_13] = GFX(bg_bg13),
 	[GFX_BG_14] = GFX(bg_bg13),
 	[GFX_BG_15] = GFX(bg_bg15),
+
+	[GFX_BG_19] = GFX(bg_bg19),
 };
 
 int gfx_init(void)
@@ -73,7 +75,7 @@ const Gfx *gfx_get(GfxId id)
 
 uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
 {
-	if (!g->data) return;
+	if (!g->data) return 0;
 	// DMA operates in terms of words rather than bytes
 	const uint16_t transfer_words = g->size / 2;
 	dma_q_transfer_vram(load_pos, (void *)g->data, transfer_words, 2);

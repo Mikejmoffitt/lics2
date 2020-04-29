@@ -131,7 +131,7 @@ static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
 static void ge_game_ingame(void)
 {
 	static uint8_t track_id = 1;
-	static uint8_t next_room_id = 9;
+	static uint8_t next_room_id = 1;
 	static uint8_t next_room_entrance = 0;
 	static fix16_t lyle_entry_dx = 0;
 	static fix16_t lyle_entry_dy = 0;

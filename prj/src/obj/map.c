@@ -107,7 +107,9 @@ static const MapAssets map_by_id[] =
 	[45] = MAP_ASSETS(45_longsand),
 	[46] = MAP_ASSETS(46_technofirst),
 	[47] = MAP_ASSETS(47_technocolumn),
-	[48] = MAP_ASSETS(48_technoatrium)
+	[48] = MAP_ASSETS(48_technoatrium),
+	[49] = MAP_ASSETS(49_technocorridor),
+	[50] = MAP_ASSETS(50_technotopper)
 };
 
 static inline void draw_vertical(O_Map *m)
@@ -450,11 +452,11 @@ fix32_t map_get_bottom(void)
 void map_set_scroll(int16_t x, int16_t y)
 {
 	if (map->current_map->w <= 1) x = 0;
-	if (map->current_map->h <= 1) y = 0;
+	if (map->current_map->h <= 1) y = system_is_ntsc() ? 8 : 0;
 	if (x < 0) x = 0;
 	if (y < 0) y = 0;
 	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
-	const int16_t bottom_bound = (map->current_map->h - 1) * GAME_SCREEN_H_PIXELS;
+	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
 	if (x >= right_bound) x = right_bound;
 	if (y >= bottom_bound) y = bottom_bound;
 	map->x_scroll = x;

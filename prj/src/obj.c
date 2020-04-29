@@ -76,6 +76,11 @@ static void cube_spawn_stub(Obj *o, uint16_t data)
 	c->x -= c->left;
 	c->x += INTTOFIX32(0.5);
 	c->y -= c->top;
+	if (c->type == CUBE_TYPE_ORANGE)
+	{
+		c->x -= INTTOFIX32(8);
+		c->y -= INTTOFIX32(16);
+	}
 	o->status = OBJ_STATUS_NULL;
 }
 
