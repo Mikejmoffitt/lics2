@@ -86,11 +86,14 @@ static void internal_dma_queue_proc(uint16_t budget_rem)
 				break;
 			case DMA_CMD_OP_COPY:
 				dma_copy(cmd->type, cmd->dest, (uint16_t)(cmd->src), cmd->n);
+				vdp_wait_dma();
 				break;
 			case DMA_CMD_OP_FILL:
 				dma_fill(cmd->type, cmd->dest, (uint16_t)(cmd->src), cmd->n);
+				vdp_wait_dma();
 				break;
 		}
+
 
 		if (disp_disabled || budget_rem == DMA_Q_BUDGET_UNLIMITED) continue;
 
@@ -224,6 +227,7 @@ void dma_fill(uint16_t bus, uint16_t dest, uint16_t val, uint16_t bytes)
 	}
 
 	sys_di();
+
 	vdp_wait_dma();
 	vdp_set_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
 
@@ -235,7 +239,8 @@ void dma_fill(uint16_t bus, uint16_t dest, uint16_t val, uint16_t bytes)
 
 	VDPPORT_CTRL32 = (ctrl_mask | VDP_CTRL_ADDR(dest));
 	VDPPORT_DATA = val << 8;
-	// TODO: Do we care about Z80 here?
+	vdp_wait_dma();
+	vdp_clear_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
 	if (ints_enabled) sys_ei();
 }
 
@@ -259,6 +264,7 @@ void dma_copy(uint16_t bus, uint16_t dest, uint16_t src, uint16_t bytes)
 			break;
 	}
 
+	sys_di();
 	vdp_wait_dma();
 	vdp_set_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
 
@@ -272,7 +278,7 @@ void dma_copy(uint16_t bus, uint16_t dest, uint16_t src, uint16_t bytes)
 	vdp_set_reg(VDP_DMASRC3, VDP_DMA_SRC_COPY);
 
 	VDPPORT_CTRL32 = (ctrl_mask | VDP_CTRL_ADDR(dest));
-	// TODO: Do we care about Z80 here?
+	vdp_clear_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
 	if (ints_enabled) sys_ei();
 }
 
@@ -314,6 +320,7 @@ void dma_transfer(uint16_t bus, uint16_t dest, const void *src, uint16_t words)
 	}
 
 	sys_di();
+	sys_z80_bus_req();
 
 	vdp_wait_dma();
 	vdp_set_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
@@ -329,14 +336,13 @@ void dma_transfer(uint16_t bus, uint16_t dest, const void *src, uint16_t words)
 	transfer_src = transfer_src >> 8;
 	vdp_set_reg(VDP_DMASRC3, transfer_src & 0x7F);
 
-	sys_z80_bus_req();
 
 	// Set write address
 	VDPPORT_CTRL32 = (ctrl_mask | VDP_CTRL_ADDR(dest));
 
 	vdp_clear_reg_bit(VDP_MODESET2, VDP_MODESET2_DMA_EN);
-
 	sys_z80_bus_release();
 	if (ints_enabled) sys_ei();
+
 
 }

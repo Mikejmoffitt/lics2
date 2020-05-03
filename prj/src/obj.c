@@ -7,6 +7,7 @@
 #include "cube.h"
 
 #include "gfx.h"
+#include "sfx.h"
 
 #include "obj/entrance.h"
 #include "obj/metagrub.h"
@@ -74,7 +75,6 @@ static void cube_spawn_stub(Obj *o, uint16_t data)
 	                             (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
 	if (!c) return;
 	c->x -= c->left;
-	c->x += INTTOFIX32(0.5);
 	c->y -= c->top;
 	if (c->type == CUBE_TYPE_ORANGE)
 	{
@@ -145,8 +145,8 @@ static inline void obj_explode(Obj *o)
 	particle_manager_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
 	particle_manager_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
 	particle_manager_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+	sfx_play(SFX_OBJ_BURST, 3);
 	// TODO: (Possibly) spawn powerup.
-	// TODO: Explosion sound.
 	o->status = OBJ_STATUS_NULL;
 }
 
@@ -343,6 +343,6 @@ void obj_standard_cube_response(Obj *o, Cube *c)
 			cube_destroy(c);
 			break;
 	}
-	
+	sfx_play(SFX_CUBE_HIT, 5);
 	obj_get_hurt(o, damage);
 }

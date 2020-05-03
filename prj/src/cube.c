@@ -8,6 +8,7 @@
 #include "obj/particle_manager.h"
 #include "obj/map.h"
 #include "game.h"
+#include "sfx.h"
 
 #include "md/megadrive.h"
 
@@ -33,7 +34,7 @@ void cube_set_constants(void)
 	kcube_on_cube_dy = INTTOFIX16(PALSCALE_1ST(-1.833));
 	kcube_on_cube_dx = INTTOFIX16(PALSCALE_1ST(1));
 	kbounce_coef = INTTOFIX16(0.35);
-	kbounce_cutoff = INTTOFIX16(PALSCALE_1ST(-1.04));  // TODO: Check this one - it was imbalanced in the first port; pal was -1.3
+	kbounce_cutoff = INTTOFIX16(PALSCALE_1ST(-0.7)); // -1.04));  // TODO: Check this one - it was imbalanced in the first port; pal was -1.3
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.5));
 	kdx_degrade = INTTOFIX16(PALSCALE_1ST(0.8333333333));
 	kdy_degrade = INTTOFIX16(0.42);
@@ -71,22 +72,23 @@ void cube_destroy(Cube *c)
 	if (c->type == CUBE_TYPE_RED)
 	{
 		c->status = CUBE_STATUS_EXPLODE;
-		// TODO: Queue explosion sound
+		sfx_play(SFX_EXPLODE, 14);
 	}
 	else if (c->type == CUBE_TYPE_ORANGE)
 	{
 		c->status = CUBE_STATUS_EXPLODE;
-		// TODO: Queue explosion sound
+		sfx_play(SFX_EXPLODE, 14);
 		// TODO: I think this is supposed to do something more as well.
 	}
 	else
 	{
 		c->status = CUBE_STATUS_FIZZLE;
-		// TODO: Queue regular cube burst sound
+		sfx_play(SFX_CUBE_FIZZLE, 14);
 	}
 
 	if (c->type >= CUBE_TYPE_YELLOW_HPUP)
 	{
+		sfx_play(SFX_CUBE_FIZZLE, 14);
 		// TODO: Spawn powerups based on type.
 	}
 }
@@ -125,7 +127,7 @@ static inline void cube_bg_bounce_sides(Cube *c)
 				c->bounce_count = CUBE_INITIAL_BOUNCE_COUNT;
 				c->dy = kcube_on_cube_dy;
 			}
-			// TODO: Queue cube bounce sound.
+			sfx_play(SFX_CUBE_BOUNCE, 15);
 		}
 	}
 	else if (c->dx < 0 && c->x + c->left > 0)
@@ -145,7 +147,7 @@ static inline void cube_bg_bounce_sides(Cube *c)
 				c->bounce_count = CUBE_INITIAL_BOUNCE_COUNT;
 				c->dy = kcube_on_cube_dy;
 			}
-			// TODO: Queue cube bounce sound.
+			sfx_play(SFX_CUBE_BOUNCE, 15);
 		}
 	}
 }
@@ -163,7 +165,7 @@ static inline void cube_bg_bounce_top(Cube *c)
 	if (gnd_chk[0] && gnd_chk[1])
 	{
 		c->dy = kceiling_dy;
-		// TODO: play cube bounce sound.
+		sfx_play(SFX_CUBE_BOUNCE, 15);
 	}
 	else if (gnd_chk[0] || gnd_chk[1])
 	{
@@ -174,7 +176,7 @@ static inline void cube_bg_bounce_top(Cube *c)
 		{
 			// Center checks out, bounce.
 			c->dy = kceiling_dy;
-			// TODO: cube bounce sound
+			sfx_play(SFX_CUBE_BOUNCE, 15);
 		}
 		else
 		{
@@ -216,7 +218,7 @@ static inline void cube_do_ground_recoil(Cube *c)
 		c->bounce_count = 1;
 	}
 
-	if (c->bounce_count > 0 && c->dx == 0 && c->dy > kbounce_cutoff)
+	if (c->bounce_count > 0 && c->dx == 0 && c->dy >= kbounce_cutoff)
 	{
 		c->bounce_count--;
 	}
@@ -230,8 +232,10 @@ static inline void cube_do_ground_recoil(Cube *c)
 	else if (c->dx < -kdx_degrade) c->dx += kdx_degrade;
 	else c->dx = 0;
 
+	if (c->dx != 0 && c->dy >= kbounce_cutoff) c->dy = 0;
 
-	// TODO: Play bounce sound
+
+	sfx_play(SFX_CUBE_BOUNCE, 15);
 
 }
 
@@ -376,7 +380,7 @@ static inline void green_cube_col(Cube *c, Cube *d)
 			cube_clamp_dx(c);
 		}
 		c->dy = kcube_on_cube_dy;
-		// TODO: Cue sound for cube bounce
+		sfx_play(SFX_CUBE_BOUNCE, 15);
 		c->collision_timeout = kcollision_timeout;
 	}
 	else if (c->dy != 0) c->dy = 0;

@@ -5,6 +5,7 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "music.h"
+#include "sfx.h"
 
 #include "util/text.h"
 #include "palscale.h"
@@ -74,6 +75,7 @@ static const InitFunc init_funcs[] =
 	{"gfx", gfx_init},
 	{"obj", obj_init},
 	{"music", music_init},
+	{"sfx", sfx_init},
 };
 
 static void ge_init(void)

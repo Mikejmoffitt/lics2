@@ -179,9 +179,13 @@ static const BgDescriptor backgrounds[] =
 	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, BG_SCROLL_V_CELL},
 	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, BG_SCROLL_V_CELL},
 	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, BG_SCROLL_H_CELL},
-	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, BG_SCROLL_PLANE},
+	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, BG_SCROLL_PLANE},
 
-	[20] = {0}
+	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, BG_SCROLL_PLANE},
+	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, BG_SCROLL_PLANE},
+	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, BG_SCROLL_PLANE},  // Mapping modification of 16.
+
+	[22] = {0}
 };
 
 static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
@@ -212,6 +216,7 @@ static void bg_plane_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_blue_bumps_func(int16_t x_scroll, int16_t y_scroll)
 {
+	const Gfx *g = gfx_get(GFX_BG_3);
 	(void)x_scroll;
 	v_scroll_buffer[0] = y_scroll / 2;
 	v_scroll_buffer[1] = y_scroll / 2;
@@ -225,9 +230,11 @@ static void bg_blue_bumps_func(int16_t x_scroll, int16_t y_scroll)
 
 	const uint8_t scroll_off = ((uint8_t)(y_scroll) / 4) % 16;
 
-	dma_q_copy_vram(BG_TILE_VRAM_POSITION + (12 * 32),
-	                BG_TILE_VRAM_POSITION + (16 * 32) + 128 * scroll_off,
-	                32 * 4, 1);
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (12 * 32), g->data + (16 * 32) + (128 * scroll_off), 32 * 4 / 2, 2);
+
+//	dma_q_copy_vram(BG_TILE_VRAM_POSITION + (12 * 32),
+//	                BG_TILE_VRAM_POSITION + (16 * 32) + 128 * scroll_off,
+//	                32 * 4, 1);
 }
 
 static void bg_bubbles_func(int16_t x_scroll, int16_t y_scroll)
@@ -553,6 +560,49 @@ static void bg_crazy_city_low_func(int16_t x_scroll, int16_t y_scroll)
 	}
 }
 
+static void bg_elevator_func(int16_t x_scroll, int16_t y_scroll)
+{
+	(void)x_scroll;
+	const int16_t close_y = y_scroll / 2;
+	const int16_t med_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));
+	const int16_t far_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.66666667)));
+	const int16_t red_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));
+
+	v_scroll_buffer[0] = close_y;
+	v_scroll_buffer[1] = close_y;
+	v_scroll_buffer[2] = med_y;
+	v_scroll_buffer[3] = far_y;
+
+	v_scroll_buffer[9] = red_y;
+	v_scroll_buffer[10] = red_y;
+
+	v_scroll_buffer[16] = far_y;
+	v_scroll_buffer[17] = med_y;
+	v_scroll_buffer[18] = close_y;
+	v_scroll_buffer[19] = close_y;
+}
+
+static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
+{
+	const Gfx *g = gfx_get(GFX_BG_16_EX);
+	(void)y_scroll;
+
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t x_squiggle_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
+	const int16_t x_front_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667))) % 24;
+	const int16_t x_counter_index = 23 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 24);
+
+	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+	set_h_scroll_plane(x_front_scroll);
+	for (int16_t i = 0; i < 4; i++)
+	{
+		h_scroll_buffer[(system_is_ntsc() ? 13 : 14) + i] = x_squiggle_scroll;
+	}
+	const uint8_t *data_loc = (const uint8_t *)(g->data);
+
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);
+}
+
 static void (*bg_funcs[])(int16_t, int16_t) =
 {
 	[0] = NULL,
@@ -567,9 +617,14 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[10] = bg_crazy_city_func,
 
 	[12] = bg_crazy_city_low_func,
+	[13] = bg_elevator_func,
+	[14] = bg_elevator_func,
+
+	[16] = bg_brown_grass_func,
 
 	[19] = bg_technozone_func,
 	[20] = bg_columns_2_func,
+	[21] = bg_brown_grass_func,
 };
 
 static void main_func(Obj *o)

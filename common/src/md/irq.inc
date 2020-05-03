@@ -1,9 +1,6 @@
 /* md-toolchain interrupt handlers
 Michael Moffitt 2018
-
-The hblank and serial interrupts (levels 4 and 2 respectively) are empty; they
-should be expanded as-needed. */
-
+*/
 
 /* This is used for vblank waiting. */
 	.extern	g_vblank_wait
@@ -11,6 +8,8 @@ should be expanded as-needed. */
 	.extern	io_poll
 /* This is called to fire off the DMA queue. */
 	.extern	dma_q_process
+/* This runs the sound effects. */
+	.extern sfx_tick
 /* IRQ vectors unused on the Megadrive */
 _v_irq1:
 _v_irq3:
@@ -24,6 +23,9 @@ _v_irq2:
 
 /* H-blank Interrupt */
 _v_irq4:
+	movem.l	%d0-%d1/%a0-%a1, -(%sp)
+	jsr	sfx_tick
+	movem.l	(%sp)+, %d0-%d1/%a0-%a1
 	rte
 
 /* V-blank Interrupt */

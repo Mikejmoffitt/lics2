@@ -8,6 +8,8 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "common.h"
+#include "sfx.h"
+#include "obj/particle_manager.h"
 
 #include "cube.h"
 #include "palscale.h"
@@ -191,6 +193,13 @@ static void main_func(Obj *o)
 	{
 		b->boingo_type = BOINGO_TYPE_NORMAL;
 		b->transition_to_normal = 0;
+		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_manager_spawn(o->x + o->right, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_manager_spawn(o->x + o->left, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_manager_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		particle_manager_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		particle_manager_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		sfx_play(SFX_OBJ_BURST, 3);
 	}
 
 	if (b->boingo_type == BOINGO_TYPE_CUBE)
@@ -273,14 +282,12 @@ static void cube_func(Obj *o, Cube *c)
 			cube_clamp_dx(c);
 			c->dy = kcube_bounce_dy;
 		}
-		// TODO: Play cube bounce sound.
+		sfx_play(SFX_CUBE_BOUNCE, 15);
 		return;
 	}
 	else if (b->boingo_type == BOINGO_TYPE_CUBE_ACTIVE)
 	{
 		b->transition_to_normal = 1;
-		// TODO: Spawn fizzle particles.
-		// TODO: Play explode sound.
 		o->cube_func = NULL;
 		obj_standard_cube_response(o, c);
 		o->hp = 1;

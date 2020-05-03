@@ -112,6 +112,7 @@ static const MapAssets map_by_id[] =
 	[50] = MAP_ASSETS(50_technotopper),
 	[51] = MAP_ASSETS(51_toxicpool),
 	[52] = MAP_ASSETS(52_tvroom),
+	[53] = MAP_ASSETS(53_purplecity),
 };
 
 static inline void draw_vertical(O_Map *m)
@@ -244,7 +245,7 @@ static inline void draw_horizontal(O_Map *m)
 	map_dma_h_dest[0] = dma_dest;
 	map_dma_h_len[0] = 0;
 
-	for (uint16_t i = 0; i < GAME_PLANE_H_CELLS; i++)
+	for (uint16_t i = 0; i < (system_is_ntsc() ? 29 : 31); i++)
 	{
 		horizontal_dma_buffer[i] = *dma_src;
 		dma_src += g_map_row_size;
@@ -396,6 +397,7 @@ void o_unload_map(void)
 void map_load(uint8_t id, uint8_t entrance_num)
 {
 	SYSTEM_ASSERT(map != NULL);
+	SYSTEM_ASSERT(id != 0xFF);
 	map->current_map = map_by_id[id].data;
 	g_map_data = map->current_map->map_data;
 	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;

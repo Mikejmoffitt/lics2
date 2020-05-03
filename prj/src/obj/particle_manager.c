@@ -36,7 +36,7 @@ static void set_constants(void)
 	kexplosion_life = PALSCALE_DURATION(21);
 	ksand_life = PALSCALE_DURATION(20);
 	kanim_speed = PALSCALE_DURATION(4.4);
-	kanim_speed_explosion = PALSCALE_DURATION(3.2);
+	kanim_speed_explosion = PALSCALE_DURATION(4.4);
 	kanim_speed_sand = PALSCALE_DURATION(2.3);
 	constants_set = 1;
 }

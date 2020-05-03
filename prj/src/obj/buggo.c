@@ -8,6 +8,7 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/projectile_manager.h"
+#include "sfx.h"
 
 #include "cube.h"
 #include "palscale.h"
@@ -115,6 +116,7 @@ static void buggo2_cube_func(Obj *o, Cube *c)
 		if (c->dx == 0) c->dx = INTTOFIX32(system_rand() % 2 ? 5 : -5);
 		cube_clamp_dx(c);
 		c->dy = kcube_bounce_dy;
+		sfx_play(SFX_CUBE_BOUNCE, 15);
 	}
 	else
 	{

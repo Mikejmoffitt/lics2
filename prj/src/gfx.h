@@ -94,13 +94,15 @@ typedef enum GfxId
 	GFX_BG_13,
 	GFX_BG_14, // 14 is a mod of 13.
 	GFX_BG_15,
+	GFX_BG_16,
+	GFX_BG_16_EX,
 
 	GFX_BG_19,
 } GfxId;
 
 typedef struct Gfx
 {
-	const void *data;
+	const uint8_t *data;
 	const uint16_t size;
 } Gfx;
 

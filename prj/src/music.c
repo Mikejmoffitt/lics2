@@ -118,6 +118,11 @@ int music_init(void)
 	return 1;
 }
 
+const uint8_t psg_lock_esf[] =
+{
+	0xE8, 0xE9, 0xEA, 0xFF
+};
+
 void music_play(uint8_t track)
 {
 	if (track == current_track) return;
@@ -127,10 +132,23 @@ void music_play(uint8_t track)
 		echo_stop_bgm();
 		return;
 	}
+
+	sys_z80_bus_req();
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	sys_z80_bus_release();
+
+	echo_play_sfx(psg_lock_esf);
+
 	echo_play_bgm(bgm_list[track].data);
 
 	// Hack timer B to a lower period
 	sys_z80_bus_req();
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[track].tempo);
 	opn_write(0, 0x26, bgm_list[track].tempo);
 	sys_z80_bus_release();
 

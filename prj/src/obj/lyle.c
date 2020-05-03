@@ -4,6 +4,7 @@
 #include "obj.h"
 #include "system.h"
 #include "gfx.h"
+#include "sfx.h"
 
 #include "game.h"
 #include "palscale.h"
@@ -132,7 +133,7 @@ static void set_constants(void)
 	khurt_timeout = PALSCALE_DURATION(24);  // was 24 : 20
 	kinvuln_time = PALSCALE_DURATION(95);  // was 95 : 79
 
-	kcp_restore_period = PALSCALE_DURATION(300);  // was 300 : 250
+	kcp_restore_period = 4; // PALSCALE_DURATION(300);  // was 300 : 250
 	kcp_restore_period_fast = PALSCALE_DURATION(150);  // was 150 : 125
 	kcp_spawn_fast = PALSCALE_DURATION(36);  // was 36 : 30
 	kcp_spawn_slow = PALSCALE_DURATION(72);  // was 72 : 60
@@ -162,7 +163,17 @@ static inline uint16_t is_control_disabled(O_Lyle *l)
 
 static inline void walking_sound(O_Lyle *l)
 {
-	// TODO: Cue walkig sounds.
+	if (!l->grounded && !l->on_cube) return;
+	if (l->anim_cnt == kanim_speed)
+	{
+		sfx_stop(SFX_WALK2);
+		sfx_play(SFX_WALK1, 8);
+	}
+	else if (l->anim_cnt == kanim_speed * 3)
+	{
+		sfx_stop(SFX_WALK1);
+		sfx_play(SFX_WALK2, 8);
+	}
 }
 
 static inline void eval_grounded(O_Lyle *l)
@@ -345,7 +356,7 @@ static inline void toss_cubes(O_Lyle *l)
 		                             c_dx, c_dy);
 		align_cube_to_touching_wall(c);
 
-		// TODO: cue cube toss sound
+		sfx_play(SFX_CUBE_TOSS, 5);
 
 		l->holding_cube = CUBE_TYPE_NULL;
 		l->action_cnt = LYLE_ACTION_THROW_TIME;
@@ -373,9 +384,13 @@ static inline void lift_cubes(O_Lyle *l)
 		c->status = CUBE_STATUS_NULL;
 
 		// Repro of MMF1 version bug where you can jump while lifting.
-		if (buttons & BTN_C) l->head.dy = kjump_dy;
+		if (buttons & BTN_C)
+		{
+			sfx_play(SFX_JUMP, 17);
+			l->head.dy = kjump_dy;
+		}
 		l->action_cnt = LYLE_ACTION_LIFT_TIME;
-		// TODO: Cue cube lift sound
+		sfx_play(SFX_CUBE_LIFT, 10);
 	}
 }
 
@@ -395,8 +410,8 @@ static inline void jump(O_Lyle *l)
 	{
 		if (l->grounded || l->on_cube)
 		{
-			// TODO: Cue jump sound.
 			l->head.dy = kjump_dy;
+			sfx_play(SFX_JUMP, 9);
 		}
 		// TODO: Add "player has cube jump" check once save data is available
 		else if (l->holding_cube && !l->cubejump_disable)
@@ -418,7 +433,7 @@ static inline void jump(O_Lyle *l)
 
 			l->holding_cube = CUBE_TYPE_NULL;
 
-			// TODO: cue cube toss sound
+			sfx_play(SFX_CUBE_TOSS, 5);
 			l->head.dy = kjump_dy;
 		}
 	}
@@ -610,7 +625,7 @@ static inline void cube_kick(O_Lyle *l, Cube *c)
 			c->status = CUBE_STATUS_KICKED;
 			c->dx = kcube_kick_dx;
 			l->action_cnt = LYLE_ACTION_KICK_TIME;
-			// TODO: Play cube bounce sound
+			sfx_play(SFX_CUBE_BOUNCE, 13);
 		}
 		else if (l->head.direction == OBJ_DIRECTION_LEFT &&
 		         l->head.x + l->head.left - 1 <= c->x + c->right &&
@@ -620,7 +635,7 @@ static inline void cube_kick(O_Lyle *l, Cube *c)
 			c->status = CUBE_STATUS_KICKED;
 			c->dx = -kcube_kick_dx;
 			l->action_cnt = LYLE_ACTION_KICK_TIME;
-			// TODO: Play cube bounce sound
+			sfx_play(SFX_CUBE_BOUNCE, 13);
 		}
 	}
 }
@@ -653,7 +668,7 @@ static inline void cube_collision(O_Lyle *l)
 					c->dx = g_elapsed % 2 ? kbounce_cube_dx : -kbounce_cube_dx;
 				}
 				c->dy = kbounce_cube_dy;
-				// TODO: Cue cube bounce sound
+				sfx_play(SFX_CUBE_BOUNCE, 13);
 			}
 		}
 
@@ -701,7 +716,7 @@ static inline void exit_check(O_Lyle *l)
 {
 	const fix32_t x_margin = INTTOFIX32(6);
 	const fix32_t bottom_margin = INTTOFIX32(2);
-	const fix32_t top_margin = INTTOFIX32(16);
+	const fix32_t top_margin = INTTOFIX32(6);
 	if (l->head.x < x_margin && l->head.dx < 0)
 	{
 		map_set_exit_trigger(MAP_EXIT_LEFT);
@@ -801,18 +816,19 @@ static inline void cp(O_Lyle *l)
 			l->phantom_cnt++;
 			if (l->phantom_cnt == kcube_fx + 1)
 			{
-				// TODO: Cue cube spawn sound
+				sfx_play(SFX_CUBE_SPAWN, 6);
 			}
 			else if (l->phantom_cnt == kcp_spawn_fast + 1)
 			{
-				// TODO: Cue cube spawn sound
+				sfx_stop(SFX_CUBE_SPAWN);
+				sfx_play(SFX_CUBE_SPAWN, 6);
 			}
 		}
 		else
 		{
 			if (l->phantom_cnt > kcube_fx)
 			{
-				// TODO: Stop cube spawn sound
+				sfx_stop(SFX_CUBE_SPAWN);
 			}
 			l->phantom_cnt = 0;
 		}
@@ -1122,7 +1138,8 @@ void lyle_get_hurt(void)
 		lyle->holding_cube = CUBE_TYPE_NULL;
 	}
 
-		// TODO: Play hurt sound
+	sfx_stop(SFX_CUBE_SPAWN);
+	sfx_play(SFX_HURT, 4);
 }
 
 void lyle_kill(void)

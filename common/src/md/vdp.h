@@ -3,6 +3,7 @@ MIchael Moffitt 2018 */
 #ifndef VDP_H
 #define VDP_H
 
+#include "md/sys.h"
 #include <stdint.h>
 
 // Tile / sprite attribute definition
@@ -90,6 +91,8 @@ MIchael Moffitt 2018 */
 #define VDP_MODESET1_BASE 0x04
 #define VDP_MODESET1_LBLANK 0x20
 #define VDP_MODESET1_HINT_EN 0x10
+#define VDP_MODESET1_VC_ON_HS = 0x08
+#define VDP_MODESET1_COLOR_LSB 0x04
 #define VDP_MODESET1_HVCOUNT_STOP 0x02
 #define VDP_MODESET1_OVERLAY 0x01
 
@@ -118,6 +121,7 @@ MIchael Moffitt 2018 */
 #define VDP_SET(regbase, mask, en) \
 do \
 { \
+	SYS_BARRIER();\
 	if(en) \
 	{ \
 		vdp_set_reg(regbase, vdp_get_reg(regbase) | (mask)); \

@@ -59,6 +59,8 @@ static const Gfx gfx[] =
 	[GFX_BG_13] = GFX(bg_bg13),
 	[GFX_BG_14] = GFX(bg_bg13),
 	[GFX_BG_15] = GFX(bg_bg15),
+	[GFX_BG_16] = GFX(bg_bg16),
+	[GFX_BG_16_EX] = GFX(bg_bg16_ex),
 
 	[GFX_BG_19] = GFX(bg_bg19),
 };
