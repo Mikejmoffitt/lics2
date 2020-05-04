@@ -71,41 +71,49 @@ void plane_load_fg(void)
 	switch (map_header.tileset)
 	{
 		default:
-		case MAP_SET_OUTSIDE1:
+		case 0:
 			sprintf(tile,"res/gfx/fg/00_outside1.bin");
 			sprintf(pal,"res/palp/outside1.bin");
 			break;
-		case MAP_SET_OUTSIDE2:
+		case 1:
 			sprintf(tile,"res/gfx/fg/01_outside2.bin");
 			sprintf(pal,"res/pal/fg/01_outside2.bin");
 			break;
-		case MAP_SET_INSIDE1:
+		case 2:
 			sprintf(tile,"res/gfx/fg/02_inside1.bin");
 			sprintf(pal,"res/pal/fg/02_inside1.bin");
 			break;
-		case MAP_SET_SANDY1:
+		case 3:
 			sprintf(tile,"res/gfx/fg/03_sandy1.bin");
 			sprintf(pal,"res/pal/fg/03_sandy1.bin");
 			break;
-		case MAP_SET_TELEPORTER:
+		case 4:
 			sprintf(tile,"res/gfx/fg/04_teleporter.bin");
 			sprintf(pal,"res/pal/fg/04_teleporter.bin");
 			break;
-		case MAP_SET_OUTSIDE3:
+		case 5:
 			sprintf(tile,"res/gfx/fg/05_outside3.bin");
 			sprintf(pal,"res/pal/fg/05_outside3.bin");
 			break;
-		case MAP_SET_PURPLEZONE:
+		case 6:
 			sprintf(tile,"res/gfx/fg/06_purplezone.bin");
 			sprintf(pal,"res/pal/fg/06_purplezone.bin");
 			break;
-		case MAP_SET_ROOFTOP:
+		case 7:
 			sprintf(tile,"res/gfx/fg/07_rooftop.bin");
 			sprintf(pal,"res/pal/fg/07_rooftop.bin");
 			break;
-		case MAP_SET_TECHNOZONE:
+		case 8:
 			sprintf(tile,"res/gfx/fg/08_technozone.bin");
 			sprintf(pal,"res/pal/fg/08_technozone.bin");
+			break;
+		case 9:
+			sprintf(tile,"res/gfx/fg/09_underpurple.bin");
+			sprintf(pal,"res/pal/fg/09_underpurple.bin");
+			break;
+		case 10:
+			sprintf(tile,"res/gfx/fg/10_purplebricks.bin");
+			sprintf(pal,"res/pal/fg/10_purplebricks.bin");
 			break;
 	}
 

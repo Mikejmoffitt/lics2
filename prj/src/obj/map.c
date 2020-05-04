@@ -48,6 +48,8 @@ static const TilesetAssets tileset_by_id[] =
 	[6] = TILESET_ASSETS(06_purplezone),
 	[7] = TILESET_ASSETS(07_rooftop),
 	[8] = TILESET_ASSETS(08_technozone),
+	[9] = TILESET_ASSETS(09_underpurple),
+	[10] = TILESET_ASSETS(10_purplebricks),
 };
 
 // LUT for map data by ID

@@ -133,26 +133,13 @@ void music_play(uint8_t track)
 		return;
 	}
 
-	sys_z80_bus_req();
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	sys_z80_bus_release();
-
+	echo_play_bgm(bgm_list[track].data);
 	echo_play_sfx(psg_lock_esf);
 
-	echo_play_bgm(bgm_list[track].data);
-
-	// Hack timer B to a lower period
+	SYS_BARRIER();
 	sys_z80_bus_req();
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
-	opn_write(0, 0x26, bgm_list[track].tempo);
+	opn_write(0, 0x26, bgm_list[current_track].tempo);
 	sys_z80_bus_release();
-
-	// TODO: CD audio
 }
 
 void music_stop(void)
