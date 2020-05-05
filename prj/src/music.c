@@ -8,6 +8,9 @@
 #include "res.h"
 
 static uint8_t current_track;
+static uint8_t pending_track;
+static uint8_t frames_to_delay_pending_track;
+#define TRACK_DELAY 3
 
 static const void *instrument_list[] =
 {
@@ -118,28 +121,45 @@ int music_init(void)
 	return 1;
 }
 
-const uint8_t psg_lock_esf[] =
+static const uint8_t psg_lock_esf[] =
 {
 	0xE8, 0xE9, 0xEA, 0xFF
 };
 
-void music_play(uint8_t track)
+void music_handle_pending(void)
 {
-	if (track == current_track) return;
-	current_track = track;
-	if (track == 0)
+	if (frames_to_delay_pending_track > 0)
+	{
+		frames_to_delay_pending_track--;
+		return;
+	}
+	if (current_track == pending_track) return;
+	
+	current_track = pending_track;
+	if (current_track == 0)
 	{
 		echo_stop_bgm();
+		echo_play_sfx(psg_lock_esf);
 		return;
 	}
 
-	echo_play_bgm(bgm_list[track].data);
+	echo_play_bgm(bgm_list[current_track].data);
 	echo_play_sfx(psg_lock_esf);
 
 	SYS_BARRIER();
 	sys_z80_bus_req();
 	opn_write(0, 0x26, bgm_list[current_track].tempo);
 	sys_z80_bus_release();
+
+}
+
+void music_play(uint8_t track)
+{
+	if (track == current_track) return;
+	frames_to_delay_pending_track = TRACK_DELAY;
+	echo_stop_bgm();
+	echo_stop_sfx();
+	pending_track = track;
 }
 
 void music_stop(void)

@@ -174,6 +174,7 @@ static void ge_game_ingame(void)
 	{
 		vdp_set_display_en(1);
 	}
+	music_handle_pending();
 	obj_exec();
 
 	static uint8_t pad_prev;
