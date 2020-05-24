@@ -22,6 +22,7 @@ sram_write:
 	/* a1 gets the 68000-side source address, and d1 gets the byte count. */
 	move.l	8(%sp), %a1  /* src_addr */
 	move.w	14(%sp), %d1  /* n */
+	subi.w	#0x0001, %d1
 
 	/* Copy n bytes. */
 0:
@@ -50,6 +51,7 @@ sram_read:
 	/* a1 gets the 68000-side dest address, and d1 gets the byte count. */
 	move.l	8(%sp), %a1  /* dest_addr */
 	move.w	14(%sp), %d1  /* n */
+	subi.w	#0x0001, %d1
 
 	/* Copy n bytes. */
 0:
@@ -75,6 +77,7 @@ sram_set:
 	/* a1 gets the 68000-side dest address, and d1 gets the byte count. */
 	move.w	8(%sp), %d0  /* c */
 	move.w	12(%sp), %d1  /* n */
+	subi.w	#0x0001, %d1
 
 	/* Copy n bytes. */
 0:
