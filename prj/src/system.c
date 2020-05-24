@@ -38,7 +38,7 @@ uint16_t system_is_ntsc(void)
 static inline void rand_step(void)
 {
 	const uint16_t feedback = (rand_value & 0x0001) ^
-	                          ((rand_value >> 6) & 0x0001);
+	                          ((rand_value >> 7) & 0x0001);
 	rand_value = rand_value >> 1;
 	rand_value |= (feedback << 15);
 }

@@ -21,6 +21,7 @@ static Powerup powerups[10];
 
 static fix16_t kgravity;
 static fix16_t kspawn_dy;
+static fix16_t kbounce_dy;
 // TODO: Anim speeds
 
 static uint16_t vram_pos;
@@ -32,7 +33,8 @@ static void set_constants(void)
 
 	// TODO: Get the real values for these.
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.25));
-	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.0));
+	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-3.0));
+	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-2.0));
 
 	constants_set = 1;
 }
@@ -67,7 +69,7 @@ static inline void newtonian_physics(Powerup *p)
 	const int16_t px = FIX32TOINT(p->x);
 	const int16_t py = FIX32TOINT(p->y);
 
-	if (p->dy > 0 && map_collision(px, py + 1)) p->dy = p->dy * -1;
+	if (p->dy > 0 && map_collision(px, py + 1)) p->dy = kbounce_dy;
 	else if (p->dy < 0 && map_collision(px, py - 8)) p->dy = 0;
 }
 
@@ -124,7 +126,7 @@ static inline void powerup_run(Powerup *p)
 		case POWERUP_TYPE_CP_ORB:
 		case POWERUP_TYPE_HP_ORB:
 			newtonian_physics(p);
-			return;
+			break;
 		default:
 			break;
 	}
@@ -216,9 +218,7 @@ void powerup_manager_clear(void)
 
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id)
 {
-	return NULL;
-	/*
-	if (!powerup_manager) return NULL;i
+	if (!powerup_manager) return NULL;
 	uint16_t i = ARRAYSIZE(powerups);
 	while (i--)
 	{
@@ -234,5 +234,5 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t or
 		
 		return p;
 	}
-	return NULL;*/
+	return NULL;
 }

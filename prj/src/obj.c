@@ -157,6 +157,11 @@ static inline void obj_explode(Obj *o)
 	exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
 	sfx_play(SFX_OBJ_BURST, 3);
 	// TODO: (Possibly) spawn powerup.
+	const uint8_t spawn_chance = system_rand() & 0x0F;
+	if (spawn_chance > 0xA)
+	{
+		powerup_manager_spawn(o->x, o->y, system_rand() % 2 ? POWERUP_TYPE_HP : POWERUP_TYPE_CP, 0);
+	}
 	o->status = OBJ_STATUS_NULL;
 }
 
