@@ -41,6 +41,7 @@ static inline void set_constants(void)
 static inline void render(O_Pilla *f)
 {
 	Obj *o = &f->head;
+	if (o->offscreen) return;
 	int16_t sp_x, sp_y;
 
 	uint16_t offset = 0;
