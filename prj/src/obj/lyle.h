@@ -7,6 +7,10 @@
 #include <stdint.h>
 
 #define LYLE_START_HP 5
+#define LYLE_MAX_HP 15
+
+#define LYLE_START_CP 5
+#define LYLE_MAX_CP 30
 
 typedef struct O_Lyle
 {

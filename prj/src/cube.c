@@ -6,6 +6,7 @@
 #include "system.h"
 #include "obj/cube_manager.h"
 #include "obj/particle_manager.h"
+#include "obj/powerup_manager.h"
 #include "obj/map.h"
 #include "game.h"
 #include "sfx.h"
@@ -89,7 +90,59 @@ void cube_destroy(Cube *c)
 	if (c->type >= CUBE_TYPE_YELLOW_HPUP)
 	{
 		sfx_play(SFX_CUBE_FIZZLE, 14);
-		// TODO: Spawn powerups based on type.
+		switch (c->type)
+		{
+			case CUBE_TYPE_YELLOW_HPUP:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP, 0);
+				break;
+			case CUBE_TYPE_YELLOW_HPUP2:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP_2X, 0);
+				break;
+			case CUBE_TYPE_YELLOW_CPUP:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP, 0);
+				break;
+			case CUBE_TYPE_YELLOW_CPUP2:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP_2X, 0);
+				break;
+			case CUBE_TYPE_YELLOW_CPORB0:
+			case CUBE_TYPE_YELLOW_CPORB1:
+			case CUBE_TYPE_YELLOW_CPORB2:
+			case CUBE_TYPE_YELLOW_CPORB3:
+			case CUBE_TYPE_YELLOW_CPORB4:
+			case CUBE_TYPE_YELLOW_CPORB5:
+			case CUBE_TYPE_YELLOW_CPORB6:
+			case CUBE_TYPE_YELLOW_CPORB7:
+			case CUBE_TYPE_YELLOW_CPORB8:
+			case CUBE_TYPE_YELLOW_CPORB9:
+			case CUBE_TYPE_YELLOW_CPORB10:
+			case CUBE_TYPE_YELLOW_CPORB11:
+			case CUBE_TYPE_YELLOW_CPORB12:
+			case CUBE_TYPE_YELLOW_CPORB13:
+			case CUBE_TYPE_YELLOW_CPORB14:
+			case CUBE_TYPE_YELLOW_CPORB15:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP_ORB, (c->type & 0x000F));
+				break;
+			case CUBE_TYPE_YELLOW_HPORB0:
+			case CUBE_TYPE_YELLOW_HPORB1:
+			case CUBE_TYPE_YELLOW_HPORB2:
+			case CUBE_TYPE_YELLOW_HPORB3:
+			case CUBE_TYPE_YELLOW_HPORB4:
+			case CUBE_TYPE_YELLOW_HPORB5:
+			case CUBE_TYPE_YELLOW_HPORB6:
+			case CUBE_TYPE_YELLOW_HPORB7:
+			case CUBE_TYPE_YELLOW_HPORB8:
+			case CUBE_TYPE_YELLOW_HPORB9:
+			case CUBE_TYPE_YELLOW_HPORB10:
+			case CUBE_TYPE_YELLOW_HPORB11:
+			case CUBE_TYPE_YELLOW_HPORB12:
+			case CUBE_TYPE_YELLOW_HPORB13:
+			case CUBE_TYPE_YELLOW_HPORB14:
+			case CUBE_TYPE_YELLOW_HPORB15:
+				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP_ORB, (c->type & 0x000F));
+				break;
+			default:
+				break;
+		}
 	}
 }
 

@@ -26,7 +26,7 @@ static void set_constants(void)
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.4));
 	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
-	kanim_len = PALSCALE_DURATION(10);
+	kanim_len = PALSCALE_DURATION(6);
 
 	constants_set = 1;
 }

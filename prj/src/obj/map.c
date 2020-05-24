@@ -32,9 +32,9 @@ static int16_t v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
 typedef struct TilesetAssets
 {
 	const uint8_t *tile_data;
-	unsigned int tile_data_size;
+	uint32_t tile_data_size;
 	const uint8_t *pal_data;
-	unsigned int pal_data_size;
+	uint32_t pal_data_size;
 } TilesetAssets;
 
 static const TilesetAssets tileset_by_id[] =
@@ -399,12 +399,13 @@ void o_unload_map(void)
 void map_load(uint8_t id, uint8_t entrance_num)
 {
 	SYSTEM_ASSERT(map != NULL);
-	SYSTEM_ASSERT(id != 0xFF);
 	map->current_map = map_by_id[id].data;
 	g_map_data = map->current_map->map_data;
 	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;
 	map->right = INTTOFIX32(map->current_map->w * GAME_SCREEN_W_PIXELS);
 	map->bottom = INTTOFIX32(map->current_map->h * GAME_SCREEN_H_PIXELS);
+	SYSTEM_ASSERT(map->right >= INTTOFIX32(320));
+	SYSTEM_ASSERT(map->bottom >= INTTOFIX32(240));
 	map->fresh_room = 1;
 
 	// Set up tiles and palettes.

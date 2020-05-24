@@ -6,6 +6,7 @@
 #include "md/megadrive.h"
 #include "music.h"
 #include "sfx.h"
+#include "progress.h"
 
 #include "util/text.h"
 #include "palscale.h"
@@ -15,6 +16,7 @@
 #include "obj/lyle.h"
 #include "obj/particle_manager.h"
 #include "obj/projectile_manager.h"
+#include "obj/powerup_manager.h"
 
 #include <stdlib.h>
 
@@ -76,6 +78,7 @@ static const InitFunc init_funcs[] =
 	{"obj", obj_init},
 	{"music", music_init},
 	{"sfx", sfx_init},
+	{"progress", progress_init},
 };
 
 static void ge_init(void)
@@ -148,6 +151,8 @@ static void ge_game_ingame(void)
 		obj_clear();
 
 		// The order of objects is important.
+		obj_spawn(0, 0, OBJ_HUD, 0);
+		obj_spawn(0, 0, OBJ_POWERUP_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_PROJECTILE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 		obj_spawn(32, 32, OBJ_LYLE, 0);
@@ -183,7 +188,6 @@ static void ge_game_ingame(void)
 		track_id++;
 		if (track_id > 15) track_id = 0;
 		music_play(track_id);
-		const O_Lyle *l = lyle_get();
 	}
 	pad_prev = io_pad_read(0);
 
@@ -242,7 +246,6 @@ static void (*dispatch_funcs[])(void) =
 	[GE_ENDING] = ge_ending,
 	[GE_INVALID] = NULL,
 };
-
 
 void game_main(void)
 {

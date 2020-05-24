@@ -22,6 +22,11 @@ typedef enum SfxId
 	SFX_CUBE_HIT,
 	SFX_CUBE_FIZZLE,
 	SFX_OBJ_BURST,
+	SFX_TELEPORT,
+	SFX_TELEPORT_2,
+	SFX_BOINGO_JUMP,
+	SFX_POWERUP_GET,
+
 	SFX_EXPLODE,
 } SfxId;
 
@@ -45,7 +50,7 @@ typedef struct SfxChannelState
 // what allows it to work across both NTSC and PAL without adjustment.
 void sfx_tick(void);
 
-void sfx_init(void);
+int sfx_init(void);
 
 void sfx_play(SfxId id, int8_t priority);
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel);

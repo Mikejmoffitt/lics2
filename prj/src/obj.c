@@ -27,8 +27,11 @@
 #include "obj/map.h"
 #include "obj/bg.h"
 
+#include "obj/hud.h"
 #include "obj/particle_manager.h"
 #include "obj/projectile_manager.h"
+#include "obj/exploder.h"
+#include "obj/powerup_manager.h"
 
 #include "obj/template.h"
 
@@ -45,11 +48,6 @@ static uint16_t highest_obj_idx;
 
 static uint16_t constants_set;
 static int8_t khurt_stun_time;
-
-//uint16_t obj_get_upper_bound(void)
-//{
-//	return highest_obj_idx;
-//}
 
 static inline void set_constants(void)
 {
@@ -71,6 +69,7 @@ typedef struct SetupFuncs
 // caught and passed in to the cube manager. Then, the object slot is freed.
 static void cube_spawn_stub(Obj *o, uint16_t data)
 {
+	o->status = OBJ_STATUS_NULL;
 	Cube *c = cube_manager_spawn(o->x, o->y,
 	                             (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
 	if (!c) return;
@@ -81,7 +80,18 @@ static void cube_spawn_stub(Obj *o, uint16_t data)
 		c->x -= INTTOFIX32(8);
 		c->y -= INTTOFIX32(16);
 	}
+}
+
+// The map data separates ability-expanding powerups and cp/hp pickups, but the
+// new powerup manager unifies the two. This stub is here in order to allow for
+// placement of ability-expanding powerups on the map using the old "item" obj.
+static void powerup_spawn_stub(Obj *o, uint16_t data)
+{
 	o->status = OBJ_STATUS_NULL;
+	Powerup *p = powerup_manager_spawn(o->x, o->y, data, 0);
+	if (!p) return;
+	p->x += INTTOFIX32(8);
+	p->y += INTTOFIX32(8);
 }
 
 static const SetupFuncs setup_funcs[] =
@@ -92,6 +102,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_METAGRUB] = {o_load_metagrub, o_unload_metagrub},
 	[OBJ_FLIP] = {o_load_flip, o_unload_flip},
 	[OBJ_BOINGO] = {o_load_boingo, o_unload_boingo},
+	[OBJ_ITEM] = {powerup_spawn_stub, NULL},
 	[OBJ_GAXTER1] = {o_load_gaxter1, o_unload_gaxter1},
 	[OBJ_GAXTER2] = {o_load_gaxter2, o_unload_gaxter2},
 	[OBJ_BUGGO1] = {o_load_buggo, o_unload_buggo},
@@ -106,9 +117,11 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
 	[OBJ_MAP] = {o_load_map, o_unload_map},
 	[OBJ_BG] = {o_load_bg, o_unload_bg},
-
+	[OBJ_HUD] = {o_load_hud, o_unload_hud},
 	[OBJ_PARTICLE_MANAGER] = {o_load_particle_manager, o_unload_particle_manager},
 	[OBJ_PROJECTILE_MANAGER] = {o_load_projectile_manager, o_unload_projectile_manager},
+	[OBJ_EXPLODER] = {o_load_exploder, NULL},
+	[OBJ_POWERUP_MANAGER] = {o_load_powerup_manager, o_unload_powerup_manager},
 
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
 };
@@ -120,6 +133,7 @@ int obj_init(void)
 
 	obj_clear();
 	set_constants();
+	SYSTEM_ASSERT(khurt_stun_time > 0);
 
 	return 1;
 }
@@ -139,12 +153,8 @@ static inline uint16_t obj_is_offscreen(const Obj *o)
 
 static inline void obj_explode(Obj *o)
 {
-	particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_FIZZLERED);
-	particle_manager_spawn(o->x + o->right, o->y, PARTICLE_TYPE_FIZZLERED);
-	particle_manager_spawn(o->x + o->left, o->y, PARTICLE_TYPE_FIZZLERED);
-	particle_manager_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
-	particle_manager_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
-	particle_manager_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+	const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
+	exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
 	sfx_play(SFX_OBJ_BURST, 3);
 	// TODO: (Possibly) spawn powerup.
 	o->status = OBJ_STATUS_NULL;
@@ -269,7 +279,7 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 	return NULL;
 }
 
-uint8_t obj_max_index(void)
+uint16_t obj_get_upper_bound(void)
 {
 	return highest_obj_idx;
 }

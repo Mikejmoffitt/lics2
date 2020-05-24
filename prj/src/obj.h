@@ -65,7 +65,6 @@ struct Obj
 	int8_t touching_player;
 };
 
-
 typedef union ObjSlot
 {
 	Obj obj;
@@ -78,13 +77,12 @@ extern ObjSlot g_objects[OBJ_COUNT_MAX];
 // Get the index of the highest-active object + 1. This can be treated as the
 // number of active objects, except that within the bound, there may be some
 // marked as OBJ_TYPE_NULL (inactive).
-static inline uint16_t obj_get_upper_bound(void) { return OBJ_COUNT_MAX; }
+uint16_t obj_get_upper_bound(void);
 
 int obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
-uint8_t obj_max_index(void);
 
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes);
@@ -97,8 +95,8 @@ void obj_cube_impact(Obj *o, Cube *c);
 void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
 static inline void obj_standard_physics(Obj *o)
 {
-	o->x += o->dx;
-	o->y += o->dy;
+	o->x += (fix32_t)o->dx;
+	o->y += (fix32_t)o->dy;
 }
 void obj_standard_cube_response(Obj *o, Cube *c);
 

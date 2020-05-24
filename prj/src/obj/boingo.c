@@ -18,7 +18,7 @@
 
 // Constants.
 
-static fix16_t kjump_str_table[8];
+static fix16_t kjump_dy_table[8];
 static fix16_t kgravity;
 static int8_t kjump_delay;
 static int8_t kjump_delay_angry;
@@ -34,14 +34,14 @@ static void set_constants(void)
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.167));
 
-	kjump_str_table[0] = INTTOFIX16(PALSCALE_1ST(0.83));
-	kjump_str_table[1] = INTTOFIX16(PALSCALE_1ST(0.83 + 0.6));
-	kjump_str_table[2] = INTTOFIX16(PALSCALE_1ST(0.83 + 1.2));
-	kjump_str_table[3] = INTTOFIX16(PALSCALE_1ST(0.83 + 1.8));
-	kjump_str_table[4] = INTTOFIX16(PALSCALE_1ST(0.83 + 2.4));
-	kjump_str_table[5] = INTTOFIX16(PALSCALE_1ST(0.83 + 3.0));
-	kjump_str_table[6] = INTTOFIX16(PALSCALE_1ST(0.83 + 3.6));
-	kjump_str_table[7] = INTTOFIX16(PALSCALE_1ST(0.83 + 4.2));
+	kjump_dy_table[0] = INTTOFIX16(PALSCALE_1ST(-0.83));
+	kjump_dy_table[1] = INTTOFIX16(PALSCALE_1ST(-0.83 - 0.6));
+	kjump_dy_table[2] = INTTOFIX16(PALSCALE_1ST(-0.83 - 1.2));
+	kjump_dy_table[3] = INTTOFIX16(PALSCALE_1ST(-0.83 - 1.8));
+	kjump_dy_table[4] = INTTOFIX16(PALSCALE_1ST(-0.83 - 2.4));
+	kjump_dy_table[5] = INTTOFIX16(PALSCALE_1ST(-0.83 - 3.0));
+	kjump_dy_table[6] = INTTOFIX16(PALSCALE_1ST(-0.83 - 3.6));
+	kjump_dy_table[7] = INTTOFIX16(PALSCALE_1ST(-0.83 - 4.2));
 
 	kjump_delay = PALSCALE_DURATION(24);
 	kjump_delay_angry = PALSCALE_DURATION(6.3);
@@ -236,9 +236,10 @@ static void main_func(Obj *o)
 					o->dx = kdx;
 				}
 
-				o->dy = -kjump_str_table[system_rand() % ARRAYSIZE(kjump_str_table)];
+				o->dy = kjump_dy_table[system_rand() % ARRAYSIZE(kjump_dy_table)];
 				b->jumping = 1;
 				b->jump_cnt = 0;
+				sfx_play(SFX_BOINGO_JUMP, 18);
 			}
 			else
 			{
@@ -318,8 +319,6 @@ void o_load_boingo(Obj *o, uint16_t data)
 	}
 
 	o->x -= INTTOFIX32(1);
-
-
 }
 
 void o_unload_boingo(void)

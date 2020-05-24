@@ -1,8 +1,8 @@
 /* md-toolchain sprite support
-Michael Moffitt */
+Michael Moffitt 2018-2020 */
 
-#ifndef SPR_H
-#define SPR_H
+#ifndef MD_SPR_H
+#define MD_SPR_H
 
 #include "md/vdp.h"
 #include "md/dma.h"
@@ -52,4 +52,4 @@ static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size)
 	spr->attr = attr;
 	spr->xpos = x + 128;
 }
-#endif // SPR_H
+#endif  // MD_SPR_H

@@ -1,7 +1,7 @@
 /* md-toolchain PSG audio support
-Michael Moffitt 2018 */
-#ifndef PSG_H
-#define PSG_H
+Michael Moffitt 2018-2020 */
+#ifndef MD_PSG_H
+#define MD_PSG_H
 
 // TODO: PSG noise control
 
@@ -98,4 +98,4 @@ static inline void psg_note(uint8_t chan, uint8_t note, uint8_t octave)
 	psg_pitch(chan,base);
 }
 
-#endif
+#endif  // MD_PAL_H

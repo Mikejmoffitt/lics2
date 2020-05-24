@@ -329,7 +329,7 @@ void projectile_manager_clear(void)
 	}
 }
 
-Projectile *projectile_manager_shoot(int32_t x, int32_t y, ProjectileType type,
+Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
                                      fix16_t dx, fix16_t dy)
 {
 	if (!projectile_manager) return NULL;

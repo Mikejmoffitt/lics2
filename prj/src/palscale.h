@@ -5,7 +5,7 @@
 
 // Macros to scale constants by appropriate NTSC/PAL adjustment coefficients.
 
-#define SPEED_COEF (1.08)
+#define SPEED_COEF (1.0)
 
 #define PALSCALE_DURATION_COEF (0.83333334)
 #define PALSCALE_1ST_COEF (1.2)

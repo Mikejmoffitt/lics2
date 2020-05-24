@@ -10,7 +10,7 @@
 static uint8_t current_track;
 static uint8_t pending_track;
 static uint8_t frames_to_delay_pending_track;
-#define TRACK_DELAY 3
+#define TRACK_DELAY 5
 
 static const void *instrument_list[] =
 {

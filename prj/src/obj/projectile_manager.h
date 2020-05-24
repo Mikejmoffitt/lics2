@@ -39,9 +39,9 @@ void o_load_projectile_manager(Obj *o, uint16_t data);
 void o_unload_projectile_manager(void);
 
 void projectile_manager_clear(void);
-Projectile *projectile_manager_shoot(int32_t x, int32_t y, ProjectileType type,
+Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
                                      fix16_t dx, fix16_t dy);
-Projectile *projectile_manager_shoot_at(int32_t x, int32_t y,
+Projectile *projectile_manager_shoot_at(fix32_t x, fix32_t y,
                                         ProjectileType type,
                                          int32_t tx, int32_t ty);
 

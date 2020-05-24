@@ -33,9 +33,6 @@ static MdButton buttons_prev;
 
 #define LYLE_CUBEJUMP_DISABLE_TIME 2
 
-#define LYLE_START_CP 5
-#define LYLE_MAX_CP 30
-
 // Tolerance to the bottom check for collisions so Lyle can "step up" on horizontal collisions
 #define LYLE_STEP_UP INTTOFIX32(-4)
 
@@ -133,7 +130,7 @@ static void set_constants(void)
 	khurt_timeout = PALSCALE_DURATION(24);  // was 24 : 20
 	kinvuln_time = PALSCALE_DURATION(95);  // was 95 : 79
 
-	kcp_restore_period = 4; // PALSCALE_DURATION(300);  // was 300 : 250
+	kcp_restore_period = PALSCALE_DURATION(300);  // was 300 : 250
 	kcp_restore_period_fast = PALSCALE_DURATION(150);  // was 150 : 125
 	kcp_spawn_fast = PALSCALE_DURATION(36);  // was 36 : 30
 	kcp_spawn_slow = PALSCALE_DURATION(72);  // was 72 : 60
@@ -581,6 +578,7 @@ static inline void cube_eval_standing(O_Lyle *l, Cube *c)
 	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
 	const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 	const int16_t py_top = FIX32TOINT(l->head.y + l->head.top);
+	if (l->head.y > c->y + c->top / 2) return;
 	if (map_collision(px_r, py_top) || map_collision(px_l, py_top)) return;
 	
 	if (l->head.x + l->head.right > c->x + c->left &&

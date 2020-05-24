@@ -9,6 +9,7 @@
 
 int system_init(void);
 uint16_t system_is_ntsc(void);
+void system_srand(uint16_t seed);
 uint16_t system_rand(void);
 int16_t system_is_debug_enabled(void);
 void system_set_debug_enabled(int16_t en);

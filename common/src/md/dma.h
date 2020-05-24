@@ -1,5 +1,5 @@
 /* md-toolchain DMA control functions
-Michael Moffitt 2018
+Michael Moffitt 2018-2020
 
 For large lengths of data, like character graphics, mappings, scroll tables,
 and palettes, a DMA is the best way to manipulate the VDO's VRAM. DMA
@@ -55,8 +55,8 @@ It may be wise to use the immdiate fill and copy operations in conjunction with
 scheduled DMA transfers in a real-world scenario.
 
 */
-#ifndef DMA_H
-#define DMA_H
+#ifndef MD_DMA_H
+#define MD_DMA_H
 
 #include "md/vdp.h"
 
@@ -163,4 +163,4 @@ static inline void dma_copy_vram(uint16_t dest, uint16_t src, uint16_t n)
 {
 	dma_copy(DMA_OP_BUS_VRAM, dest, src, n);
 }
-#endif // DMA_H
+#endif // MD_DMA_H

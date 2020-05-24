@@ -10,6 +10,7 @@
 #include "obj/map.h"
 #include "obj/particle_manager.h"
 #include "game.h"
+#include "sfx.h"
 
 // Constants.
 
@@ -118,7 +119,8 @@ static void main_func(Obj *o)
 		{
 			if (l->tele_in_cnt == ktele_sound_trigger)
 			{
-				// TODO: Play teleport / bogologo sound
+				sfx_play(SFX_TELEPORT, 3);
+				sfx_play(SFX_TELEPORT_2, 3);
 			}
 			if (g_elapsed % 2)
 			{
@@ -137,7 +139,8 @@ static void main_func(Obj *o)
 			l->tele_out_cnt = kanim_len;
 			l->tele_in_cnt = kanim_len;
 			t->active_cnt = kactive_len;
-			// TODO: Play teleport / bogologo sound
+			sfx_play(SFX_TELEPORT, 3);
+			sfx_play(SFX_TELEPORT_2, 3);
 		}
 	}
 

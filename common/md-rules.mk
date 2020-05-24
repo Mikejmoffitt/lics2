@@ -1,6 +1,6 @@
 
 # Environment
-MD_ENV := /opt/gendev
+MD_ENV := /opt/toolchains/gen/m68k-elf
 GBIN := $(MD_ENV)/bin
 CC_HOST := cc
 CC := $(GBIN)/m68k-elf-gcc

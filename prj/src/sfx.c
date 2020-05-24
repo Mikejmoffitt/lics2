@@ -353,9 +353,9 @@ static const SfxSample sfx_cube_fizzle[] =
 
 static const SfxSample sfx_obj_burst[] =
 {
-	SFX_SAMPLE(0x0240, 0),
-	SFX_SAMPLE(0x0270, 0),
-	SFX_SAMPLE(0x02A0, 0),
+	SFX_SAMPLE(0X0240, 0),
+	SFX_SAMPLE(0X0270, 0),
+	SFX_SAMPLE(0X02A0, 0),
 	SFX_SAMPLE(0x02F0, 0),
 	SFX_SAMPLE(0x0330, 0),
 	SFX_SAMPLE(0x0380, 0),
@@ -400,6 +400,80 @@ static const SfxSample sfx_obj_burst[] =
 	SFX_END()
 };
 
+#define SFX_TELE_SWEEP(base, vol) \
+	SFX_SAMPLE(base + 0x10, vol),\
+	SFX_SAMPLE(base - 0x00, vol),\
+	SFX_SAMPLE(base - 0x10, vol),\
+	SFX_SAMPLE(base - 0x20, vol),\
+	SFX_SAMPLE(base - 0x30, vol),\
+	SFX_SAMPLE(base - 0x40, vol),\
+	SFX_SAMPLE(base - 0x54, vol),\
+	SFX_SAMPLE(base - 0x66, vol),\
+	SFX_SAMPLE(base - 0x7B, vol),\
+	SFX_SAMPLE(base - 0x81, vol),\
+	SFX_SAMPLE(base - 0x8C, vol),\
+	SFX_SAMPLE(base - 0x9B, vol),\
+	SFX_SAMPLE(base - 0xA3, vol),\
+	SFX_SAMPLE(base - 0xAD, vol),\
+	SFX_SAMPLE(base - 0xB7, vol)\
+
+static const SfxSample sfx_teleport[] =
+{
+	SFX_TELE_SWEEP(0x0120, 5),
+	SFX_TELE_SWEEP(0x0120, 3),
+	SFX_TELE_SWEEP(0x0120, 1),
+	SFX_TELE_SWEEP(0x0120, 0),
+	SFX_TELE_SWEEP(0x0120, 1),
+	SFX_TELE_SWEEP(0x0120, 3),
+	SFX_TELE_SWEEP(0x0120, 5),
+	SFX_END()
+};
+
+static const SfxSample sfx_teleport_2[] =
+{
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+	SFX_SAMPLE(0, 15),
+
+	SFX_TELE_SWEEP(0x0120, 5),
+	SFX_TELE_SWEEP(0x0120, 3),
+	SFX_TELE_SWEEP(0x0120, 1),
+	SFX_TELE_SWEEP(0x0120, 0),
+	SFX_TELE_SWEEP(0x0120, 1),
+	SFX_TELE_SWEEP(0x0120, 3),
+	SFX_TELE_SWEEP(0x0120, 5),
+
+	SFX_END()
+};
+
+static const SfxSample sfx_boingo_jump[] =
+{
+	SFX_SAMPLE(0x380, 0),
+	SFX_SAMPLE(0x380, 0),
+	SFX_SAMPLE(0x1C0, 0),
+	SFX_SAMPLE(0x220, 1),
+	SFX_SAMPLE(0x110 - 0x10, 2),
+	SFX_SAMPLE(0x0C0 - 0x10, 3),
+	SFX_SAMPLE(0x110 - 0x1D, 4),
+	SFX_SAMPLE(0x0C0 - 0x1D, 5),
+	SFX_SAMPLE(0x110 - 0x24, 6),
+	SFX_SAMPLE(0x0C0 - 0x24, 7),
+	SFX_END()
+};
+
+static const SfxSample sfx_powerup_get[] =
+{
+	SFX_TELE_SWEEP(0x0066, 0),
+	SFX_TELE_SWEEP(0x0050, 1),
+	SFX_TELE_SWEEP(0x0040, 2),
+	SFX_TELE_SWEEP(0x0033, 3),
+	SFX_END()
+};
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -415,10 +489,14 @@ static const SfxSample *stream_by_id[] =
 	[SFX_CUBE_HIT] = sfx_cube_hit,
 	[SFX_CUBE_FIZZLE] = sfx_cube_fizzle,
 	[SFX_OBJ_BURST] = sfx_obj_burst,
+	[SFX_TELEPORT] = sfx_teleport,
+	[SFX_TELEPORT_2] = sfx_teleport_2,
+	[SFX_BOINGO_JUMP] = sfx_boingo_jump,
+	[SFX_POWERUP_GET] = sfx_powerup_get,
 };
 
 // Sound routines.
-void sfx_init(void)
+int sfx_init(void)
 {
 	vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
 	vdp_set_hint_en(1);
@@ -433,6 +511,7 @@ void sfx_init(void)
 		s->priority = 0x7F;
 		psg_vol(s->channel, 0xF);
 	}
+	return 1;
 }
 
 void sfx_tick(void)
@@ -493,7 +572,7 @@ void sfx_play(SfxId id, int8_t priority)
 	sys_di();
 	const SfxSample *stream = stream_by_id[id];
 	if (stream == NULL) return;
-	for (int8_t i = 0; i < ARRAYSIZE(channel_state); i++)
+	for (uint8_t i = 0; i < ARRAYSIZE(channel_state); i++)
 	{
 		SfxChannelState *s = &channel_state[i];
 		if (s->stream) continue;
@@ -508,7 +587,7 @@ void sfx_play(SfxId id, int8_t priority)
 	// lower priority than our new one
 	int8_t lowest_priority = -1;
 	int8_t lowest_index = -1;
-	for (int8_t i = 0; i < ARRAYSIZE(channel_state); i++)
+	for (uint8_t i = 0; i < ARRAYSIZE(channel_state); i++)
 	{
 		SfxChannelState *s = &channel_state[i];
 		if (s->priority > lowest_priority)

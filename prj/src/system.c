@@ -4,13 +4,29 @@
 static int16_t is_ntsc_cache;
 static int16_t is_debug_enabled;
 
-static volatile char activity[64];
+static uint16_t rand_value;
 
 int system_init(void)
 {
 	megadrive_init();
 	is_ntsc_cache = (vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
 	vdp_set_raster_height(is_ntsc_cache ? 224 : 240);
+
+	// Some environmental sanity.
+	SYSTEM_ASSERT(sizeof(int32_t) == 4);
+	SYSTEM_ASSERT(sizeof(int16_t) == 2);
+	SYSTEM_ASSERT(sizeof(int8_t) == 1);
+	SYSTEM_ASSERT(sizeof(int32_t) > sizeof(int16_t));
+
+	int32_t a = 70000;
+	int16_t b = 32;
+
+	SYSTEM_ASSERT(a + b == 70032);
+	a += b;
+	SYSTEM_ASSERT(a == 70032);
+
+	system_srand(0x1234);
+
 	return 1;
 }
 
@@ -19,10 +35,25 @@ uint16_t system_is_ntsc(void)
 	return is_ntsc_cache;
 }
 
+static inline void rand_step(void)
+{
+	const uint16_t feedback = (rand_value & 0x0001) ^
+	                          ((rand_value >> 6) & 0x0001);
+	rand_value = rand_value >> 1;
+	rand_value |= (feedback << 15);
+}
+
+void system_srand(uint16_t seed)
+{
+	if (seed == 0) seed = vdp_get_hv_count();
+	rand_value = seed;
+	rand_step();
+}
+
 uint16_t system_rand(void)
 {
-	// TODO: Implement a better random, maybe an LSFR
-	return vdp_get_hv_count();
+	rand_step();
+	return rand_value;
 }
 
 int16_t system_is_debug_enabled(void)

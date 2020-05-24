@@ -22,8 +22,9 @@ typedef struct Particle
 	fix32_t x, y;
 	fix16_t dx, dy;
 	int16_t life;  // Sets type to null on reaching zero.
-	int8_t anim_cnt;
-	int8_t anim_frame;
+	int16_t delay;
+	int16_t anim_cnt;
+	int16_t anim_frame;
 } Particle;
 
 typedef struct O_ParticleManager
@@ -36,6 +37,6 @@ void o_load_particle_manager(Obj *o, uint16_t data);
 void o_unload_particle_manager(void);
 
 void particle_manager_clear(void);
-Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type);
+Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type);
 
 #endif  // OBJ_PARTICLE_MANAGER_H

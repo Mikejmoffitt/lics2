@@ -20,9 +20,9 @@ static int16_t ksparkle_life;
 static int16_t kfizzle_life;
 static int16_t kexplosion_life;
 static int16_t ksand_life;
-static int8_t kanim_speed;
-static int8_t kanim_speed_explosion;
-static int8_t kanim_speed_sand;
+static int16_t kanim_speed;
+static int16_t kanim_speed_explosion;
+static int16_t kanim_speed_sand;
 
 static Particle particles[16];
 
@@ -31,12 +31,12 @@ static void set_constants(void)
 	static int16_t constants_set;
 	if (constants_set) return;
 
-	ksparkle_life = PALSCALE_DURATION(20);
-	kfizzle_life = PALSCALE_DURATION(16);
+	ksparkle_life = PALSCALE_DURATION(16);
+	kfizzle_life = PALSCALE_DURATION(12);
 	kexplosion_life = PALSCALE_DURATION(21);
 	ksand_life = PALSCALE_DURATION(20);
-	kanim_speed = PALSCALE_DURATION(4.4);
-	kanim_speed_explosion = PALSCALE_DURATION(4.4);
+	kanim_speed = PALSCALE_DURATION(3.4);
+	kanim_speed_explosion = PALSCALE_DURATION(3.4);
 	kanim_speed_sand = PALSCALE_DURATION(2.3);
 	constants_set = 1;
 }
