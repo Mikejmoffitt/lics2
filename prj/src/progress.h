@@ -8,6 +8,16 @@
 #define PROGRESS_MAP_W 25
 #define PROGRESS_MAP_H 12
 
+typedef enum ProgressAbility
+{
+	ABILITY_MAP = 0x01,
+	ABILITY_LIFT = 0x02,
+	ABILITY_JUMP = 0x04,
+	ABILITY_PHANTOM = 0x08,
+	ABILITY_KICK = 0x10,
+	ABILITY_ORANGE = 0x20,
+} ProgressAbility;
+
 typedef struct ProgressSlot
 {
 	uint16_t magic_0;
@@ -16,6 +26,9 @@ typedef struct ProgressSlot
 	// Bitfields for item collection.
 	uint16_t cp_orbs;
 	uint16_t hp_orbs;
+	int16_t hp_capacity;
+
+	ProgressAbility abilities;
 
 	uint16_t magic_1;
 } ProgressSlot;

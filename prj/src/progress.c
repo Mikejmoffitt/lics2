@@ -2,18 +2,18 @@
 #include "md/megadrive.h"
 #include "system.h"
 #include "common.h"
+#include "obj/lyle.h"
 
-// SRAM address +$0000 is used as scratch memory so we can test if SRAM is
+// SRAM address $0000 is used as scratch memory so we can test if SRAM is
 // working properly. Then, each progress slot has a few magic numbers as
 // a sanity test, which should also help with version mismatches.
-// Valid save data starts at +$0002, with a number of progress slots laid
+// Valid save data starts at $0002, with a number of progress slots laid
 // out.
-
-
-#define PROGRESS_MAGIC_0 0xBEEF
-#define PROGRESS_MAGIC_1 0xDADA
-
 #define PROGRESS_SRAM_POS 0x0002
+
+#define PROGRESS_MAGIC_0 0xDEED
+#define PROGRESS_MAGIC_1 0xA55A
+
 
 static ProgressSlot progress_slots[1];
 
@@ -23,15 +23,16 @@ static uint16_t sram_is_working;
 
 static void reset_slot(int8_t slot)
 {
-	return;
 	uint8_t *d = (uint8_t *)(&progress_slots[slot]);
 	for (uint16_t i = 0; i < sizeof(&progress_slots[slot]); i++) *d++ = 0;
 	progress_slots[slot].magic_0 = PROGRESS_MAGIC_0;
 	progress_slots[slot].magic_1 = PROGRESS_MAGIC_1;
+	progress_slots[slot].hp_capacity = LYLE_START_HP;
 }
 
 int progress_init(void)
 {
+	// Test that SRAM is working correctly.
 	sram_is_working = 0xBEEF;
 	sram_write(0, &sram_is_working, sizeof(sram_is_working));
 	sram_is_working = 0x5555;
@@ -41,6 +42,8 @@ int progress_init(void)
 
 	if (sram_is_working)
 	{
+		// Load and validate all save slots. Slots that do not contain the
+		// right magic numbers will be cleared.
 		sram_read(PROGRESS_SRAM_POS, progress_slots, sizeof(progress_slots));
 		for (uint16_t i = 0; i < ARRAYSIZE(progress_slots); i++)
 		{
@@ -53,6 +56,7 @@ int progress_init(void)
 	}
 	else
 	{
+		// Clear all slots.
 		for (uint16_t i = 0; i < ARRAYSIZE(progress_slots); i++)
 		{
 			reset_slot(i);

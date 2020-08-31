@@ -10,8 +10,8 @@
 
 typedef enum PowerupType
 {
+	// Items found on the map. These values must align with map data.
 	POWERUP_TYPE_MAP = 0,
-	// Items found on the map.
 	POWERUP_TYPE_LIFT = 1,
 	POWERUP_TYPE_JUMP = 2,
 	POWERUP_TYPE_PHANTOM = 3,
@@ -19,8 +19,8 @@ typedef enum PowerupType
 	POWERUP_TYPE_ORANGE = 5,
 	// Items which come from boxes or enemies.
 	POWERUP_TYPE_HP,
-	POWERUP_TYPE_CP,
 	POWERUP_TYPE_HP_2X,
+	POWERUP_TYPE_CP,
 	POWERUP_TYPE_CP_2X,
 	POWERUP_TYPE_CP_ORB,
 	POWERUP_TYPE_HP_ORB,
@@ -30,6 +30,8 @@ typedef struct Powerup
 {
 	int8_t active;
 	int8_t orb_id;
+	int16_t anim_cnt;
+	int16_t anim_frame;
 	PowerupType type;
 	fix32_t x, y;
 	fix16_t dy;

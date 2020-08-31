@@ -13,6 +13,8 @@
 #include "obj/particle_manager.h"
 #include "obj/map.h"
 
+#include "progress.h"
+
 #include "res.h"
 
 // Access for Lyle singleton.
@@ -375,7 +377,7 @@ static inline void lift_cubes(O_Lyle *l)
 	}
 	if (l->lift_cnt == 1 && l->on_cube)
 	{
-		// TODO: Check if the player has the lift ability; have lifts fail if not.
+		if (!(progress_get()->abilities & ABILITY_LIFT)) return;
 		Cube *c = l->on_cube;
 		l->holding_cube = c->type;
 		c->status = CUBE_STATUS_NULL;
@@ -410,8 +412,8 @@ static inline void jump(O_Lyle *l)
 			l->head.dy = kjump_dy;
 			sfx_play(SFX_JUMP, 9);
 		}
-		// TODO: Add "player has cube jump" check once save data is available
-		else if (l->holding_cube && !l->cubejump_disable)
+		else if (l->holding_cube && !l->cubejump_disable &&
+		         (progress_get()->abilities & ABILITY_JUMP))
 		{
 			l->throwdown_cnt = kcubejump_anim_len;
 			fix32_t c_x = l->head.x;
@@ -511,8 +513,6 @@ static inline void bg_horizontal_collision(O_Lyle *l)
 	}
 }
 
-// TODO: Are we going to have to do collisions in the pixel domain?
-
 // This function is called to handle vertical collision events once it is
 // confirmed that Lyle is already touching the Cube.
 static inline void cube_vertical_collision(O_Lyle *l, Cube *c)
@@ -607,6 +607,8 @@ static inline void cube_eval_standing(O_Lyle *l, Cube *c)
 
 static inline void cube_kick(O_Lyle *l, Cube *c)
 {
+	const ProgressSlot *prog = progress_get();
+	if (!(prog->abilities & ABILITY_KICK)) return;
 	if (c->status != CUBE_STATUS_IDLE || c->type == CUBE_TYPE_SPAWNER) return;
 	if (!(l->grounded || l->on_cube)) return;
 	if (l->action_cnt > 0) return;
@@ -789,7 +791,7 @@ static inline void check_spikes(O_Lyle *l)
 
 static inline void cp(O_Lyle *l)
 {
-	// TODO: Bail out if Phantom power has not been acquired.
+	if (!(progress_get()->abilities & ABILITY_PHANTOM)) return;
 
 	l->cp_restore_cnt++;
 	// Periodic restoration of CP.
@@ -845,7 +847,6 @@ static inline void cp(O_Lyle *l)
 		// scalable constant.
 		particle_manager_spawn(l->head.x, l->head.y - INTTOFIX32(32),
 		                       PARTICLE_TYPE_SPARKLE);
-		// TODO: Spawn sparkle particles
 	}
 }
 

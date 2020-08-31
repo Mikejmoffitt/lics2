@@ -133,20 +133,37 @@ static inline void print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
 	text_puts(p, x, y, nums);
 }
 
+typedef struct PersistentState
+{
+	uint8_t track_id;
+	uint8_t next_room_id;
+	uint8_t next_room_entrance;
+	int8_t lyle_tele_in_cnt;
+	int16_t lyle_phantom_cnt;
+	int16_t lyle_cp;
+	int16_t lyle_hp;
+	fix16_t lyle_entry_dx;
+	fix16_t lyle_entry_dy;
+	int16_t non_fresh;
+} PersistentState;
+
 static void ge_game_ingame(void)
 {
-	static uint8_t track_id = 1;
-	static uint8_t next_room_id = 1;
-	static uint8_t next_room_entrance = 0;
-	static fix16_t lyle_entry_dx = 0;
-	static fix16_t lyle_entry_dy = 0;
-	static int16_t lyle_cp = 0;
-	static int16_t lyle_phantom_cnt = 0;
-	static int8_t lyle_tele_in_cnt = 0;
+	static PersistentState persistent_state = {0};
+	ProgressSlot *prog = progress_get();
+
 	system_profile(0);
 
 	if (g_elapsed == 0)
 	{
+
+		if (!persistent_state.non_fresh)
+		{
+			persistent_state.track_id = 1;
+			persistent_state.next_room_id = 1;
+			persistent_state.non_fresh = 1;
+			persistent_state.lyle_hp = prog->hp_capacity;
+		}
 		vdp_set_display_en(0);
 		obj_clear();
 
@@ -158,20 +175,21 @@ static void ge_game_ingame(void)
 		obj_spawn(32, 32, OBJ_LYLE, 0);
 		obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
 		obj_spawn(0, 0, OBJ_MAP, 0);
-		map_load(next_room_id, next_room_entrance);
+		map_load(persistent_state.next_room_id, persistent_state.next_room_entrance);
 		obj_spawn(0, 0, OBJ_BG, 0);
 
 		O_Lyle *l = lyle_get();
-		l->head.dx = lyle_entry_dx;
-		l->head.dy = lyle_entry_dy;
-		l->phantom_cnt = lyle_phantom_cnt;
-		l->cp = lyle_cp;
+		l->head.dx = persistent_state.lyle_entry_dx;
+		l->head.dy = persistent_state.lyle_entry_dy;
+		l->phantom_cnt = persistent_state.lyle_phantom_cnt;
+		l->cp = persistent_state.lyle_cp;
+		l->head.hp = persistent_state.lyle_hp;
 		l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
 		                                     OBJ_DIRECTION_RIGHT;
-		l->tele_in_cnt = lyle_tele_in_cnt;
+		l->tele_in_cnt = persistent_state.lyle_tele_in_cnt;
 
-		track_id = map_get_music_track();
-		music_play(track_id);
+		persistent_state.track_id = map_get_music_track();
+		music_play(persistent_state.track_id);
 
 		return;
 	}
@@ -185,9 +203,9 @@ static void ge_game_ingame(void)
 	static uint8_t pad_prev;
 	if (io_pad_read(0) & BTN_START && !(pad_prev & BTN_START))
 	{
-		track_id++;
-		if (track_id > 15) track_id = 0;
-		music_play(track_id);
+		persistent_state.track_id++;
+		if (persistent_state.track_id > 15) persistent_state.track_id = 0;
+		music_play(persistent_state.track_id);
 	}
 	pad_prev = io_pad_read(0);
 
@@ -195,28 +213,29 @@ static void ge_game_ingame(void)
 	{
 		if (io_pad_read(0) & BTN_A)
 		{
-			next_room_id++;
-			next_room_entrance = 0;
+			persistent_state.next_room_id++;
+			persistent_state.next_room_entrance = 0;
 		}
 		else
 		{
-			next_room_id = map_get_next_room_id();
-			next_room_entrance = map_get_next_room_entrance();
+			persistent_state.next_room_id = map_get_next_room_id();
+			persistent_state.next_room_entrance = map_get_next_room_entrance();
 		}
 		const O_Lyle *l = lyle_get();
-		lyle_entry_dx = l->head.dx;
+		persistent_state.lyle_entry_dx = l->head.dx;
 		if (map_get_exit_trigger() == MAP_EXIT_TOP)
 		{
 			// TODO: Determine appropriate bottom entrance dy
-			lyle_entry_dy = INTTOFIX16(PALSCALE_1ST(-3.0));
+			persistent_state.lyle_entry_dy = INTTOFIX16(PALSCALE_1ST(-3.0));
 		}
 		else
 		{
-			lyle_entry_dy = l->head.dy;
+			persistent_state.lyle_entry_dy = l->head.dy;
 		}
-		lyle_phantom_cnt = l->phantom_cnt;
-		lyle_cp = l->cp;
-		lyle_tele_in_cnt = l->tele_in_cnt;
+		persistent_state.lyle_phantom_cnt = l->phantom_cnt;
+		persistent_state.lyle_cp = l->cp;
+		persistent_state.lyle_hp = l->head.hp;
+		persistent_state.lyle_tele_in_cnt = l->tele_in_cnt;
 		exec_change(GE_GAME_INGAME);
 	}
 }

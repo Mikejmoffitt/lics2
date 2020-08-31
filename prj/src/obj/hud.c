@@ -9,6 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 #include "obj/lyle.h"
+#include "progress.h"
 
 // On-screen height of CP meter. Should be a multiple of 8.
 #define HUD_CP_DISP_HEIGHT 48
@@ -28,19 +29,18 @@ static void vram_load(void)
 
 // Store static constants here.
 
-static void main_func(Obj *o)
+static inline void draw_hp(void)
 {
-	(void)o;
+	const ProgressSlot *progress = progress_get();
 	const int16_t hud_x = 4;
 	const int16_t y_offset = vdp_get_raster_height() == 240 ? 0 : -8;
 
-	// HP.
+	// Label.
 	spr_put(hud_x, y_offset + 15,
 	        SPR_ATTR(vram_pos + 4, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 2));
 
 	// Show health.
-	// TODO: Call out to whatever tracks progress to get this data.
-	const int16_t hp_capacity = 15;
+	const int16_t hp_capacity = progress->hp_capacity;
 	int16_t plot_y = y_offset + 31;
 	int16_t i = lyle_get_hp();
 	while (i--)
@@ -49,14 +49,18 @@ static void main_func(Obj *o)
 		plot_y += 8;
 	}
 	i = hp_capacity - lyle_get_hp();
+	if (i <= 0) return;
 	while (i--)
 	{
 		spr_put(hud_x, plot_y, SPR_ATTR(vram_pos + 10, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 		plot_y += 8;
 	}
+}
 
-	// CP meter, if applicable.
-	// TODO: Skip if progress shows that CP isn't yet available.
+static inline void draw_cp(void)
+{
+	const int16_t hud_x = 4;
+	const int16_t y_offset = vdp_get_raster_height() == 240 ? 0 : -8;
 
 	// Label.
 	spr_put(hud_x, y_offset + 206,
@@ -67,8 +71,8 @@ static void main_func(Obj *o)
 	spr_put(hud_x, y_offset + 147 + HUD_CP_DISP_HEIGHT + 1, SPR_ATTR(vram_pos + 12, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 
 	int16_t scaled_cp = FIX16TOINT(FIX16MUL(INTTOFIX16(HUD_CP_DISP_HEIGHT / (float)HUD_CP_MAX), INTTOFIX16(lyle_get_cp())));
-	i = HUD_CP_DISP_HEIGHT / 8;
-	plot_y = y_offset + 147 + HUD_CP_DISP_HEIGHT;
+	int16_t i = HUD_CP_DISP_HEIGHT / 8;
+	int16_t plot_y = y_offset + 147 + HUD_CP_DISP_HEIGHT;
 	while (i--)
 	{
 		spr_put(hud_x, plot_y, SPR_ATTR(vram_pos + 14 + (scaled_cp < 8 ? 2 + (2 * (scaled_cp % 8)) : 0), 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
@@ -76,6 +80,14 @@ static void main_func(Obj *o)
 		scaled_cp -= 8;
 		if (scaled_cp < 0) scaled_cp = 0;
 	}
+}
+
+static void main_func(Obj *o)
+{
+	(void)o;
+	const ProgressSlot *progress = progress_get();
+	draw_hp();
+	if (progress->abilities & ABILITY_PHANTOM) draw_cp();
 }
 
 void o_load_hud(Obj *o, uint16_t data)

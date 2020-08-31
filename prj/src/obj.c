@@ -133,7 +133,6 @@ int obj_init(void)
 
 	obj_clear();
 	set_constants();
-	SYSTEM_ASSERT(khurt_stun_time > 0);
 
 	return 1;
 }
