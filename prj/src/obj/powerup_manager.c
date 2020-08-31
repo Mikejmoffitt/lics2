@@ -224,6 +224,7 @@ static inline void powerup_run(Powerup *p)
 {
 	switch (p->type)
 	{
+		case POWERUP_TYPE_HP:
 		case POWERUP_TYPE_CP:
 		case POWERUP_TYPE_HP_2X:
 		case POWERUP_TYPE_CP_2X:
