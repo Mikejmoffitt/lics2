@@ -31,7 +31,7 @@ static void set_constants(void)
 	static int16_t constants_set;
 	if (constants_set) return;
 
-	ksparkle_life = PALSCALE_DURATION(16);
+	ksparkle_life = PALSCALE_DURATION(15);
 	kfizzle_life = PALSCALE_DURATION(12);
 	kexplosion_life = PALSCALE_DURATION(21);
 	ksand_life = PALSCALE_DURATION(20);
@@ -56,7 +56,7 @@ static const uint16_t sparkle_anim[] =
 
 static const uint16_t fizzle_anim[] =
 {
-	16, 20, 24, 28, 28
+	16, 20, 24, 28, 28, 28, 28
 };
 
 static const uint16_t sand_anim[] =

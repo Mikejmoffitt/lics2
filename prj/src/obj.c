@@ -21,6 +21,7 @@
 #include "obj/pilla.h"
 
 #include "obj/teleporter.h"
+#include "obj/magibear.h"
 
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
@@ -112,6 +113,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_PILLA] = {o_load_pilla, o_unload_pilla},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
+	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
