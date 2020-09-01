@@ -16,6 +16,10 @@ typedef enum ProgressAbility
 	ABILITY_PHANTOM = 0x08,
 	ABILITY_KICK = 0x10,
 	ABILITY_ORANGE = 0x20,
+	ABILITY_FAST_PHANTOM = 0x40,
+	ABILITY_CHEAP_PHANTOM = 0x80,
+	ABILITY_2X_DAMAGE_PHANTOM = 0x100,
+	ABILITY_MASK = 0x1FF,
 } ProgressAbility;
 
 typedef struct ProgressSlot

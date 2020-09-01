@@ -791,7 +791,8 @@ static inline void check_spikes(O_Lyle *l)
 
 static inline void cp(O_Lyle *l)
 {
-	if (!(progress_get()->abilities & ABILITY_PHANTOM)) return;
+	const ProgressSlot *prog = progress_get();
+	if (!(prog->abilities & ABILITY_PHANTOM)) return;
 
 	l->cp_restore_cnt++;
 	// Periodic restoration of CP.
@@ -807,8 +808,7 @@ static inline void cp(O_Lyle *l)
 		return;
 	}
 
-	// TODO: Change price to LYLE_CP_SPAWN_CHEAP for cheap phantom powerup.
-	const uint16_t cube_price = LYLE_CP_SPAWN_PRICE;
+	const uint16_t cube_price = (prog->abilities & ABILITY_CHEAP_PHANTOM) ? LYLE_CP_SPAWN_CHEAP : LYLE_CP_SPAWN_PRICE;
 	if (!l->holding_cube && l->cp >= cube_price)
 	{
 		if (buttons & BTN_B)
@@ -832,7 +832,7 @@ static inline void cp(O_Lyle *l)
 			}
 			l->phantom_cnt = 0;
 		}
-		const uint16_t spawn_period = kcp_spawn_slow;  // TODO: kcp_spawn_fast for fast phantom
+		const uint16_t spawn_period = (prog->abilities & ABILITY_FAST_PHANTOM) ? kcp_spawn_fast : kcp_spawn_slow;
 		if (l->phantom_cnt >= spawn_period)
 		{
 			l->holding_cube = CUBE_TYPE_PHANTOM;
@@ -932,7 +932,7 @@ static void calc_anim_frame(O_Lyle *l)
 	
 	// Offset frame to an "arms up" variant
 	if ((l->phantom_cnt > kcube_fx || l->holding_cube) &&
-	    l->anim_frame < 0x08)
+	    l->anim_frame < 0x08 && l->throwdown_cnt == 0)
 	{
 		l->anim_frame += 0x08;
 	}

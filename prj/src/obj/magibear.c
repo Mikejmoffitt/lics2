@@ -8,6 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 #include "common.h"
+#include "sfx.h"
 #include "obj/lyle.h"
 #include "obj/projectile_manager.h"
 
@@ -108,6 +109,8 @@ static void normal_state_logic(O_Magibear *m)
 			                         PROJECTILE_TYPE_DEATHORB,
 			                         kshot_speed, 0);
 		}
+
+		sfx_play(SFX_MAGIBEAR_SHOT, 14);
 	}
 	else
 	{
@@ -182,7 +185,8 @@ void o_load_magibear(Obj *o, uint16_t data)
 	               INTTOFIX16(-16), INTTOFIX16(16), INTTOFIX16(-27), 3);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-	o->shot_cnt = kshot_delay;
+	O_Magibear *m = (O_Magibear *)o;
+	m->shot_cnt = kshot_delay;
 }
 
 void o_unload_magibear(void)

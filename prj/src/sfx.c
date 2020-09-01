@@ -474,6 +474,94 @@ static const SfxSample sfx_powerup_get[] =
 	SFX_END()
 };
 
+static const SfxSample sfx_magibear_shot[] =
+{
+	SFX_SAMPLE(0X0242, 0),
+	SFX_SAMPLE(0X0273, 0),
+	SFX_SAMPLE(0x02F5, 0),
+	SFX_SAMPLE(0x0336, 0),
+	SFX_SAMPLE(0x03B8, 0),
+	SFX_SAMPLE(0x03F9, 0),
+	SFX_SAMPLE(0x70, 0),
+	SFX_SAMPLE(0xA0, 0),
+	SFX_SAMPLE(0x72, 0),
+	SFX_SAMPLE(0xA3, 0),
+	SFX_SAMPLE(0x74, 0),
+	SFX_SAMPLE(0xA6, 0),
+	SFX_SAMPLE(0x40, 0),
+	SFX_SAMPLE(0x60, 0),
+	SFX_SAMPLE(0x42, 1),
+	SFX_SAMPLE(0x5D, 2),
+	SFX_SAMPLE(0x44, 3),
+	SFX_SAMPLE(0x5A, 4),
+	SFX_SAMPLE(0x46, 5),
+	SFX_SAMPLE(0x57, 6),
+	SFX_SAMPLE(0x48, 7),
+	SFX_SAMPLE(0x54, 8),
+	SFX_END()
+};
+
+static const SfxSample sfx_gaxter_shot[] =
+{
+	SFX_SAMPLE(0x3FE, 0),
+	SFX_SAMPLE(0x02, 0),
+	SFX_SAMPLE(0x00F0 + 0x00, 0),
+	SFX_SAMPLE(0x00F0 + 0x10, 0),
+	SFX_SAMPLE(0x00F0 + 0x20, 0),
+	SFX_SAMPLE(0x00F0 + 0x30, 0),
+	SFX_SAMPLE(0x00F0 + 0x50, 8),
+	SFX_SAMPLE(0x00F0 + 0x60, 10),
+	SFX_SAMPLE(0x00F0 + 0x80, 12),
+	SFX_END()
+};
+
+static const SfxSample sfx_gaxter_shot_2[] =
+{
+	SFX_SAMPLE(0x3FD, 0),
+	SFX_SAMPLE(0x01, 0),
+	SFX_SAMPLE(0x0140 + 0x00, 0),
+	SFX_SAMPLE(0x0140 + 0x10, 0),
+	SFX_SAMPLE(0x0140 + 0x20, 0),
+	SFX_SAMPLE(0x0140 + 0x30, 0),
+	SFX_SAMPLE(0x0140 + 0x50, 8),
+	SFX_SAMPLE(0x0140 + 0x60, 10),
+	SFX_SAMPLE(0x0140 + 0x80, 12),
+	SFX_END()
+};
+
+static const SfxSample sfx_explode[] =
+{
+	SFX_SAMPLE(0x020, 0),
+	SFX_SAMPLE(0X0240, 0),
+	SFX_SAMPLE(0X0270, 0),
+	SFX_SAMPLE(0X02A0, 0),
+	SFX_SAMPLE(0x02F0, 0),
+	SFX_SAMPLE(0x0330, 0),
+	SFX_SAMPLE(0x0380, 0),
+
+	SFX_SAMPLE(0x010, 0),
+	SFX_SAMPLE(0x00d0 + 0x00, 0),
+	SFX_SAMPLE(0x0080 + 0x08, 0),
+	SFX_SAMPLE(0x00d0 + 0x10, 0),
+	SFX_SAMPLE(0x0080 + 0x18, 0),
+	SFX_SAMPLE(0x00d0 + 0x20, 0),
+	SFX_SAMPLE(0x0080 + 0x28, 0),
+	SFX_SAMPLE(0x00d0 + 0x30, 0),
+	SFX_SAMPLE(0x0080 + 0x40, 0),
+	SFX_SAMPLE(0x00d0 + 0x50, 0),
+	SFX_SAMPLE(0x0080 + 0x50, 0),
+	SFX_SAMPLE(0x00d0 + 0x60, 0),
+	SFX_SAMPLE(0x0080 + 0x70, 0),
+	SFX_SAMPLE(0x00d0 + 0x80, 0),
+	SFX_SAMPLE(0x0080 + 0x90, 1),
+	SFX_SAMPLE(0x00d0 + 0xA0, 2),
+	SFX_SAMPLE(0x0080 + 0xB0, 4),
+	SFX_SAMPLE(0x00d0 + 0xC0, 6),
+	SFX_SAMPLE(0x0080 + 0xD0, 9),
+	SFX_SAMPLE(0x00d0 + 0xE0, 0xB),
+	SFX_SAMPLE(0x0080 + 0xF0, 0xE),
+	SFX_END()
+};
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -493,6 +581,10 @@ static const SfxSample *stream_by_id[] =
 	[SFX_TELEPORT_2] = sfx_teleport_2,
 	[SFX_BOINGO_JUMP] = sfx_boingo_jump,
 	[SFX_POWERUP_GET] = sfx_powerup_get,
+	[SFX_MAGIBEAR_SHOT] = sfx_magibear_shot,
+	[SFX_GAXTER_SHOT] = sfx_gaxter_shot,
+	[SFX_GAXTER_SHOT_2] = sfx_gaxter_shot_2,
+	[SFX_EXPLODE] = sfx_explode,
 };
 
 // Sound routines.

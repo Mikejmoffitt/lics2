@@ -8,6 +8,7 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/projectile_manager.h"
+#include "sfx.h"
 
 #include "cube.h"
 #include "palscale.h"
@@ -147,6 +148,8 @@ static void main_func(Obj *o)
 			                         PROJECTILE_TYPE_BALL,
 			                         kshot_speed, kshot_speed);
 		}
+		sfx_play(SFX_GAXTER_SHOT, 14);
+		sfx_play(SFX_GAXTER_SHOT_2, 40);
 	}
 	else
 	{

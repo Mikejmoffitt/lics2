@@ -8,6 +8,7 @@
 
 #include "gfx.h"
 #include "sfx.h"
+#include "progress.h"
 
 #include "obj/entrance.h"
 #include "obj/metagrub.h"
@@ -39,6 +40,7 @@
 #include "md/megadrive.h"
 
 #include "palscale.h"
+
 
 #define OBJ_OFFSCREEN_MARGIN INTTOFIX32(64)
 
@@ -346,7 +348,7 @@ void obj_standard_cube_response(Obj *o, Cube *c)
 			cube_destroy(c);
 			break;
 		case CUBE_TYPE_PHANTOM:
-			damage = 2; // TODO: Gate this if player has double phantom.
+			if (progress_get()->abilities & ABILITY_2X_DAMAGE_PHANTOM) damage = 2;
 			cube_destroy(c);
 			break;
 		case CUBE_TYPE_GREEN:

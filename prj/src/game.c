@@ -203,9 +203,11 @@ static void ge_game_ingame(void)
 	static uint8_t pad_prev;
 	if (io_pad_read(0) & BTN_START && !(pad_prev & BTN_START))
 	{
-		persistent_state.track_id++;
-		if (persistent_state.track_id > 15) persistent_state.track_id = 0;
-		music_play(persistent_state.track_id);
+		ProgressSlot *prog = progress_get();
+		prog->abilities = ABILITY_MASK;
+		O_Lyle *l = lyle_get();
+		l->head.hp = prog->hp_capacity;
+		l->cp = LYLE_MAX_CP;
 	}
 	pad_prev = io_pad_read(0);
 

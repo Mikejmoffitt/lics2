@@ -189,6 +189,7 @@ static void main_func(Obj *o)
 			f->shot_clock = 0;
 			projectile_manager_shoot(o->x, o->y - INTTOFIX32(4), PROJECTILE_TYPE_SPIKE,
 			                         0, kbuggo1_shot_dy);
+			sfx_play(SFX_GAXTER_SHOT, 15);
 		}
 	}
 	else
@@ -205,6 +206,7 @@ static void main_func(Obj *o)
 			                         kbuggo2_spark_dx, 0);
 			projectile_manager_shoot(o->x, o->y + INTTOFIX32(8), PROJECTILE_TYPE_SPARK,
 			                         -kbuggo2_spark_dx, 0);
+			sfx_play(SFX_GAXTER_SHOT, 15);
 
 		}
 	}
