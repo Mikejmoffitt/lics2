@@ -9,7 +9,7 @@ COMMONSRCDIR := ../common/src
 RESDIR := res
 OBJDIR := obj
 UTILDIR := ../util
-CFLAGS := -I$(SRCDIR) -I$(OBJDIR) -I$(COMMONSRCDIR) -Wall -Wextra -O3 -std=c11 -Wno-unused-function -fomit-frame-pointer -fshort-enums
+CFLAGS := -I$(SRCDIR) -I$(OBJDIR) -I$(COMMONSRCDIR) -Wall -Wextra -O1 -std=c11 -Wno-unused-function -fomit-frame-pointer -fshort-enums
 HOSTCFLAGS := -Os -std=c11
 LDSCRIPT := ../common/md.ld
 SOURCES_C := $(shell find $(SRCDIR)/ -type f -name '*.c')
