@@ -27,10 +27,13 @@ typedef struct ProgressSlot
 	uint16_t magic_0;
 	char name[16];
 	uint8_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
-	// Bitfields for item collection.
-	uint16_t cp_orbs;
-	uint16_t hp_orbs;
-	int16_t hp_capacity;
+
+	uint16_t cp_orbs;  // Bitfield for collected CP orb IDs.
+	int16_t pending_cp_orbs;  // CP orbs Lyle hasn't deposited.
+	int16_t registered_cp_orbs;  // CP orbs Lyle has deposited.
+
+	uint16_t hp_orbs;  // Bitfield for collected HP orb IDs.
+	int16_t hp_capacity;  // Lyle's health capacity (max 15).
 
 	ProgressAbility abilities;
 

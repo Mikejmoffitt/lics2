@@ -206,7 +206,7 @@ static inline void teleport_seq(O_Lyle *l)
 			                             l->holding_cube, CUBE_STATUS_AIR,
 			                             0, 0);
 			cube_destroy(c);
-			l->holding_cube = NULL;
+			l->holding_cube = CUBE_TYPE_NULL;
 		}
 		l->tele_out_cnt--;
 		if (l->tele_out_cnt == 0) map_set_exit_trigger(MAP_EXIT_TELEPORT);

@@ -41,8 +41,10 @@ void o_unload_projectile_manager(void);
 void projectile_manager_clear(void);
 Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
                                      fix16_t dx, fix16_t dy);
+Projectile *projectile_manager_shoot_angle(fix32_t x, fix32_t y, ProjectileType type,
+                                           uint8_t angle, fix16_t speed);
 Projectile *projectile_manager_shoot_at(fix32_t x, fix32_t y,
                                         ProjectileType type,
-                                         int32_t tx, int32_t ty);
+                                        fix32_t tx, fix32_t ty, fix16_t speed);
 
 #endif  // OBJ_PROJECTILE_MANAGER_H

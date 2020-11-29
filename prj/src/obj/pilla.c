@@ -71,8 +71,7 @@ static void main_func(Obj *o)
 	// multiple separated Pilla sets, so this should not cause any problems.
 	if (f->is_head && !(o->flags & OBJ_FLAG_ALWAYS_ACTIVE))
 	{
-		uint16_t i = obj_get_upper_bound();
-		SYSTEM_ASSERT(i <= ARRAYSIZE(g_objects));
+		uint16_t i = ARRAYSIZE(g_objects);
 		while (i--)
 		{
 			Obj *other = &g_objects[i].obj;

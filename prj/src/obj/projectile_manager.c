@@ -12,6 +12,8 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 
+#include "trig.h"
+
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 
 static O_ProjectileManager *projectile_manager;
@@ -329,17 +331,24 @@ void projectile_manager_clear(void)
 	}
 }
 
+static Projectile *find_slot(void)
+{
+	if (!projectile_manager) return NULL;
+	for (uint16_t i = 0; i < ARRAYSIZE(projectiles); i++)
+	{
+		Projectile *p = &projectiles[i];
+		if (p->type == PROJECTILE_TYPE_NULL) return p;
+	}
+	return NULL;
+}
+
 Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
                                      fix16_t dx, fix16_t dy)
 {
-	if (!projectile_manager) return NULL;
 	if (type == PROJECTILE_TYPE_NULL) return NULL;
-	uint16_t i = ARRAYSIZE(projectiles);
-	while (i--)
+	Projectile *p = find_slot();
+	if (p)
 	{
-		Projectile *p = &projectiles[i];
-		if (p->type != PROJECTILE_TYPE_NULL) continue;
-
 		p->type = type;
 		p->x = x;
 		p->y = y;
@@ -347,7 +356,62 @@ Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
 		p->dy = dy;
 		p->moving_up = 1;
 		p->frames_alive = 0;
-		return p;
+	}
+	return p;
+}
+
+Projectile *projectile_manager_shoot_angle(fix32_t x, fix32_t y, ProjectileType type,
+                                           uint8_t angle, fix16_t speed)
+{
+	const fix16_t dy = -FIX16MUL(speed, fix_sin(angle));
+	const fix16_t dx = FIX16MUL(speed, fix_cos(angle));
+	return projectile_manager_shoot(x, y, type, dx, dy);
+}
+
+Projectile *projectile_manager_shoot_at(fix32_t x, fix32_t y,
+                                        ProjectileType type,
+                                        fix32_t tx, fix32_t ty, fix16_t speed)
+{
+	const fix32_t rise = ty - y;
+	const fix32_t run = tx - x;
+//	const fix32_t rise = -8;
+//	const fix32_t run = 11000;
+	if (run == 0)
+	{
+		return projectile_manager_shoot_angle(x, y, type, rise < 0 ? DEGTOUINT8(270) : DEGTOUINT8(90), speed);
+	}
+	else
+	{
+		if (run >= 0)
+		{
+			if (rise >= 0)
+			{
+				const fix32_t ratio = FIX32DIV(rise, run);
+				const uint8_t angle = fix_atan(ratio);
+				return projectile_manager_shoot_angle(x, y, type, angle, speed);
+			}
+			else
+			{
+				const fix32_t ratio = FIX32DIV(-rise, run);
+				const uint8_t angle = fix_atan(ratio);
+				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(270) + (DEGTOUINT8(90) - angle), speed);
+			}
+		}
+		else
+		{
+			if (rise >= 0)
+			{
+				const fix32_t ratio = FIX32DIV(rise, -run);
+				const uint8_t angle = fix_atan(ratio);
+				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(180) - angle, speed);
+			}
+			else
+			{
+				const fix32_t ratio = FIX32DIV(-rise, -run);
+				const uint8_t angle = fix_atan(ratio);
+				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(180) + angle, speed);
+			}
+		}
 	}
 	return NULL;
 }

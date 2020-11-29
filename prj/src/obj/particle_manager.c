@@ -31,7 +31,7 @@ static void set_constants(void)
 	static int16_t constants_set;
 	if (constants_set) return;
 
-	ksparkle_life = PALSCALE_DURATION(15);
+	ksparkle_life = PALSCALE_DURATION(14);
 	kfizzle_life = PALSCALE_DURATION(12);
 	kexplosion_life = PALSCALE_DURATION(21);
 	ksand_life = PALSCALE_DURATION(20);
@@ -64,10 +64,20 @@ static const uint16_t sand_anim[] =
 	77, 78, 77, 79, 80, 80
 };
 
+static inline void animate(Particle *p, int8_t speed_check)
+{
+	p->anim_cnt++;
+	if (p->anim_cnt >= speed_check)
+	{
+		p->anim_cnt = 0;
+		p->anim_frame++;
+	}
+}
+
 static inline void particle_run(Particle *p)
 {
 	// Delete off-screen particles.
-	const fix32_t margin = 16;
+	const int16_t margin = 16;
 	int16_t px = FIX32TOINT(p->x) - map_get_x_scroll();
 	int16_t py = FIX32TOINT(p->y) - map_get_y_scroll();
 	if (py < -margin) goto delete_particle;
@@ -75,81 +85,78 @@ static inline void particle_run(Particle *p)
 	if (px < -margin) goto delete_particle;
 	if (px > GAME_SCREEN_W_PIXELS + margin) goto delete_particle;
 
-	// Move
 	p->x += p->dx;
 	p->y += p->dy;
 
-	// Animate
-	p->anim_cnt++;
-	int8_t anim_speed_check;
-	if (p->type == PARTICLE_TYPE_EXPLOSION)
-	{
-		anim_speed_check = kanim_speed_explosion;
-	}
-	else if (p->type == PARTICLE_TYPE_SAND)
-	{
-		anim_speed_check = kanim_speed_sand;
-	}
-	else
-	{
-		anim_speed_check = kanim_speed;
-	}
-
-	if (p->anim_cnt >= anim_speed_check)
-	{
-		p->anim_cnt = 0;
-		p->anim_frame++;
-	}
-
 	p->life--;
-	if (p->life <= 0) p->type = PARTICLE_TYPE_NULL;
+	if (p->life <= 0) goto delete_particle;
+
+	uint16_t attr;
+	uint8_t size = SPR_SIZE(2, 2);
 
 	// Render
 	switch (p->type)
 	{
 		default:
-			return;
+			goto delete_particle;
 		case PARTICLE_TYPE_SPARKLE:
-			spr_put(px - 8, py - 8,
-			        SPR_ATTR(vram_pos + sparkle_anim[p->anim_frame],
-			        0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			animate(p, kanim_speed);
+			px -= 8;
+			py -= 8;
+			attr = SPR_ATTR(vram_pos + sparkle_anim[p->anim_frame],
+			        0, 0, BG_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_FIZZLE:
-			spr_put(px - 8, py - 8,
-			        SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame],
-			        0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			animate(p, kanim_speed);
+			px -= 8;
+			py -= 8;
+			attr = SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame],
+			        0, 0, BG_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
-			spr_put(px - 8, py - 8,
-			        SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame] + 16,
-			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			animate(p, kanim_speed);
+			px -= 8;
+			py -= 8;
+			attr = SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame] + 16,
+			        0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
+			animate(p, kanim_speed_explosion);
 			if (p->anim_frame == 0 || p->anim_frame == 2)
 			{
-				spr_put(px - 12, py - 12,
-				        SPR_ATTR(vram_pos + 52,
-				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(3, 3));
+				px -= 12;
+				py -= 12;
+				attr = SPR_ATTR(vram_pos + 52,
+				        0, 0, LYLE_PAL_LINE, 0);
+				size = SPR_SIZE(3, 3);
 			}
 			else if (p->anim_frame == 1 || p->anim_frame == 4)
 			{
-				spr_put(px - 8, py - 8,
-				        SPR_ATTR(vram_pos + 48,
-				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+				px -= 8;
+				py -= 8;
+				attr = SPR_ATTR(vram_pos + 48,
+				        0, 0, LYLE_PAL_LINE, 0);
 			}
 			else
 			{
-				spr_put(px - 16, py - 16,
-				        SPR_ATTR(vram_pos + 61,
-				        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(4, 4));
+				px -= 16;
+				py -= 16;
+				attr = SPR_ATTR(vram_pos + 61,
+				        0, 0, LYLE_PAL_LINE, 0);
+				size = SPR_SIZE(4, 4);
 			}
 			break;
 		case PARTICLE_TYPE_SAND:
-			spr_put(px - 4, py - 4,
-			        SPR_ATTR(vram_pos + sand_anim[p->anim_frame],
-			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+			animate(p, kanim_speed_sand);
+			px -= 4;
+			py -= 4;
+			attr = SPR_ATTR(vram_pos + sand_anim[p->anim_frame],
+			        0, 0, LYLE_PAL_LINE, 0);
+			size = SPR_SIZE(1, 1);
 			break;
 	}
+
+	spr_put(px, py, attr, size);
 	return;
 
 delete_particle:

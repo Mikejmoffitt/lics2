@@ -52,7 +52,7 @@ static uint16_t highest_obj_idx;
 static uint16_t constants_set;
 static int8_t khurt_stun_time;
 
-static inline void set_constants(void)
+static void set_constants(void)
 {
 	if (constants_set) return;
 
@@ -141,7 +141,7 @@ int obj_init(void)
 	return 1;
 }
 
-static inline uint16_t obj_is_offscreen(const Obj *o)
+static uint16_t obj_is_offscreen(const Obj *o)
 {
 	const fix32_t cam_left = INTTOFIX32(map_get_x_scroll());
 	const fix32_t cam_top = INTTOFIX32(map_get_y_scroll());
@@ -154,7 +154,7 @@ static inline uint16_t obj_is_offscreen(const Obj *o)
 	return 0;
 }
 
-static inline void obj_explode(Obj *o)
+static void obj_explode(Obj *o)
 {
 	const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
 	exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
@@ -168,7 +168,7 @@ static inline void obj_explode(Obj *o)
 	o->status = OBJ_STATUS_NULL;
 }
 
-static inline uint16_t obj_hurt_process(Obj *o)
+static uint16_t obj_hurt_process(Obj *o)
 {
 	if (o->hurt_stun > 0)
 	{
@@ -184,7 +184,7 @@ static inline uint16_t obj_hurt_process(Obj *o)
 	return 0;
 }
 
-static inline void obj_check_player(Obj *o)
+static void obj_check_player(Obj *o)
 {
 	O_Lyle *l = lyle_get();
 	if (!(o->flags & (OBJ_FLAG_HARMFUL | OBJ_FLAG_DEADLY |
@@ -219,14 +219,13 @@ static inline void obj_check_player(Obj *o)
 
 void obj_exec(void)
 {
-	uint16_t highest_obj = 0;
-	for (uint16_t i = 0; i < highest_obj_idx + 1; i++)
+	ObjSlot *s = &g_objects[0];
+	int16_t i = ARRAYSIZE(g_objects);
+	while (i--)
 	{
-		system_profile(PALRGB(0, 0, i % 2 ? 1 : 0));
-		Obj *o = &g_objects[i].obj;
+		Obj *o = (Obj *)s;
+		s++;
 		if (o->status == OBJ_STATUS_NULL) continue;
-
-		if (i > highest_obj) highest_obj = i;
 
 		o->offscreen = obj_is_offscreen(o);
 		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) && o->offscreen) continue;
@@ -242,22 +241,22 @@ void obj_exec(void)
 
 		if (o->main_func) o->main_func(o);
 	}
-
-	if (highest_obj_idx > highest_obj) highest_obj_idx = highest_obj;
 }
 
 void obj_clear(void)
 {
-	highest_obj_idx = 0;
-	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+	ObjSlot *s = &g_objects[0];
+	int16_t i = ARRAYSIZE(g_objects);
+	while (i--)
 	{
-		g_objects[i].obj.status = OBJ_STATUS_NULL;
+		Obj *o = (Obj *)s;
+		s++;
+		o->status = OBJ_STATUS_NULL;
 	}
 
 	for (uint16_t i = 0; i < ARRAYSIZE(setup_funcs); i++)
 	{
-		if (!setup_funcs[i].unload_func) continue;
-		setup_funcs[i].unload_func();
+		if (setup_funcs[i].unload_func) setup_funcs[i].unload_func();
 	}
 
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
@@ -271,7 +270,6 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 		if (o->status != OBJ_STATUS_NULL) continue;
 		if (!setup_funcs[type].load_func) continue;
 
-		if (i > highest_obj_idx) highest_obj_idx = i;
 		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
 		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
 		{
@@ -285,11 +283,6 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 		return o;
 	}
 	return NULL;
-}
-
-uint16_t obj_get_upper_bound(void)
-{
-	return highest_obj_idx;
 }
 
 // VRAM load positions are reset to zero when obj_clear is called.

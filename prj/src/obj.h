@@ -9,7 +9,7 @@
 
 #include "cube.h"
 
-#define OBJ_COUNT_MAX 64
+#define OBJ_COUNT_MAX 48
 #define OBJ_BYTES 80
 
 #define OBJ_ACTIVE_DISTANCE 32
@@ -74,11 +74,6 @@ typedef union ObjSlot
 // Object list is public so it may be scanned.
 extern ObjSlot g_objects[OBJ_COUNT_MAX];
 
-// Get the index of the highest-active object + 1. This can be treated as the
-// number of active objects, except that within the bound, there may be some
-// marked as OBJ_TYPE_NULL (inactive).
-uint16_t obj_get_upper_bound(void);
-
 int obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
@@ -98,7 +93,9 @@ static inline void obj_standard_physics(Obj *o)
 	o->x += (fix32_t)o->dx;
 	o->y += (fix32_t)o->dy;
 }
+
 void obj_standard_cube_response(Obj *o, Cube *c);
+void obj_get_hurt(Obj *o, int16_t damage);
 
 // Sets up sprite rendering position based on sprite's coordinates, stun, and
 // map scroll.
@@ -115,7 +112,6 @@ static inline void obj_render_setup(Obj *o, int16_t *sp_x, int16_t *sp_y,
 	}
 }
 
-void obj_get_hurt(Obj *o, int16_t damage);
 
 static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 {

@@ -188,13 +188,13 @@ static inline void powerup_get(Powerup *p)
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->cp_orbs |= (1 << p->orb_id);
 			// TODO: Trigger indication screen.
-			return;
+			break;
 		case POWERUP_TYPE_HP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->hp_orbs |= (1 << p->orb_id);
 			prog->hp_capacity++;
 			// TODO: Trigger indication screen.
-			return;
+			break;
 		case POWERUP_TYPE_MAP:
 			prog->abilities |= ABILITY_MAP;
 			break;
@@ -338,22 +338,28 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t or
 		default:
 			break;
 		case POWERUP_TYPE_MAP:
-		if (prog->abilities & ABILITY_MAP) return NULL;
+			if (prog->abilities & ABILITY_MAP) return NULL;
 			break;
 		case POWERUP_TYPE_LIFT:
-		if (prog->abilities & ABILITY_LIFT) return NULL;
+			if (prog->abilities & ABILITY_LIFT) return NULL;
 			break;
 		case POWERUP_TYPE_JUMP:
-		if (prog->abilities & ABILITY_JUMP) return NULL;
+			if (prog->abilities & ABILITY_JUMP) return NULL;
 			break;
 		case POWERUP_TYPE_PHANTOM:
-		if (prog->abilities & ABILITY_PHANTOM) return NULL;
+			if (prog->abilities & ABILITY_PHANTOM) return NULL;
 			break;
 		case POWERUP_TYPE_KICK:
-		if (prog->abilities & ABILITY_KICK) return NULL;
+			if (prog->abilities & ABILITY_KICK) return NULL;
 			break;
 		case POWERUP_TYPE_ORANGE:
-		if (prog->abilities & ABILITY_ORANGE) return NULL;
+			if (prog->abilities & ABILITY_ORANGE) return NULL;
+			break;
+		case POWERUP_TYPE_CP_ORB:
+			if (prog->cp_orbs & (1 << orb_id)) return NULL;
+			break;
+		case POWERUP_TYPE_HP_ORB:
+			if (prog->hp_orbs & (1 << orb_id)) return NULL;
 			break;
 	}
 	uint16_t i = ARRAYSIZE(powerups);

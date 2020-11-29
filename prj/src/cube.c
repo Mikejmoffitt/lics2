@@ -49,14 +49,12 @@ void cube_set_constants(void)
 
 static void cube_scan_objects(Cube *c)
 {
-	uint16_t i = obj_get_upper_bound();
-	SYSTEM_ASSERT(i <= ARRAYSIZE(g_objects));
-	while (i--)
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
-		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
 		if (o->offscreen) continue;
+		if (!(o->flags & OBJ_FLAG_TANGIBLE)) continue;
 		if (obj_touching_cube(o, c)) obj_cube_impact(o, c);
 	}
 }
@@ -152,7 +150,7 @@ void cube_clamp_dx(Cube *c)
 	else if (c->dx < 0) c->dx = -kcube_on_cube_dx;
 }
 
-static inline void cube_bg_bounce_sides(Cube *c)
+static void cube_bg_bounce_sides(Cube *c)
 {
 	const int16_t cx_r = FIX32TOINT(c->x + c->right);
 	const int16_t cx_l = FIX32TOINT(c->x + c->left);
@@ -205,7 +203,7 @@ static inline void cube_bg_bounce_sides(Cube *c)
 	}
 }
 
-static inline void cube_bg_bounce_top(Cube *c)
+static void cube_bg_bounce_top(Cube *c)
 {
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
@@ -249,7 +247,7 @@ static inline void cube_bg_bounce_top(Cube *c)
 	}
 }
 
-static inline void cube_do_ground_recoil(Cube *c)
+static void cube_do_ground_recoil(Cube *c)
 {
 	// Align cube vertically to the ground.
 	const int16_t cy_bottom = FIX32TOINT(c->y);
@@ -292,7 +290,7 @@ static inline void cube_do_ground_recoil(Cube *c)
 
 }
 
-static inline void cube_bg_bounce_ground(Cube *c)
+static void cube_bg_bounce_ground(Cube *c)
 {
 	const int16_t cx = FIX32TOINT(c->x);
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
@@ -333,7 +331,7 @@ static inline void cube_bg_bounce_ground(Cube *c)
 	}
 }
 
-static inline void cube_bg_collision(Cube *c)
+static void cube_bg_collision(Cube *c)
 {
 	const int16_t cx_left = FIX32TOINT(c->x + c->left);
 	const int16_t cx_right = FIX32TOINT(c->x + c->right);
@@ -359,7 +357,7 @@ static inline void cube_bg_collision(Cube *c)
 	}
 }
 
-static inline void cube_movement(Cube *c)
+static void cube_movement(Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR)
 	{
@@ -400,7 +398,7 @@ static inline void cube_movement(Cube *c)
 	}
 }
 
-static inline void normal_cube_col(Cube *c, Cube *d)
+static void normal_cube_col(Cube *c, Cube *d)
 {
 	if (d->type == CUBE_TYPE_SPAWNER) return;
 	if (c->status != CUBE_STATUS_IDLE) cube_destroy(c);
@@ -414,7 +412,7 @@ static inline void normal_cube_col(Cube *c, Cube *d)
 	else if (d->dy != 0) d->dy = 0;
 }
 
-static inline void green_cube_col(Cube *c, Cube *d)
+static void green_cube_col(Cube *c, Cube *d)
 {
 	if (c->status != CUBE_STATUS_IDLE)
 	{
@@ -447,7 +445,7 @@ static inline void green_cube_col(Cube *c, Cube *d)
 	else if (d->dy != 0) d->dy = 0;
 }
 
-static inline void cube_on_cube_collisions(Cube *c)
+static void cube_on_cube_collisions(Cube *c)
 {
 	if (c->collision_timeout)
 	{
