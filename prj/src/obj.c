@@ -21,6 +21,8 @@
 #include "obj/jraff.h"
 #include "obj/pilla.h"
 
+#include "obj/killzam.h"
+
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
 
@@ -113,6 +115,8 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_DANCYFLOWER] = {o_load_dancyflower, o_unload_dancyflower},
 	[OBJ_JRAFF] = {o_load_jraff, o_unload_jraff},
 	[OBJ_PILLA] = {o_load_pilla, o_unload_pilla},
+
+	[OBJ_KILLZAM] = {o_load_killzam, o_unload_killzam},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},

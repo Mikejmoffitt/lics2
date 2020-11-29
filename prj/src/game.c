@@ -211,18 +211,7 @@ static void ge_game_ingame(void)
 	}
 	pad_prev = io_pad_read(0);
 
-	if (io_pad_read(0) & BTN_A && (pad_prev & BTN_A))
-	{
-		O_Lyle *l = lyle_get();
-		static uint8_t angle;
-		angle++;
-
-		// TODO: Remove shithouse test hack
-		projectile_manager_shoot_at(l->head.x - INTTOFIX32(64), l->head.y - INTTOFIX32(64), PROJECTILE_TYPE_BALL2,
-		                            INTTOFIX32(1024), INTTOFIX32(128), INTTOFIX16(2.0));
-	}
-
-	if (map_get_exit_trigger()) //  || io_pad_read(0) & BTN_A)
+	if (map_get_exit_trigger() || (io_pad_read(0) & BTN_A))
 	{
 		if (io_pad_read(0) & BTN_A)
 		{
