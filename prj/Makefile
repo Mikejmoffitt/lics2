@@ -12,9 +12,6 @@ UTILDIR := ../util
 CFLAGS := -I$(SRCDIR) -I$(OBJDIR) -I$(COMMONSRCDIR)
 CFLAGS += -Wall -Wextra -O3 -std=c11 -Wno-unused-function
 CFLAGS += -fshort-enums
-# This is needed to avoid breakage. It might be some shaky code talking to the MD hardware.
-CFLAGS += -fno-store-merging
-
 
 HOSTCFLAGS := -Os -std=c11
 LDSCRIPT := ../common/md.ld
