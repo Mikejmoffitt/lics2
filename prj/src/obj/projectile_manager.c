@@ -363,8 +363,8 @@ Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
 Projectile *projectile_manager_shoot_angle(fix32_t x, fix32_t y, ProjectileType type,
                                            uint8_t angle, fix16_t speed)
 {
-	const fix16_t dy = -FIX16MUL(speed, fix_sin(angle));
-	const fix16_t dx = FIX16MUL(speed, fix_cos(angle));
+	const fix16_t dy = -FIX16MUL(speed, trig_sin(angle));
+	const fix16_t dx = FIX16MUL(speed, trig_cos(angle));
 	return projectile_manager_shoot(x, y, type, dx, dy);
 }
 
@@ -372,46 +372,7 @@ Projectile *projectile_manager_shoot_at(fix32_t x, fix32_t y,
                                         ProjectileType type,
                                         fix32_t tx, fix32_t ty, fix16_t speed)
 {
-	const fix32_t rise = ty - y;
-	const fix32_t run = tx - x;
-//	const fix32_t rise = -8;
-//	const fix32_t run = 11000;
-	if (run == 0)
-	{
-		return projectile_manager_shoot_angle(x, y, type, rise < 0 ? DEGTOUINT8(270) : DEGTOUINT8(90), speed);
-	}
-	else
-	{
-		if (run >= 0)
-		{
-			if (rise >= 0)
-			{
-				const fix32_t ratio = FIX32DIV(rise, run);
-				const uint8_t angle = fix_atan(ratio);
-				return projectile_manager_shoot_angle(x, y, type, angle, speed);
-			}
-			else
-			{
-				const fix32_t ratio = FIX32DIV(-rise, run);
-				const uint8_t angle = fix_atan(ratio);
-				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(270) + (DEGTOUINT8(90) - angle), speed);
-			}
-		}
-		else
-		{
-			if (rise >= 0)
-			{
-				const fix32_t ratio = FIX32DIV(rise, -run);
-				const uint8_t angle = fix_atan(ratio);
-				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(180) - angle, speed);
-			}
-			else
-			{
-				const fix32_t ratio = FIX32DIV(-rise, -run);
-				const uint8_t angle = fix_atan(ratio);
-				return projectile_manager_shoot_angle(x, y, type, DEGTOUINT8(180) + angle, speed);
-			}
-		}
-	}
-	return NULL;
+	const fix32_t delta_y = (ty - y);
+	const fix32_t delta_x = tx - x;
+	return projectile_manager_shoot_angle(x, y, type, trig_atan(delta_y, delta_x), speed);
 }

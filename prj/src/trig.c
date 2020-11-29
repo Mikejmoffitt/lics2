@@ -1,7 +1,7 @@
 #include "trig.h"
 #include "util/fixed.h"
 
-uint8_t fix_atan(fix32_t ratio)
+static uint8_t atan_int(fix32_t ratio)
 {
 	if (ratio >= INTTOFIX16(TRIG_TAB_ATAN_INPUT_RANGE))
 	{
@@ -10,4 +10,45 @@ uint8_t fix_atan(fix32_t ratio)
 	if (ratio < 0) return 0;
 	ratio = ratio >> 2;
 	return trig_tab_atan[ratio];
+}
+
+uint8_t trig_atan(int y, int x)
+{
+	y = -y;
+	if (x == 0)
+	{
+		return y < 0 ? DEGTOUINT8(270) : DEGTOUINT8(90);
+	}
+	else
+	{
+		if (x >= 0)
+		{
+			if (y >= 0)
+			{
+				const fix32_t ratio = FIX32DIV(y, x);
+				return atan_int(ratio);
+			}
+			else
+			{
+				const fix32_t ratio = FIX32DIV(-y, x);
+				const uint8_t angle = atan_int(ratio);
+				return DEGTOUINT8(270) + (DEGTOUINT8(90) - angle);
+			}
+		}
+		else
+		{
+			if (y >= 0)
+			{
+				const fix32_t ratio = FIX32DIV(y, -x);
+				const uint8_t angle = atan_int(ratio);
+				return DEGTOUINT8(180) - angle;
+			}
+			else
+			{
+				const fix32_t ratio = FIX32DIV(-y, -x);
+				const uint8_t angle = atan_int(ratio);
+				return DEGTOUINT8(180) + angle;
+			}
+		}
+	}
 }
