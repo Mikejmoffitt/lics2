@@ -23,7 +23,8 @@ CFLAGS += -Wno-strict-aliasing -ffreestanding
 CFLAGS += -fomit-frame-pointer -fno-defer-pop -frename-registers -fshort-enums
 CFLAGS += -mcpu=68000
 CFLAGS += -I.
-# CFLAGS += -ffunction-sections -fdata-sections -fconserve-stack
+CFLAGS += -O3 -fno-store-merging
+CFLAGS += -ffunction-sections -fdata-sections -fconserve-stack
 ASFLAGS := $(CFLAGS)
 ASFLAGS := -Wa,-I$(SRCDIR) -Wa,-I$(OBJDIR) -Wa,-I$(COMMONSRCDIR)
 LDFLAGS := -L/usr/lib/gcc-cross/m68k-linux-gnu/8
