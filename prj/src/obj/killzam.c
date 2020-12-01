@@ -35,12 +35,12 @@ static inline void set_constants(void)
 
 	kdy_hysteresis = INTTOFIX16(PALSCALE_1ST(2.083));
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2084));
-	kanim_delay = PALSCALE_1ST(8);
+	kanim_delay = PALSCALE_DURATION(8);
 
-	ksequence[0] = PALSCALE_1ST(48);  // Begin flickering
-	ksequence[1] = PALSCALE_1ST(96);  // Go solid
-	ksequence[2] = PALSCALE_1ST(144);  // Begin flickering again
-	ksequence[3] = PALSCALE_1ST(192);  // Disappear
+	ksequence[0] = PALSCALE_DURATION(48);  // Begin flickering
+	ksequence[1] = PALSCALE_DURATION(96);  // Go solid
+	ksequence[2] = PALSCALE_DURATION(144);  // Begin flickering again
+	ksequence[3] = PALSCALE_DURATION(192);  // Disappear
 
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 
@@ -88,7 +88,6 @@ static void run_timer(Obj *o)
 	// Right at the start of the flicker sequence, choose a position
 	if (e->timer == 1)
 	{
-		O_Killzam *e = (O_Killzam *)o;
 		uint16_t rando = system_rand() % 512;
 		if (rando > 300) rando -= 300;
 		o->x = INTTOFIX32(map_get_x_scroll() + 10 + rando);
@@ -106,7 +105,7 @@ static void run_timer(Obj *o)
 		    map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y + o->top)) ||
 		    o->touching_player)
 		{
-			e->timer == 0;
+			e->timer = 0;
 		}
 	}
 	else
@@ -176,8 +175,6 @@ static inline void render(Obj *o)
 
 static void main_func(Obj *o)
 {
-	O_Killzam *e = (O_Killzam *)o;
-
 	if (o->hurt_stun > 0)
 	{
 		render(o);
