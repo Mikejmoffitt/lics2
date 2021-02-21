@@ -20,11 +20,12 @@
 
 static fix16_t kjump_dy_table[8];
 static fix16_t kgravity;
-static int8_t kjump_delay;
-static int8_t kjump_delay_angry;
+static int16_t kjump_delay;
+static int16_t kjump_delay_angry;
 static fix16_t kdx;
 static fix16_t kcube_bounce_dy;
-static int8_t kanim_speed;
+static int16_t kanim_speed;
+static int16_t kair_anim_speed;
 static fix16_t kceiling_dy;
 
 static void set_constants(void)
@@ -49,6 +50,7 @@ static void set_constants(void)
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 	kanim_speed = PALSCALE_DURATION(11);
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.0));
+	kair_anim_speed = PALSCALE_DURATION(2);
 
 	constants_set = 1;
 }
@@ -248,23 +250,8 @@ static void main_func(Obj *o)
 		}
 	}
 
-	// Animation.
-	if (b->anim_cnt >= ((b->jumping) ? 2 : kanim_speed))
-	{
-		b->anim_cnt = 0;
-		b->anim_frame++;
-		if (b->anim_frame > 1) b->anim_frame = 0;
-	}
-	else
-	{
-		b->anim_cnt++;
-	}
-
-	if (o->hurt_stun > 0)
-	{
-		render(b);
-		return;
-	}
+	OBJ_SIMPLE_ANIM(b->anim_cnt, b->anim_frame, 2,
+	                (b->jumping ? kair_anim_speed : kanim_speed));
 
 	render(b);
 }

@@ -42,7 +42,7 @@ static inline void set_constants(void)
 	kdx = INTTOFIX16(PALSCALE_1ST(0.5));
 
 	kjump_delay = PALSCALE_DURATION(72);
-	kground_anim_delay = PALSCALE_DURATION(18);
+	kground_anim_delay = PALSCALE_DURATION(9);
 	kair_anim_delay = PALSCALE_DURATION(3);
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3));
 

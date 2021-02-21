@@ -26,12 +26,12 @@
 
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
+#include "obj/fissins1.h"
 
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
 #include "obj/map.h"
 #include "obj/bg.h"
-
 #include "obj/hud.h"
 #include "obj/particle_manager.h"
 #include "obj/projectile_manager.h"
@@ -122,6 +122,7 @@ static const SetupFuncs setup_funcs[] =
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
+	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},

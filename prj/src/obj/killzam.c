@@ -141,13 +141,8 @@ static void run_timer(Obj *o)
 static void animate(Obj *o)
 {
 	O_Killzam *e = (O_Killzam *)o;
-	e->anim_cnt++;
-	if (e->anim_cnt >= kanim_delay)
-	{
-		e->anim_cnt = 0;
-		e->anim_frame++;
-		if (e->anim_frame >= 2) e->anim_frame = 0;
-	}
+
+	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_delay);
 
 	e->flicker = !e->flicker;
 }

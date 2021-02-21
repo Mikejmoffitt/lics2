@@ -12,13 +12,15 @@
 #define OBJ_SIMPLE_ANIM(_counter, _frame, _anim_length, _frame_delay) \
 { \
 	_counter++; \
-	if (_counter >= _frame_delay) \
+	if ((_counter) >= (_frame_delay)) \
 	{ \
 		_counter = 0; \
 		_frame++; \
-		if (_frame >= _anim_length) _frame = 0; \
+		if ((_frame) >= (_anim_length)) \
+		{ \
+			_frame = 0; \
+		} \
 	} \
-	e->anim_cnt++; \
 }
 
 #define OBJ_COUNT_MAX 48
