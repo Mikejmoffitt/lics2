@@ -6,7 +6,13 @@
 typedef struct O_Shoot
 {
 	Obj head;
-	uint16_t h_flip_cnt;
+	fix32_t x_max;
+	fix32_t x_min;
+	int16_t anim_cnt;
+	int16_t anim_frame;
+
+	int16_t moving_up;
+	int16_t swoop_en;
 
 } O_Shoot;
 

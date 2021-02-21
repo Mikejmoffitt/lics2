@@ -84,6 +84,8 @@ static void main_func(Obj *o)
 	{
 		if (e->jump_countdown == 0)
 		{
+			o->flags |= OBJ_FLAG_TANGIBLE;
+			o->flags |= OBJ_FLAG_HARMFUL;
 			e->airborn = 1;
 			o->dy = kjump_dy_table[system_rand() % ARRAYSIZE(kjump_dy_table)];
 		}
@@ -99,6 +101,8 @@ static void main_func(Obj *o)
 			e->airborn = 0;
 			e->jump_countdown = kjump_delay;
 			o->y = e->base_y;
+			o->flags &= ~(OBJ_FLAG_TANGIBLE);
+			o->flags &= ~(OBJ_FLAG_HARMFUL);
 		}
 		obj_standard_physics(o);
 		o->dy += kgravity;

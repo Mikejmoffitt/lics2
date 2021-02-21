@@ -7,9 +7,16 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
+#include "obj/lyle.h"
 #include "common.h"
 
 static uint16_t vram_pos;
+
+static fix16_t kdx;
+static fix16_t kddy;
+static fix16_t kdy_cutoff;
+static fix16_t kdy_cutoff_big;
+static int16_t kanim_delay;
 
 static void vram_load(void)
 {
@@ -25,19 +32,75 @@ static inline void set_constants(void)
 {
 	static int16_t constants_set;
 	if (constants_set) return;
-	// Set constants here.
+
+	kdx = INTTOFIX16(PALSCALE_1ST(0.833333334));
+	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
+	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.2));  // TODO: Verify
+	kdy_cutoff_big = INTTOFIX16(PALSCALE_1ST(4.2));  // TODO: Verify
+	kanim_delay = PALSCALE_DURATION(10);
 
 	constants_set = 1;
 }
 
+static inline void render(O_Shoot *f)
+{
+	Obj *o = &f->head;
+	int16_t sp_x, sp_y;
+	obj_render_setup(o, &sp_x, &sp_y, -11, -12,
+	                 map_get_x_scroll(), map_get_y_scroll());
+	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (f->anim_frame ? 6 : 0),
+	                    o->direction == OBJ_DIRECTION_LEFT, 0,
+	                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
+}
+
 static void main_func(Obj *o)
 {
-	(void)o;
+	O_Shoot *f = (O_Shoot *)o;
+
+	if (o->hurt_stun > 0)
+	{
+		render(f);
+		return;
+	}
+
+	// Horizontal movement.
+	if (o->x >= f->x_max) o->dx = -kdx;
+	else if (o->x <= f->x_min) o->dx = kdx;
+
+	o->direction = (o->dx >= 0) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+
+	// Vertical sinusoidal movement.
+	const fix16_t dy_cutoff = f->swoop_en ? kdy_cutoff_big : kdy_cutoff;
+	if (f->moving_up)
+	{
+		o->dy += kddy;
+		if (o->dy > dy_cutoff) f->moving_up = 0;
+	}
+	else
+	{
+		o->dy -= kddy;
+		if (o->dy < -dy_cutoff)
+		{
+			f->moving_up = 1;
+			// Do a swoop if the player is near.
+			const O_Lyle *l = lyle_get();
+			static const fix32_t prox = INTTOFIX32(100);
+			f->swoop_en = (l->head.x < o->x + prox && l->head.x > o->x - prox);
+		}
+	}
+
+	obj_standard_physics(o);
+
+	// Animation.
+	OBJ_SIMPLE_ANIM(f->anim_cnt, f->anim_frame, 2, kanim_delay);
+	
+	render(f);
 }
 
 void o_load_shoot(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Shoot) <= sizeof(ObjSlot));
+	O_Shoot *f = (O_Shoot *)o;
 	(void)data;
 	set_constants();
 	vram_load();
@@ -46,6 +109,14 @@ void o_load_shoot(Obj *o, uint16_t data)
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-2), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
+
+	o->y += INTTOFIX32(4);
+	o->direction = OBJ_DIRECTION_LEFT;
+	o->dx = -kdx;
+
+	f->x_min = o->x - INTTOFIX32(200);
+	f->x_max = o->x;
+	f->moving_up = 1;
 }
 
 void o_unload_shoot(void)

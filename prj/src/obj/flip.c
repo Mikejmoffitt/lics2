@@ -15,7 +15,7 @@
 static fix16_t kddy;
 static fix16_t kdy_cutoff;
 static fix16_t kdx;
-static int8_t kanim_len;
+static int8_t kanim_delay;
 
 static int16_t constants_set;
 
@@ -26,7 +26,7 @@ static void set_constants(void)
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.4));
 	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
-	kanim_len = PALSCALE_DURATION(6);
+	kanim_delay = PALSCALE_DURATION(10);
 
 	constants_set = 1;
 }
@@ -51,7 +51,7 @@ static inline void render(O_Flip *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -11, -12,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + f->tile_offset,
+	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (f->anim_frame ? 6 : 0),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 }
@@ -94,7 +94,6 @@ static void main_func(Obj *o)
 	{
 		o->dy += kddy;
 		if (o->dy > kdy_cutoff) f->moving_up = 0;
-
 	}
 	else
 	{
@@ -105,16 +104,7 @@ static void main_func(Obj *o)
 	obj_standard_physics(o);
 
 	// Animation.
-	if (f->anim_cnt == kanim_len)
-	{
-		f->anim_cnt = 0;
-		if (f->tile_offset == 0) f->tile_offset = 6;
-		else f->tile_offset = 0;
-	}
-	else
-	{
-		f->anim_cnt++;
-	}
+	OBJ_SIMPLE_ANIM(f->anim_cnt, f->anim_frame, 2, kanim_delay);
 	
 	render(f);
 }

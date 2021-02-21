@@ -21,6 +21,7 @@
 #include "obj/jraff.h"
 #include "obj/pilla.h"
 #include "obj/hedgedog.h"
+#include "obj/shoot.h"
 
 #include "obj/killzam.h"
 
@@ -117,6 +118,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_JRAFF] = {o_load_jraff, o_unload_jraff},
 	[OBJ_PILLA] = {o_load_pilla, o_unload_pilla},
 	[OBJ_HEDGEDOG] = {o_load_hedgedog, o_unload_hedgedog},
+	[OBJ_SHOOT] = {o_load_shoot, o_unload_shoot},
 
 	[OBJ_KILLZAM] = {o_load_killzam, o_unload_killzam},
 
