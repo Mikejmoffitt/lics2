@@ -30,9 +30,28 @@ static inline void set_constants(void)
 	constants_set = 1;
 }
 
+static void render(O_Template *e)
+{
+	Obj *o = &e->head;
+	int16_t sp_x, sp_y;
+	static const int16_t offset_x = -8;
+	static const int16_t offset_y = -16;
+
+	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
+	                 map_get_x_scroll(), map_get_y_scroll());
+	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos, 0, 0,
+	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+}
+
 static void main_func(Obj *o)
 {
-	(void)o;
+	O_Template *e = (O_Template *)o;
+	if (o->hurt_stun > 0)
+	{
+		render(e);
+		return;
+	}
+	render(e);
 }
 
 void o_load_template(Obj *o, uint16_t data)
