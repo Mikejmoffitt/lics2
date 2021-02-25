@@ -12,21 +12,22 @@
 #include "game.h"
 #include "music.h"
 
-static int16_t s_hide_flag;
-
 static fix16_t kscroll_gravity;
 static int16_t kscroll_delay_max;
 static fix16_t kbounce_dead_dy;
 static int16_t kappearance_delay_max;
 
 static uint16_t vram_pos;
+static uint16_t vram_credits_pos;
 
 static void vram_load(void)
 {
 	if (vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_TITLE_SCR);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	const Gfx *g_title = gfx_get(GFX_TITLE_SCR);
+	vram_pos = gfx_load(g_title, obj_vram_alloc(g_title->size));
+	const Gfx *g_credits = gfx_get(GFX_EX_CREDITS);
+	vram_credits_pos = gfx_load(g_credits, obj_vram_alloc(g_credits->size));
 }
 
 // Store static constants here.
@@ -58,24 +59,22 @@ static void render(O_Title *e)
 
 	int16_t vram = vram_pos;
 
+	// Title logo
 	spr_put(sp_x + (0 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (1 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (2 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (3 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
@@ -87,19 +86,16 @@ static void render(O_Title *e)
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (1 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (2 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-
 	spr_put(sp_x + (3 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
@@ -111,24 +107,42 @@ static void render(O_Title *e)
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-
 	spr_put(sp_x + (1 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-
 	spr_put(sp_x + (2 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-
 	spr_put(sp_x + (3 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(2, 1));
 	vram += 2;
+
+	// The corner credits
+	spr_put(GAME_SCREEN_W_PIXELS - 68, 0,
+	        SPR_ATTR(vram_credits_pos, 0, 0, pal, 0),
+	        SPR_SIZE(3, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 0,
+	        SPR_ATTR(vram_credits_pos + 3, 0, 0, pal, 0),
+	        SPR_SIZE(3, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 0,
+	        SPR_ATTR(vram_credits_pos + 6, 0, 0, pal, 0),
+	        SPR_SIZE(3, 1));
+
+	spr_put(GAME_SCREEN_W_PIXELS - 68, 7,
+	        SPR_ATTR(vram_credits_pos + 16, 0, 0i, pal, 0),
+	        SPR_SIZE(3, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 7,
+	        SPR_ATTR(vram_credits_pos + 19, 0, 0, pal, 0),
+	        SPR_SIZE(3, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
+	        SPR_ATTR(vram_credits_pos + 22, 0, 0, pal, 0),
+	        SPR_SIZE(3, 1));
 }
 
 static void set_scroll(O_Title *e)
@@ -145,13 +159,6 @@ static void set_scroll(O_Title *e)
 static void main_func(Obj *o)
 {
 	O_Title *e = (O_Title *)o;
-
-	// Abort if we've done all this already.
-	if (s_hide_flag)
-	{
-		o->status = OBJ_STATUS_NULL;
-		return;
-	}
 
 	const MdButton buttons = io_pad_read(0);
 
@@ -211,17 +218,20 @@ static void main_func(Obj *o)
 	{
 		pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
 		e->appearance_delay_cnt++;
+		if (e->appearance_delay_cnt == kappearance_delay_max)
+		{
+			music_play(14);
+		}
 	}
 	else
 	{
 		if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 		{
 			// TODO: proper logic to begin game with delay.
-			s_hide_flag = 1;
 			lyle_set_control_en(1);
 			o->status = OBJ_STATUS_NULL;
-			s_hide_flag = 1;  // Prevent title from showing up again ingame.
 			pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_title_bin) / 2);
+			music_play(1);
 			return;
 		}
 		render(e);
@@ -253,10 +263,4 @@ void o_load_title(Obj *o, uint16_t data)
 void o_unload_title(void)
 {
 	vram_pos = 0;
-}
-
-// Clear the static flag that disables the title screen object.
-void title_reset_hide_flag(void)
-{
-	s_hide_flag = 0;
 }

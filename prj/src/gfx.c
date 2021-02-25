@@ -46,6 +46,7 @@ static const Gfx gfx[] =
 	[GFX_EX_PARTICLES] = GFX(ex_particles),
 	[GFX_EX_HUD] = GFX(ex_hud),
 	[GFX_EX_POWERUPS] = GFX(ex_powerups),
+	[GFX_EX_CREDITS] = GFX(ex_credits),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

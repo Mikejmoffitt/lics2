@@ -80,6 +80,7 @@ typedef enum GfxId
 	GFX_EX_PARTICLES,
 	GFX_EX_HUD,
 	GFX_EX_POWERUPS,
+	GFX_EX_CREDITS,
 
 	GFX_BG_1,
 	GFX_BG_2,

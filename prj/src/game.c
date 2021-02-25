@@ -87,16 +87,14 @@ static void game_loop(void)
 {
 	ProgressSlot *prog = progress_get();
 	static int16_t s_room_elapsed = 0;
-	static int16_t s_room_load_pending = 1;
+	static int16_t s_room_loaded = 0;
 
 	system_profile(0);
 
-	if (s_room_load_pending)
+	if (!s_room_loaded)
 	{
 		if (!s_persistent_state.non_fresh)
 		{
-			s_persistent_state.track_id = 1;
-			s_persistent_state.next_room_id = 1;
 			s_persistent_state.non_fresh = 1;
 			s_persistent_state.lyle_hp = prog->hp_capacity;
 		}
@@ -126,7 +124,7 @@ static void game_loop(void)
 
 		s_persistent_state.track_id = map_get_music_track();
 		music_play(s_persistent_state.track_id);
-		s_room_load_pending = 0;
+		s_room_loaded = 1;
 		megadrive_finish();
 		s_room_elapsed = 0;
 		return;
@@ -173,7 +171,7 @@ static void game_loop(void)
 		s_persistent_state.lyle_hp = l->head.hp;
 		s_persistent_state.lyle_tele_in_cnt = l->tele_in_cnt;
 
-		s_room_load_pending = 1;
+		s_room_loaded = 0;;
 	}
 	vdp_set_display_en(s_room_elapsed >= 2);
 	s_room_elapsed++;
@@ -183,6 +181,7 @@ static void game_loop(void)
 void game_main(void)
 {
 	init();
+	megadrive_finish();
 	while (1)
 	{
 		game_loop();

@@ -22,7 +22,4 @@ typedef struct O_Title
 void o_load_title(Obj *o, uint16_t data);
 void o_unload_title(void);
 
-// Clear the static flag that disables the title screen object.
-void title_reset_hide_flag(void);
-
 #endif  // OBJ_TITLE_H
