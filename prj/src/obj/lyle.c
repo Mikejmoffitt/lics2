@@ -399,7 +399,7 @@ static inline void jump(O_Lyle *l)
 	// a player who hits jump late doesn't accidentally cube jump.
 	if (l->grounded || l->on_cube)
 	{
-		l->cubejump_disable = LYLE_CUBEJUMP_DISABLE_TIME;
+		l->cube_jump_disable_cnt = LYLE_CUBEJUMP_DISABLE_TIME;
 	}
 
 	if (l->lift_cnt || is_control_disabled(l)) return;
@@ -412,7 +412,7 @@ static inline void jump(O_Lyle *l)
 			l->head.dy = kjump_dy;
 			sfx_play(SFX_JUMP, 9);
 		}
-		else if (l->holding_cube && !l->cubejump_disable &&
+		else if (l->holding_cube && !l->cube_jump_disable_cnt &&
 		         (progress_get()->abilities & ABILITY_JUMP))
 		{
 			l->throwdown_cnt = kcubejump_anim_len;
@@ -653,7 +653,7 @@ static inline void cube_collision(O_Lyle *l)
 		if (l->head.y < c->y + c->top - 1) continue;
 		if (l->head.x + l->head.right + 1 < c->x + c->left) continue;
 		if (l->head.x + l->head.left - 1 > c->x + c->right) continue;
-		
+
 		// Bounce cubes off of ones lyle is holding
 		if (l->holding_cube)
 		{
@@ -665,7 +665,9 @@ static inline void cube_collision(O_Lyle *l)
 			{
 				if (c->dx == 0)
 				{
-					c->dx = g_elapsed % 2 ? kbounce_cube_dx : -kbounce_cube_dx;
+					c->dx = (g_elapsed % 2) ?
+					        kbounce_cube_dx :
+					        -kbounce_cube_dx;
 				}
 				c->dy = kbounce_cube_dy;
 				sfx_play(SFX_CUBE_BOUNCE, 13);
@@ -786,7 +788,6 @@ static inline void check_spikes(O_Lyle *l)
 	{
 		lyle_get_hurt();
 	}
-	// TODO: Would be nice to instead have a LUT applied to the tileset.
 }
 
 static inline void cp(O_Lyle *l)
@@ -808,7 +809,8 @@ static inline void cp(O_Lyle *l)
 		return;
 	}
 
-	const uint16_t cube_price = (prog->abilities & ABILITY_CHEAP_PHANTOM) ? LYLE_CP_SPAWN_CHEAP : LYLE_CP_SPAWN_PRICE;
+	const uint16_t cube_price = (prog->abilities & ABILITY_CHEAP_PHANTOM) ?
+	                            LYLE_CP_SPAWN_CHEAP : LYLE_CP_SPAWN_PRICE;
 	if (!l->holding_cube && l->cp >= cube_price)
 	{
 		if (buttons & BTN_B)
@@ -832,7 +834,8 @@ static inline void cp(O_Lyle *l)
 			}
 			l->phantom_cnt = 0;
 		}
-		const uint16_t spawn_period = (prog->abilities & ABILITY_FAST_PHANTOM) ? kcp_spawn_fast : kcp_spawn_slow;
+		const uint16_t spawn_period = (prog->abilities & ABILITY_FAST_PHANTOM) ?
+		                              kcp_spawn_fast : kcp_spawn_slow;
 		if (l->phantom_cnt >= spawn_period)
 		{
 			l->holding_cube = CUBE_TYPE_PHANTOM;
@@ -947,7 +950,7 @@ static inline void counters(O_Lyle *l)
 	if (l->hurt_cnt > 0) l->hurt_cnt--;
 	if (l->invuln_cnt > 0) l->invuln_cnt--;
 	if (l->action_cnt > 0) l->action_cnt--;
-	if (l->cubejump_disable > 0) l->cubejump_disable--;
+	if (l->cube_jump_disable_cnt > 0) l->cube_jump_disable_cnt--;
 }
 
 static inline void draw(O_Lyle *l)
@@ -991,7 +994,8 @@ static inline void draw(O_Lyle *l)
 	{
 		size = SPR_SIZE(2, 3);
 		yoff = LYLE_DRAW_TOP;
-		xoff = LYLE_DRAW_LEFT + (l->lift_cnt > 0 ? (l->lift_cnt / 2) % 2 : 0);
+		xoff = LYLE_DRAW_LEFT + ((l->lift_cnt > 0) ?
+		                         (l->lift_cnt / 2) % 2 : 0);
 	}
 	else if (l->anim_frame < 0x14)
 	{
@@ -1060,12 +1064,11 @@ static void main_func(Obj *o)
 
 	system_profile(PALRGB(3, 1, 5));
 	check_spikes(l);
-	// eval_grounded(l);  // TODO: Make sure this is truly unecessary.
 	system_profile(PALRGB(6, 6, 7));
 	calc_anim_frame(l);
 	system_profile(PALRGB(1, 1, 1));
 	counters(l);
-	set_map_scroll(l);
+	if (!l->scroll_disable) set_map_scroll(l);
 	system_profile(PALRGB(4, 4, 0));
 	draw(l);
 	system_profile(PALRGB(0, 0, 0));
@@ -1088,7 +1091,8 @@ void o_load_lyle(Obj *o, uint16_t data)
 	set_constants();
 
 	// Lyle is not marked tangible because he does his own cube detection.
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 5);
+	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	                  LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 5);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;
@@ -1181,4 +1185,16 @@ void lyle_set_pos(fix32_t x, fix32_t y)
 	if (!lyle) return;
 	lyle->head.x = x;
 	lyle->head.y = y;
+}
+
+void lyle_set_scroll_en(int16_t en)
+{
+	if (!lyle) return;
+	lyle->scroll_disable = !en;
+}
+
+void lyle_set_control_en(int16_t en)
+{
+	if (!lyle) return;
+	lyle->ext_disable = !en;
 }

@@ -29,6 +29,9 @@
 #include "obj/magibear.h"
 #include "obj/fissins1.h"
 
+#include "obj/title.h"
+#include "obj/bogologo.h"
+
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
 #include "obj/map.h"
@@ -125,6 +128,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
+
+	[OBJ_BOGOLOGO] = {o_load_bogologo, o_unload_bogologo},
+	[OBJ_TITLE] = {o_load_title, o_unload_title},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},

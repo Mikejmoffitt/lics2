@@ -72,6 +72,14 @@ static void metagrub_main(Obj *o)
 	O_Metagrub *e = (O_Metagrub *)o;
 	const fix32_t lyle_x = lyle_get_x();
 
+	// Search for an active title object, and abort early if it's present.
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+	{
+		Obj *o = &g_objects[i].obj;
+		if (o->status == OBJ_STATUS_NULL) continue;
+		if (o->type == OBJ_TITLE) return;
+	}
+
 	if (o->hurt_stun > 0)
 	{
 		metagrub_draw(o);

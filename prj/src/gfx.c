@@ -38,14 +38,14 @@ static const Gfx gfx[] =
 	[GFX_FISSINS2] = GFX(obj_39_fissins2),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 
+	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
+	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
+
 	[GFX_EX_ITEMS] = GFX(ex_items),
 	[GFX_EX_PROJECTILES] = GFX(ex_projectiles),
 	[GFX_EX_PARTICLES] = GFX(ex_particles),
 	[GFX_EX_HUD] = GFX(ex_hud),
 	[GFX_EX_POWERUPS] = GFX(ex_powerups),
-
-	[GFX_TITLE_BOGOLOGO] = GFX(title_bogologo),
-	[GFX_TITLE_TITLELOGO] = GFX(title_titlelogo),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

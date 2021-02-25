@@ -104,6 +104,8 @@ void map_set_next_room(uint8_t id, uint8_t entrance);
 uint8_t map_get_next_room_id(void);
 uint8_t map_get_next_room_entrance(void);
 
+void map_redraw_room(void);
+
 void map_set_exit_trigger(MapExitTrigger t);
 MapExitTrigger map_get_exit_trigger(void);
 

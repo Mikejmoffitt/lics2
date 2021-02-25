@@ -446,6 +446,11 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	}
 }
 
+void map_redraw_room(void)
+{
+	map->fresh_room = 1;
+}
+
 fix32_t map_get_right(void)
 {
 	return map->right;

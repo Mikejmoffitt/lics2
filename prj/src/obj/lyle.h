@@ -37,9 +37,10 @@ typedef struct O_Lyle
 	int8_t grounded;
 
 	int8_t ext_disable;
-	int8_t cubejump_disable;
+	int8_t cube_jump_disable_cnt;
 
 	int8_t cp;
+	int8_t scroll_disable;
 } O_Lyle;
 
 void o_load_lyle(Obj *o, uint16_t data);
@@ -59,5 +60,8 @@ void lyle_set_pos(fix32_t x, fix32_t y);
 
 int16_t lyle_get_hp(void);
 int16_t lyle_get_cp(void);
+
+void lyle_set_scroll_en(int16_t en);
+void lyle_set_control_en(int16_t en);
 
 #endif  // OBJ_LYLE_H

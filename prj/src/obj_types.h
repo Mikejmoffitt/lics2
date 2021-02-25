@@ -53,10 +53,12 @@ typedef enum ObjType
 	OBJ_BGSCROLLY     = 46,
 	OBJ_FAKECUBE      = 47,
 
+	OBJ_TITLE         = 126,
+	OBJ_BOGOLOGO      = 127,
+
 	// Objects 128 and above are special objects added by the engine, rather
 	// than being found in map data. They are singletons, and are not
 	// instantiated from map data.
-
 	OBJ_LYLE = 128,
 	OBJ_CUBE_MANAGER = 129,
 	OBJ_MAP = 130,
@@ -66,9 +68,9 @@ typedef enum ObjType
 	OBJ_PROJECTILE_MANAGER = 134,
 	OBJ_EXPLODER = 135,
 	OBJ_POWERUP_MANAGER = 136,
-	OBJ_TITLE = 137,
 
 	OBJ_TEMPLATE = 255,
+	OBJ_INVALID = 256
 } ObjType;
 
 #endif  // OBJ_TYPES_H
