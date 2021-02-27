@@ -158,32 +158,33 @@ typedef struct BgDescriptor
 	GfxId gfx_id;
 	const uint8_t *palette;
 	const uint8_t *mapping;
+	uint16_t mapping_size;
 	BgScroll scroll;
 } BgDescriptor;
 
 static const BgDescriptor backgrounds[] =
 {
-	[0] = {GFX_NULL, res_pal_bg_bg0_bin, NULL, BG_SCROLL_NONE},
-	[1] = {GFX_BG_1, res_pal_bg_bg1_bin, res_bgmap_bg1_bin, BG_SCROLL_H_CELL},
-	[2] = {GFX_BG_2, res_pal_bg_bg2_bin, res_bgmap_bg2_bin, BG_SCROLL_PLANE},
-	[3] = {GFX_BG_3, res_pal_bg_bg3_bin, res_bgmap_bg3_bin, BG_SCROLL_V_CELL},
-	[4] = {GFX_BG_4, res_pal_bg_bg4_bin, res_bgmap_bg4_bin, BG_SCROLL_V_CELL},
-	[5] = {GFX_BG_5, res_pal_bg_bg5_bin, res_bgmap_bg5_bin, BG_SCROLL_PLANE},
-	[6] = {GFX_BG_6, res_pal_bg_bg1_bin, res_bgmap_bg6_bin, BG_SCROLL_H_CELL},  // Mapping modification of 1.
-	[7] = {GFX_BG_7, res_pal_bg_bg7_bin, res_bgmap_bg7_bin, BG_SCROLL_H_CELL},
-//	[8] = {GFX_BG_8, res_pal_bg_bg8_bin, res_bgmap_bg8_bin, BG_SCROLL_PLANE},
-	[9] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, BG_SCROLL_PLANE},
-	[10] = {GFX_BG_10, res_pal_bg_bg10_bin, res_bgmap_bg10_bin, BG_SCROLL_H_CELL},
-	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, BG_SCROLL_PLANE},
-	[12] = {GFX_BG_12, res_pal_bg_bg10_bin, res_bgmap_bg12_bin, BG_SCROLL_H_CELL},  // Mapping modification of 10.
-	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, BG_SCROLL_V_CELL},
-	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, BG_SCROLL_V_CELL},
-	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, BG_SCROLL_H_CELL},
-	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, BG_SCROLL_PLANE},
+	[0] = {GFX_NULL, res_pal_bg_bg0_bin, NULL, 0, BG_SCROLL_NONE},
+	[1] = {GFX_BG_1, res_pal_bg_bg1_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin), BG_SCROLL_H_CELL},
+	[2] = {GFX_BG_2, res_pal_bg_bg2_bin, res_bgmap_bg2_bin, sizeof(res_bgmap_bg2_bin), BG_SCROLL_PLANE},
+	[3] = {GFX_BG_3, res_pal_bg_bg3_bin, res_bgmap_bg3_bin, sizeof(res_bgmap_bg3_bin), BG_SCROLL_V_CELL},
+	[4] = {GFX_BG_4, res_pal_bg_bg4_bin, res_bgmap_bg4_bin, sizeof(res_bgmap_bg4_bin), BG_SCROLL_V_CELL},
+	[5] = {GFX_BG_5, res_pal_bg_bg5_bin, res_bgmap_bg5_bin, sizeof(res_bgmap_bg5_bin), BG_SCROLL_PLANE},
+	[6] = {GFX_BG_6, res_pal_bg_bg1_bin, res_bgmap_bg6_bin, sizeof(res_bgmap_bg6_bin), BG_SCROLL_H_CELL},  // Mapping modification of 1.
+	[7] = {GFX_BG_7, res_pal_bg_bg7_bin, res_bgmap_bg7_bin, sizeof(res_bgmap_bg7_bin), BG_SCROLL_H_CELL},
+//	[8] = {GFX_BG_8, res_pal_bg_bg8_bin, res_bgmap_bg8_bin, sizeof(res_bgmap_bg8_bin), BG_SCROLL_PLANE},
+	[9] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin), BG_SCROLL_PLANE},
+	[10] = {GFX_BG_10, res_pal_bg_bg10_bin, res_bgmap_bg10_bin, sizeof(res_bgmap_bg10_bin), BG_SCROLL_H_CELL},
+	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, sizeof(res_bgmap_bg11_bin), BG_SCROLL_PLANE},
+	[12] = {GFX_BG_12, res_pal_bg_bg10_bin, res_bgmap_bg12_bin, sizeof(res_bgmap_bg12_bin), BG_SCROLL_H_CELL},  // Mapping modification of 10.
+	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin), BG_SCROLL_V_CELL},
+	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin), BG_SCROLL_V_CELL},
+	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin), BG_SCROLL_H_CELL},
+	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin), BG_SCROLL_PLANE},
 
-	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, BG_SCROLL_PLANE},
-	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, BG_SCROLL_PLANE},
-	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, BG_SCROLL_PLANE},  // Mapping modification of 16.
+	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin), BG_SCROLL_PLANE},
+	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin), BG_SCROLL_PLANE},
+	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin), BG_SCROLL_PLANE},  // Mapping modification of 16.
 
 	[22] = {0}
 };
@@ -193,14 +194,29 @@ static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
 	(void)y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+	set_v_scroll_plane(y_scroll + 32);
 	set_h_scroll_plane(-x_scroll / 2);
 
-	for (uint16_t i = system_is_ntsc() ? 20 : 21; i < 25; i++)
+	for (uint16_t i = 20; i < 27; i++)
 	{
 		h_scroll_buffer[i] = close_x;
 	}
 }
+
+static void bg_city_red_func(int16_t x_scroll, int16_t y_scroll)
+{
+	(void)y_scroll;
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
+	set_v_scroll_plane(y_scroll);
+	set_h_scroll_plane(-x_scroll / 2);
+
+	for (uint16_t i = system_is_ntsc() ? 20 : 21; i < 27; i++)
+	{
+		h_scroll_buffer[i] = close_x;
+	}
+}
+
 
 static void bg_plane_func(int16_t x_scroll, int16_t y_scroll)
 {
@@ -611,7 +627,7 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[3] = bg_blue_bumps_func,
 	[4] = bg_bubbles_func,
 	[5] = bg_plane_func,
-	[6] = bg_city_func,
+	[6] = bg_city_red_func,
 	[7] = bg_orange_balls_func,
 	[9] = bg_undersand_columns_func,
 	[10] = bg_crazy_city_func,
@@ -674,14 +690,43 @@ void o_load_bg(Obj *o, uint16_t data)
 	           sizeof(res_pal_bg_common_bin) / 2);
 	// Load graphics tiles.
 
-	if (b->palette) pal_upload(BG_CRAM_POSITION, b->palette, 8);
-	else pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
+	if (b->palette)
+	{
+		pal_upload(BG_CRAM_POSITION, b->palette, 8);
+	}
+	else
+	{
+		pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
+	}
 
-	if (b->gfx_id != GFX_NULL) gfx_load(gfx_get(b->gfx_id), BG_TILE_VRAM_POSITION);
-	else dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, 64 * 32 * 2, 1);
+	const uint16_t bg_plane_size = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
 
-	if (b->mapping) dma_q_transfer_vram(vdp_get_plane_base(VDP_PLANE_B), b->mapping, 64 * 32, 2);
-	else dma_q_fill_vram(vdp_get_plane_base(VDP_PLANE_B), 0, 64 * 32, 1);
+	if (b->gfx_id != GFX_NULL)
+	{
+		gfx_load(gfx_get(b->gfx_id), BG_TILE_VRAM_POSITION);
+	}
+	else
+	{
+		dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, bg_plane_size * 2, 1);
+	}
+
+
+	if (b->mapping)
+	{
+		uint16_t vram_pos = vdp_get_plane_base(VDP_PLANE_B);
+		// TODO: MD framework util function to get plane byte size.
+		uint16_t remaining_words = 8192 / 2;
+		while (remaining_words > 0)
+		{
+			dma_q_transfer_vram(vram_pos, b->mapping, b->mapping_size / 2, 2);
+			vram_pos += b->mapping_size;
+			remaining_words -= b->mapping_size / 2;
+		}
+	}
+	else
+	{
+		dma_q_fill_vram(vdp_get_plane_base(VDP_PLANE_B), 0, bg_plane_size, 1);
+	}
 
 	// Set scroll.
 	f->scroll_mode = b->scroll;

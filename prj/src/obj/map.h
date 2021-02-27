@@ -30,6 +30,7 @@ typedef struct O_Map
 {
 	Obj head;
 	const MapFile *current_map;
+	uint32_t current_map_size;
 	MapExitTrigger exit_trigger;
 
 	int16_t fresh_room;

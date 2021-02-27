@@ -11,7 +11,7 @@
 
 // Constants for the background planes.
 #define GAME_PLANE_W_CELLS 64
-#define GAME_PLANE_H_CELLS 32
+#define GAME_PLANE_H_CELLS 64
 #define GAME_PLANE_W_PIXELS (GAME_PLANE_W_CELLS * 8)
 #define GAME_PLANE_H_PIXELS (GAME_PLANE_H_CELLS * 8)
 

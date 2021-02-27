@@ -16,9 +16,9 @@ const uint16_t *g_map_data;  // Cast from map->current_map->map_data
 uint16_t g_map_row_size;  // Set to 40 * map->current_map->w
 
 static O_Map *map;
-static uint16_t horizontal_dma_buffer[48];
-static int16_t h_scroll_buffer[GAME_SCREEN_H_CELLS];
-static int16_t v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
+static uint16_t s_horizontal_dma_buffer[64];
+static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
+static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
 
 #define TILESET_ASSETS(name) { res_gfx_fg_##name##_bin,\
                                sizeof(res_gfx_fg_##name##_bin),\
@@ -191,6 +191,8 @@ static inline void draw_vertical(O_Map *m)
 			dma_dest[1] -= v_seam_vram_offset;
 		}
 	}
+	while (dma_src[0] >= map->current_map + map->current_map_size) dma_src[0] -= map->current_map_size;
+	while (dma_src[1] >= map->current_map + map->current_map_size) dma_src[1] -= map->current_map_size;
 
 	dma_q_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) dma_q_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
@@ -238,7 +240,7 @@ static inline void draw_horizontal(O_Map *m)
 	}
 
 	// Set up between 1 and 2 DMAs; since the DMA controller does not have a
-	// source stride register, horizontal_dma_buffer is used to construct
+	// source stride register, s_horizontal_dma_buffer is used to construct
 	// a copy of the data to transfer.
 	uint16_t map_dma_h_dest[2] = {0};
 	uint16_t map_dma_h_len[2] = {0};
@@ -247,9 +249,12 @@ static inline void draw_horizontal(O_Map *m)
 	map_dma_h_dest[0] = dma_dest;
 	map_dma_h_len[0] = 0;
 
-	for (uint16_t i = 0; i < (system_is_ntsc() ? 29 : 31); i++)
+	const uint16_t row_count = system_is_ntsc() ? 29 : 31;
+
+	for (uint16_t i = 0; i < row_count; i++)
 	{
-		horizontal_dma_buffer[i] = *dma_src;
+		while (dma_src >= map->current_map + map->current_map_size) dma_src -= map->current_map_size;
+		s_horizontal_dma_buffer[i] = *dma_src;
 		dma_src += g_map_row_size;
 		map_dma_h_len[current_dma]++;
 		dma_dest += GAME_PLANE_W_CELLS * 2;
@@ -265,13 +270,14 @@ static inline void draw_horizontal(O_Map *m)
 
 	// DMA 0 starts from the beginning of the horizontal DMA buffer. DMA 1, if
 	// the legnth is nonzero, starts from the end of DMA 0.
-	dma_q_transfer_vram(map_dma_h_dest[0], horizontal_dma_buffer,
-	                    map_dma_h_len[0], GAME_PLANE_H_CELLS * 4);
+	const int16_t stride = GAME_PLANE_W_CELLS * 2;
+	dma_q_transfer_vram(map_dma_h_dest[0], s_horizontal_dma_buffer,
+	                    map_dma_h_len[0], stride);
 	if (map_dma_h_len[1] > 0)
 	{
 		dma_q_transfer_vram(map_dma_h_dest[1],
-		                    &horizontal_dma_buffer[map_dma_h_len[0]],
-		                    map_dma_h_len[1], GAME_PLANE_H_CELLS * 4);
+		                    &s_horizontal_dma_buffer[map_dma_h_len[0]],
+		                    map_dma_h_len[1], stride);
 	}
 }
 
@@ -315,42 +321,43 @@ static inline void draw_full(O_Map *m)
 		dma_len[0] = GAME_SCREEN_W_CELLS + 1;
 	}
 
+	const uint16_t v_seam_vram_address = vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset;
+
 	for (uint16_t y = 0; y < GAME_PLANE_H_CELLS; y++)
 	{
-		// DMA 0
-		dma_q_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
-		dma_src[0] += g_map_row_size;
-		dma_dest[0] += GAME_PLANE_W_CELLS * 2;
-		if (dma_dest[0] >= vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset) dma_dest[0] -= v_seam_vram_offset;
-
-		// DMA 1
-		if (dma_len[1] == 0) continue;
-		dma_q_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
-		dma_src[1] += g_map_row_size;
-		dma_dest[1] += GAME_PLANE_W_CELLS * 2;
-		if (dma_dest[1] >= vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset) dma_dest[1] -= v_seam_vram_offset;
+		for (uint16_t i = 0; i < ARRAYSIZE(dma_src); i++)
+		{
+			if (dma_len[i] == 0) continue;
+			if (dma_src[i] >= map->current_map + map->current_map_size)
+			{
+				dma_src[i] -= map->current_map_size;
+			}
+			dma_q_transfer_vram(dma_dest[i], dma_src[i], dma_len[i], 2);
+			dma_src[i] += g_map_row_size;
+			dma_dest[i] += GAME_PLANE_W_CELLS * 2;
+			if (dma_dest[i] >= v_seam_vram_address) dma_dest[i] -= v_seam_vram_offset;
+		}
 	}
 }
 
 static void main_func(Obj *o)
 {
-	system_profile(PALRGB(3, 3, 3));
 	O_Map *m = (O_Map *)o;
 
-	uint16_t i = ARRAYSIZE(h_scroll_buffer);
+	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
 	while (i--)
 	{
-		h_scroll_buffer[i] = -m->x_scroll;
+		s_h_scroll_buffer[i] = -m->x_scroll;
 	}
 
-	i = ARRAYSIZE(v_scroll_buffer);
+	i = ARRAYSIZE(s_v_scroll_buffer);
 	while (i--)
 	{
-		v_scroll_buffer[i] = m->y_scroll;
+		s_v_scroll_buffer[i] = m->y_scroll;
 	}
 
-	dma_q_transfer_vram(vdp_get_hscroll_base(), h_scroll_buffer, sizeof(h_scroll_buffer) / 2, 32);
-	dma_q_transfer_vsram(0, v_scroll_buffer, sizeof(v_scroll_buffer) / 2, 4);
+	dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+	dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 
 	// Update plane A.
 	if (m->fresh_room)
@@ -360,12 +367,9 @@ static void main_func(Obj *o)
 	}
 	else
 	{
-		system_profile(PALRGB(7, 3, 3));
 		draw_vertical(m);
-		system_profile(PALRGB(3, 7, 3));
 		draw_horizontal(m);
 	}
-	system_profile(PALRGB(0, 0, 0));
 
 	m->x_scroll_prev = m->x_scroll;
 	m->y_scroll_prev = m->y_scroll;
@@ -400,6 +404,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 {
 	SYSTEM_ASSERT(map != NULL);
 	map->current_map = map_by_id[id].data;
+	map->current_map_size = map_by_id[id].size;
 	g_map_data = map->current_map->map_data;
 	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;
 	map->right = INTTOFIX32(map->current_map->w * GAME_SCREEN_W_PIXELS);

@@ -9,6 +9,9 @@ static uint16_t rand_value;
 int system_init(void)
 {
 	megadrive_init();
+	vdp_set_plane_size(VDP_PLANESIZE_64x64);
+	vdp_set_sprite_base(0xBC00);
+	vdp_set_hscroll_base(0xB800);
 	is_ntsc_cache = (vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
 	vdp_set_raster_height(is_ntsc_cache ? 224 : 240);
 
