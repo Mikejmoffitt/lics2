@@ -11,10 +11,10 @@
 
 static uint16_t vram_pos;
 
-static const uint16_t kpalette_red[] =
-{
-	
-};
+static int16_t kanim_speed;
+static int16_t kappear_frame;
+static int16_t ksolid_frame;
+static int16_t kflicker_speed;
 
 static void vram_load(void)
 {
@@ -30,7 +30,11 @@ static inline void set_constants(void)
 {
 	static int16_t constants_set;
 	if (constants_set) return;
-	// Set constants here.
+
+	kanim_speed = PALSCALE_DURATION(9);
+	kappear_frame = PALSCALE_DURATION(36.0);
+	ksolid_frame = PALSCALE_DURATION(108.0);
+	kflicker_speed = PALSCALE_DURATION(4);
 
 	constants_set = 1;
 }
@@ -72,7 +76,19 @@ static void main_func(Obj *o)
 		return;
 	}
 
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_bogologo_bin, sizeof(res_pal_bogologo_bin) / 4);
+	e->appear_cnt++;
+	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
+	OBJ_SIMPLE_ANIM(e->flicker_cnt, e->flicker_frame, 2, kflicker_speed);
+
+	if (e->appear_cnt < kappear_frame ||
+	    e->appear_cnt < ksolid_frame && e->flicker_frame == 0)
+	{
+		return;
+	}
+
+	pal_upload(ENEMY_CRAM_POSITION,
+	           res_pal_bogologo_bin + (e->anim_frame ? 32 : 0),
+	           sizeof(res_pal_bogologo_bin) / 4);
 	render(e);
 }
 

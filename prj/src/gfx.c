@@ -11,7 +11,6 @@ static const Gfx gfx[] =
 	[GFX_CUBES] = GFX(obj_129_cubes),
 	[GFX_TEMPLATE] = GFX(obj_255_template),
 
-	[GFX_ENTRANCE] = GFX(obj_1_entrance),
 	[GFX_METAGRUB] = GFX(obj_3_metagrub),
 	[GFX_FLIP] = GFX(obj_4_flip),
 	[GFX_BOINGO] = GFX(obj_5_boingo),
@@ -47,6 +46,8 @@ static const Gfx gfx[] =
 	[GFX_EX_HUD] = GFX(ex_hud),
 	[GFX_EX_POWERUPS] = GFX(ex_powerups),
 	[GFX_EX_CREDITS] = GFX(ex_credits),
+	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
+	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

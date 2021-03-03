@@ -9,6 +9,8 @@ typedef struct O_Bogologo
 	int16_t appear_cnt;
 	int16_t anim_frame;
 	int16_t anim_cnt;
+	int16_t flicker_frame;
+	int16_t flicker_cnt;
 } O_Bogologo;
 
 void o_load_bogologo(Obj *o, uint16_t data);

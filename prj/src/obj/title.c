@@ -12,13 +12,19 @@
 #include "game.h"
 #include "music.h"
 
+static fix32_t kscroll_max;
 static fix16_t kscroll_gravity;
 static int16_t kscroll_delay_max;
 static fix16_t kbounce_dead_dy;
 static int16_t kappearance_delay_max;
 
+static int16_t kcloakdude_seq;
+
 static uint16_t vram_pos;
 static uint16_t vram_credits_pos;
+static uint16_t vram_keddums_pos;
+static uint16_t vram_cloakdude_pos;
+
 
 static void vram_load(void)
 {
@@ -28,6 +34,10 @@ static void vram_load(void)
 	vram_pos = gfx_load(g_title, obj_vram_alloc(g_title->size));
 	const Gfx *g_credits = gfx_get(GFX_EX_CREDITS);
 	vram_credits_pos = gfx_load(g_credits, obj_vram_alloc(g_credits->size));
+	const Gfx *g_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
+	vram_keddums_pos = gfx_load(g_keddums, obj_vram_alloc(g_keddums->size));
+	const Gfx *g_cloakdude = gfx_get(GFX_EX_CLOAKDUDE);
+	vram_cloakdude_pos = gfx_load(g_cloakdude, obj_vram_alloc(g_cloakdude->size));
 }
 
 // Store static constants here.
@@ -42,6 +52,8 @@ static inline void set_constants(void)
 	kscroll_delay_max = PALSCALE_DURATION(125);
 	kbounce_dead_dy = INTTOFIX16(PALSCALE_1ST(1.66666667));
 	kappearance_delay_max = PALSCALE_DURATION(791.6666666667);
+
+	kscroll_max = INTTOFIX32(360 + 224) + (system_is_ntsc() ? INTTOFIX32(32.0) : INTTOFIX32(16.0));
 
 	constants_set = 1;
 }
@@ -166,6 +178,7 @@ static void main_func(Obj *o)
 	if (!o->offscreen && !e->initialized)
 	{
 		e->initialized = 1;
+		e->v_scroll_y = INTTOFIX32(360);
 		lyle_set_scroll_en(0);
 		lyle_set_control_en(0);
 		set_scroll(e);
@@ -193,7 +206,6 @@ static void main_func(Obj *o)
 	}
 	else if (!e->v_scroll_complete)
 	{
-		static const fix32_t kscroll_max = INTTOFIX32(360 + 224) + (system_is_ntsc ? INTTOFIX32(32.0) : 0);;
 		e->v_scroll_dy += kscroll_gravity;
 		e->v_scroll_y += (fix32_t)e->v_scroll_dy;
 

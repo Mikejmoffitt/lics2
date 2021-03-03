@@ -16,6 +16,10 @@ typedef struct O_Title
 	fix16_t v_scroll_dy;
 	int16_t v_scroll_complete;
 
+	fix32_t cloakdude_x;
+	fix16_t cloakdude_dx;
+	int16_t cloakdude_cnt;
+
 	int16_t appearance_delay_cnt;
 } O_Title;
 
