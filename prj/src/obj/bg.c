@@ -194,7 +194,7 @@ static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
 	(void)y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(y_scroll + 32);
+	set_v_scroll_plane(y_scroll + 24);
 	set_h_scroll_plane(-x_scroll / 2);
 
 	for (uint16_t i = 20; i < 27; i++)
@@ -208,10 +208,10 @@ static void bg_city_red_func(int16_t x_scroll, int16_t y_scroll)
 	(void)y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(y_scroll);
+	set_v_scroll_plane(y_scroll - 8);
 	set_h_scroll_plane(-x_scroll / 2);
 
-	for (uint16_t i = system_is_ntsc() ? 20 : 21; i < 27; i++)
+	for (uint16_t i = 22; i < 27; i++)
 	{
 		h_scroll_buffer[i] = close_x;
 	}

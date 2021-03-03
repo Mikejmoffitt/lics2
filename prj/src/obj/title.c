@@ -12,6 +12,9 @@
 #include "game.h"
 #include "music.h"
 
+static const fix32_t kfloor_pos = INTTOFIX32(688);
+static const fix32_t kinitial_scroll = INTTOFIX32(360);
+
 static fix32_t kscroll_max;
 static fix16_t kscroll_gravity;
 static int16_t kscroll_delay_max;
@@ -53,7 +56,7 @@ static inline void set_constants(void)
 	kbounce_dead_dy = INTTOFIX16(PALSCALE_1ST(1.66666667));
 	kappearance_delay_max = PALSCALE_DURATION(791.6666666667);
 
-	kscroll_max = INTTOFIX32(360 + 224) + (system_is_ntsc() ? INTTOFIX32(32.0) : INTTOFIX32(16.0));
+	kscroll_max = kfloor_pos - INTTOFIX32(88) + (system_is_ntsc() ? INTTOFIX32(16.0) : 0);
 
 	constants_set = 1;
 }
@@ -178,9 +181,11 @@ static void main_func(Obj *o)
 	if (!o->offscreen && !e->initialized)
 	{
 		e->initialized = 1;
-		e->v_scroll_y = INTTOFIX32(360);
+		e->v_scroll_y = kinitial_scroll;
 		lyle_set_scroll_en(0);
 		lyle_set_control_en(0);
+		lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
+
 		set_scroll(e);
 		map_redraw_room();
 	}
@@ -189,14 +194,14 @@ static void main_func(Obj *o)
 	{
 		if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 		{
-			e->v_scroll_y = lyle_get_y();
+			e->v_scroll_y = kfloor_pos;
 			e->v_scroll_complete = 1;
 			e->v_scroll_delay_cnt = kscroll_delay_max;
 			e->appearance_delay_cnt = kappearance_delay_max - 2;
-			lyle_set_scroll_en(1);
-			map_redraw_room();
+			set_scroll(e);
 		}
 	}
+
 
 	if (e->v_scroll_delay_cnt < kscroll_delay_max)
 	{
@@ -218,9 +223,8 @@ static void main_func(Obj *o)
 			else if (e->v_scroll_dy > 0 && e->v_scroll_dy < kbounce_dead_dy)
 			{
 				// TODO: Also trigger this on button press.
-				e->v_scroll_y = lyle_get_y();
+				e->v_scroll_y = kfloor_pos;
 				e->v_scroll_complete = 1;
-				lyle_set_scroll_en(1);
 			}
 		}
 
@@ -244,6 +248,8 @@ static void main_func(Obj *o)
 			o->status = OBJ_STATUS_NULL;
 			pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_title_bin) / 2);
 			music_play(1);
+			lyle_set_scroll_en(1);
+			lyle_set_pos(lyle_get_x() + INTTOFIX32(16), lyle_get_y() + INTTOFIX32(8));
 			return;
 		}
 		render(e);
