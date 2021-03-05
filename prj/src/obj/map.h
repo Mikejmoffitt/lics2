@@ -96,7 +96,8 @@ static inline uint16_t map_collision(int16_t x, int16_t y)
 fix32_t map_get_right(void);
 fix32_t map_get_bottom(void);
 
-void map_set_scroll(int16_t x, int16_t y);
+int16_t map_set_x_scroll(int16_t x);
+int16_t map_set_y_scroll(int16_t y);
 
 int16_t map_get_x_scroll(void);
 int16_t map_get_y_scroll(void);

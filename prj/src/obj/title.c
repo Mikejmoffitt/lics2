@@ -168,7 +168,8 @@ static void set_scroll(O_Title *e)
 	int16_t py = FIX32TOINT(e->v_scroll_y);
 	px -= left_bound;
 	py -= top_bound;
-	map_set_scroll(px, py);
+	map_set_y_scroll(px);
+	map_set_y_scroll(py);
 }
 
 static void main_func(Obj *o)
@@ -182,7 +183,8 @@ static void main_func(Obj *o)
 	{
 		e->initialized = 1;
 		e->v_scroll_y = kinitial_scroll;
-		lyle_set_scroll_en(0);
+		lyle_set_scroll_h_en(0);
+		lyle_set_scroll_v_en(0);
 		lyle_set_control_en(0);
 		lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
 
@@ -201,7 +203,6 @@ static void main_func(Obj *o)
 			set_scroll(e);
 		}
 	}
-
 
 	if (e->v_scroll_delay_cnt < kscroll_delay_max)
 	{
@@ -248,7 +249,7 @@ static void main_func(Obj *o)
 			o->status = OBJ_STATUS_NULL;
 			pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_title_bin) / 2);
 			music_play(1);
-			lyle_set_scroll_en(1);
+			lyle_set_scroll_h_en(1);
 			lyle_set_pos(lyle_get_x() + INTTOFIX32(16), lyle_get_y() + INTTOFIX32(8));
 			return;
 		}

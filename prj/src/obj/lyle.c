@@ -1026,13 +1026,20 @@ static inline void draw(O_Lyle *l)
 
 static inline void set_map_scroll(const O_Lyle *l)
 {
-	int16_t px = FIX32TOINT(l->head.x);
-	int16_t py = FIX32TOINT(l->head.y);
-	const int16_t left_bound = GAME_SCREEN_W_PIXELS / 2;
-	const int16_t top_bound = GAME_SCREEN_H_PIXELS / 2;
-	px -= left_bound;
-	py -= top_bound;
-	map_set_scroll(px, py);
+	if (!l->scroll_disable_h)
+	{
+		int16_t px = FIX32TOINT(l->head.x);
+		const int16_t left_bound = GAME_SCREEN_W_PIXELS / 2;
+		px -= left_bound;
+		map_set_x_scroll(px);
+	}
+	if (!l->scroll_disable_v)
+	{
+		int16_t py = FIX32TOINT(l->head.y);
+		const int16_t top_bound = GAME_SCREEN_H_PIXELS / 2;
+		py -= top_bound;
+		map_set_y_scroll(py);
+	}
 }
 
 static void main_func(Obj *o)
@@ -1068,7 +1075,7 @@ static void main_func(Obj *o)
 	calc_anim_frame(l);
 	system_profile(PALRGB(1, 1, 1));
 	counters(l);
-	if (!l->scroll_disable) set_map_scroll(l);
+	set_map_scroll(l);
 	system_profile(PALRGB(4, 4, 0));
 	draw(l);
 	system_profile(PALRGB(0, 0, 0));
@@ -1187,10 +1194,16 @@ void lyle_set_pos(fix32_t x, fix32_t y)
 	lyle->head.y = y;
 }
 
-void lyle_set_scroll_en(int16_t en)
+void lyle_set_scroll_h_en(int16_t en)
 {
 	if (!lyle) return;
-	lyle->scroll_disable = !en;
+	lyle->scroll_disable_h = !en;
+}
+
+void lyle_set_scroll_v_en(int16_t en)
+{
+	if (!lyle) return;
+	lyle->scroll_disable_v = !en;
 }
 
 void lyle_set_control_en(int16_t en)

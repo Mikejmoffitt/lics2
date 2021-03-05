@@ -27,8 +27,12 @@
 
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
+
 #include "obj/fissins1.h"
 
+#include "obj/lavaanim.h"
+
+#include "obj/scrlock.h"
 #include "obj/title.h"
 #include "obj/bogologo.h"
 
@@ -129,6 +133,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 
+	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
+
+	[OBJ_SCRLOCK] = {o_load_scrlock, o_unload_scrlock},
 	[OBJ_BOGOLOGO] = {o_load_bogologo, o_unload_bogologo},
 	[OBJ_TITLE] = {o_load_title, o_unload_title},
 

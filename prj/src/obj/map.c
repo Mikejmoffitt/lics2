@@ -427,8 +427,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	// Set scroll mode based on room geometry.
 	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
 	else vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
-	if (map->current_map->h <= 1) vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
-	else vdp_set_hscroll_mode(VDP_HSCROLL_PLANE);
+	vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
 
 	// Build the object list.
 	uint16_t found_entrance = 0;
@@ -466,17 +465,21 @@ fix32_t map_get_bottom(void)
 	return map->bottom;
 }
 
-void map_set_scroll(int16_t x, int16_t y)
+int16_t map_set_x_scroll(int16_t x)
 {
 	if (map->current_map->w <= 1) x = 0;
-	if (map->current_map->h <= 1) y = system_is_ntsc() ? 8 : 0;
 	if (x < 0) x = 0;
-	if (y < 0) y = 0;
 	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
-	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
 	if (x >= right_bound) x = right_bound;
-	if (y >= bottom_bound) y = bottom_bound;
 	map->x_scroll = x;
+}
+
+int16_t map_set_y_scroll(int16_t y)
+{
+	if (map->current_map->h <= 1) y = system_is_ntsc() ? 8 : 0;
+	if (y < 0) y = 0;
+	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
+	if (y >= bottom_bound) y = bottom_bound;
 	map->y_scroll = y;
 }
 

@@ -3,18 +3,9 @@
 
 #include "obj.h"
 
-typedef enum BgScroll
-{
-	BG_SCROLL_NONE,
-	BG_SCROLL_PLANE,
-	BG_SCROLL_H_CELL,
-	BG_SCROLL_V_CELL,
-} BgScroll;
-
 typedef struct O_Bg
 {
 	Obj head;
-	BgScroll scroll_mode;
 	uint8_t bg_id;
 } O_Bg;
 

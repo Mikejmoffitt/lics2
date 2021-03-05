@@ -53,6 +53,7 @@ typedef enum ObjType
 	OBJ_BGSCROLLY     = 46,
 	OBJ_FAKECUBE      = 47,
 
+	OBJ_SCRLOCK       = 125,
 	OBJ_TITLE         = 126,
 	OBJ_BOGOLOGO      = 127,
 
