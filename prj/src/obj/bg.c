@@ -703,7 +703,6 @@ void o_load_bg(Obj *o, uint16_t data)
 		pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
 	}
 
-	const uint16_t bg_plane_size = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
 
 	if (b->gfx_id != GFX_NULL)
 	{
@@ -711,13 +710,15 @@ void o_load_bg(Obj *o, uint16_t data)
 	}
 	else
 	{
-		dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, bg_plane_size * 2, 1);
+		dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, BG_TILE_VRAM_LENGTH, 1);
 	}
 
+	const uint16_t bg_plane_size = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
 
 	if (b->mapping)
 	{
 		uint16_t vram_pos = vdp_get_plane_base(VDP_PLANE_B);
+		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_size);
 		// TODO: MD framework util function to get plane byte size.
 		uint16_t remaining_words = 8192 / 2;
 		while (remaining_words > 0)
