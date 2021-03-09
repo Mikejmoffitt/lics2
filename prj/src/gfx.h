@@ -113,6 +113,8 @@ typedef enum GfxId
 	GFX_BG_16_EX,
 	GFX_BG_19,
 	GFX_BG_22,
+	GFX_BG_23,
+	GFX_BG_23_EX,
 } GfxId;
 
 typedef struct Gfx

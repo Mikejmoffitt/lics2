@@ -180,13 +180,14 @@ static const BgDescriptor backgrounds[] =
 	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},
 	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin)},
 	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin)},
-
+//  [17]
+//  [18]
 	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin)},
 	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
 	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin)},  // Mapping modification of 16.
-
 	[22] = {GFX_BG_22, res_pal_bg_bg22_bin, res_bgmap_bg22_bin, sizeof(res_bgmap_bg22_bin)},
-	[23] = {0}
+	[23] = {GFX_BG_23, res_pal_bg_bg23_bin, res_bgmap_bg23_bin, sizeof(res_bgmap_bg23_bin)},
+	[24] = {0}
 };
 
 static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
@@ -639,6 +640,101 @@ static void bg_static_func(int16_t x_scroll, int16_t y_scroll)
 	set_h_scroll_plane(0);
 }
 
+static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
+{
+/*
+
+00	em
+01	em
+02	em
+03	em
+04	em
+05	em
+06	8f 0x3130  plane 1/3
+07	7f 0x312A  plane 1/3
+08	6f 0x3124  plane 1/3
+09	5f 0x311E  plane 1/3
+10	4f 0x3118  plane 1/3, dma 1/2
+11	3f 0x3112  plane 1/3, dma 1/2
+12	9f 0x3136  plane 1/2, +8 fixed
+13	2f 0x310C  plane 1/2, dma 1/1.5
+14	0  0x2100  plane 1/1.5, dma 1/1.2
+15	1  0x2106  plane 1/1.5, dma 1/1.2
+16	2  0x210C  plane 1/2, dma 1/1.5
+17	9  0x2136  plane 1/2, +8 fixed
+18	3  0x2112  plane 1/3, dma 1/2
+19	4  0x2118  plane 1/3, dma 1/2
+20	5  0x211E  plane 1/3
+21	6  0x2124  plane 1/3
+22	7  0x212A  plane 1/3
+23	8  0x3130  plane 1/3
+24	em
+25	em
+26	em
+27	em
+28	em
+29	em
+
+30	em
+31	em
+
+
+
+*/
+
+	(void)y_scroll;
+	set_v_scroll_plane((system_is_ntsc() ? 8 : 0) + 8);
+
+	static const int16_t modulo = 48;
+
+	const fix32_t x_fixed = INTTOFIX32(x_scroll);
+	const int16_t x_1_3_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(1.0 - 0.333333)));
+	const int16_t x_1_3 = -(modulo - 1) - (x_1_3_raw % modulo);
+	const int16_t x_1_2 = -(modulo - 1) - ((x_scroll / 2) % modulo);
+	const int16_t x_1_1_5 = -(modulo - 1) - ((x_1_3_raw / 2) % modulo);
+	const int16_t x_1_1_2_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(1.0 - 0.8928571428)));
+	const int16_t x_1_1_2 = -(modulo - 1) - (x_1_1_2_raw % modulo);
+
+	int16_t *buffer = (system_is_ntsc() ? &h_scroll_buffer[-2] : &h_scroll_buffer[-1]);
+
+	buffer[6] = x_1_3;
+	buffer[7] = x_1_3;
+	buffer[8] = x_1_3;
+	buffer[9] = x_1_3;
+	buffer[10] = x_1_3;
+	buffer[11] = x_1_3;
+	buffer[12] = x_1_2 + 8;
+	buffer[13] = x_1_2;
+	buffer[14] = x_1_1_5;
+	buffer[15] = x_1_1_5;
+	buffer[16] = x_1_2;
+	buffer[17] = x_1_2 + 8;
+	buffer[18] = x_1_3;
+	buffer[19] = x_1_3;
+	buffer[20] = x_1_3;
+	buffer[21] = x_1_3;
+	buffer[22] = x_1_3;
+	buffer[23] = x_1_3;
+
+	const int16_t dma1_index = (modulo + x_1_3 - x_1_2) % modulo;
+	const Gfx *g1 = gfx_get(GFX_BG_23_EX);
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 6 * 32),
+	                    g1->data + (6 * 3 * 32) + (dma1_index * (32 * 6 * 5)),
+	                    (32 * 6 * 2) / 2, 2);
+
+	const int16_t dma2_index = (modulo + x_1_2 - x_1_1_5) % modulo;
+	const Gfx *g2 = gfx_get(GFX_BG_23_EX);
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (2 * 6 * 32),
+	                    g2->data + (6 * 2 * 32) + (dma2_index * (32 * 6 * 5)),
+	                    (32 * 6 * 1) / 2, 2);
+
+	const int16_t dma3_index = (modulo + x_1_1_5 - x_1_1_2) % modulo;
+	const Gfx *g3 = gfx_get(GFX_BG_23_EX);
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION,
+	                    g3->data + (dma3_index * (32 * 6 * 5)),
+	                    (32 * 6 * 2) / 2, 2);
+}
+
 static void (*bg_funcs[])(int16_t, int16_t) =
 {
 	[0] = NULL,
@@ -662,6 +758,7 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[20] = bg_columns_2_func,
 	[21] = bg_brown_grass_func,
 	[22] = bg_static_func,
+	[23] = bg_guantlet_func,
 };
 
 static void main_func(Obj *o)
