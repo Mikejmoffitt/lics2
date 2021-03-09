@@ -683,7 +683,7 @@ static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
 */
 
 	(void)y_scroll;
-	set_v_scroll_plane((system_is_ntsc() ? 8 : 0) + 8);
+	set_v_scroll_plane((system_is_ntsc() ? 8 : 0));
 
 	static const int16_t modulo = 48;
 
@@ -695,7 +695,7 @@ static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
 	const int16_t x_1_1_2_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(1.0 - 0.8928571428)));
 	const int16_t x_1_1_2 = -(modulo - 1) - (x_1_1_2_raw % modulo);
 
-	int16_t *buffer = (system_is_ntsc() ? &h_scroll_buffer[-2] : &h_scroll_buffer[-1]);
+	int16_t *buffer = (system_is_ntsc() ? &h_scroll_buffer[-1] : &h_scroll_buffer[-0]);
 
 	buffer[6] = x_1_3;
 	buffer[7] = x_1_3;
