@@ -93,6 +93,8 @@ void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
 
+void obj_vram_set_base(uint16_t addr);
+
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes);
 

@@ -1035,9 +1035,18 @@ static inline void set_map_scroll(const O_Lyle *l)
 	}
 	if (!l->scroll_disable_v)
 	{
-		int16_t py = FIX32TOINT(l->head.y);
-		const int16_t top_bound = GAME_SCREEN_H_PIXELS / 2;
-		py -= top_bound;
+		int16_t py;
+		if (map_get_bottom() <= INTTOFIX32(240))
+		{
+			py = (system_is_ntsc() ? 8 : 0);
+		}
+		else
+		{
+			py = FIX32TOINT(l->head.y);
+			const int16_t top_bound = GAME_SCREEN_H_PIXELS / 2;
+			py -= top_bound;
+		}
+
 		map_set_y_scroll(py);
 	}
 }

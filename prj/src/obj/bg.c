@@ -11,7 +11,7 @@
 #include "game.h"
 #include "res.h"
 
-static uint16_t loaded;
+static uint16_t s_loaded;
 
 static int16_t h_scroll_buffer[GAME_SCREEN_H_CELLS];
 static int16_t v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
@@ -173,19 +173,20 @@ static const BgDescriptor backgrounds[] =
 	[7] = {GFX_BG_7, res_pal_bg_bg7_bin, res_bgmap_bg7_bin, sizeof(res_bgmap_bg7_bin)},
 //	[8] = {GFX_BG_8, res_pal_bg_bg8_bin, res_bgmap_bg8_bin, sizeof(res_bgmap_bg8_bin)},
 	[9] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
-	[10] = {GFX_BG_10, res_pal_bg_bg10_bin, res_bgmap_bg10_bin, sizeof(res_bgmap_bg10_bin), },
-	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, sizeof(res_bgmap_bg11_bin), },
-	[12] = {GFX_BG_12, res_pal_bg_bg10_bin, res_bgmap_bg12_bin, sizeof(res_bgmap_bg12_bin), },  // Mapping modification of 10.
-	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin), },
-	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin), },
-	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin), },
-	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin), },
+	[10] = {GFX_BG_10, res_pal_bg_bg10_bin, res_bgmap_bg10_bin, sizeof(res_bgmap_bg10_bin)},
+	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, sizeof(res_bgmap_bg11_bin)},
+	[12] = {GFX_BG_12, res_pal_bg_bg10_bin, res_bgmap_bg12_bin, sizeof(res_bgmap_bg12_bin)},  // Mapping modification of 10.
+	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},
+	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},
+	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin)},
+	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin)},
 
-	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin), },
-	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin),    },
-	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin), },  // Mapping modification of 16.
+	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin)},
+	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
+	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin)},  // Mapping modification of 16.
 
-	[22] = {0}
+	[22] = {GFX_BG_22, res_pal_bg_bg22_bin, res_bgmap_bg22_bin, sizeof(res_bgmap_bg22_bin)},
+	[23] = {0}
 };
 
 static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
@@ -277,10 +278,18 @@ static void bg_bubbles_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_orange_balls_func(int16_t x_scroll, int16_t y_scroll)
 {
-	for (uint16_t i = 0; i < 7; i++)
-	{
+	const Gfx *g = gfx_get(GFX_BG_7_EX);
+	(void)y_scroll;
 
-	}
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t x_secondaru_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
+	const int16_t x_front_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667))) % 48;
+	const int16_t x_counter_index = 47 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 48);
+
+	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+	set_h_scroll_plane(x_front_scroll);
+
+	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, g->data + (6 * 6 * 32 * x_counter_index), (6 * 6 * 32) / 2, 2);
 }
 
 typedef struct LineInstruction
@@ -618,9 +627,16 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 	{
 		h_scroll_buffer[(system_is_ntsc() ? 13 : 14) + i] = x_squiggle_scroll;
 	}
-	const uint8_t *data_loc = (const uint8_t *)(g->data);
 
 	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);
+}
+
+static void bg_static_func(int16_t x_scroll, int16_t y_scroll)
+{
+	(void)x_scroll;
+	(void)y_scroll;
+	set_v_scroll_plane(0);
+	set_h_scroll_plane(0);
 }
 
 static void (*bg_funcs[])(int16_t, int16_t) =
@@ -645,6 +661,7 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[19] = bg_technozone_func,
 	[20] = bg_columns_2_func,
 	[21] = bg_brown_grass_func,
+	[22] = bg_static_func,
 };
 
 static void main_func(Obj *o)
@@ -671,8 +688,8 @@ void o_load_bg(Obj *o, uint16_t data)
 	(void)data;
 
 	// Only allow one BG object to be loaded.
-	SYSTEM_ASSERT(!loaded);
-	if (loaded)
+	SYSTEM_ASSERT(!s_loaded);
+	if (s_loaded)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
@@ -713,14 +730,14 @@ void o_load_bg(Obj *o, uint16_t data)
 		dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, BG_TILE_VRAM_LENGTH, 1);
 	}
 
-	const uint16_t bg_plane_size = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
+	const uint16_t bg_plane_words = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
 
 	if (b->mapping)
 	{
 		uint16_t vram_pos = vdp_get_plane_base(VDP_PLANE_B);
-		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_size);
+		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_words);
 		// TODO: MD framework util function to get plane byte size.
-		uint16_t remaining_words = 8192 / 2;
+		uint16_t remaining_words = bg_plane_words;
 		while (remaining_words > 0)
 		{
 			dma_q_transfer_vram(vram_pos, b->mapping, b->mapping_size / 2, 2);
@@ -730,7 +747,7 @@ void o_load_bg(Obj *o, uint16_t data)
 	}
 	else
 	{
-		dma_q_fill_vram(vdp_get_plane_base(VDP_PLANE_B), 0, bg_plane_size, 1);
+		dma_q_fill_vram(vdp_get_plane_base(VDP_PLANE_B), 0, bg_plane_words, 1);
 	}
 
 	// Set scroll.
@@ -739,10 +756,10 @@ void o_load_bg(Obj *o, uint16_t data)
 	dma_q_transfer_vsram(2, v_scroll_buffer, sizeof(v_scroll_buffer) / 2, 4);
 	dma_q_transfer_vram(vdp_get_hscroll_base() + 2, h_scroll_buffer, sizeof(h_scroll_buffer) / 2, 4);
 
-	loaded = 1;
+	s_loaded = 1;
 }
 
 void o_unload_bg(void)
 {
-	loaded = 0;
+	s_loaded = 0;
 }

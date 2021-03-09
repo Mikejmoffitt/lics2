@@ -32,6 +32,11 @@
 
 #include "obj/lavaanim.h"
 
+#include "obj/bgscroll.h"
+
+#include "obj/grasses.h"
+#include "obj/purpletree.h"
+#include "obj/wndwback.h"
 #include "obj/scrlock.h"
 #include "obj/title.h"
 #include "obj/bogologo.h"
@@ -135,13 +140,18 @@ static const SetupFuncs setup_funcs[] =
 
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
 
-	[OBJ_SCRLOCK] = {o_load_scrlock, o_unload_scrlock},
+	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
+
+	[OBJ_GRASSES] = {o_load_grasses, NULL},
+	[OBJ_PURPLETREE] = {o_load_purpletree, o_unload_purpletree},
+	[OBJ_WNDWBACK] = {o_load_wndwback, o_unload_wndwback},
+	[OBJ_SCRLOCK] = {o_load_scrlock, NULL},
 	[OBJ_BOGOLOGO] = {o_load_bogologo, o_unload_bogologo},
 	[OBJ_TITLE] = {o_load_title, o_unload_title},
 
 	[OBJ_LYLE] = {o_load_lyle, o_unload_lyle},
 	[OBJ_CUBE_MANAGER] = {o_load_cube_manager, o_unload_cube_manager},
-	[OBJ_MAP] = {o_load_map, o_unload_map},
+	[OBJ_MAP] = {o_load_map, NULL},
 	[OBJ_BG] = {o_load_bg, o_unload_bg},
 	[OBJ_HUD] = {o_load_hud, o_unload_hud},
 	[OBJ_PARTICLE_MANAGER] = {o_load_particle_manager, o_unload_particle_manager},

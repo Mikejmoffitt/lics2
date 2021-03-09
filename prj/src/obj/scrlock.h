@@ -9,6 +9,5 @@ typedef struct O_ScrLock
 } O_ScrLock;
 
 void o_load_scrlock(Obj *o, uint16_t data);
-void o_unload_scrlock(void);
 
 #endif  // OBJ_SCRLOCK_H

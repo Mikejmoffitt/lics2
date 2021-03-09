@@ -55,8 +55,6 @@ extern const uint16_t *g_map_data;
 extern uint16_t g_map_row_size;
 
 void o_load_map(Obj *o, uint16_t data);
-void o_unload_map(void);
-
 
 // Public singleton functions
 
@@ -96,8 +94,8 @@ static inline uint16_t map_collision(int16_t x, int16_t y)
 fix32_t map_get_right(void);
 fix32_t map_get_bottom(void);
 
-int16_t map_set_x_scroll(int16_t x);
-int16_t map_set_y_scroll(int16_t y);
+void map_set_x_scroll(int16_t x);
+void map_set_y_scroll(int16_t y);
 
 int16_t map_get_x_scroll(void);
 int16_t map_get_y_scroll(void);

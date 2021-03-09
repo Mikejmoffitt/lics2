@@ -4,10 +4,10 @@
 #include <stdint.h>
 
 // Palette data is assigned as follows:
-// +00 [       Map tile       ]
-// +16 [BG specific][BG common]
-// +32 [         Enemy        ]
-// +48 [         Lyle         ]
+// 00 [       Map tile       ]
+// 16 [BG specific][BG common]
+// 32 [         Enemy        ]
+// 48 [         Lyle         ]
 
 #define MAP_TILE_CRAM_POSITION 0
 #define BG_CRAM_POSITION 16
@@ -20,15 +20,23 @@
 #define ENEMY_PAL_LINE (ENEMY_CRAM_POSITION / 16)
 #define LYLE_PAL_LINE (LYLE_CRAM_POSITION / 16)
 
+// VRAM is assigned as follows:
+// $0000 | Map tile ( upper 128 tiles )
+// $1000 | Map tile ( lower 128 tiles )
+// $2000 | BG tile
+// $3000 | BG tile
+// $4000 | Obj
+// ----
+// $
+
 #define MAP_TILE_VRAM_POSITION 0x0000
 #define MAP_TILE_VRAM_LENGTH 0x2000
 
 #define BG_TILE_VRAM_POSITION (MAP_TILE_VRAM_POSITION + MAP_TILE_VRAM_LENGTH)
-#define BG_TILE_VRAM_LENGTH 0x1000
+#define BG_TILE_VRAM_LENGTH 0x1800
 
 #define OBJ_TILE_VRAM_POSITION (BG_TILE_VRAM_POSITION + BG_TILE_VRAM_LENGTH)
 #define OBJ_TILE_VRAM_LENGTH 0x4000
-
 
 
 typedef enum GfxId
@@ -70,6 +78,8 @@ typedef enum GfxId
 	GFX_FISSINS2,
 	GFX_LAVAANIM,
 
+	GFX_PURPLETREE,
+	GFX_WNDWBACK,
 	GFX_TITLE_SCR,
 	GFX_BOGOLOGO,
 
@@ -81,6 +91,7 @@ typedef enum GfxId
 	GFX_EX_CREDITS,
 	GFX_EX_KEDDUMS_INTRO,
 	GFX_EX_CLOAKDUDE,
+	GFX_EX_GRASSES,
 
 	GFX_BG_1,
 	GFX_BG_2,
@@ -89,6 +100,7 @@ typedef enum GfxId
 	GFX_BG_5,
 	GFX_BG_6,  // 6 is a mapping mod of 1.
 	GFX_BG_7,
+	GFX_BG_7_EX,
 	GFX_BG_8,
 	GFX_BG_9,
 	GFX_BG_10,
@@ -99,8 +111,8 @@ typedef enum GfxId
 	GFX_BG_15,
 	GFX_BG_16,
 	GFX_BG_16_EX,
-
 	GFX_BG_19,
+	GFX_BG_22,
 } GfxId;
 
 typedef struct Gfx

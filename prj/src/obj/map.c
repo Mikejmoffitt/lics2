@@ -50,6 +50,7 @@ static const TilesetAssets tileset_by_id[] =
 	[8] = TILESET_ASSETS(08_technozone),
 	[9] = TILESET_ASSETS(09_underpurple),
 	[10] = TILESET_ASSETS(10_purplebricks),
+	[11] = TILESET_ASSETS(11_purpletree),
 };
 
 // LUT for map data by ID
@@ -191,8 +192,8 @@ static inline void draw_vertical(O_Map *m)
 			dma_dest[1] -= v_seam_vram_offset;
 		}
 	}
-	while (dma_src[0] >= map->current_map + map->current_map_size) dma_src[0] -= map->current_map_size;
-	while (dma_src[1] >= map->current_map + map->current_map_size) dma_src[1] -= map->current_map_size;
+	while ((uint8_t *)dma_src[0] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[0] -= map->current_map_size;
+	while ((uint8_t *)dma_src[1] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[1] -= map->current_map_size;
 
 	dma_q_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) dma_q_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
@@ -253,7 +254,10 @@ static inline void draw_horizontal(O_Map *m)
 
 	for (uint16_t i = 0; i < row_count; i++)
 	{
-		while (dma_src >= map->current_map + map->current_map_size) dma_src -= map->current_map_size;
+		while ((uint8_t *)(dma_src) >= (uint8_t *)(map->current_map) + map->current_map_size)
+		{
+			dma_src -= map->current_map_size;
+		}
 		s_horizontal_dma_buffer[i] = *dma_src;
 		dma_src += g_map_row_size;
 		map_dma_h_len[current_dma]++;
@@ -328,7 +332,7 @@ static inline void draw_full(O_Map *m)
 		for (uint16_t i = 0; i < ARRAYSIZE(dma_src); i++)
 		{
 			if (dma_len[i] == 0) continue;
-			if (dma_src[i] >= map->current_map + map->current_map_size)
+			if ((uint8_t *)(dma_src[i]) >= (uint8_t *)(map->current_map) + map->current_map_size)
 			{
 				dma_src[i] -= map->current_map_size;
 			}
@@ -386,10 +390,6 @@ void o_load_map(Obj *o, uint16_t data)
 	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-}
-
-void o_unload_map(void)
-{
 }
 
 // Public functions -----------------------------------------------------------
@@ -465,21 +465,21 @@ fix32_t map_get_bottom(void)
 	return map->bottom;
 }
 
-int16_t map_set_x_scroll(int16_t x)
+void map_set_x_scroll(int16_t x)
 {
 	if (map->current_map->w <= 1) x = 0;
 	if (x < 0) x = 0;
 	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
-	if (x >= right_bound) x = right_bound;
+	if (x > right_bound) x = right_bound;
 	map->x_scroll = x;
 }
 
-int16_t map_set_y_scroll(int16_t y)
+void map_set_y_scroll(int16_t y)
 {
-	if (map->current_map->h <= 1) y = system_is_ntsc() ? 8 : 0;
-	if (y < 0) y = 0;
+	const int16_t top_bound = 0;
 	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
-	if (y >= bottom_bound) y = bottom_bound;
+	if (y < top_bound) y = top_bound;
+	if (y > bottom_bound) y = bottom_bound;
 	map->y_scroll = y;
 }
 

@@ -158,6 +158,8 @@ static void render(O_Title *e)
 	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
 	        SPR_ATTR(vram_credits_pos + 22, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
+
+	// TODO: Vyle (cloaked) and kitty
 }
 
 static void set_scroll(O_Title *e)
@@ -168,8 +170,168 @@ static void set_scroll(O_Title *e)
 	int16_t py = FIX32TOINT(e->v_scroll_y);
 	px -= left_bound;
 	py -= top_bound;
-	map_set_y_scroll(px);
+	map_set_x_scroll(px);
 	map_set_y_scroll(py);
+}
+
+static void draw_house_door(int16_t frame)
+{
+#define MAPADDR(x, y) (2 * (x + (y * GAME_PLANE_W_CELLS)))
+	static const uint16_t door_closed[] =
+	{
+		MAPADDR(34, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(35, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 19), VDP_ATTR(0x0E, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(35, 19), VDP_ATTR(0x1F, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 20), VDP_ATTR(0x1E, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(35, 20), VDP_ATTR(0x1F, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(35, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 1),
+	};
+	static const uint16_t door_half[] =
+	{
+		MAPADDR(34, 18), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 19), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 19), VDP_ATTR(0x0E, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 20), VDP_ATTR(0x1E, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 1),
+	};
+	static const uint16_t door_open[] =
+	{
+		MAPADDR(34, 18), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 18), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 19), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 19), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 21), VDP_ATTR(0x53, 0, 0, MAP_PAL_LINE, 0),
+	};
+	static const uint16_t door_closed_low[] =
+	{
+		MAPADDR(34, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 19), VDP_ATTR(0x0E, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 19), VDP_ATTR(0x1F, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 20), VDP_ATTR(0x1E, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 20), VDP_ATTR(0x1F, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 0),
+	};
+#undef MAPADDR
+
+	const uint16_t *src = NULL;
+	uint16_t size = 0;
+
+	switch (frame)
+	{
+		default:
+			return;
+		case 0:
+			src = door_closed;
+			size = ARRAYSIZE(door_closed);
+			break;
+		case 1:
+			src = door_half;
+			size = ARRAYSIZE(door_half);
+			break;
+		case 2:
+			src = door_open;
+			size = ARRAYSIZE(door_open);
+			break;
+		case 3:
+			src = door_closed_low;
+			size = ARRAYSIZE(door_closed_low);
+			break;
+	}
+
+	for (int16_t i = 0; i < size / 2; i++)
+	{
+		const uint16_t offset = src[i * 2];
+		const uint16_t data = src[1 + i * 2];
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_DATA = data;
+	}
+}
+
+static void draw_normal_house_tiles(void)
+{
+#define MAPADDR(x, y) (2 * (x + (y * GAME_PLANE_W_CELLS)))
+	static const uint16_t prio_tiles[] =
+	{
+		MAPADDR(30, 17), VDP_ATTR(0x1C, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(31, 17), VDP_ATTR(0x1D, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(32, 17), VDP_ATTR(0x02, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(33, 17), VDP_ATTR(0x13, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(30, 18), VDP_ATTR(0x20, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(31, 18), VDP_ATTR(0x21, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(32, 18), VDP_ATTR(0x08, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(33, 18), VDP_ATTR(0x09, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(30, 19), VDP_ATTR(0x30, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(31, 19), VDP_ATTR(0x31, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(32, 19), VDP_ATTR(0x18, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(33, 19), VDP_ATTR(0x19, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(30, 20), VDP_ATTR(0x2C, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(31, 20), VDP_ATTR(0x2D, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(32, 20), VDP_ATTR(0x28, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(33, 20), VDP_ATTR(0x29, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(30, 21), VDP_ATTR(0x3C, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(31, 21), VDP_ATTR(0x3D, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(32, 21), VDP_ATTR(0x38, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(33, 21), VDP_ATTR(0x39, 0, 0, MAP_PAL_LINE, 0),
+	};
+#undef MAPADDR
+
+	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
+	{
+		const uint16_t offset = prio_tiles[i * 2];
+		const uint16_t data = prio_tiles[1 + i * 2];
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_DATA = data;
+	}
+}
+
+static void draw_high_prio_house_tiles(void)
+{
+	// Draw high priority tiles for the part of the house that obscures Lyle.
+	// This includes a different tile for the window on the left, which is
+	// transparent.
+#define MAPADDR(x, y) (2 * (x + (y * GAME_PLANE_W_CELLS)))
+	static const uint16_t prio_tiles[] =
+	{
+		MAPADDR(30, 17), VDP_ATTR(0x1C, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(31, 17), VDP_ATTR(0x1D, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(32, 17), VDP_ATTR(0x02, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(33, 17), VDP_ATTR(0x13, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(30, 18), VDP_ATTR(0xC0, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(31, 18), VDP_ATTR(0xC1, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(32, 18), VDP_ATTR(0x08, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(33, 18), VDP_ATTR(0x09, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(30, 19), VDP_ATTR(0xD0, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(31, 19), VDP_ATTR(0xD1, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(32, 19), VDP_ATTR(0x18, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(33, 19), VDP_ATTR(0x19, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(30, 20), VDP_ATTR(0x2C, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(31, 20), VDP_ATTR(0x2D, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(32, 20), VDP_ATTR(0x28, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(33, 20), VDP_ATTR(0x29, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(30, 21), VDP_ATTR(0x3C, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(31, 21), VDP_ATTR(0x3D, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(32, 21), VDP_ATTR(0x38, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(33, 21), VDP_ATTR(0x39, 0, 0, MAP_PAL_LINE, 1),
+	};
+#undef MAPADDR
+
+	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
+	{
+		const uint16_t offset = prio_tiles[i * 2];
+		const uint16_t data = prio_tiles[1 + i * 2];
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_DATA = data;
+	}
 }
 
 static void main_func(Obj *o)
@@ -200,6 +362,8 @@ static void main_func(Obj *o)
 			e->v_scroll_complete = 1;
 			e->v_scroll_delay_cnt = kscroll_delay_max;
 			e->appearance_delay_cnt = kappearance_delay_max - 2;
+			draw_high_prio_house_tiles();
+			draw_house_door(0);
 			set_scroll(e);
 		}
 	}
@@ -212,6 +376,8 @@ static void main_func(Obj *o)
 	}
 	else if (!e->v_scroll_complete)
 	{
+		draw_high_prio_house_tiles();
+		draw_house_door(0);
 		e->v_scroll_dy += kscroll_gravity;
 		e->v_scroll_y += (fix32_t)e->v_scroll_dy;
 
@@ -246,11 +412,23 @@ static void main_func(Obj *o)
 		{
 			// TODO: proper logic to begin game with delay.
 			lyle_set_control_en(1);
-			o->status = OBJ_STATUS_NULL;
 			pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_title_bin) / 2);
 			music_play(1);
 			lyle_set_scroll_h_en(1);
 			lyle_set_pos(lyle_get_x() + INTTOFIX32(16), lyle_get_y() + INTTOFIX32(8));
+			draw_normal_house_tiles();
+			draw_house_door(3);
+			// Delete WNDWBACK objects too.
+			for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+			{
+				Obj *o = &g_objects[i].obj;
+				if (o->status == OBJ_STATUS_NULL) continue;
+				if (o->type == OBJ_WNDWBACK)
+				{
+					o->status = OBJ_STATUS_NULL;
+				}
+			}
+			o->status = OBJ_STATUS_NULL;
 			return;
 		}
 		render(e);

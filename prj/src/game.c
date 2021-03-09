@@ -86,7 +86,7 @@ static PersistentState s_persistent_state = {0};
 static void game_loop(void)
 {
 	ProgressSlot *prog = progress_get();
-	static int16_t s_room_elapsed = 0;
+	static int32_t s_room_elapsed = 0;
 	static int16_t s_room_loaded = 0;
 
 	system_profile(0);

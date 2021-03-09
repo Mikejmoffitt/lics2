@@ -37,6 +37,8 @@ static const Gfx gfx[] =
 	[GFX_FISSINS2] = GFX(obj_39_fissins2),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 
+	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
+	[GFX_WNDWBACK] = GFX(obj_124_wndwback),
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
 
@@ -48,6 +50,7 @@ static const Gfx gfx[] =
 	[GFX_EX_CREDITS] = GFX(ex_credits),
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
+	[GFX_EX_GRASSES] = GFX(ex_grasses),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),
@@ -56,6 +59,7 @@ static const Gfx gfx[] =
 	[GFX_BG_5] = GFX(bg_bg5),
 	[GFX_BG_6] = GFX(bg_bg1),
 	[GFX_BG_7] = GFX(bg_bg7),
+	[GFX_BG_7_EX] = GFX(bg_bg7_ex),
 	[GFX_BG_9] = GFX(bg_bg9),
 	[GFX_BG_10] = GFX(bg_bg10),
 	[GFX_BG_11] = GFX(bg_bg11),
@@ -65,8 +69,8 @@ static const Gfx gfx[] =
 	[GFX_BG_15] = GFX(bg_bg15),
 	[GFX_BG_16] = GFX(bg_bg16),
 	[GFX_BG_16_EX] = GFX(bg_bg16_ex),
-
 	[GFX_BG_19] = GFX(bg_bg19),
+	[GFX_BG_22] = GFX(bg_bg22),
 };
 
 int gfx_init(void)

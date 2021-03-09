@@ -36,7 +36,3 @@ void o_load_scrlock(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 }
-
-void o_unload_scrlock(void)
-{
-}

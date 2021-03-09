@@ -278,7 +278,6 @@ static inline void powerup_run(Powerup *p)
 static void main_func(Obj *o)
 {
 	system_profile(PALRGB(7, 0, 7));
-	O_PowerupManager *p = (O_PowerupManager *)o;
 
 	uint16_t i = ARRAYSIZE(powerups);
 	while (i--)
