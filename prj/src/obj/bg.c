@@ -181,7 +181,7 @@ static const BgDescriptor backgrounds[] =
 	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin)},
 	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin)},
 //  [17]
-//  [18]
+	[18] = {GFX_BG_18, res_pal_bg_bg18_bin, res_bgmap_bg18_bin, sizeof(res_bgmap_bg18_bin)},
 	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin)},
 	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
 	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin)},  // Mapping modification of 16.
@@ -741,6 +741,30 @@ static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
 	                    (32 * 6 * 2) / 2, 2);
 }
 
+static void bg_longsand_func(int16_t x_scroll, int16_t y_scroll)
+{
+	set_v_scroll_plane(y_scroll);
+	const fix32_t x_fixed = INTTOFIX32(x_scroll);
+	const int16_t x_1_1_3_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.23079)));
+	const int16_t x_1_1_3 = -x_1_1_3_raw;
+	const int16_t x_1_1_5_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.333333)));
+	const int16_t x_1_1_5 = -x_1_1_5_raw;
+	const int16_t x_1_2 = -(x_scroll / 2);
+
+	int16_t *buffer = &h_scroll_buffer[(-y_scroll / 8)];
+
+	buffer[12] = x_1_1_3;
+	buffer[13] = x_1_1_3;
+	buffer[14] = x_1_1_3;
+	buffer[15] = x_1_1_3;
+	buffer[16] = x_1_1_5;
+	buffer[17] = x_1_1_5;
+	buffer[18] = x_1_2;
+	buffer[19] = x_1_2;
+	buffer[20] = x_1_2;
+	buffer[21] = x_1_2;
+}
+
 static void (*bg_funcs[])(int16_t, int16_t) =
 {
 	[0] = NULL,
@@ -760,6 +784,7 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 
 	[16] = bg_brown_grass_func,
 
+	[18] = bg_longsand_func,
 	[19] = bg_technozone_func,
 	[20] = bg_columns_2_func,
 	[21] = bg_brown_grass_func,

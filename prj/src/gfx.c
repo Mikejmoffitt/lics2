@@ -51,6 +51,7 @@ static const Gfx gfx[] =
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
 	[GFX_EX_GRASSES] = GFX(ex_grasses),
+	[GFX_EX_COLUMNS] = GFX(ex_columns),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),
@@ -69,6 +70,7 @@ static const Gfx gfx[] =
 	[GFX_BG_15] = GFX(bg_bg15),
 	[GFX_BG_16] = GFX(bg_bg16),
 	[GFX_BG_16_EX] = GFX(bg_bg16_ex),
+	[GFX_BG_18] = GFX(bg_bg18),
 	[GFX_BG_19] = GFX(bg_bg19),
 	[GFX_BG_22] = GFX(bg_bg22),
 	[GFX_BG_23] = GFX(bg_bg23),

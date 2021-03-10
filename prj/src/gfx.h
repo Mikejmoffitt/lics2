@@ -92,6 +92,7 @@ typedef enum GfxId
 	GFX_EX_KEDDUMS_INTRO,
 	GFX_EX_CLOAKDUDE,
 	GFX_EX_GRASSES,
+	GFX_EX_COLUMNS,
 
 	GFX_BG_1,
 	GFX_BG_2,
@@ -111,6 +112,7 @@ typedef enum GfxId
 	GFX_BG_15,
 	GFX_BG_16,
 	GFX_BG_16_EX,
+	GFX_BG_18,
 	GFX_BG_19,
 	GFX_BG_22,
 	GFX_BG_23,

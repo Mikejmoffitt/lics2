@@ -34,6 +34,7 @@
 
 #include "obj/bgscroll.h"
 
+#include "obj/columns.h"
 #include "obj/grasses.h"
 #include "obj/purpletree.h"
 #include "obj/wndwback.h"
@@ -142,6 +143,7 @@ static const SetupFuncs setup_funcs[] =
 
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 
+	[OBJ_COLUMNS] = {o_load_columns, NULL},
 	[OBJ_GRASSES] = {o_load_grasses, NULL},
 	[OBJ_PURPLETREE] = {o_load_purpletree, o_unload_purpletree},
 	[OBJ_WNDWBACK] = {o_load_wndwback, o_unload_wndwback},
