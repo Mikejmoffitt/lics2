@@ -39,10 +39,6 @@ typedef struct O_Map
 	fix32_t right;
 	fix32_t bottom;
 
-	// Scroll position, derived from Lyle's position.
-	int16_t x_scroll;
-	int16_t y_scroll;
-
 	// Scroll from the previous frame. Used to detect changes and direction.
 	int16_t x_scroll_prev;
 	int16_t y_scroll_prev;
@@ -53,6 +49,20 @@ typedef struct O_Map
 
 extern const uint16_t *g_map_data;
 extern uint16_t g_map_row_size;
+
+// Scroll position is global to speed up access for objects.
+extern int16_t g_map_x_scroll;
+extern int16_t g_map_y_scroll;
+
+static inline int16_t map_get_x_scroll(void)
+{
+	return g_map_x_scroll;
+}
+
+static inline int16_t map_get_y_scroll(void)
+{
+	return g_map_y_scroll;
+}
 
 void o_load_map(Obj *o, uint16_t data);
 

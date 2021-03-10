@@ -15,6 +15,9 @@
 const uint16_t *g_map_data;  // Cast from map->current_map->map_data
 uint16_t g_map_row_size;  // Set to 40 * map->current_map->w
 
+int16_t g_map_x_scroll;
+int16_t g_map_y_scroll;
+
 static O_Map *map;
 static uint16_t s_horizontal_dma_buffer[64];
 static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
@@ -52,6 +55,8 @@ static const TilesetAssets tileset_by_id[] =
 	[10] = TILESET_ASSETS(10_purplebricks),
 	[11] = TILESET_ASSETS(11_purpletree),
 	[12] = TILESET_ASSETS(12_gauntlet),
+	[13] = TILESET_ASSETS(13_purplecity),
+	[14] = TILESET_ASSETS(14_sandy2),
 };
 
 // LUT for map data by ID
@@ -122,20 +127,20 @@ static const MapAssets map_by_id[] =
 
 static inline void draw_vertical(O_Map *m)
 {
-	if (m->y_scroll == m->y_scroll_prev) return;
-	const uint16_t bottom_side = (m->y_scroll > m->y_scroll_prev);
+	if (g_map_y_scroll == m->y_scroll_prev) return;
+	const uint16_t bottom_side = (g_map_y_scroll > m->y_scroll_prev);
 
 	// VRAM address at which the vertical seam occurs
 	const uint16_t v_seam_vram_offset = 2 * GAME_PLANE_H_CELLS *
 	                                    GAME_PLANE_W_CELLS;
 
 	// X and Y components of the source index
-	uint16_t map_src_x = m->x_scroll / 8;
-	uint16_t map_src_y = g_map_row_size * (m->y_scroll / 8);
+	uint16_t map_src_x = g_map_x_scroll / 8;
+	uint16_t map_src_y = g_map_row_size * (g_map_y_scroll / 8);
 
-	// What is the position of the tile shown at m->x_scroll, m->y_scroll?
-	const uint16_t x_scroll_tile = (m->x_scroll / 8) % GAME_PLANE_W_CELLS;
-	const uint16_t y_scroll_tile = (m->y_scroll / 8) % GAME_PLANE_H_CELLS;
+	// What is the position of the tile shown at g_map_x_scroll, g_map_y_scroll?
+	const uint16_t x_scroll_tile = (g_map_x_scroll / 8) % GAME_PLANE_W_CELLS;
+	const uint16_t y_scroll_tile = (g_map_y_scroll / 8) % GAME_PLANE_H_CELLS;
 
 	const uint16_t *dma_src[2] = {0};
 	uint16_t dma_dest[2] = {0};
@@ -203,10 +208,10 @@ static inline void draw_vertical(O_Map *m)
 
 static inline void draw_horizontal(O_Map *m)
 {
-	if (m->x_scroll == m->x_scroll_prev) return;
-	const uint16_t right_side = (m->x_scroll > m->x_scroll_prev);
-	const int16_t scroll_idx_x = m->x_scroll / 8;
-	const int16_t scroll_idx_y = m->y_scroll / 8;
+	if (g_map_x_scroll == m->x_scroll_prev) return;
+	const uint16_t right_side = (g_map_x_scroll > m->x_scroll_prev);
+	const int16_t scroll_idx_x = g_map_x_scroll / 8;
+	const int16_t scroll_idx_y = g_map_y_scroll / 8;
 
 	const uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_A);
 
@@ -218,9 +223,9 @@ static inline void draw_horizontal(O_Map *m)
 	const uint16_t map_src_x = right_side ?
 	                           GAME_SCREEN_W_CELLS + scroll_idx_x :
 	                           scroll_idx_x;
-	const uint16_t map_src_y = g_map_row_size * (m->y_scroll / 8);
+	const uint16_t map_src_y = g_map_row_size * (g_map_y_scroll / 8);
 
-	// What is the position of the tile shown at m->x_scroll, m->y_scroll?
+	// What is the position of the tile shown at g_map_x_scroll, g_map_y_scroll?
 	const uint16_t x_scroll_tile = (scroll_idx_x) % GAME_PLANE_W_CELLS;
 	const uint16_t y_scroll_tile = (scroll_idx_y) % GAME_PLANE_H_CELLS;
 
@@ -294,12 +299,12 @@ static inline void draw_full(O_Map *m)
 	                                    GAME_PLANE_W_CELLS;
 
 	// X and Y components of the source index
-	uint16_t map_src_x = m->x_scroll / 8;
-	uint16_t map_src_y = g_map_row_size * (m->y_scroll / 8);
+	uint16_t map_src_x = g_map_x_scroll / 8;
+	uint16_t map_src_y = g_map_row_size * (g_map_y_scroll / 8);
 
-	// What is the position of the tile shown at m->x_scroll, m->y_scroll?
-	const uint16_t x_scroll_tile = (m->x_scroll / 8) % GAME_PLANE_W_CELLS;
-	const uint16_t y_scroll_tile = (m->y_scroll / 8) % GAME_PLANE_H_CELLS;
+	// What is the position of the tile shown at g_map_x_scroll, g_map_y_scroll?
+	const uint16_t x_scroll_tile = (g_map_x_scroll / 8) % GAME_PLANE_W_CELLS;
+	const uint16_t y_scroll_tile = (g_map_y_scroll / 8) % GAME_PLANE_H_CELLS;
 
 	const uint16_t *dma_src[2] = {0};
 	uint16_t dma_dest[2] = {0};
@@ -353,13 +358,13 @@ static void main_func(Obj *o)
 	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
 	while (i--)
 	{
-		s_h_scroll_buffer[i] = -m->x_scroll;
+		s_h_scroll_buffer[i] = -g_map_x_scroll;
 	}
 
 	i = ARRAYSIZE(s_v_scroll_buffer);
 	while (i--)
 	{
-		s_v_scroll_buffer[i] = m->y_scroll;
+		s_v_scroll_buffer[i] = g_map_y_scroll;
 	}
 
 	dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
@@ -377,8 +382,8 @@ static void main_func(Obj *o)
 		draw_horizontal(m);
 	}
 
-	m->x_scroll_prev = m->x_scroll;
-	m->y_scroll_prev = m->y_scroll;
+	m->x_scroll_prev = g_map_x_scroll;
+	m->y_scroll_prev = g_map_y_scroll;
 }
 
 void o_load_map(Obj *o, uint16_t data)
@@ -414,6 +419,9 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	SYSTEM_ASSERT(map->right >= INTTOFIX32(320));
 	SYSTEM_ASSERT(map->bottom >= INTTOFIX32(240));
 	map->fresh_room = 1;
+
+	g_map_x_scroll = 0;
+	g_map_y_scroll = 0;
 
 	// Set up tiles and palettes.
 	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
@@ -473,7 +481,7 @@ void map_set_x_scroll(int16_t x)
 	if (x < 0) x = 0;
 	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
 	if (x > right_bound) x = right_bound;
-	map->x_scroll = x;
+	g_map_x_scroll = x;
 }
 
 void map_set_y_scroll(int16_t y)
@@ -482,17 +490,7 @@ void map_set_y_scroll(int16_t y)
 	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
 	if (y < top_bound) y = top_bound;
 	if (y > bottom_bound) y = bottom_bound;
-	map->y_scroll = y;
-}
-
-int16_t map_get_x_scroll(void)
-{
-	return map->x_scroll;
-}
-
-int16_t map_get_y_scroll(void)
-{
-	return map->y_scroll;
+	g_map_y_scroll = y;
 }
 
 void map_set_next_room(uint8_t id, uint8_t entrance)
