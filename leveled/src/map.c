@@ -4,7 +4,7 @@
 const char *map_fname;
 
 uint16_t *map_data;
-map_file map_header;
+MapFile map_header;
 
 void map_data_interview(void)
 {
@@ -42,7 +42,7 @@ void map_data_interview(void)
 
 void map_new(void)
 {
-	memset(&map_header, 0, sizeof(map_file));
+	memset(&map_header, 0, sizeof(MapFile));
 	snprintf(map_header.name,MAP_NAME_SIZE,"--------------------------------");
 
 	char in_buffer[MAP_NAME_LEN];
@@ -79,7 +79,7 @@ static void map_swap_obj_end(void)
 	// Need to swap the object list endianness too
 	for (unsigned int i = 0; i < MAP_NUM_OBJS; i++)
 	{
-		map_obj *o = &(map_header.objects[i]);
+		MapObj *o = &(map_header.objects[i]);
 		for (unsigned int j = 0; j < 4; j++)
 		{
 			uint16_t *data = (uint16_t *)o;

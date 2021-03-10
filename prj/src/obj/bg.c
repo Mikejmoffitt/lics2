@@ -619,7 +619,8 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t x_squiggle_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
-	const int16_t x_front_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667))) % 24;
+	const int16_t x_front_scroll_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667)));
+	const int16_t x_front_scroll = x_front_scroll_raw % 24;
 	const int16_t x_counter_index = 23 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 24);
 
 	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
@@ -627,6 +628,11 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 	for (int16_t i = 0; i < 4; i++)
 	{
 		h_scroll_buffer[(system_is_ntsc() ? 13 : 14) + i] = x_squiggle_scroll;
+	}
+
+	for (uint16_t i = 24; i < 31; i++)
+	{
+		h_scroll_buffer[i] = x_front_scroll_raw;
 	}
 
 	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);

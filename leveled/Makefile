@@ -1,8 +1,8 @@
 CC := clang
-CFLAGS := -fvisibility=hidden -std=c99 -O2 -Iinc -g
+CFLAGS := -fvisibility=hidden -std=c99 -O2 -Isrc -g
 
 LDFLAGS :=
-LIBRARIES := `pkg-config --cflags --static --libs allegro-static-5 allegro_ttf-static-5 allegro_font-static-5 allegro_color-static-5 allegro_main-static-5 allegro_primitives-static-5`
+LIBRARIES := `pkg-config --cflags --libs allegro-5 allegro_ttf-5 allegro_font-5 allegro_color-5 allegro_main-5 allegro_primitives-5`
 
 SOURCES := $(wildcard src/*.c)
 OBJECTS := $(SOURCES:.c=.o)

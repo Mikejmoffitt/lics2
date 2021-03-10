@@ -64,7 +64,7 @@ static const uint16_t sand_anim[] =
 	77, 78, 77, 79, 80, 80
 };
 
-static inline void animate(Particle *p, int8_t speed_check)
+static inline void animate(Particle *p, int16_t speed_check)
 {
 	p->anim_cnt++;
 	if (p->anim_cnt >= speed_check)
@@ -74,12 +74,12 @@ static inline void animate(Particle *p, int8_t speed_check)
 	}
 }
 
-static inline void particle_run(Particle *p)
+static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 {
 	// Delete off-screen particles.
 	const int16_t margin = 16;
-	int16_t px = FIX32TOINT(p->x) - map_get_x_scroll();
-	int16_t py = FIX32TOINT(p->y) - map_get_y_scroll();
+	int16_t px = FIX32TOINT(p->x) - map_x;
+	int16_t py = FIX32TOINT(p->y) - map_y;
 	if (py < -margin) goto delete_particle;
 	if (py > GAME_SCREEN_H_PIXELS + margin) goto delete_particle;
 	if (px < -margin) goto delete_particle;
@@ -167,15 +167,14 @@ static void main_func(Obj *o)
 {
 	(void)o;
 	uint16_t i = ARRAYSIZE(particles);
-	system_profile(PALRGB(2, 2, 0));
+	const int16_t map_x = map_get_x_scroll();
+	const int16_t map_y = map_get_y_scroll();
 	while (i--)
 	{
-		system_profile(PALRGB(2, 2, i % 2 ? 6 : 1));
 		Particle *p = &particles[i];
 		if (p->type == PARTICLE_TYPE_NULL) continue;
-		particle_run(p);
+		particle_run(p, map_x, map_y);
 	}
-	system_profile(PALRGB(0, 0, 0));
 }
 
 void o_load_particle_manager(Obj *o, uint16_t data)

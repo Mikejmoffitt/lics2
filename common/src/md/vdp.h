@@ -209,6 +209,8 @@ static inline void vdp_set_hint_line(uint8_t line);
 void vdp_wait_vblank(void);
 
 // Address configuration
+
+// Adjustable in 
 void vdp_set_plane_base(VdpPlane plane, uint16_t value);
 void vdp_set_sprite_base(uint16_t value);
 void vdp_set_hscroll_base(uint16_t value);

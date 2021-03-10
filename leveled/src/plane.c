@@ -68,54 +68,27 @@ void plane_load_fg(void)
 	char pal[256];
 	printf("Tile choice: %d\n",map_header.tileset);
 
-	switch (map_header.tileset)
+	const char *base_fname[] =
 	{
-		default:
-		case 0:
-			sprintf(tile,"res/gfx/fg/00_outside1.bin");
-			sprintf(pal,"res/palp/outside1.bin");
-			break;
-		case 1:
-			sprintf(tile,"res/gfx/fg/01_outside2.bin");
-			sprintf(pal,"res/pal/fg/01_outside2.bin");
-			break;
-		case 2:
-			sprintf(tile,"res/gfx/fg/02_inside1.bin");
-			sprintf(pal,"res/pal/fg/02_inside1.bin");
-			break;
-		case 3:
-			sprintf(tile,"res/gfx/fg/03_sandy1.bin");
-			sprintf(pal,"res/pal/fg/03_sandy1.bin");
-			break;
-		case 4:
-			sprintf(tile,"res/gfx/fg/04_teleporter.bin");
-			sprintf(pal,"res/pal/fg/04_teleporter.bin");
-			break;
-		case 5:
-			sprintf(tile,"res/gfx/fg/05_outside3.bin");
-			sprintf(pal,"res/pal/fg/05_outside3.bin");
-			break;
-		case 6:
-			sprintf(tile,"res/gfx/fg/06_purplezone.bin");
-			sprintf(pal,"res/pal/fg/06_purplezone.bin");
-			break;
-		case 7:
-			sprintf(tile,"res/gfx/fg/07_rooftop.bin");
-			sprintf(pal,"res/pal/fg/07_rooftop.bin");
-			break;
-		case 8:
-			sprintf(tile,"res/gfx/fg/08_technozone.bin");
-			sprintf(pal,"res/pal/fg/08_technozone.bin");
-			break;
-		case 9:
-			sprintf(tile,"res/gfx/fg/09_underpurple.bin");
-			sprintf(pal,"res/pal/fg/09_underpurple.bin");
-			break;
-		case 10:
-			sprintf(tile,"res/gfx/fg/10_purplebricks.bin");
-			sprintf(pal,"res/pal/fg/10_purplebricks.bin");
-			break;
-	}
+		[0] = "outside1",
+		[1] = "outside2",
+		[2] = "inside1",
+		[3] = "sandy1",
+		[4] = "teleporter",
+		[5] = "outside3",
+		[6] = "purplezone",
+		[7] = "rooftop",
+		[8] = "technozone",
+		[9] = "underpurple",
+		[10] = "purplebricks",
+		[11] = "purpletree",
+		[12] = "gauntlet",
+		[13] = "purplecity",
+		[14] = "sandy2",
+	};
+
+	snprintf(tile, sizeof(tile), "res/gfx/fg/%02d_%s.bin", map_header.tileset, base_fname[map_header.tileset]);
+	snprintf(pal, sizeof(tile), "res/pal/fg/%02d_%s.bin", map_header.tileset, base_fname[map_header.tileset]);
 
 	printf("Opening %s for tile data...\n",tile);
 	ALLEGRO_FILE *tf = al_fopen(tile,"rb");
@@ -236,11 +209,12 @@ static void plane_object_window(unsigned int x, unsigned int y)
 		{
 			break;
 		}
-		map_obj *o = &map_header.objects[idx];
+		MapObj *o = &map_header.objects[idx];
 
 		ALLEGRO_COLOR col = (o->type) ? al_map_rgb(255,255,255) : al_map_rgb(80,80,80);
 		char print_name[18];
-		snprintf(print_name, 17, "%02X %s %04X", idx, string_for_obj(o->type), o->data);
+		const ObjInfo *info = object_get_info(o->type);
+		snprintf(print_name, 17, "%02X %s %04X", idx, info->name, o->data);
 		plane_print_label(x, y + (i * TILESIZE), col, print_name);
 		if (obj_list_sel == idx)
 		{
@@ -268,7 +242,7 @@ void plane_draw_object_list(unsigned int x, unsigned int y)
 	// Now render all of the objects
 	for (int i = 0; i < MAP_NUM_OBJS; i++)
 	{
-		map_obj *o = &map_header.objects[i];
+		MapObj *o = &map_header.objects[i];
 		if (o->type)
 		{
 			int sx, sy;
@@ -277,11 +251,12 @@ void plane_draw_object_list(unsigned int x, unsigned int y)
 			int px, py;
 			px = PLANE_DRAW_X + o->x - sx;
 			py = PLANE_DRAW_Y + o->y - sy;
-				al_draw_rectangle(px, py, 
-					px + width_for_obj(o->type),
-					py + height_for_obj(o->type),
-					al_map_rgba(255,255,255,128),
-					(obj_list_sel == i) ? 2 : 1);
+			const ObjInfo *info = object_get_info(o->type);
+			al_draw_rectangle(px, py,
+			    px + info->width,
+			    py + info->height,
+			    al_map_rgba(255,255,255,128),
+			    (obj_list_sel == i) ? 2 : 1);
 		}
 	}
 	plane_object_window(x, y + TILESIZE);
@@ -343,7 +318,7 @@ static void mouse_in_map(void)
 				cursor_x = (cursor_x / TILESIZE) * TILESIZE;
 				cursor_y = (cursor_y / TILESIZE) * TILESIZE;
 			}
-			map_obj *o = &map_header.objects[obj_list_sel];	
+			MapObj *o = &map_header.objects[obj_list_sel];	
 			o->x = cursor_x;
 			o->y = cursor_y;
 		}
@@ -650,7 +625,7 @@ do_hex_entry:
 					{
 						if (meta_cursor_pos >= 0 && meta_cursor_pos < 4)
 						{
-							map_obj *o = &map_header.objects[obj_list_sel];
+							MapObj *o = &map_header.objects[obj_list_sel];
 							o->data = o->data & (~(0xF << (3 - meta_cursor_pos) * 4));
 							o->data += entry_val << (3 - meta_cursor_pos) * 4;
 							meta_cursor_pos++;
@@ -687,9 +662,9 @@ do_hex_entry:
 				case ALLEGRO_KEY_EQUALS:
 					if (edit_mode == MODE_OBJECTS)
 					{
-						map_obj *o = &map_header.objects[obj_list_sel];
+						MapObj *o = &map_header.objects[obj_list_sel];
 						o->type++;
-						if (o->type >= num_obj_types())
+						if (o->type >= OBJ_INVALID)
 						{
 							o->type--;
 						}
@@ -699,7 +674,7 @@ do_hex_entry:
 				case ALLEGRO_KEY_MINUS:
 					if (edit_mode == MODE_OBJECTS)
 					{
-						map_obj *o = &map_header.objects[obj_list_sel];
+						MapObj *o = &map_header.objects[obj_list_sel];
 						if (o->type > 0)
 						{
 							o->type--;

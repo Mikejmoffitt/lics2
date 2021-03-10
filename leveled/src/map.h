@@ -31,8 +31,8 @@
 // Seocnd-lowest nybble is the room pointer ID to point to
 // High byte is the room to point to
 
-typedef struct map_obj map_obj;
-struct map_obj
+typedef struct MapObj MapObj;
+struct MapObj
 {
 	uint16_t type;
 	uint16_t data;
@@ -41,8 +41,8 @@ struct map_obj
 };
 
 // Abstraction of map file header
-typedef struct map_file map_file;
-struct map_file
+typedef struct MapFile MapFile;
+struct MapFile
 {
 	char name[MAP_NAME_SIZE];
 
@@ -70,12 +70,12 @@ struct map_file
 	uint8_t background;
 
 	// Big object list
-	map_obj objects[MAP_NUM_OBJS];
+	MapObj objects[MAP_NUM_OBJS];
 };
 
 extern const char *map_fname;
 extern uint16_t *map_data;
-extern map_file map_header;
+extern MapFile map_header;
 
 void map_data_interview(void);
 void map_new(void);

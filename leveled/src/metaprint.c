@@ -4,16 +4,18 @@
 static void plane_meta_object_text(unsigned int x, unsigned int y)
 {
 	// Prints a more descriptive readout of an object's data
-	map_obj *o = &map_header.objects[obj_list_sel];
-	char name[1 + (META_DRAW_W / TILESIZE)];
-	char desc[1 + (META_DRAW_W / TILESIZE)];
-	char dat1[1 + (META_DRAW_W / TILESIZE)];
-	char dat2[1 + (META_DRAW_W / TILESIZE)];
-	char posd[1 + (META_DRAW_W / TILESIZE)];
+	MapObj *o = &map_header.objects[obj_list_sel];
+	char name[128];
+	char desc[128];
+	char dat1[128];
+	char dat2[128];
+	char posd[128];
 
-	sprintf(name,"Object Type: %02X: %s",o->type, string_for_obj(o->type));
-	sprintf(posd,"X: %04X Y: %04X",o->x, o->y);
-	sprintf(dat1,"                       Raw Data: 0x%04X",o->data);
+	const ObjInfo *info = object_get_info(o->type);
+
+	sprintf(name,"Object Type: %02X: %s", o->type, info->name);
+	sprintf(posd,"X: %04X Y: %04X", o->x, o->y);
+	sprintf(dat1,"                       Raw Data: 0x%04X", o->data);
 	sprintf(dat2,"                                       ");
 
 	switch (o->type)
@@ -21,9 +23,9 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 		case OBJ_NULL:
 			sprintf(desc," ");
 			break;
-		case OBJ_ROOMPTR:
-			sprintf(desc,"To (%2X, %X)",(o->data & 0xFF00) >> 8, (o->data & 0x00F0) >> 4);
-			sprintf(dat2,"Door #%X (LSN)",o->data & 0x000F);
+		case OBJ_ENTRANCE:
+			sprintf(desc,"To (%2X, %X)", (o->data & 0xFF00) >> 8, (o->data & 0x00F0) >> 4);
+			sprintf(dat2,"Door #%X (LSN)", o->data & 0x000F);
 			break;
 		case OBJ_DOG:
 			sprintf(dat2,"Releases object after eating 3 eggs");
