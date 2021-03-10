@@ -123,6 +123,7 @@ static const MapAssets map_by_id[] =
 	[52] = MAP_ASSETS(52_tvroom),
 	[53] = MAP_ASSETS(53_purplecity),
 	[54] = MAP_ASSETS(54_gauntlet),
+	[55] = MAP_ASSETS(55_finaltele),
 };
 
 static inline void draw_vertical(O_Map *m)

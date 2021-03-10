@@ -61,9 +61,12 @@ static inline void render(O_Teleporter *t)
 		                    BG_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 
-	// The base.
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 24, 0, 0,
-	                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
+	// The base. Not drawn for ID >= 0x08.
+	if (t->id < 0x08)
+	{
+		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 24, 0, 0,
+		                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
+	}
 
 	// The aura.
 	if (t->disabled || t->anim_frame == 1 || t->anim_frame == 3) return;
