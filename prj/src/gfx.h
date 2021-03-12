@@ -2,42 +2,7 @@
 #define GFX_H
 
 #include <stdint.h>
-
-// Palette data is assigned as follows:
-// 00 [       Map tile       ]
-// 16 [BG specific][BG common]
-// 32 [         Enemy        ]
-// 48 [         Lyle         ]
-
-#define MAP_TILE_CRAM_POSITION 0
-#define BG_CRAM_POSITION 16
-#define BG_COMMON_CRAM_POSITION 24
-#define ENEMY_CRAM_POSITION 32
-#define LYLE_CRAM_POSITION 48
-
-#define MAP_PAL_LINE (MAP_TILE_CRAM_POSITION / 16)
-#define BG_PAL_LINE (BG_CRAM_POSITION / 16)
-#define ENEMY_PAL_LINE (ENEMY_CRAM_POSITION / 16)
-#define LYLE_PAL_LINE (LYLE_CRAM_POSITION / 16)
-
-// VRAM is assigned as follows:
-// $0000 | Map tile ( upper 128 tiles )
-// $1000 | Map tile ( lower 128 tiles )
-// $2000 | BG tile
-// $3000 | BG tile
-// $4000 | Obj
-// ----
-// $
-
-#define MAP_TILE_VRAM_POSITION 0x0000
-#define MAP_TILE_VRAM_LENGTH 0x2000
-
-#define BG_TILE_VRAM_POSITION (MAP_TILE_VRAM_POSITION + MAP_TILE_VRAM_LENGTH)
-#define BG_TILE_VRAM_LENGTH 0x1800
-
-#define OBJ_TILE_VRAM_POSITION (BG_TILE_VRAM_POSITION + BG_TILE_VRAM_LENGTH)
-#define OBJ_TILE_VRAM_LENGTH 0x4000
-
+#include "vram_map.h"
 
 typedef enum GfxId
 {

@@ -7,12 +7,12 @@
 
 #include "res.h"
 
-static uint8_t current_track;
-static uint8_t pending_track;
-static uint8_t frames_to_delay_pending_track;
+static uint8_t s_current_track;
+static uint8_t s_pending_track;
+static uint8_t s_pending_track_delay_frames;
 #define TRACK_DELAY 5
 
-static const void *instrument_list[] =
+static const void * const instrument_list[] =
 {
 	[0x00] = res_mus_eif_bgm1_bass1_eif,
 	[0x01] = res_mus_eif_bgm1_chords_eif,
@@ -128,38 +128,38 @@ static const uint8_t psg_lock_esf[] =
 
 void music_handle_pending(void)
 {
-	if (frames_to_delay_pending_track > 0)
+	if (s_pending_track_delay_frames > 0)
 	{
-		frames_to_delay_pending_track--;
+		s_pending_track_delay_frames--;
 		return;
 	}
-	if (current_track == pending_track) return;
+	if (s_current_track == s_pending_track) return;
 	
-	current_track = pending_track;
-	if (current_track == 0)
+	s_current_track = s_pending_track;
+	if (s_current_track == 0)
 	{
 		echo_stop_bgm();
 		echo_play_sfx(psg_lock_esf);
 		return;
 	}
 
-	echo_play_bgm(bgm_list[current_track].data);
+	echo_play_bgm(bgm_list[s_current_track].data);
 	echo_play_sfx(psg_lock_esf);
 
 	SYS_BARRIER();
 	sys_z80_bus_req();
-	opn_write(0, 0x26, bgm_list[current_track].tempo);
+	opn_write(0, 0x26, bgm_list[s_current_track].tempo);
 	sys_z80_bus_release();
 
 }
 
 void music_play(uint8_t track)
 {
-	if (track == current_track) return;
-	frames_to_delay_pending_track = TRACK_DELAY;
+	if (track == s_current_track) return;
+	s_pending_track_delay_frames = TRACK_DELAY;
 	echo_stop_bgm();
 	echo_stop_sfx();
-	pending_track = track;
+	s_pending_track = track;
 }
 
 void music_stop(void)

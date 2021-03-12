@@ -8,16 +8,26 @@
 #include "gfx.h"
 
 int system_init(void);
-uint16_t system_is_ntsc(void);
 void system_srand(uint16_t seed);
 uint16_t system_rand(void);
-int16_t system_is_debug_enabled(void);
 void system_set_debug_enabled(int16_t en);
 void system_profile(uint16_t color);
 
 void system_print_error(const char *expression,
                         const char *file,
                         const char *line_string);
+
+extern int16_t g_system_is_ntsc;
+static inline int16_t system_is_ntsc(void)
+{
+	return g_system_is_ntsc;
+}
+
+extern int16_t g_system_debug_enabled;
+static inline int16_t system_is_debug_enabled(void)
+{
+	return g_system_debug_enabled;
+}
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x

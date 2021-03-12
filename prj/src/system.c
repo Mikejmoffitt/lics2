@@ -1,19 +1,23 @@
 #include "system.h"
 #include "md/megadrive.h"
+#include "vram_map.h"
 
-static int16_t is_ntsc_cache;
-static int16_t is_debug_enabled;
+int16_t g_system_is_ntsc;
+int16_t g_system_debug_enabled;
 
-static uint16_t rand_value;
+static uint16_t s_rand_value;
 
 int system_init(void)
 {
 	megadrive_init();
 	vdp_set_plane_size(VDP_PLANESIZE_64x64);
-	vdp_set_sprite_base(0xBC00);
-	vdp_set_hscroll_base(0xB800);
-	is_ntsc_cache = (vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
-	vdp_set_raster_height(is_ntsc_cache ? 224 : 240);
+	vdp_set_plane_base(VDP_PLANE_A, PLANE_A_NT_VRAM_POSITION);
+	vdp_set_plane_base(VDP_PLANE_B, PLANE_B_NT_VRAM_POSITION);
+	vdp_set_plane_base(VDP_PLANE_WINDOW, WINDOW_NT_VRAM_POSITION);
+	vdp_set_sprite_base(SPRITE_LIST_VRAM_POSITION);
+	vdp_set_hscroll_base(HSCROLL_VRAM_POSITION);
+	g_system_is_ntsc = (vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
+	vdp_set_raster_height(system_is_ntsc() ? 224 : 240);
 
 	// Some environmental sanity.
 	SYSTEM_ASSERT(sizeof(int32_t) == 4);
@@ -33,45 +37,35 @@ int system_init(void)
 	return 1;
 }
 
-uint16_t system_is_ntsc(void)
-{
-	return is_ntsc_cache;
-}
-
 static inline void rand_step(void)
 {
-	const uint16_t feedback = (rand_value & 0x0001) ^
-	                          ((rand_value >> 7) & 0x0001);
-	rand_value = rand_value >> 1;
-	rand_value |= (feedback << 15);
+	const uint16_t feedback = (s_rand_value & 0x0001) ^
+	                          ((s_rand_value >> 7) & 0x0001);
+	s_rand_value = s_rand_value >> 1;
+	s_rand_value |= (feedback << 15);
 }
 
 void system_srand(uint16_t seed)
 {
 	if (seed == 0) seed = vdp_get_hv_count();
-	rand_value = seed;
+	s_rand_value = seed;
 	rand_step();
 }
 
 uint16_t system_rand(void)
 {
 	rand_step();
-	return rand_value;
-}
-
-int16_t system_is_debug_enabled(void)
-{
-	return is_debug_enabled;
+	return s_rand_value;
 }
 
 void system_set_debug_enabled(int16_t en)
 {
-	is_debug_enabled = en;
+	g_system_debug_enabled = en;
 }
 
 void system_profile(uint16_t color)
 {
-	if (is_debug_enabled) pal_set(0, color);
+	if (g_system_debug_enabled) pal_set(0, color);
 }
 
 void system_print_error(const char *expression,

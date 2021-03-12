@@ -11,7 +11,7 @@
 
 static void main_func(Obj *o)
 {
-	O_Columns *e = (O_Columns *)o;
+	(void)o;
 	const Gfx *g = gfx_get(GFX_EX_COLUMNS);
 
 	uint16_t x_index = 31 - (((map_get_x_scroll() + 1) / 2) % 32);

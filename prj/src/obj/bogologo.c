@@ -81,7 +81,7 @@ static void main_func(Obj *o)
 	OBJ_SIMPLE_ANIM(e->flicker_cnt, e->flicker_frame, 2, kflicker_speed);
 
 	if (e->appear_cnt < kappear_frame ||
-	    e->appear_cnt < ksolid_frame && e->flicker_frame == 0)
+	    (e->appear_cnt < ksolid_frame && e->flicker_frame == 0))
 	{
 		return;
 	}

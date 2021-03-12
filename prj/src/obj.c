@@ -64,8 +64,6 @@
 ObjSlot g_objects[OBJ_COUNT_MAX];
 static uint16_t obj_vram_pos;
 
-static uint16_t highest_obj_idx;
-
 static uint16_t constants_set;
 static int8_t khurt_stun_time;
 

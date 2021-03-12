@@ -293,7 +293,7 @@ static inline void draw_horizontal(O_Map *m)
 	}
 }
 
-static inline void draw_full(O_Map *m)
+static inline void draw_full(void)
 {
 	// VRAM address at which the vertical seam occurs
 	const uint16_t v_seam_vram_offset = 2 * GAME_PLANE_H_CELLS *
@@ -374,7 +374,7 @@ static void main_func(Obj *o)
 	// Update plane A.
 	if (m->fresh_room)
 	{
-		draw_full(m);
+		draw_full();
 		m->fresh_room = 0;
 	}
 	else

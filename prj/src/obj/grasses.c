@@ -11,6 +11,7 @@
 
 static void main_func(Obj *o)
 {
+	(void)o;
 	const Gfx *g = gfx_get(GFX_EX_GRASSES);
 
 	const fix32_t x_fixed = INTTOFIX32(map_get_x_scroll());

@@ -9,17 +9,18 @@
 #include "obj/map.h"
 #include "common.h"
 #include "game.h"
+#include "obj/lyle.h"
 
 static void main_func(Obj *o)
 {
-	O_ScrLock *e = (O_ScrLock *)o;
+	(void)o;
 
 	// Search for an active title object, and abort early if it's present.
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
-		Obj *o = &g_objects[i].obj;
-		if (o->status == OBJ_STATUS_NULL) continue;
-		if (o->type == OBJ_TITLE) return;
+		Obj *g = &g_objects[i].obj;
+		if (g->status == OBJ_STATUS_NULL) continue;
+		if (g->type == OBJ_TITLE) return;
 	}
 
 	lyle_set_scroll_h_en(1);

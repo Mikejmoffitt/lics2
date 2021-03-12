@@ -22,8 +22,6 @@
 
 uint32_t g_elapsed;
 
-static int app_alive;
-
 // Exec functions =============================================================
 typedef struct InitFunc
 {

@@ -283,7 +283,6 @@ static void bg_orange_balls_func(int16_t x_scroll, int16_t y_scroll)
 	(void)y_scroll;
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
-	const int16_t x_secondaru_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
 	const int16_t x_front_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667))) % 48;
 	const int16_t x_counter_index = 47 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 48);
 
@@ -630,7 +629,7 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 		h_scroll_buffer[(system_is_ntsc() ? 13 : 14) + i] = x_squiggle_scroll;
 	}
 
-	for (uint16_t i = 24; i < 31; i++)
+	for (uint16_t i = 24; i < ARRAYSIZE(h_scroll_buffer); i++)
 	{
 		h_scroll_buffer[i] = x_front_scroll_raw;
 	}
@@ -797,9 +796,6 @@ static void main_func(Obj *o)
 	system_profile(PALRGB(0, 4, 0));
 	O_Bg *f = (O_Bg *)o;
 
-	const int16_t x_scroll = map_get_x_scroll();
-	const int16_t y_scroll = map_get_y_scroll();
-
 	if (f->bg_id < ARRAYSIZE(bg_funcs) && bg_funcs[f->bg_id])
 	{
 		bg_funcs[f->bg_id](map_get_x_scroll(), map_get_y_scroll());
@@ -851,7 +847,9 @@ void o_load_bg(Obj *o, uint16_t data)
 
 	if (b->gfx_id != GFX_NULL)
 	{
-		gfx_load(gfx_get(b->gfx_id), BG_TILE_VRAM_POSITION);
+		const Gfx *gfx = gfx_get(b->gfx_id);
+		SYSTEM_ASSERT(gfx->size <= BG_TILE_VRAM_LENGTH);
+		gfx_load(gfx, BG_TILE_VRAM_POSITION);
 	}
 	else
 	{

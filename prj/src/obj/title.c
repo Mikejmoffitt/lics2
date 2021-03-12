@@ -248,11 +248,12 @@ static void draw_house_door(int16_t frame)
 			break;
 	}
 
+	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
 	for (int16_t i = 0; i < size / 2; i++)
 	{
 		const uint16_t offset = src[i * 2];
 		const uint16_t data = src[1 + i * 2];
-		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(scra_base + offset));
 		VDPPORT_DATA = data;
 	}
 }
@@ -285,11 +286,12 @@ static void draw_normal_house_tiles(void)
 	};
 #undef MAPADDR
 
+	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
 	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
 	{
 		const uint16_t offset = prio_tiles[i * 2];
 		const uint16_t data = prio_tiles[1 + i * 2];
-		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(scra_base + offset));
 		VDPPORT_DATA = data;
 	}
 }
@@ -325,11 +327,12 @@ static void draw_high_prio_house_tiles(void)
 	};
 #undef MAPADDR
 
+	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
 	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
 	{
 		const uint16_t offset = prio_tiles[i * 2];
 		const uint16_t data = prio_tiles[1 + i * 2];
-		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(0xC000  + offset));
+		VDPPORT_CTRL32 = (VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(scra_base + offset));
 		VDPPORT_DATA = data;
 	}
 }
@@ -354,7 +357,8 @@ static void main_func(Obj *o)
 		map_redraw_room();
 	}
 
-	if (e->appearance_delay_cnt < kappearance_delay_max - 2)
+	if (e->appearance_delay_cnt < kappearance_delay_max - 2 &&
+	    e->v_scroll_delay_cnt > 2)
 	{
 		if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 		{
