@@ -30,8 +30,8 @@ static fix16_t kceiling_dy;
 
 static void set_constants(void)
 {
-	static uint16_t constants_set;
-	if (constants_set) return;
+	static uint16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.167));
 
@@ -52,19 +52,19 @@ static void set_constants(void)
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.0));
 	kair_anim_speed = PALSCALE_DURATION(2);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_BOINGO);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -81,13 +81,13 @@ static inline void render(O_Boingo *b)
 			// The cube.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			const uint16_t tile = vram_pos + (b->anim_frame ? 30 : 28);
+			const uint16_t tile = s_vram_pos + (b->anim_frame ? 30 : 28);
 			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 		}
@@ -95,12 +95,12 @@ static inline void render(O_Boingo *b)
 		{
 			obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		}
 		else
 		{
-			const uint16_t tile = vram_pos + 12 + (b->anim_frame ? 6 : 0) +
+			const uint16_t tile = s_vram_pos + 12 + (b->anim_frame ? 6 : 0) +
 			                      (b->boingo_type == BOINGO_TYPE_ANGRY ? 32 : 0);
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
@@ -115,12 +115,12 @@ static inline void render(O_Boingo *b)
 			// Cube
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y + b->anim_frame, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y + b->anim_frame, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			const uint16_t tile = vram_pos + (b->anim_frame ? 26 : 24);
+			const uint16_t tile = s_vram_pos + (b->anim_frame ? 26 : 24);
 			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 
@@ -129,12 +129,12 @@ static inline void render(O_Boingo *b)
 		{
 			obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 56, 0, 0,
+			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		}
 		else
 		{
-			const uint16_t tile = vram_pos + (b->anim_frame ? 6 : 0) +
+			const uint16_t tile = s_vram_pos + (b->anim_frame ? 6 : 0) +
 			                      (b->boingo_type == BOINGO_TYPE_ANGRY ? 32 : 0);
 			obj_render_setup(o, &sp_x, &sp_y, -12, -13,
 			                 map_get_x_scroll(), map_get_y_scroll());
@@ -310,7 +310,7 @@ void o_load_boingo(Obj *o, uint16_t data)
 
 void o_unload_boingo(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }
 
 

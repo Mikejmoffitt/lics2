@@ -17,30 +17,30 @@ static fix16_t kdy_cutoff;
 static fix16_t kdx;
 static int8_t kanim_delay;
 
-static int16_t constants_set;
+static int16_t s_constants_set;
 
 static void set_constants(void)
 {
-	if (constants_set) return;
+	if (s_constants_set) return;
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.4));
 	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
 	kanim_delay = PALSCALE_DURATION(10);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_FLIP);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -51,7 +51,7 @@ static inline void render(O_Flip *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -11, -12,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (f->anim_frame ? 6 : 0),
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame ? 6 : 0),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 }
@@ -135,5 +135,5 @@ void o_load_flip(Obj *o, uint16_t data)
 
 void o_unload_flip(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

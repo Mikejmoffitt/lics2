@@ -9,7 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static fix16_t kdx;
 static fix16_t kgravity;
@@ -17,25 +17,25 @@ static int16_t kanim_speed;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_PILLA);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 	// Set constants here.
 
 	kdx = INTTOFIX16(PALSCALE_1ST(0.833333333334));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
 	kanim_speed = PALSCALE_DURATION(6.2);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static inline void render(O_Pilla *f)
@@ -51,7 +51,7 @@ static inline void render(O_Pilla *f)
 
 	obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + offset,
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset,
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
@@ -145,5 +145,5 @@ void o_load_pilla(Obj *o, uint16_t data)
 
 void o_unload_pilla(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

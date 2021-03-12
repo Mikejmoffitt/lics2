@@ -23,7 +23,7 @@ static int16_t kappearance_delay_max;
 
 static int16_t kcloakdude_seq;
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 static uint16_t vram_credits_pos;
 static uint16_t vram_keddums_pos;
 static uint16_t vram_cloakdude_pos;
@@ -31,10 +31,10 @@ static uint16_t vram_cloakdude_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g_title = gfx_get(GFX_TITLE_SCR);
-	vram_pos = gfx_load(g_title, obj_vram_alloc(g_title->size));
+	s_vram_pos = gfx_load(g_title, obj_vram_alloc(g_title->size));
 	const Gfx *g_credits = gfx_get(GFX_EX_CREDITS);
 	vram_credits_pos = gfx_load(g_credits, obj_vram_alloc(g_credits->size));
 	const Gfx *g_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
@@ -47,8 +47,8 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 	// Set constants here.
 
 	kscroll_gravity = INTTOFIX16(PALSCALE_2ND(0.16666667));
@@ -58,7 +58,7 @@ static inline void set_constants(void)
 
 	kscroll_max = kfloor_pos - INTTOFIX32(88) + (system_is_ntsc() ? INTTOFIX32(16.0) : 0);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void render(O_Title *e)
@@ -72,7 +72,7 @@ static void render(O_Title *e)
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
 
-	int16_t vram = vram_pos;
+	int16_t vram = s_vram_pos;
 
 	// Title logo
 	spr_put(sp_x + (0 * 32), sp_y + (0 * 32),
@@ -463,5 +463,5 @@ void o_load_title(Obj *o, uint16_t data)
 
 void o_unload_title(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

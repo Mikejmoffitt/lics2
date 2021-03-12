@@ -15,7 +15,7 @@
 
 // Constants.
 
-static int16_t constants_set;
+static int16_t s_constants_set;
 
 static int8_t kanim_len;
 static fix16_t kaccel;
@@ -23,25 +23,25 @@ static fix16_t ktop_speed;
 
 static void set_constants(void)
 {
-	if (constants_set) return;
+	if (s_constants_set) return;
 
 	kanim_len = PALSCALE_DURATION(2);
 	kaccel = INTTOFIX16(PALSCALE_2ND(0.1429));
 	ktop_speed = INTTOFIX16(PALSCALE_1ST(2.25));
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_GAXTER);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -52,7 +52,7 @@ static inline void render(O_Gaxter1 *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -8, -8,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (f->anim_frame * 4),
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
@@ -133,5 +133,5 @@ void o_load_gaxter1(Obj *o, uint16_t data)
 
 void o_unload_gaxter1(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

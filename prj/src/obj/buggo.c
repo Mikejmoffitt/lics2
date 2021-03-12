@@ -29,8 +29,8 @@ static fix16_t kcube_bounce_dy;
 
 static void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kbuggo1_shot_test = PALSCALE_DURATION(48);
 	kbuggo1_shot_fire = PALSCALE_DURATION(84);
@@ -43,19 +43,19 @@ static void set_constants(void)
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 
 	kdx = INTTOFIX16(PALSCALE_1ST(.20833333333333334));
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_BUGGO);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -97,7 +97,7 @@ static inline void render(O_Buggo *f)
 		}
 	}
 
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + tile_offset,
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
@@ -255,5 +255,5 @@ void o_load_buggo(Obj *o, uint16_t data)
 
 void o_unload_buggo(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

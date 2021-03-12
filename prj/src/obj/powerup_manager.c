@@ -25,12 +25,12 @@ static fix16_t kspawn_dy;
 static fix16_t kbounce_dy;
 // TODO: Anim speeds
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	// TODO: Get the real values for these. They are all fabricated.
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.25));
@@ -38,15 +38,15 @@ static void set_constants(void)
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-2.0));
 	kanim_speed = PALSCALE_DURATION(6);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_EX_POWERUPS);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void powerup_render(Powerup *p)
@@ -146,7 +146,7 @@ static inline void powerup_render(Powerup *p)
 
 	if (tx < -32 || tx > 336 || ty < -32 || ty > 256) return;
 
-	spr_put(tx, ty, SPR_ATTR(vram_pos + tile_offset, 0, 0, pal, 0), size);
+	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
 }
 
 static inline void newtonian_physics(Powerup *p)
@@ -293,7 +293,7 @@ void o_load_powerup_manager(Obj *o, uint16_t data)
 	(void)data;
 	SYSTEM_ASSERT(sizeof(O_PowerupManager) <= sizeof(ObjSlot));
 
-	if (powerup_manager || vram_pos)
+	if (powerup_manager || s_vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
@@ -312,7 +312,7 @@ void o_load_powerup_manager(Obj *o, uint16_t data)
 
 void o_unload_powerup_manager(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 	powerup_manager = NULL;
 }
 

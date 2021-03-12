@@ -12,7 +12,7 @@
 #include "obj/projectile_manager.h"
 #include "common.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static fix16_t kdy_hysteresis;
 static fix16_t kddy;
@@ -22,16 +22,16 @@ static fix16_t kshot_speed;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_KILLZAM);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kdy_hysteresis = INTTOFIX16(PALSCALE_1ST(2.083));
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2084));
@@ -44,7 +44,7 @@ static inline void set_constants(void)
 
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void movement(Obj *o)
@@ -163,7 +163,7 @@ static inline void render(Obj *o)
 	obj_render_setup(o, &sp_x, &sp_y, -8, -23,
 	                 map_get_x_scroll(), map_get_y_scroll());
 
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + tile_offset,
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 1), SPR_SIZE(2, 3));
 }
@@ -197,5 +197,5 @@ void o_load_killzam(Obj *o, uint16_t data)
 
 void o_unload_killzam(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

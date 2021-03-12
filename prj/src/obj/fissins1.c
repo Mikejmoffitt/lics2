@@ -24,7 +24,7 @@ So jump delay is 6/5 * 20
 
 */
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static int16_t kanim_delay;
 static int16_t kjump_delay;
@@ -33,18 +33,18 @@ static fix16_t kjump_dy_table[8];
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_FISSINS1);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 	kanim_delay = PALSCALE_DURATION(12);
 	kjump_delay = PALSCALE_DURATION(24);
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
@@ -57,7 +57,7 @@ static inline void set_constants(void)
 		kjump_dy_table[i] = kdy_base - (i * kdy_spread);
 	}
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void render(O_Fissins1 *e)
@@ -67,7 +67,7 @@ static void render(O_Fissins1 *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + (e->anim_frame * 4), 0, o->dy > 0,
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame * 4), 0, o->dy > 0,
 	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
@@ -129,5 +129,5 @@ void o_load_fissins1(Obj *o, uint16_t data)
 
 void o_unload_fissins1(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

@@ -16,8 +16,8 @@
 
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 
-static O_ProjectileManager *projectile_manager;
-static Projectile projectiles[10];
+static O_ProjectileManager *s_projectile_manager;
+static Projectile s_projectiles[10];
 
 static int16_t kparticle_rate;
 static int16_t kdeathorb_flash_time;
@@ -29,12 +29,12 @@ static fix16_t kdeathorb_flip_dy;
 static fix16_t kdeathorb_ddy;
 static fix16_t kdeathorb2_ddy;
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kparticle_rate = PALSCALE_DURATION(8);
 	kdeathorb_flash_time = PALSCALE_DURATION(109);
@@ -49,15 +49,15 @@ static void set_constants(void)
 	kdeathorb_ddy = INTTOFIX16(PALSCALE_2ND(0.194444444448));
 	kdeathorb2_ddy = INTTOFIX16(PALSCALE_2ND(0.17361111111113));
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_EX_PROJECTILES);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void projectile_render(Projectile *p)
@@ -73,7 +73,7 @@ static inline void projectile_render(Projectile *p)
 	// Death orb flickers as it approaches end-of-life.
 	if (p->type == PROJECTILE_TYPE_DEATHORB &&
 	    p->frames_alive > kdeathorb_flash_time &&
-	    projectile_manager->flicker_4f_anim > 1)
+	    s_projectile_manager->flicker_4f_anim > 1)
 	{
 		return;
 	}
@@ -86,7 +86,7 @@ static inline void projectile_render(Projectile *p)
 		case PROJECTILE_TYPE_BALL2:
 			size = SPR_SIZE(1, 1);
 			pal = LYLE_PAL_LINE;
-			tile_offset = projectile_manager->flicker_2f_anim ? 1 : 0;
+			tile_offset = s_projectile_manager->flicker_2f_anim ? 1 : 0;
 			break;
 		case PROJECTILE_TYPE_SPIKE:
 			size = SPR_SIZE(1, 1);
@@ -97,27 +97,27 @@ static inline void projectile_render(Projectile *p)
 			ty -= 3;
 			size = SPR_SIZE(1, 1);
 			pal = LYLE_PAL_LINE;
-			tile_offset = projectile_manager->flicker_2f_anim ? 4 : 3;
+			tile_offset = s_projectile_manager->flicker_2f_anim ? 4 : 3;
 			break;
 		case PROJECTILE_TYPE_DEATHORB:
 			ty -= 4;
 			tx -= 4;
 			size = SPR_SIZE(2, 2);
-			pal = projectile_manager->flicker_2f_anim ?
+			pal = s_projectile_manager->flicker_2f_anim ?
 			      LYLE_PAL_LINE : ENEMY_PAL_LINE;
-			tile_offset = projectile_manager->flicker_2f_anim ? 5 : 9;
+			tile_offset = s_projectile_manager->flicker_2f_anim ? 5 : 9;
 			break;
 		case PROJECTILE_TYPE_DEATHORB2:
 			ty -= 4;
 			tx -= 4;
 			size = SPR_SIZE(2, 2);
 			pal = LYLE_PAL_LINE;
-			tile_offset = 13 + (4 * projectile_manager->flicker_4f_anim);
+			tile_offset = 13 + (4 * s_projectile_manager->flicker_4f_anim);
 			break;
 
 	}
 
-	spr_put(tx, ty, SPR_ATTR(vram_pos + tile_offset, 0, 0, pal, 0), size);
+	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
 }
 
 static inline int16_t basic_collision(Projectile *p)
@@ -257,7 +257,7 @@ static inline void projectile_run(Projectile *p)
 
 	// Particle effects
 	if (p->type != PROJECTILE_TYPE_SPARK &&
-	    projectile_manager->particle_cnt == 0)
+	    s_projectile_manager->particle_cnt == 0)
 	{
 		particle_manager_spawn(p->x, p->y, PARTICLE_TYPE_SPARKLE);
 	}
@@ -282,11 +282,11 @@ static void main_func(Obj *o)
 		if (p->flicker_4f_anim > 3) p->flicker_4f_anim = 0;
 	}
 
-	uint16_t i = ARRAYSIZE(projectiles);
+	uint16_t i = ARRAYSIZE(s_projectiles);
 	while (i--)
 	{
 		system_profile(PALRGB(3, i % 2 ? 0 : 4, 3));
-		Projectile *p = &projectiles[i];
+		Projectile *p = &s_projectiles[i];
 		if (p->type == PROJECTILE_TYPE_NULL) continue;
 		projectile_run(p);
 	}
@@ -298,13 +298,13 @@ void o_load_projectile_manager(Obj *o, uint16_t data)
 	(void)data;
 	SYSTEM_ASSERT(sizeof(O_ProjectileManager) <= sizeof(ObjSlot));
 
-	if (projectile_manager || vram_pos)
+	if (s_projectile_manager || s_vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
 	}
 
-	projectile_manager = (O_ProjectileManager *)o;
+	s_projectile_manager = (O_ProjectileManager *)o;
 
 	set_constants();
 	vram_load();
@@ -317,26 +317,26 @@ void o_load_projectile_manager(Obj *o, uint16_t data)
 
 void o_unload_projectile_manager(void)
 {
-	vram_pos = 0;
-	projectile_manager = NULL;
+	s_vram_pos = 0;
+	s_projectile_manager = NULL;
 }
 
 void projectile_manager_clear(void)
 {
-	if (!projectile_manager) return;
-	uint16_t i = ARRAYSIZE(projectiles);
+	if (!s_projectile_manager) return;
+	uint16_t i = ARRAYSIZE(s_projectiles);
 	while (i--)
 	{
-		projectiles[i].type = PROJECTILE_TYPE_NULL;
+		s_projectiles[i].type = PROJECTILE_TYPE_NULL;
 	}
 }
 
 static Projectile *find_slot(void)
 {
-	if (!projectile_manager) return NULL;
-	for (uint16_t i = 0; i < ARRAYSIZE(projectiles); i++)
+	if (!s_projectile_manager) return NULL;
+	for (uint16_t i = 0; i < ARRAYSIZE(s_projectiles); i++)
 	{
-		Projectile *p = &projectiles[i];
+		Projectile *p = &s_projectiles[i];
 		if (p->type == PROJECTILE_TYPE_NULL) return p;
 	}
 	return NULL;

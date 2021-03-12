@@ -24,11 +24,11 @@ static int16_t kshot_clock_max;
 static int16_t kshot_clock_flicker_time;
 static int16_t kshot_flicker_speed;
 
-static int16_t constants_set;
+static int16_t s_constants_set;
 
 static void set_constants(void)
 {
-	if (constants_set) return;
+	if (s_constants_set) return;
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.18));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.17));
@@ -40,19 +40,19 @@ static void set_constants(void)
 	kshot_flicker_speed = PALSCALE_DURATION(4.4);
 
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_GAXTER);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -73,11 +73,11 @@ static inline void render(O_Gaxter2 *f)
 		const int16_t ball_y = sp_y + 13;
 		const int8_t is_flickering = (f->shot_flicker_cnt >= (kshot_flicker_speed / 2)) ? 1 : 0;
 		const uint16_t tile_offset = 24 + (is_flickering ? 1 : 0);
-		spr_put(ball_x, ball_y, SPR_ATTR(vram_pos + tile_offset, 0, 0,
+		spr_put(ball_x, ball_y, SPR_ATTR(s_vram_pos + tile_offset, 0, 0,
 		        LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 
 	}
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 12 + (f->anim_frame * 4),
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 12 + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
@@ -205,5 +205,5 @@ void o_load_gaxter2(Obj *o, uint16_t data)
 
 void o_unload_gaxter2(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

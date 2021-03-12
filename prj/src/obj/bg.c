@@ -462,7 +462,7 @@ static inline void technozone_purple_overlay(uint8_t half)
 
 static void technozone_horizontal(int16_t x_scroll)
 {
-	static int16_t old_x;
+	static int16_t s_old_x;
 	const int16_t x_off = x_scroll / 8;
 
 	if (g_elapsed % 2 == 0 || g_elapsed < 2)
@@ -471,11 +471,11 @@ static void technozone_horizontal(int16_t x_scroll)
 		for (uint16_t i = 0; i < ARRAYSIZE(blue_line_instructions); i++)
 		{
 			const LineInstruction *l = &blue_line_instructions[i];
-			if (l->x1 == l->x2) scratch_clear_line_down(old_x + l->x1, l->y1, (l->y2 - l->y1 + 1));
+			if (l->x1 == l->x2) scratch_clear_line_down(s_old_x + l->x1, l->y1, (l->y2 - l->y1 + 1));
 			else
 			{
-				scratch_plot((old_x + l->x1) / 2, l->y1, 0);
-				scratch_plot((old_x + l->x2) / 2, l->y1, 0);
+				scratch_plot((s_old_x + l->x1) / 2, l->y1, 0);
+				scratch_plot((s_old_x + l->x2) / 2, l->y1, 0);
 			}
 		}
 		technozone_purple_overlay(0);
@@ -492,13 +492,13 @@ static void technozone_horizontal(int16_t x_scroll)
 		}
 
 		dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, sizeof(scratch) / 2, 2);
-		old_x = x_off;
+		s_old_x = x_off;
 	}
 }
 
 static void technozone_vertical(int16_t y_scroll)
 {
-	static int16_t old_y;
+	static int16_t s_old_y;
 	const int16_t y_off = (y_scroll / 8);
 	if (g_elapsed % 2 == 0 || g_elapsed < 2)
 	{
@@ -507,7 +507,7 @@ static void technozone_vertical(int16_t y_scroll)
 		{
 			const LineInstruction *l = &blue_line_instructions[i];
 			if (l->x1 == l->x2) scratch_clear_line_down(16 + l->x1, y_off + l->y1 - 6, (l->y2 - l->y1 + 1) + 6);
-			else scratch_clear_line_right(16 + l->x1, old_y + l->y1, (l->x2 - l->x1 + 1));
+			else scratch_clear_line_right(16 + l->x1, s_old_y + l->y1, (l->x2 - l->x1 + 1));
 		}
 		technozone_purple_overlay(0);
 	}
@@ -523,7 +523,7 @@ static void technozone_vertical(int16_t y_scroll)
 		}
 
 		dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, sizeof(scratch) / 2, 2);
-		old_y = y_off;
+		s_old_y = y_off;
 	}
 }
 
@@ -860,14 +860,14 @@ void o_load_bg(Obj *o, uint16_t data)
 
 	if (b->mapping)
 	{
-		uint16_t vram_pos = vdp_get_plane_base(VDP_PLANE_B);
+		uint16_t s_vram_pos = vdp_get_plane_base(VDP_PLANE_B);
 		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_words);
 		// TODO: MD framework util function to get plane byte size.
 		uint16_t remaining_words = bg_plane_words;
 		while (remaining_words > 0)
 		{
-			dma_q_transfer_vram(vram_pos, b->mapping, b->mapping_size / 2, 2);
-			vram_pos += b->mapping_size;
+			dma_q_transfer_vram(s_vram_pos, b->mapping, b->mapping_size / 2, 2);
+			s_vram_pos += b->mapping_size;
 			remaining_words -= b->mapping_size / 2;
 		}
 	}

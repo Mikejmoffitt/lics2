@@ -10,7 +10,7 @@
 #include "cube.h"
 
 uint16_t g_cube_vram_pos;
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static uint8_t phantom_anim_counter;
 uint8_t g_cube_phantom_anim_frame;
@@ -20,11 +20,11 @@ Cube g_cubes[CUBE_COUNT_MAX];
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_CUBES);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
-	g_cube_vram_pos = vram_pos;
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	g_cube_vram_pos = s_vram_pos;
 }
 
 
@@ -54,7 +54,7 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_CubeManager) <= sizeof(ObjSlot));
 
 	// If VRAM is already loaded, then a cube manager already is present.
-	if (vram_pos)
+	if (s_vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
@@ -83,5 +83,5 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 
 void o_unload_cube_manager(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

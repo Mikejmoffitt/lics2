@@ -9,7 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 static int16_t ksequence[4];
 static int16_t kanim_delay;
 
@@ -21,23 +21,23 @@ static int16_t kanim_delay;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_LASER);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kanim_delay = PALSCALE_DURATION(2);
 	ksequence[0] = PALSCALE_DURATION(36);
 	ksequence[1] = PALSCALE_DURATION(54);
 	ksequence[2] = PALSCALE_DURATION(114);
 	ksequence[3] = PALSCALE_DURATION(132);
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void render(O_Laser *e)
@@ -57,7 +57,7 @@ static void render(O_Laser *e)
 	                 map_get_x_scroll(), map_get_y_scroll());
 	for (int16_t i = 0 ; i < e->height; i++)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + offset, e->anim_frame % 2, 0,
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset, e->anim_frame % 2, 0,
 		                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		sp_y -= 16;
 	}
@@ -145,5 +145,5 @@ void o_load_laser(Obj *o, uint16_t data)
 
 void o_unload_laser(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

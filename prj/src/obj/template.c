@@ -9,25 +9,25 @@
 #include "obj/map.h"
 #include "common.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_TEMPLATE);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 	// Set constants here.
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void render(O_Template *e)
@@ -39,7 +39,7 @@ static void render(O_Template *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(vram_pos, 0, 0,
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
@@ -69,5 +69,5 @@ void o_load_template(Obj *o, uint16_t data)
 
 void o_unload_template(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

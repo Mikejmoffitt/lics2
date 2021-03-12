@@ -9,7 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static int16_t kanim_speed;
 static int16_t kappear_frame;
@@ -18,25 +18,25 @@ static int16_t kflicker_speed;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_BOGOLOGO);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kanim_speed = PALSCALE_DURATION(9);
 	kappear_frame = PALSCALE_DURATION(36.0);
 	ksolid_frame = PALSCALE_DURATION(108.0);
 	kflicker_speed = PALSCALE_DURATION(4);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void render(O_Bogologo *e)
@@ -52,11 +52,11 @@ static void render(O_Bogologo *e)
 	for (int16_t x = 0; x < 4; x++)
 	{
 		spr_put(sp_x + (x * 32), sp_y,
-		        SPR_ATTR(vram_pos + (x * 12),
+		        SPR_ATTR(s_vram_pos + (x * 12),
 		                 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(4, 3));
 		spr_put(sp_x + (x * 32), sp_y + 24,
-		        SPR_ATTR(vram_pos + 48 + (x * 12),
+		        SPR_ATTR(s_vram_pos + 48 + (x * 12),
 		                 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(4, 3));
 	}
@@ -107,5 +107,5 @@ void o_load_bogologo(Obj *o, uint16_t data)
 
 void o_unload_bogologo(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

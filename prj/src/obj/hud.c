@@ -17,14 +17,14 @@
 // The internal maximum value for the CP counter.
 #define HUD_CP_MAX 29
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_EX_HUD);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
@@ -37,7 +37,7 @@ static inline void draw_hp(void)
 
 	// Label.
 	spr_put(hud_x, y_offset + 15,
-	        SPR_ATTR(vram_pos + 4, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 2));
+	        SPR_ATTR(s_vram_pos + 4, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 2));
 
 	// Show health.
 	const int16_t hp_capacity = progress->hp_capacity;
@@ -45,14 +45,14 @@ static inline void draw_hp(void)
 	int16_t i = lyle_get_hp();
 	while (i--)
 	{
-		spr_put(hud_x, plot_y, SPR_ATTR(vram_pos + 8, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
+		spr_put(hud_x, plot_y, SPR_ATTR(s_vram_pos + 8, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 		plot_y += 8;
 	}
 	i = hp_capacity - lyle_get_hp();
 	if (i <= 0) return;
 	while (i--)
 	{
-		spr_put(hud_x, plot_y, SPR_ATTR(vram_pos + 10, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
+		spr_put(hud_x, plot_y, SPR_ATTR(s_vram_pos + 10, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 		plot_y += 8;
 	}
 }
@@ -64,18 +64,18 @@ static inline void draw_cp(void)
 
 	// Label.
 	spr_put(hud_x, y_offset + 206,
-	        SPR_ATTR(vram_pos, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 2));
+	        SPR_ATTR(s_vram_pos, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 2));
 
 	// Top and bottom of the bar.
-	spr_put(hud_x, y_offset + 147, SPR_ATTR(vram_pos + 12, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
-	spr_put(hud_x, y_offset + 147 + HUD_CP_DISP_HEIGHT + 1, SPR_ATTR(vram_pos + 12, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
+	spr_put(hud_x, y_offset + 147, SPR_ATTR(s_vram_pos + 12, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
+	spr_put(hud_x, y_offset + 147 + HUD_CP_DISP_HEIGHT + 1, SPR_ATTR(s_vram_pos + 12, 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 
 	int16_t scaled_cp = FIX16TOINT(FIX16MUL(INTTOFIX16(HUD_CP_DISP_HEIGHT / (float)HUD_CP_MAX), INTTOFIX16(lyle_get_cp())));
 	int16_t i = HUD_CP_DISP_HEIGHT / 8;
 	int16_t plot_y = y_offset + 147 + HUD_CP_DISP_HEIGHT;
 	while (i--)
 	{
-		spr_put(hud_x, plot_y, SPR_ATTR(vram_pos + 14 + (scaled_cp < 8 ? 2 + (2 * (scaled_cp % 8)) : 0), 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
+		spr_put(hud_x, plot_y, SPR_ATTR(s_vram_pos + 14 + (scaled_cp < 8 ? 2 + (2 * (scaled_cp % 8)) : 0), 0, 0, BG_PAL_LINE, 1), SPR_SIZE(2, 1));
 		plot_y -= 8;
 		scaled_cp -= 8;
 		if (scaled_cp < 0) scaled_cp = 0;
@@ -103,5 +103,5 @@ void o_load_hud(Obj *o, uint16_t data)
 
 void o_unload_hud(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

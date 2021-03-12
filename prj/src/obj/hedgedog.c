@@ -12,7 +12,7 @@
 #include "obj/projectile_manager.h"
 #include "trig.h"
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static fix16_t kddy;
 static fix16_t kjump_str_base;
@@ -25,16 +25,16 @@ static fix16_t kshot_speed;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_HEDGEDOG);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.167));
 	kjump_str_base = INTTOFIX16(PALSCALE_1ST(-5.0));
@@ -46,7 +46,7 @@ static inline void set_constants(void)
 	kair_anim_delay = PALSCALE_DURATION(3);
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3));
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static inline void render(Obj *o)
@@ -71,7 +71,7 @@ static inline void render(Obj *o)
 		}
 		obj_render_setup(o, &sp_x, &sp_y, -10, -24,
 		                 map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + tile_offset,
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 		                    (o->x < lyle_get()->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 
@@ -81,7 +81,7 @@ static inline void render(Obj *o)
 		tile_offset = 4 * e->anim_frame;
 		obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 		                 map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + tile_offset,
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 		                    (o->x < lyle_get()->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 1), SPR_SIZE(2, 2));
 	}
@@ -205,5 +205,5 @@ void o_load_hedgedog(Obj *o, uint16_t data)
 
 void o_unload_hedgedog(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

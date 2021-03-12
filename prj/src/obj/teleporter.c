@@ -19,30 +19,30 @@ static int16_t kanim_len;
 static int8_t ktele_sound_trigger;
 static int8_t kanim_speed;
 
-static uint16_t constants_set;
+static uint16_t s_constants_set;
 
 static void set_constants(void)
 {
-	if (constants_set) return;
+	if (s_constants_set) return;
 
 	kactive_len = PALSCALE_DURATION(90);
 	kanim_len = PALSCALE_DURATION(120);
 	ktele_sound_trigger = PALSCALE_DURATION(75);
 	kanim_speed = PALSCALE_DURATION(2.5);
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 // VRAM.
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_TELEPORTER);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Main.
@@ -57,20 +57,20 @@ static inline void render(O_Teleporter *t)
 	// The "L" insignias flashing, if applicable.
 	if (!((t->disabled || t->anim_frame >= 2)))
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 16, 0, 0,
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 16, 0, 0,
 		                    BG_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 
 	// The base. Not drawn for ID >= 0x08.
 	if (t->id < 0x08)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(vram_pos + 24, 0, 0,
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24, 0, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 
 	// The aura.
 	if (t->disabled || t->anim_frame == 1 || t->anim_frame == 3) return;
-	const uint16_t aura_tile = vram_pos + ((t->anim_frame == 2) ? 8 : 0);
+	const uint16_t aura_tile = s_vram_pos + ((t->anim_frame == 2) ? 8 : 0);
 	obj_render_setup(o, &sp_x, &sp_y, -16, -1,
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(aura_tile, 0, 0,
@@ -185,5 +185,5 @@ void o_load_teleporter(Obj *o, uint16_t data)
 
 void o_unload_teleporter(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

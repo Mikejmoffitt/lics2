@@ -12,11 +12,11 @@ static fix16_t klunge_strength[4];
 static fix16_t kdecel;
 static int16_t klunge_time;
 
-static uint16_t constants_set;
+static uint16_t s_constants_set;
 
 static inline void set_constants(void)
 {
-	if (constants_set) return;
+	if (s_constants_set) return;
 
 	klunge_time = PALSCALE_DURATION(24);
 	klunge_strength[0] = INTTOFIX16(PALSCALE_1ST(1.417));
@@ -25,23 +25,23 @@ static inline void set_constants(void)
 	klunge_strength[3] = INTTOFIX16(PALSCALE_1ST(2.3));
 	kdecel = INTTOFIX16(PALSCALE_2ND(0.096));
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_METAGRUB);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void metagrub_draw(Obj *o)
 {
 	int16_t x_offset, y_offset;
-	uint16_t tile = vram_pos;
+	uint16_t tile = s_vram_pos;
 	const uint8_t dir = o->direction == OBJ_DIRECTION_LEFT;
 	const uint8_t pal = LYLE_PAL_LINE;
 	uint8_t size;
@@ -137,5 +137,5 @@ void o_load_metagrub(Obj *o, uint16_t data)
 
 void o_unload_metagrub(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 }

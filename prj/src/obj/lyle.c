@@ -94,8 +94,8 @@ static int16_t ktele_anim;
 
 static void set_constants(void)
 {
-	static int16_t constants_set = 0;
-	if (constants_set) return;
+	static int16_t s_constants_set = 0;
+	if (s_constants_set) return;
 
 	kdx_max = INTTOFIX16(PALSCALE_1ST(1.41666666667));
 	kdy_max = INTTOFIX16(PALSCALE_1ST(6.66666666667));
@@ -141,17 +141,17 @@ static void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(6.8);
 	ktele_anim = PALSCALE_DURATION(75);  // was 75 : 62
 
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_LYLE);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline uint16_t is_control_disabled(O_Lyle *l)
@@ -1018,7 +1018,7 @@ static inline void draw(O_Lyle *l)
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
 	spr_put(sp_x, sp_y,
-	        SPR_ATTR(vram_pos + tile_offset,
+	        SPR_ATTR(s_vram_pos + tile_offset,
 	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
 	                 LYLE_PAL_LINE, 0),
 	        size);
@@ -1118,11 +1118,11 @@ void o_load_lyle(Obj *o, uint16_t data)
 
 void o_unload_lyle(void)
 {
-	if (!vram_pos) return;
+	if (!s_vram_pos) return;
 
 	lyle = NULL;
 
-	vram_pos = 0;
+	s_vram_pos = 0;
 }
 
 // Public functions that act on the Lyle singleton

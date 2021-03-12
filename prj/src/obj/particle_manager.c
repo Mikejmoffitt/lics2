@@ -14,7 +14,7 @@
 
 static O_ParticleManager *particle_manager;
 
-static uint16_t vram_pos;
+static uint16_t s_vram_pos;
 
 static int16_t ksparkle_life;
 static int16_t kfizzle_life;
@@ -28,8 +28,8 @@ static Particle particles[16];
 
 static void set_constants(void)
 {
-	static int16_t constants_set;
-	if (constants_set) return;
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
 
 	ksparkle_life = PALSCALE_DURATION(14);
 	kfizzle_life = PALSCALE_DURATION(12);
@@ -38,15 +38,15 @@ static void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(3.4);
 	kanim_speed_explosion = PALSCALE_DURATION(3.4);
 	kanim_speed_sand = PALSCALE_DURATION(2.3);
-	constants_set = 1;
+	s_constants_set = 1;
 }
 
 static void vram_load(void)
 {
-	if (vram_pos) return;
+	if (s_vram_pos) return;
 
 	const Gfx *g = gfx_get(GFX_EX_PARTICLES);
-	vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static const uint16_t sparkle_anim[] =
@@ -103,21 +103,21 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			animate(p, kanim_speed);
 			px -= 8;
 			py -= 8;
-			attr = SPR_ATTR(vram_pos + sparkle_anim[p->anim_frame],
+			attr = SPR_ATTR(s_vram_pos + sparkle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 			animate(p, kanim_speed);
 			px -= 8;
 			py -= 8;
-			attr = SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame],
+			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
 			animate(p, kanim_speed);
 			px -= 8;
 			py -= 8;
-			attr = SPR_ATTR(vram_pos + fizzle_anim[p->anim_frame] + 16,
+			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame] + 16,
 			        0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
@@ -126,7 +126,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			{
 				px -= 12;
 				py -= 12;
-				attr = SPR_ATTR(vram_pos + 52,
+				attr = SPR_ATTR(s_vram_pos + 52,
 				        0, 0, LYLE_PAL_LINE, 0);
 				size = SPR_SIZE(3, 3);
 			}
@@ -134,14 +134,14 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			{
 				px -= 8;
 				py -= 8;
-				attr = SPR_ATTR(vram_pos + 48,
+				attr = SPR_ATTR(s_vram_pos + 48,
 				        0, 0, LYLE_PAL_LINE, 0);
 			}
 			else
 			{
 				px -= 16;
 				py -= 16;
-				attr = SPR_ATTR(vram_pos + 61,
+				attr = SPR_ATTR(s_vram_pos + 61,
 				        0, 0, LYLE_PAL_LINE, 0);
 				size = SPR_SIZE(4, 4);
 			}
@@ -150,7 +150,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			animate(p, kanim_speed_sand);
 			px -= 4;
 			py -= 4;
-			attr = SPR_ATTR(vram_pos + sand_anim[p->anim_frame],
+			attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
 			        0, 0, LYLE_PAL_LINE, 0);
 			size = SPR_SIZE(1, 1);
 			break;
@@ -182,7 +182,7 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 	(void)data;
 	SYSTEM_ASSERT(sizeof(O_ParticleManager) <= sizeof(ObjSlot));
 
-	if (particle_manager || vram_pos)
+	if (particle_manager || s_vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
@@ -201,7 +201,7 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 
 void o_unload_particle_manager(void)
 {
-	vram_pos = 0;
+	s_vram_pos = 0;
 	particle_manager = 0;
 }
 

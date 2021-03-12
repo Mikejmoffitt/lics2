@@ -62,9 +62,9 @@ struct Obj
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
 
-	ObjStatus status;
-	ObjFlags flags;
 	ObjType type;
+	ObjFlags flags;
+	ObjStatus status;
 	ObjDirection direction;
 
 	// Positions and dimensions, in game-world coordinates.
