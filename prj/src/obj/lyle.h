@@ -42,6 +42,7 @@ typedef struct O_Lyle
 	int8_t cp;
 	int8_t scroll_disable_h;
 	int8_t scroll_disable_v;
+	int8_t priority;
 } O_Lyle;
 
 void o_load_lyle(Obj *o, uint16_t data);

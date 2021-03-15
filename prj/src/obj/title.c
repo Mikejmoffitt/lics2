@@ -17,17 +17,67 @@ static const fix32_t kinitial_scroll = INTTOFIX32(360);
 
 static fix32_t kscroll_max;
 static fix16_t kscroll_gravity;
-static int16_t kscroll_delay_max;
+static int16_t kscroll_delay_duration;
 static fix16_t kbounce_dead_dy;
-static int16_t kappearance_delay_max;
+static int16_t kmenu_flash_period;
 
-static int16_t kcloakdude_seq;
+static int16_t kkitty_sleep_anim_speed;
+static int16_t kcloakdude_walk_anim_speed;
+static int16_t kcloakdude_look_anim_speed;
+static int16_t kcloakdude_run1_anim_speed;
+static int16_t kcloakdude_run2_anim_speed;
+static int16_t kcloakdude_seq[6];
+
+static int16_t klyle_seq[7];
+static int16_t klyle_anim_speed;
+
+// Store static constants here.
+
+static inline void set_constants(void)
+{
+	static int16_t s_constants_set;
+	if (s_constants_set) return;
+	// Set constants here.
+
+	kscroll_gravity = INTTOFIX16(PALSCALE_2ND(0.16666667));
+	kscroll_delay_duration = PALSCALE_DURATION(125);
+	kbounce_dead_dy = INTTOFIX16(PALSCALE_1ST(1.66666667));
+	kmenu_flash_period = PALSCALE_DURATION(16);
+
+	kscroll_max = kfloor_pos - INTTOFIX32(88) + (system_is_ntsc() ? INTTOFIX32(16.0) : 0);
+
+	// TODO: These are made up, not final
+	kkitty_sleep_anim_speed = PALSCALE_DURATION(40);
+	kcloakdude_walk_anim_speed = PALSCALE_DURATION(14);
+	kcloakdude_look_anim_speed = PALSCALE_DURATION(30);
+	kcloakdude_run1_anim_speed = PALSCALE_DURATION(5);
+	kcloakdude_run2_anim_speed = PALSCALE_DURATION(3);
+
+	kcloakdude_seq[0] = PALSCALE_DURATION(1);    // walk at dx = 0.2083333
+	kcloakdude_seq[1] = PALSCALE_DURATION(120);  // stop, look around
+	kcloakdude_seq[2] = PALSCALE_DURATION(240);  // walk at dx = 0.2083333
+	kcloakdude_seq[3] = PALSCALE_DURATION(600);  // stop, look around
+	kcloakdude_seq[4] = PALSCALE_DURATION(624);  // run at dx = 1.6666667
+	kcloakdude_seq[5] = PALSCALE_DURATION(648);  // kitty stands, eyes open
+
+	klyle_seq[0] = PALSCALE_DURATION(20);  // Door f1
+	klyle_seq[1] = PALSCALE_DURATION(25);  // Door f2
+	klyle_seq[2] = PALSCALE_DURATION(40);  // Lyle begins to walk
+	klyle_seq[3] = PALSCALE_DURATION(52);  // Lyle's y += 8 (step on ground)
+	klyle_seq[4] = PALSCALE_DURATION(95);  // Door f3
+	klyle_seq[5] = PALSCALE_DURATION(100); // Door f4
+	klyle_seq[6] = PALSCALE_DURATION(115); // Start
+
+	klyle_anim_speed = PALSCALE_DURATION(6.8);
+
+	s_constants_set = 1;
+}
 
 static uint16_t s_vram_pos;
 static uint16_t vram_credits_pos;
 static uint16_t vram_keddums_pos;
 static uint16_t vram_cloakdude_pos;
-
+static uint16_t vram_title_menu_pos;
 
 static void vram_load(void)
 {
@@ -41,37 +91,13 @@ static void vram_load(void)
 	vram_keddums_pos = gfx_load(g_keddums, obj_vram_alloc(g_keddums->size));
 	const Gfx *g_cloakdude = gfx_get(GFX_EX_CLOAKDUDE);
 	vram_cloakdude_pos = gfx_load(g_cloakdude, obj_vram_alloc(g_cloakdude->size));
+	const Gfx *g_title_menu = gfx_get(GFX_EX_TITLE_MENU);
+	vram_title_menu_pos = gfx_load(g_title_menu, obj_vram_alloc(g_title_menu->size));
 }
 
-// Store static constants here.
-
-static inline void set_constants(void)
+static void render_title_logo(int16_t sp_x, int16_t sp_y)
 {
-	static int16_t s_constants_set;
-	if (s_constants_set) return;
-	// Set constants here.
-
-	kscroll_gravity = INTTOFIX16(PALSCALE_2ND(0.16666667));
-	kscroll_delay_max = PALSCALE_DURATION(125);
-	kbounce_dead_dy = INTTOFIX16(PALSCALE_1ST(1.66666667));
-	kappearance_delay_max = PALSCALE_DURATION(791.6666666667);
-
-	kscroll_max = kfloor_pos - INTTOFIX32(88) + (system_is_ntsc() ? INTTOFIX32(16.0) : 0);
-
-	s_constants_set = 1;
-}
-
-static void render(O_Title *e)
-{
-	Obj *o = &e->head;
-	int16_t sp_x, sp_y;
-	static const int16_t offset_x = -56;
-	static const int16_t offset_y = -72;
 	static const int16_t pal = ENEMY_PAL_LINE;
-
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
-
 	int16_t vram = s_vram_pos;
 
 	// Title logo
@@ -137,7 +163,11 @@ static void render(O_Title *e)
 	        0, 0, pal, 0),
 	        SPR_SIZE(2, 1));
 	vram += 2;
+}
 
+static void render_credits(void)
+{
+	static const int16_t pal = ENEMY_PAL_LINE;
 	// The corner credits
 	spr_put(GAME_SCREEN_W_PIXELS - 68, 0,
 	        SPR_ATTR(vram_credits_pos, 0, 0, pal, 0),
@@ -150,16 +180,114 @@ static void render(O_Title *e)
 	        SPR_SIZE(3, 1));
 
 	spr_put(GAME_SCREEN_W_PIXELS - 68, 7,
-	        SPR_ATTR(vram_credits_pos + 16, 0, 0i, pal, 0),
+	        SPR_ATTR(vram_credits_pos + 9, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
 	spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 7,
-	        SPR_ATTR(vram_credits_pos + 19, 0, 0, pal, 0),
+	        SPR_ATTR(vram_credits_pos + 12, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
 	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
-	        SPR_ATTR(vram_credits_pos + 22, 0, 0, pal, 0),
+	        SPR_ATTR(vram_credits_pos + 15, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
+}
 
-	// TODO: Vyle (cloaked) and kitty
+static void render_menu(O_Title *e, int16_t sp_y)
+{
+	const int16_t flash_on = (e->menu_flash_cnt <= (kmenu_flash_period / 2));
+	const int16_t newgame_pal = (e->menu_choice == 0 && flash_on) ?
+	                            ENEMY_PAL_LINE : BG_PAL_LINE;
+	const int16_t continue_pal = (e->menu_choice == 1 && flash_on) ?
+	                              ENEMY_PAL_LINE : BG_PAL_LINE;
+
+	const int16_t x = GAME_SCREEN_W_PIXELS/2;
+	spr_put(x - 72, sp_y + 80, SPR_ATTR(vram_title_menu_pos, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
+	spr_put(x - 40, sp_y + 80, SPR_ATTR(vram_title_menu_pos + 4, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
+	spr_put(x + 8, sp_y + 80, SPR_ATTR(vram_title_menu_pos + 8, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
+	spr_put(x + 40, sp_y + 80, SPR_ATTR(vram_title_menu_pos + 12, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
+}
+
+static void render_title_full(O_Title *e)
+{
+	Obj *o = &e->head;
+	int16_t sp_x, sp_y;
+	static const int16_t offset_x = -56;
+	static const int16_t offset_y = -72;
+
+	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
+	                 map_get_x_scroll(), map_get_y_scroll());
+
+	render_title_logo(sp_x, sp_y);
+	render_credits();
+	render_menu(e, sp_y);
+}
+
+static void render_kitty(O_Title *e, int16_t sp_x, int16_t sp_y)
+{
+	if (e->kitty_anim_state == 0)
+	{
+		OBJ_SIMPLE_ANIM(e->kitty_anim_cnt, e->kitty_anim_frame,
+		3, kkitty_sleep_anim_speed);
+		spr_put(sp_x + 80, sp_y + 168,
+		        SPR_ATTR(vram_keddums_pos + (6 * e->kitty_anim_frame),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 2));
+
+	}
+	else if (e->kitty_anim_state == 1)
+	{
+		spr_put(sp_x + 80, sp_y + 168,
+		        SPR_ATTR(vram_keddums_pos + (6 * 3),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 2));
+	}
+}
+
+static void render_cloakdude(O_Title *e, int16_t sp_x, int16_t sp_y)
+{
+	sp_x += FIX32TOINT(e->cloakdude_x);
+
+	if (e->cloakdude_anim_state == 0)
+	{
+		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
+		2, kcloakdude_walk_anim_speed);
+		spr_put(sp_x, sp_y + 160,
+		        SPR_ATTR(vram_cloakdude_pos + (9 * e->cloakdude_anim_frame),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
+	}
+	else if (e->cloakdude_anim_state == 1)
+	{
+		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
+		2, kcloakdude_look_anim_speed);
+		spr_put(sp_x, sp_y + 160,
+		        SPR_ATTR(vram_cloakdude_pos + (e->cloakdude_anim_frame ? 18 : 0),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
+	}
+	else if (e->cloakdude_anim_state == 2)
+	{
+		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
+		2, kcloakdude_run1_anim_speed);
+		spr_put(sp_x, sp_y + 160,
+		        SPR_ATTR(vram_cloakdude_pos + (9 * e->cloakdude_anim_frame),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
+	}
+	else if (e->cloakdude_anim_state == 3)
+	{
+		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
+		4, kcloakdude_run2_anim_speed);
+		spr_put(sp_x, sp_y + 160,
+		        SPR_ATTR(vram_cloakdude_pos + 27 + (9 * e->cloakdude_anim_frame),
+		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
+	}
+}
+
+static void render_cutscene(O_Title *e)
+{
+	Obj *o = &e->head;
+	int16_t sp_x, sp_y;
+	static const int16_t offset_x = -56;
+	static const int16_t offset_y = -72;
+
+	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
+	                 map_get_x_scroll(), map_get_y_scroll());
+	render_kitty(e, sp_x, sp_y);
+	render_cloakdude(e, sp_x, sp_y);
 }
 
 static void set_scroll(O_Title *e)
@@ -196,7 +324,7 @@ static void draw_house_door(int16_t frame)
 		MAPADDR(35, 19), VDP_ATTR(0x0E, 0, 0, MAP_PAL_LINE, 1),
 		MAPADDR(34, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
 		MAPADDR(35, 20), VDP_ATTR(0x1E, 0, 0, MAP_PAL_LINE, 1),
-		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 1),
 		MAPADDR(35, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 1),
 	};
 	static const uint16_t door_open[] =
@@ -207,8 +335,19 @@ static void draw_house_door(int16_t frame)
 		MAPADDR(35, 19), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
 		MAPADDR(34, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
 		MAPADDR(35, 20), VDP_ATTR(0x00, 0, 0, MAP_PAL_LINE, 0),
-		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 0),
-		MAPADDR(35, 21), VDP_ATTR(0x53, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 21), VDP_ATTR(0x52, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(35, 21), VDP_ATTR(0x53, 0, 0, MAP_PAL_LINE, 1),
+	};
+	static const uint16_t door_half_low[] =
+	{
+		MAPADDR(34, 18), VDP_ATTR(0xC2, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 18), VDP_ATTR(0x0F, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 19), VDP_ATTR(0xC2, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 19), VDP_ATTR(0x0E, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 20), VDP_ATTR(0xC2, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 20), VDP_ATTR(0x1E, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(34, 21), VDP_ATTR(0xD2, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(35, 21), VDP_ATTR(0x6D, 0, 0, MAP_PAL_LINE, 0),
 	};
 	static const uint16_t door_closed_low[] =
 	{
@@ -243,6 +382,10 @@ static void draw_house_door(int16_t frame)
 			size = ARRAYSIZE(door_open);
 			break;
 		case 3:
+			src = door_half_low;
+			size = ARRAYSIZE(door_half_low);
+			break;
+		case 4:
 			src = door_closed_low;
 			size = ARRAYSIZE(door_closed_low);
 			break;
@@ -263,6 +406,13 @@ static void draw_normal_house_tiles(void)
 #define MAPADDR(x, y) (2 * (x + (y * GAME_PLANE_W_CELLS)))
 	static const uint16_t prio_tiles[] =
 	{
+		MAPADDR(28, 18), VDP_ATTR(0x0A, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(29, 18), VDP_ATTR(0x0B, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(28, 19), VDP_ATTR(0x1A, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(29, 19), VDP_ATTR(0x1B, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(28, 20), VDP_ATTR(0x0A, 0, 0, MAP_PAL_LINE, 0),
+		MAPADDR(29, 20), VDP_ATTR(0x0B, 0, 0, MAP_PAL_LINE, 0),
+
 		MAPADDR(30, 17), VDP_ATTR(0x1C, 0, 0, MAP_PAL_LINE, 0),
 		MAPADDR(31, 17), VDP_ATTR(0x1D, 0, 0, MAP_PAL_LINE, 0),
 		MAPADDR(32, 17), VDP_ATTR(0x02, 0, 0, MAP_PAL_LINE, 0),
@@ -304,6 +454,13 @@ static void draw_high_prio_house_tiles(void)
 #define MAPADDR(x, y) (2 * (x + (y * GAME_PLANE_W_CELLS)))
 	static const uint16_t prio_tiles[] =
 	{
+		MAPADDR(28, 18), VDP_ATTR(0x0A, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(29, 18), VDP_ATTR(0x0B, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(28, 19), VDP_ATTR(0x1A, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(29, 19), VDP_ATTR(0x1B, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(28, 20), VDP_ATTR(0x0A, 0, 0, MAP_PAL_LINE, 1),
+		MAPADDR(29, 20), VDP_ATTR(0x0B, 0, 0, MAP_PAL_LINE, 1),
+
 		MAPADDR(30, 17), VDP_ATTR(0x1C, 0, 0, MAP_PAL_LINE, 1),
 		MAPADDR(31, 17), VDP_ATTR(0x1D, 0, 0, MAP_PAL_LINE, 1),
 		MAPADDR(32, 17), VDP_ATTR(0x02, 0, 0, MAP_PAL_LINE, 1),
@@ -337,112 +494,282 @@ static void draw_high_prio_house_tiles(void)
 	}
 }
 
+static void maybe_skip_to_menu(O_Title *e)
+{
+	if (e->state_elapsed <= 2)
+	{
+		return;
+	}
+	const MdButton buttons = io_pad_read(0);
+	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+	{
+		e->v_scroll_y = kfloor_pos;
+		e->state_elapsed = 0;
+		e->state = TITLE_STATE_MENU;
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Title *e = (O_Title *)o;
 
 	const MdButton buttons = io_pad_read(0);
 
-	// On first appearance, set up the palette.
-	if (!o->offscreen && !e->initialized)
+	e->state_prev = e->state;
+	switch (e->state)
 	{
-		e->initialized = 1;
-		e->v_scroll_y = kinitial_scroll;
-		lyle_set_scroll_h_en(0);
-		lyle_set_scroll_v_en(0);
-		lyle_set_control_en(0);
-		lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
+		case TITLE_STATE_INIT:
+			// On first appearance, the palette is set up, Lyle is placed in
+			// position, and his scroll control is taken away.
+			e->v_scroll_y = kinitial_scroll;
+			e->cloakdude_x = -INTTOFIX32(130);
+			lyle_set_scroll_h_en(0);
+			lyle_set_scroll_v_en(0);
+			lyle_set_control_en(0);
+			lyle_set_pos(o->x - INTTOFIX32(48), lyle_get_y() - INTTOFIX32(8));
+			map_redraw_room();
 
-		set_scroll(e);
-		map_redraw_room();
-	}
-
-	if (e->appearance_delay_cnt < kappearance_delay_max - 2 &&
-	    e->v_scroll_delay_cnt > 2)
-	{
-		if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
-		{
-			e->v_scroll_y = kfloor_pos;
-			e->v_scroll_complete = 1;
-			e->v_scroll_delay_cnt = kscroll_delay_max;
-			e->appearance_delay_cnt = kappearance_delay_max - 2;
-			draw_high_prio_house_tiles();
-			draw_house_door(0);
-			set_scroll(e);
-		}
-	}
-
-	if (e->v_scroll_delay_cnt < kscroll_delay_max)
-	{
-		e->v_scroll_delay_cnt++;
-		set_scroll(e);
-		return;
-	}
-	else if (!e->v_scroll_complete)
-	{
-		draw_high_prio_house_tiles();
-		draw_house_door(0);
-		e->v_scroll_dy += kscroll_gravity;
-		e->v_scroll_y += (fix32_t)e->v_scroll_dy;
-
-		if (e->v_scroll_y >= kscroll_max)
-		{
-			if (e->v_scroll_dy > kbounce_dead_dy)
+			e->state = TITLE_STATE_INTRO;
+			break;
+		case TITLE_STATE_INTRO:
+			if (e->state_elapsed >= kscroll_delay_duration) // was v_scroll_complete
 			{
-				e->v_scroll_dy = e->v_scroll_dy / -2;
-			}
-			else if (e->v_scroll_dy > 0 && e->v_scroll_dy < kbounce_dead_dy)
-			{
-				// TODO: Also trigger this on button press.
-				e->v_scroll_y = kfloor_pos;
-				e->v_scroll_complete = 1;
-			}
-		}
+				draw_high_prio_house_tiles();
+				draw_house_door(0);
 
-		set_scroll(e);
-	}
-	else if (e->appearance_delay_cnt < kappearance_delay_max)
-	{
-		pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
-		e->appearance_delay_cnt++;
-		if (e->appearance_delay_cnt == kappearance_delay_max)
-		{
-			music_play(14);
-		}
-	}
-	else
-	{
-		if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
-		{
-			// TODO: proper logic to begin game with delay.
-			lyle_set_control_en(1);
-			pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_title_bin) / 2);
-			music_play(1);
-			lyle_set_scroll_h_en(1);
-			lyle_set_pos(lyle_get_x() + INTTOFIX32(16), lyle_get_y() + INTTOFIX32(8));
-			draw_normal_house_tiles();
-			draw_house_door(3);
-			// Delete WNDWBACK objects too.
-			for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
-			{
-				Obj *o = &g_objects[i].obj;
-				if (o->status == OBJ_STATUS_NULL) continue;
-				if (o->type == OBJ_WNDWBACK)
+				// Gravity physics, and bouncing at the bottom.
+				e->v_scroll_dy += kscroll_gravity;
+				e->v_scroll_y += (fix32_t)e->v_scroll_dy;
+				if (e->v_scroll_y >= kscroll_max / 2)
 				{
-					o->status = OBJ_STATUS_NULL;
+					pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+				}
+				if (e->v_scroll_y >= kscroll_max)
+				{
+					if (e->v_scroll_dy > kbounce_dead_dy)
+					{
+						e->v_scroll_dy = e->v_scroll_dy / -2;
+					}
+					else if (e->v_scroll_dy > 0 &&
+					         e->v_scroll_dy < kbounce_dead_dy)
+					{
+						// After the bouncing has stopped, go to next state.
+						e->state = TITLE_STATE_CUTSCENE;
+						e->v_scroll_y = kfloor_pos;
+					}
 				}
 			}
-			o->status = OBJ_STATUS_NULL;
-			return;
-		}
-		render(e);
+			maybe_skip_to_menu(e);
+			render_cutscene(e);
+			break;
+		case TITLE_STATE_CUTSCENE:
+			if (e->state_elapsed == 0)
+			{
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+				lyle_set_pos(lyle_get_x(), lyle_get_y() - INTTOFIX32(240));
+			}
+
+			if (e->state_elapsed == kcloakdude_seq[0])
+			{
+				e->cloakdude_anim_state = 0;
+				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2083333));
+			}
+			else if (e->state_elapsed == kcloakdude_seq[1])
+			{
+				e->cloakdude_anim_state = 1;
+				e->cloakdude_dx = 0;
+			}
+			else if (e->state_elapsed == kcloakdude_seq[2])
+			{
+				e->cloakdude_anim_state = 0;
+				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2083333));
+			}
+			else if (e->state_elapsed == kcloakdude_seq[3])
+			{
+				e->cloakdude_anim_state = 1;
+				e->cloakdude_dx = 0;
+			}
+			else if (e->state_elapsed == kcloakdude_seq[4])
+			{
+				e->cloakdude_anim_state = 2;
+				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(1.6666667));
+			}
+			else if (e->state_elapsed == kcloakdude_seq[5])
+			{
+				e->kitty_anim_state = 1;
+			}
+			else if (e->cloakdude_dx > 0 && e->cloakdude_x >= INTTOFIX32(74))
+			{
+				e->cloakdude_dx = -INTTOFIX16(PALSCALE_1ST(2.500000));
+				e->cloakdude_anim_state = 3;
+				e->kitty_anim_state = 2;
+			}
+
+			e->cloakdude_x += e->cloakdude_dx;
+			if (e->cloakdude_x <= -INTTOFIX32(208))
+			{
+				if (e->cloakdude_dx != 0)
+				{
+					lyle_set_pos(lyle_get_x(), lyle_get_y() + INTTOFIX32(240));
+					e->cloakdude_dx = 0;
+				}
+				const fix32_t lyle_x = lyle_get_x();
+				if (lyle_get_x() < o->x - INTTOFIX32(32))
+				{
+					lyle_set_pos(lyle_x + INTTOFIX32(PALSCALE_1ST(1.0)),
+					             lyle_get_y());
+				}
+				else
+				{
+					e->state = TITLE_STATE_MENU;
+				}
+			}
+			render_cutscene(e);
+
+			maybe_skip_to_menu(e);
+			break;
+		case TITLE_STATE_MENU:
+			if (e->state_elapsed == 0)
+			{
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+				draw_high_prio_house_tiles();
+				draw_house_door(0);
+				e->menu_choice = 1;  // Continue.
+				music_play(14);  // Alone in the Dark
+				lyle_set_pos(o->x - INTTOFIX32(32), lyle_get_y());
+			}
+
+			e->menu_flash_cnt++;
+			if (e->menu_flash_cnt >= kmenu_flash_period)
+			{
+				e->menu_flash_cnt = 0;
+			}
+
+			if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT) &&
+				e->menu_choice != 0)
+			{
+				e->menu_choice = 0;
+				// TODO: Play select sound
+			}
+
+			if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT) &&
+				e->menu_choice != 1)
+			{
+				e->menu_choice = 1;
+				// TODO: Play select sound
+			}
+
+			if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+			{
+				// TODO: Play menu confirmation sound
+				e->state = TITLE_STATE_BEGIN;
+			}
+
+			render_title_full(e);
+
+			break;
+		case TITLE_STATE_BEGIN:
+			if (e->state_elapsed == klyle_seq[0])
+			{
+				draw_house_door(1);
+			}
+			else if (e->state_elapsed == klyle_seq[1])
+			{
+				draw_house_door(2);
+			}
+			else if (e->state_elapsed >= klyle_seq[2])
+			{
+				O_Lyle *l = lyle_get();
+
+				const fix32_t lyle_x = lyle_get_x();
+				if (lyle_x < o->x)
+				{
+					OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame, 4, klyle_anim_speed);
+					if (e->lyle_anim_frame == 0)
+					{
+						l->anim_frame = 0x01;
+					}
+					else if (e->lyle_anim_frame == 2)
+					{
+						l->anim_frame = 0x03;
+					}
+					else
+					{
+						l->anim_frame = 0x02;
+					}
+					lyle_set_pos(lyle_x + INTTOFIX32(PALSCALE_1ST(1.0)),
+					             lyle_get_y());
+				}
+				else
+				{
+					l->priority = 1;
+					l->anim_frame = 0x00;
+				}
+			}
+
+			if (e->state_elapsed == klyle_seq[3])
+			{
+				lyle_set_pos(lyle_get_x(), lyle_get_y() + INTTOFIX32(8));
+			}
+			else if (e->state_elapsed == klyle_seq[4])
+			{
+				// Delete WNDWBACK objects near door
+				for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+				{
+					Obj *w = &g_objects[i].obj;
+					if (w->status == OBJ_STATUS_NULL) continue;
+					if (w->x < o->x - INTTOFIX32(8) ||
+					    w->x > o->x + INTTOFIX32(8))
+					{
+						continue;
+					}
+					if (w->type == OBJ_WNDWBACK)
+					{
+						w->status = OBJ_STATUS_NULL;
+					}
+				}
+			}
+			else if (e->state_elapsed == klyle_seq[4] + 1)
+			{
+				draw_house_door(3);
+			}
+			else if (e->state_elapsed == klyle_seq[5])
+			{
+				draw_house_door(4);
+			}
+			else if (e->state_elapsed == klyle_seq[6] - 1)
+			{
+				// Delete remaining WNDWBACK objects
+				for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+				{
+					Obj *w = &g_objects[i].obj;
+					if (w->status == OBJ_STATUS_NULL) continue;
+					if (w->type == OBJ_WNDWBACK)
+					{
+						w->status = OBJ_STATUS_NULL;
+					}
+				}
+			}
+			else if (e->state_elapsed >= klyle_seq[6])
+			{
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_title_bin) / 2);
+				draw_normal_house_tiles();
+				lyle_set_control_en(1);
+				lyle_get()->priority = 0;
+				music_play(1);  // Stage music
+				o->status = OBJ_STATUS_NULL;
+				return;
+			}
+			render_title_full(e);
+			break;
 	}
 
-	// TODO: proper intro scene logic
-	// TODO: proper menu logic
+	if (e->state != e->state_prev) e->state_elapsed = 0;
+	else e->state_elapsed++;
 
+	set_scroll(e);
 	e->buttons_prev = buttons;
-
 }
 
 void o_load_title(Obj *o, uint16_t data)

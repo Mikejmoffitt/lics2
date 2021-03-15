@@ -52,6 +52,7 @@ static const Gfx gfx[] =
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
 	[GFX_EX_GRASSES] = GFX(ex_grasses),
 	[GFX_EX_COLUMNS] = GFX(ex_columns),
+	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

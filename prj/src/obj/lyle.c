@@ -857,8 +857,6 @@ static void calc_anim_frame(O_Lyle *l)
 {
 	if (l->ext_disable)
 	{
-		l->anim_frame = (l->holding_cube ? 0x08 : 0x00);
-		l->anim_cnt = 0;
 		return;
 	}
 	if (l->grounded || l->on_cube)
@@ -1020,7 +1018,7 @@ static inline void draw(O_Lyle *l)
 	spr_put(sp_x, sp_y,
 	        SPR_ATTR(s_vram_pos + tile_offset,
 	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
-	                 LYLE_PAL_LINE, 0),
+	                 LYLE_PAL_LINE, l->priority),
 	        size);
 }
 
