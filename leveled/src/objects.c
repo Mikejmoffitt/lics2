@@ -61,6 +61,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_BGSCROLLY]     = {"BgScroll", 8, 8},
 	[OBJ_FAKECUBE]      = {"FakeCube", 16, 16},
 
+	[OBJ_COLUMNS]       = {"Columns", 16, 16},
 	[OBJ_GRASSES]       = {"Grasses", 16, 16},
 	[OBJ_PURPLETREE]    = {"PrplTree", 16, 16},
 	[OBJ_WNDWBACK]      = {"WndwBack", 16, 16},

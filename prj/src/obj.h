@@ -33,6 +33,7 @@ typedef enum ObjStatus
 {
 	OBJ_STATUS_NULL,
 	OBJ_STATUS_ACTIVE,
+	OBJ_STATUS_HIBERNATE,
 } ObjStatus;
 
 // Flags containing some basic properties about the object.
@@ -45,8 +46,8 @@ typedef enum ObjFlags
 	OBJ_FLAG_DEADLY = 0x1000,  // Kills the player immediately on contact.
 	OBJ_FLAG_SENSITIVE = 0x0800,  // Innocuous player contact.
 
-	OBJ_FLAG_TANGIBLE = 0x0040,  // Can be hit by a cube and get hurt.
 
+	OBJ_FLAG_TANGIBLE = 0x0040,  // Can be hit by a cube and get hurt.
 	OBJ_FLAG_ALWAYS_ACTIVE = 0x0010,  // Active even if off-screen.
 } ObjFlags;
 

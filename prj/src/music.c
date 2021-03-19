@@ -99,7 +99,7 @@ static const BgmEntry bgm_list[] =
 {
 	{NULL, 0x00},
 	{res_mus_esf_bgm1_esf, 0xBE},
-	{res_mus_esf_bgm2_esf, 0xC8},
+	{res_mus_esf_bgm2_esf, 0xCD},
 	{res_mus_esf_bgm3_esf, 0xC7},
 	{res_mus_esf_bgm4_esf, 0xC7},
 	{res_mus_esf_bgm5_esf, 0xBD},

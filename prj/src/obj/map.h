@@ -119,4 +119,9 @@ void map_redraw_room(void);
 void map_set_exit_trigger(MapExitTrigger t);
 MapExitTrigger map_get_exit_trigger(void);
 
+int16_t map_get_world_x_tile(void);
+int16_t map_get_world_y_tile(void);
+
+void map_upload_tiles(void);
+void map_upload_palette(void);
 #endif  // MAP_H

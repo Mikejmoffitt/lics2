@@ -424,16 +424,10 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	g_map_x_scroll = 0;
 	g_map_y_scroll = 0;
 
-	// Set up tiles and palettes.
-	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
-	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
-	{
-		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
-		SYSTEM_ASSERT(tsa->tile_data_size <= MAP_TILE_VRAM_LENGTH);
-		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
-		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin, sizeof(res_pal_enemy_bin) / 2);
-		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
-	}
+	map_upload_tiles();
+	map_upload_palette();
+	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+	           sizeof(res_pal_enemy_bin) / 2);
 
 	// Set scroll mode based on room geometry.
 	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
@@ -534,4 +528,39 @@ MapExitTrigger map_get_exit_trigger(void)
 {
 	if (!map) return MAP_EXIT_NONE;
 	return map->exit_trigger;
+}
+
+int16_t map_get_world_x_tile(void)
+{
+	if (!map) return 0;
+	return map->current_map->map_x;
+}
+
+int16_t map_get_world_y_tile(void)
+{
+	if (!map) return 0;
+	return map->current_map->map_y;
+}
+
+void map_upload_tiles(void)
+{
+	if (!map) return;
+	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
+	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
+	{
+		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
+		SYSTEM_ASSERT(tsa->tile_data_size <= MAP_TILE_VRAM_LENGTH);
+		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
+	}
+}
+
+void map_upload_palette(void)
+{
+	if (!map) return;
+	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
+	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
+	{
+		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
+		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
+	}
 }

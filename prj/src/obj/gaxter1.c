@@ -26,8 +26,8 @@ static void set_constants(void)
 	if (s_constants_set) return;
 
 	kanim_len = PALSCALE_DURATION(2);
-	kaccel = INTTOFIX16(PALSCALE_2ND(0.1429));
-	ktop_speed = INTTOFIX16(PALSCALE_1ST(2.25));
+	kaccel = INTTOFIX16(PALSCALE_2ND(0.09920634920634));
+	ktop_speed = INTTOFIX16(PALSCALE_1ST(2.38));
 
 	s_constants_set = 1;
 }
@@ -54,7 +54,7 @@ static inline void render(O_Gaxter1 *f)
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
-	                    LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+	                    LYLE_PAL_LINE, 1), SPR_SIZE(2, 2));
 }
 
 static void main_func(Obj *o)

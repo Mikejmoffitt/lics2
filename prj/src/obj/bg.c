@@ -212,7 +212,6 @@ static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_city_red_func(int16_t x_scroll, int16_t y_scroll)
 {
-	(void)y_scroll;
 	const int16_t x_offset = -38;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll + x_offset);
 	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
@@ -243,7 +242,7 @@ static void bg_plane_func(int16_t x_scroll, int16_t y_scroll)
 static void bg_blue_bumps_func(int16_t x_scroll, int16_t y_scroll)
 {
 	const Gfx *g = gfx_get(GFX_BG_3);
-	(void)x_scroll;
+	set_h_scroll_plane(x_scroll);
 	v_scroll_buffer[0] = y_scroll / 2;
 	v_scroll_buffer[1] = y_scroll / 2;
 	v_scroll_buffer[2] = y_scroll / 2;
@@ -280,13 +279,12 @@ static void bg_bubbles_func(int16_t x_scroll, int16_t y_scroll)
 static void bg_orange_balls_func(int16_t x_scroll, int16_t y_scroll)
 {
 	const Gfx *g = gfx_get(GFX_BG_7_EX);
-	(void)y_scroll;
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t x_front_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667))) % 48;
 	const int16_t x_counter_index = 47 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 48);
 
-	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+	set_v_scroll_plane(y_scroll);
 	set_h_scroll_plane(x_front_scroll);
 
 	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, g->data + (6 * 6 * 32 * x_counter_index), (6 * 6 * 32) / 2, 2);
@@ -385,7 +383,7 @@ static void undersand_green_columns(void)
 // TODO: Clean up and profile
 static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
 {
-	(void)y_scroll;
+	set_v_scroll_plane(y_scroll);
 
 	undersand_purple_columns(x_scroll);
 	undersand_green_columns();
@@ -396,7 +394,7 @@ static void bg_undersand_columns_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_columns_2_func(int16_t x_scroll, int16_t y_scroll)
 {
-	(void)y_scroll;
+	set_v_scroll_plane(y_scroll);
 
 	undersand_purple_columns(x_scroll);
 
@@ -561,10 +559,9 @@ static void bg_technozone_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_crazy_city_func(int16_t x_scroll, int16_t y_scroll)
 {
-	(void)y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(0);
+	set_v_scroll_plane(y_scroll);
 
 	set_h_scroll_plane(-x_scroll / 2);
 
@@ -576,10 +573,9 @@ static void bg_crazy_city_func(int16_t x_scroll, int16_t y_scroll)
 
 static void bg_crazy_city_low_func(int16_t x_scroll, int16_t y_scroll)
 {
-	(void)y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(0);
+	set_v_scroll_plane(y_scroll);
 
 	set_h_scroll_plane(-x_scroll / 2);
 
@@ -614,7 +610,6 @@ static void bg_elevator_func(int16_t x_scroll, int16_t y_scroll)
 static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 {
 	const Gfx *g = gfx_get(GFX_BG_16_EX);
-	(void)y_scroll;
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t x_squiggle_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
@@ -622,7 +617,7 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 	const int16_t x_front_scroll = x_front_scroll_raw % 24;
 	const int16_t x_counter_index = 23 - (FIX32TOINT(FIX32MUL(-x_fixed, INTTOFIX32(0.22222222221))) % 24);
 
-	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+	set_v_scroll_plane(y_scroll);
 	set_h_scroll_plane(x_front_scroll);
 	for (int16_t i = 0; i < 4; i++)
 	{
@@ -687,7 +682,7 @@ static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
 
 */
 
-	(void)y_scroll;
+	set_v_scroll_plane(y_scroll);
 	set_v_scroll_plane((system_is_ntsc() ? 8 : 0));
 
 	static const int16_t modulo = 48;

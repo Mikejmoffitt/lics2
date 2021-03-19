@@ -11,8 +11,6 @@ typedef struct O_LavaAnim
 	int16_t anim_cnt;
 	int16_t anim_frame_prev;
 
-	int16_t pal_set;
-
 	uint16_t variant;
 } O_LavaAnim;
 

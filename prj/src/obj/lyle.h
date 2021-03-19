@@ -59,6 +59,7 @@ void lyle_kill(void);
 fix32_t lyle_get_x(void);
 fix32_t lyle_get_y(void);
 void lyle_set_pos(fix32_t x, fix32_t y);
+void lyle_set_direction(ObjDirection d);
 
 int16_t lyle_get_hp(void);
 int16_t lyle_get_cp(void);

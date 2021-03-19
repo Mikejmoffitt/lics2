@@ -109,6 +109,7 @@ static void game_loop(void)
 		obj_spawn(0, 0, OBJ_MAP, 0);
 		map_load(s_persistent_state.next_room_id, s_persistent_state.next_room_entrance);
 		obj_spawn(0, 0, OBJ_BG, 0);
+		obj_spawn(0, 0, OBJ_PAUSE, 0);
 
 		O_Lyle *l = lyle_get();
 		l->head.dx = s_persistent_state.lyle_entry_dx;
@@ -129,22 +130,20 @@ static void game_loop(void)
 	}
 	music_handle_pending();
 	obj_exec();
-
-	static uint8_t pad_prev;
-	if (io_pad_read(0) & BTN_START && !(pad_prev & BTN_START))
+	if (s_room_elapsed == 0)
 	{
-		ProgressSlot *prog = progress_get();
-		prog->abilities = ABILITY_MASK;
-		O_Lyle *l = lyle_get();
-		l->head.hp = prog->hp_capacity;
-		l->cp = LYLE_MAX_CP;
+		progress_save();
 	}
-	pad_prev = io_pad_read(0);
 
 	if (map_get_exit_trigger() || (io_pad_read(0) & BTN_A))
 	{
 		if (io_pad_read(0) & BTN_A)
 		{
+			ProgressSlot *prog = progress_get();
+			prog->abilities = ABILITY_MASK;
+			O_Lyle *l = lyle_get();
+			l->head.hp = prog->hp_capacity;
+			l->cp = LYLE_MAX_CP;
 			s_persistent_state.next_room_id++;
 			s_persistent_state.next_room_entrance = 0;
 		}
@@ -169,7 +168,7 @@ static void game_loop(void)
 		s_persistent_state.lyle_hp = l->head.hp;
 		s_persistent_state.lyle_tele_in_cnt = l->tele_in_cnt;
 
-		s_room_loaded = 0;;
+		s_room_loaded = 0;
 	}
 	vdp_set_display_en(s_room_elapsed >= 2);
 	s_room_elapsed++;

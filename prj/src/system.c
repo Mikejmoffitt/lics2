@@ -5,7 +5,7 @@
 int16_t g_system_is_ntsc;
 int16_t g_system_debug_enabled;
 
-static uint16_t s_rand_value;
+static uint32_t s_rand_value;
 
 int system_init(void)
 {
@@ -40,19 +40,19 @@ int system_init(void)
 static inline void rand_step(void)
 {
 	const uint16_t feedback = (s_rand_value & 0x0001) ^
-	                          ((s_rand_value >> 7) & 0x0001);
+	                          ((s_rand_value >> 9) & 0x0001);
 	s_rand_value = s_rand_value >> 1;
-	s_rand_value |= (feedback << 15);
+	s_rand_value |= (feedback << 31);
 }
 
-void system_srand(uint16_t seed)
+void system_srand(uint32_t seed)
 {
 	if (seed == 0) seed = vdp_get_hv_count();
 	s_rand_value = seed;
 	rand_step();
 }
 
-uint16_t system_rand(void)
+uint32_t system_rand(void)
 {
 	rand_step();
 	return s_rand_value;

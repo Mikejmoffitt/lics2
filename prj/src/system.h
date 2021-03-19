@@ -8,8 +8,8 @@
 #include "gfx.h"
 
 int system_init(void);
-void system_srand(uint16_t seed);
-uint16_t system_rand(void);
+void system_srand(uint32_t seed);
+uint32_t system_rand(void);
 void system_set_debug_enabled(int16_t en);
 void system_profile(uint16_t color);
 

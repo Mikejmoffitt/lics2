@@ -326,7 +326,8 @@ void powerup_manager_clear(void)
 	}
 }
 
-Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id)
+Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
+                               PowerupType type, int8_t orb_id)
 {
 	if (!powerup_manager) return NULL;
 	const ProgressSlot *prog = progress_get();

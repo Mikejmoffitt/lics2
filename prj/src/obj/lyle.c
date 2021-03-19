@@ -102,7 +102,7 @@ static void set_constants(void)
 	kx_accel = INTTOFIX16(PALSCALE_2ND(0.10416666667));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.15972222223));  // Was 0.21 : 0.3024
 	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.0903777777777));  // Was 0.10 : 0.144
-	kjump_dy = INTTOFIX16(PALSCALE_1ST(-2.84));  // was -2.94 : -3.58
+	kjump_dy = INTTOFIX16(PALSCALE_1ST(-2.94));  // was -2.94 : -3.58
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));  // was -0.42 : -0.5
 	khurt_dx = INTTOFIX16(PALSCALE_1ST(-1.91666667));  // was -1.92 : -2.3
 	kdx_snap = INTTOFIX16(PALSCALE_1ST(0.1));
@@ -1049,6 +1049,19 @@ static inline void set_map_scroll(const O_Lyle *l)
 	}
 }
 
+static inline void update_exploration(O_Lyle *l)
+{
+	if (l->ext_disable || l->head.hp == 0) return;
+	ProgressSlot *prog = progress_get();
+	const int16_t px = FIX32TOINT(l->head.x);
+	const int16_t py = FIX32TOINT(l->head.y);
+	const int16_t x_index = map_get_world_x_tile() + (px / GAME_SCREEN_W_PIXELS);
+	const int16_t y_index = map_get_world_y_tile() + (py / GAME_SCREEN_H_PIXELS);
+	if (y_index < 0 || y_index >= ARRAYSIZE(prog->map_explored)) return;
+	if (x_index < 0 || x_index >= ARRAYSIZE(prog->map_explored[0])) return;
+	prog->map_explored[y_index][x_index] = 1;
+}
+
 static void main_func(Obj *o)
 {
 	O_Lyle *l = (O_Lyle *)o;
@@ -1086,6 +1099,8 @@ static void main_func(Obj *o)
 	system_profile(PALRGB(4, 4, 0));
 	draw(l);
 	system_profile(PALRGB(0, 0, 0));
+
+	update_exploration(l);
 }
 
 void o_load_lyle(Obj *o, uint16_t data)
@@ -1199,6 +1214,12 @@ void lyle_set_pos(fix32_t x, fix32_t y)
 	if (!lyle) return;
 	lyle->head.x = x;
 	lyle->head.y = y;
+}
+
+void lyle_set_direction(ObjDirection d)
+{
+	if (!lyle) return;
+	lyle->head.direction = d;
 }
 
 void lyle_set_scroll_h_en(int16_t en)

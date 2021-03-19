@@ -49,7 +49,7 @@ static inline void set_constants(void)
 	// TODO: These are made up, not final
 	kkitty_sleep_anim_speed = PALSCALE_DURATION(40);
 	kcloakdude_walk_anim_speed = PALSCALE_DURATION(14);
-	kcloakdude_look_anim_speed = PALSCALE_DURATION(30);
+	kcloakdude_look_anim_speed = PALSCALE_DURATION(32);
 	kcloakdude_run1_anim_speed = PALSCALE_DURATION(5);
 	kcloakdude_run2_anim_speed = PALSCALE_DURATION(3);
 
@@ -526,7 +526,9 @@ static void main_func(Obj *o)
 			lyle_set_scroll_h_en(0);
 			lyle_set_scroll_v_en(0);
 			lyle_set_control_en(0);
-			lyle_set_pos(o->x - INTTOFIX32(48), lyle_get_y() - INTTOFIX32(8));
+			lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
+			lyle_set_direction(OBJ_DIRECTION_LEFT);
+			lyle_set_pos(lyle_get_x(), INTTOFIX32(64));
 			map_redraw_room();
 
 			e->state = TITLE_STATE_INTRO;
@@ -566,13 +568,12 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
-				lyle_set_pos(lyle_get_x(), lyle_get_y() - INTTOFIX32(240));
 			}
 
 			if (e->state_elapsed == kcloakdude_seq[0])
 			{
 				e->cloakdude_anim_state = 0;
-				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2083333));
+				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2777778));
 			}
 			else if (e->state_elapsed == kcloakdude_seq[1])
 			{
@@ -582,7 +583,7 @@ static void main_func(Obj *o)
 			else if (e->state_elapsed == kcloakdude_seq[2])
 			{
 				e->cloakdude_anim_state = 0;
-				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2083333));
+				e->cloakdude_dx = INTTOFIX16(PALSCALE_1ST(0.2777778));
 			}
 			else if (e->state_elapsed == kcloakdude_seq[3])
 			{
@@ -610,13 +611,13 @@ static void main_func(Obj *o)
 			{
 				if (e->cloakdude_dx != 0)
 				{
-					lyle_set_pos(lyle_get_x(), lyle_get_y() + INTTOFIX32(240));
+					lyle_set_pos(lyle_get_x(), INTTOFIX32(679));
 					e->cloakdude_dx = 0;
 				}
 				const fix32_t lyle_x = lyle_get_x();
-				if (lyle_get_x() < o->x - INTTOFIX32(32))
+				if (lyle_get_x() > o->x - INTTOFIX32(32))
 				{
-					lyle_set_pos(lyle_x + INTTOFIX32(PALSCALE_1ST(1.0)),
+					lyle_set_pos(lyle_x - INTTOFIX32(PALSCALE_1ST(1.0)),
 					             lyle_get_y());
 				}
 				else
@@ -636,7 +637,7 @@ static void main_func(Obj *o)
 				draw_house_door(0);
 				e->menu_choice = 1;  // Continue.
 				music_play(14);  // Alone in the Dark
-				lyle_set_pos(o->x - INTTOFIX32(32), lyle_get_y());
+				lyle_set_pos(o->x - INTTOFIX32(32), INTTOFIX32(679));
 			}
 
 			e->menu_flash_cnt++;
@@ -661,6 +662,10 @@ static void main_func(Obj *o)
 
 			if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 			{
+				if (e->menu_choice == 0)
+				{
+					progress_erase();
+				}
 				// TODO: Play menu confirmation sound
 				e->state = TITLE_STATE_BEGIN;
 			}
@@ -679,6 +684,7 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed >= klyle_seq[2])
 			{
+				lyle_set_direction(OBJ_DIRECTION_RIGHT);
 				O_Lyle *l = lyle_get();
 
 				const fix32_t lyle_x = lyle_get_x();

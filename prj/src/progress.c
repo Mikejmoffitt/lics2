@@ -15,40 +15,47 @@
 #define PROGRESS_MAGIC_1 0xA55A
 
 
-static ProgressSlot progress_slots[1];
+static ProgressSlot s_progress_slots[1];
 
-static uint16_t current_slot;
+static uint16_t s_current_slot;
 
-static uint16_t sram_is_working;
+static uint16_t s_sram_is_working;
 
 static void reset_slot(int8_t slot)
 {
-	uint8_t *d = (uint8_t *)(&progress_slots[slot]);
-	for (uint16_t i = 0; i < sizeof(&progress_slots[slot]); i++) *d++ = 0;
-	progress_slots[slot].magic_0 = PROGRESS_MAGIC_0;
-	progress_slots[slot].magic_1 = PROGRESS_MAGIC_1;
-	progress_slots[slot].hp_capacity = LYLE_START_HP;
+	SYSTEM_ASSERT(sizeof(s_progress_slots[0]) % sizeof(uint32_t) == 0);
+
+	uint32_t *raw_mem_uint32 = (uint32_t *)&s_progress_slots[slot];
+	for (uint16_t j = 0; j < sizeof(s_progress_slots[0]) / sizeof(uint32_t); j++)
+	{
+		raw_mem_uint32[j] = 0;
+	}
+
+	s_progress_slots[slot].magic_0 = PROGRESS_MAGIC_0;
+	s_progress_slots[slot].magic_1 = PROGRESS_MAGIC_1;
+	s_progress_slots[slot].hp_capacity = LYLE_START_HP;
 }
 
 int progress_init(void)
 {
-	// Test that SRAM is working correctly.
-	sram_is_working = 0xBEEF;
-	sram_write(0, &sram_is_working, sizeof(sram_is_working));
-	sram_is_working = 0x5555;
-	sram_read(0, &sram_is_working, sizeof(sram_is_working));
+	// Test that SRAM is working correctly. The first byte is reserved for
+	// this check.
+	s_sram_is_working = 0xBEEF;
+	sram_write(0, &s_sram_is_working, sizeof(s_sram_is_working));
+	s_sram_is_working = 0x5555;
+	sram_read(0, &s_sram_is_working, sizeof(s_sram_is_working));
 
-	sram_is_working = (sram_is_working == 0xBEEF);
+	s_sram_is_working = (s_sram_is_working == 0xBEEF);
 
-	if (sram_is_working)
+	if (s_sram_is_working)
 	{
 		// Load and validate all save slots. Slots that do not contain the
 		// right magic numbers will be cleared.
-		sram_read(PROGRESS_SRAM_POS, progress_slots, sizeof(progress_slots));
-		for (uint16_t i = 0; i < ARRAYSIZE(progress_slots); i++)
+		sram_read(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
+		for (uint16_t i = 0; i < ARRAYSIZE(s_progress_slots); i++)
 		{
-			if (progress_slots[i].magic_0 != PROGRESS_MAGIC_0 ||
-			    progress_slots[i].magic_1 != PROGRESS_MAGIC_1)
+			if (s_progress_slots[i].magic_0 != PROGRESS_MAGIC_0 ||
+			    s_progress_slots[i].magic_1 != PROGRESS_MAGIC_1)
 			{
 				reset_slot(i);
 			}
@@ -57,7 +64,7 @@ int progress_init(void)
 	else
 	{
 		// Clear all slots.
-		for (uint16_t i = 0; i < ARRAYSIZE(progress_slots); i++)
+		for (uint16_t i = 0; i < ARRAYSIZE(s_progress_slots); i++)
 		{
 			reset_slot(i);
 		}
@@ -68,29 +75,29 @@ int progress_init(void)
 
 uint8_t progress_is_sram_working(void)
 {
-	return sram_is_working;
+	return s_sram_is_working;
 }
 
 void progress_select_slot(uint16_t slot)
 {
-	SYSTEM_ASSERT(slot <= ARRAYSIZE(progress_slots));
-	current_slot = slot;
+	SYSTEM_ASSERT(slot <= ARRAYSIZE(s_progress_slots));
+	s_current_slot = slot;
 }
 
 void progress_save(void)
 {
-	if (!sram_is_working) return;
-	sram_write(PROGRESS_SRAM_POS, progress_slots, sizeof(progress_slots));
+	if (!s_sram_is_working) return;
+	sram_write(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
 }
 
 void progress_erase(void)
 {
-	SYSTEM_ASSERT(current_slot <= ARRAYSIZE(progress_slots));
-	reset_slot(current_slot);
+	SYSTEM_ASSERT(s_current_slot <= ARRAYSIZE(s_progress_slots));
+	reset_slot(s_current_slot);
 }
 
 ProgressSlot *progress_get(void)
 {
-	SYSTEM_ASSERT(current_slot <= ARRAYSIZE(progress_slots));
-	return &progress_slots[current_slot];
+	SYSTEM_ASSERT(s_current_slot <= ARRAYSIZE(s_progress_slots));
+	return &s_progress_slots[s_current_slot];
 }

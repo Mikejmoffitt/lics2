@@ -51,7 +51,7 @@ static void vram_load(void)
 
 static const uint16_t sparkle_anim[] =
 {
-	12, 0, 4, 8, 12,
+	12, 0, 4, 8, 12, 12,
 };
 
 static const uint16_t fizzle_anim[] =
@@ -104,21 +104,21 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			px -= 8;
 			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + sparkle_anim[p->anim_frame],
-			        0, 0, BG_PAL_LINE, 0);
+			        0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 			animate(p, kanim_speed);
 			px -= 8;
 			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame],
-			        0, 0, BG_PAL_LINE, 0);
+			        0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
 			animate(p, kanim_speed);
 			px -= 8;
 			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame] + 16,
-			        0, 0, LYLE_PAL_LINE, 0);
+			        0, 0, LYLE_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
 			animate(p, kanim_speed_explosion);
@@ -127,7 +127,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 				px -= 12;
 				py -= 12;
 				attr = SPR_ATTR(s_vram_pos + 52,
-				        0, 0, LYLE_PAL_LINE, 0);
+				        0, 0, LYLE_PAL_LINE, 1);
 				size = SPR_SIZE(3, 3);
 			}
 			else if (p->anim_frame == 1 || p->anim_frame == 4)
@@ -135,14 +135,14 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 				px -= 8;
 				py -= 8;
 				attr = SPR_ATTR(s_vram_pos + 48,
-				        0, 0, LYLE_PAL_LINE, 0);
+				        0, 0, LYLE_PAL_LINE, 1);
 			}
 			else
 			{
 				px -= 16;
 				py -= 16;
 				attr = SPR_ATTR(s_vram_pos + 61,
-				        0, 0, LYLE_PAL_LINE, 0);
+				        0, 0, LYLE_PAL_LINE, 1);
 				size = SPR_SIZE(4, 4);
 			}
 			break;
@@ -151,7 +151,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			px -= 4;
 			py -= 4;
 			attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
-			        0, 0, LYLE_PAL_LINE, 0);
+			        0, 0, LYLE_PAL_LINE, 1);
 			size = SPR_SIZE(1, 1);
 			break;
 	}

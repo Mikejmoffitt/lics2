@@ -51,6 +51,7 @@
 #include "obj/projectile_manager.h"
 #include "obj/exploder.h"
 #include "obj/powerup_manager.h"
+#include "obj/pause.h"
 
 #include "obj/template.h"
 
@@ -158,6 +159,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_PROJECTILE_MANAGER] = {o_load_projectile_manager, o_unload_projectile_manager},
 	[OBJ_EXPLODER] = {o_load_exploder, NULL},
 	[OBJ_POWERUP_MANAGER] = {o_load_powerup_manager, o_unload_powerup_manager},
+	[OBJ_PAUSE] = {o_load_pause, o_unload_pause},
 
 	[OBJ_TEMPLATE] = {o_load_template, o_unload_template},
 };
@@ -257,7 +259,7 @@ void obj_exec(void)
 	{
 		Obj *o = (Obj *)s;
 		s++;
-		if (o->status == OBJ_STATUS_NULL) continue;
+		if (o->status != OBJ_STATUS_ACTIVE) continue;
 
 		o->offscreen = obj_is_offscreen(o);
 		if (!(o->flags & OBJ_FLAG_ALWAYS_ACTIVE) && o->offscreen) continue;
@@ -292,6 +294,9 @@ void obj_clear(void)
 	}
 
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
+
+	dma_q_fill_vram(OBJ_TILE_VRAM_POSITION, 0, OBJ_TILE_VRAM_LENGTH, 1);
+
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)

@@ -36,17 +36,12 @@ static void main_func(Obj *o)
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
-	if (e->variant == 1 && !e->pal_set)
+	if (e->variant == 1)
 	{
 		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
-		e->pal_set = 1;
 	}
 
-	if (e->anim_frame_prev != e->anim_frame)
-	{
-		update_tiles(e);
-		e->anim_frame_prev = e->anim_frame;
-	}
+	update_tiles(e);
 }
 
 void o_load_lavaanim(Obj *o, uint16_t data)
