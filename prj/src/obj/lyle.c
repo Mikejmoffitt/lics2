@@ -12,6 +12,7 @@
 #include "obj/cube_manager.h"
 #include "obj/particle_manager.h"
 #include "obj/map.h"
+#include "obj/pause.h"
 
 #include "progress.h"
 
@@ -377,7 +378,13 @@ static inline void lift_cubes(O_Lyle *l)
 	}
 	if (l->lift_cnt == 1 && l->on_cube)
 	{
-		if (!(progress_get()->abilities & ABILITY_LIFT)) return;
+		ProgressSlot *progress = progress_get();
+		if (!(progress->touched_first_cube))
+		{
+			progress->touched_first_cube = 1;
+			pause_set_screen(PAUSE_SCREEN_LYLE_WEAK);
+		}
+		if (!(progress->abilities & ABILITY_LIFT)) return;
 		Cube *c = l->on_cube;
 		l->holding_cube = c->type;
 		c->status = CUBE_STATUS_NULL;
@@ -1055,10 +1062,10 @@ static inline void update_exploration(O_Lyle *l)
 	ProgressSlot *prog = progress_get();
 	const int16_t px = FIX32TOINT(l->head.x);
 	const int16_t py = FIX32TOINT(l->head.y);
-	const int16_t x_index = map_get_world_x_tile() + (px / GAME_SCREEN_W_PIXELS);
-	const int16_t y_index = map_get_world_y_tile() + (py / GAME_SCREEN_H_PIXELS);
-	if (y_index < 0 || y_index >= ARRAYSIZE(prog->map_explored)) return;
-	if (x_index < 0 || x_index >= ARRAYSIZE(prog->map_explored[0])) return;
+	const uint16_t x_index = map_get_world_x_tile() + (px / GAME_SCREEN_W_PIXELS);
+	const uint16_t y_index = map_get_world_y_tile() + (py / GAME_SCREEN_H_PIXELS);
+	if (y_index >= ARRAYSIZE(prog->map_explored)) return;
+	if (x_index >= ARRAYSIZE(prog->map_explored[0])) return;
 	prog->map_explored[y_index][x_index] = 1;
 }
 

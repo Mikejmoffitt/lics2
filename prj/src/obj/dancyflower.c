@@ -7,6 +7,7 @@
 #include "md/megadrive.h"
 #include "palscale.h"
 #include "map.h"
+#include "progress.h"
 
 #include "cube.h"
 
@@ -74,7 +75,7 @@ static void cube_func(Obj *o, Cube *c)
 	obj_standard_cube_response(o, c);
 	if (o->hp <= 0)
 	{
-		// TODO: Mark in SRAM that dancyflower has been destroyed.
+		progress_get()->killed_dancyflower = 1;
 	}
 }
 
@@ -103,6 +104,11 @@ void o_load_dancyflower(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Dancyflower) <= sizeof(ObjSlot));
 	(void)data;
+	if (progress_get()->killed_dancyflower)
+	{
+		o->status = OBJ_STATUS_NULL;
+		return;
+	}
 	vram_load();
 	set_constants();
 

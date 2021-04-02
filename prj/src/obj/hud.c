@@ -9,6 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 #include "obj/lyle.h"
+#include "obj/title.h"
 #include "progress.h"
 
 // On-screen height of CP meter. Should be a multiple of 8.
@@ -85,6 +86,8 @@ static inline void draw_cp(void)
 static void main_func(Obj *o)
 {
 	(void)o;
+
+	if (title_is_visible()) return;
 	const ProgressSlot *progress = progress_get();
 	draw_hp();
 	if (progress->abilities & ABILITY_PHANTOM) draw_cp();

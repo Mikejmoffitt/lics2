@@ -193,6 +193,7 @@ static void obj_explode(Obj *o)
 	const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
 	exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
 	sfx_play(SFX_OBJ_BURST, 3);
+	sfx_play(SFX_OBJ_BURST_HI, 3);
 	// TODO: (Possibly) spawn powerup.
 	const uint8_t spawn_chance = system_rand() & 0x0F;
 	if (spawn_chance > 0xA)
@@ -241,12 +242,12 @@ static void obj_check_player(Obj *o)
 	}
 	if (o->flags & OBJ_FLAG_BOUNCE_L)
 	{
-		l->head.direction = OBJ_DIRECTION_LEFT;
+		l->head.direction = OBJ_DIRECTION_RIGHT;
 		lyle_get_bounced();
 	}
 	if (o->flags & OBJ_FLAG_BOUNCE_R)
 	{
-		l->head.direction = OBJ_DIRECTION_RIGHT;
+		l->head.direction = OBJ_DIRECTION_LEFT;
 		lyle_get_bounced();
 	}
 }

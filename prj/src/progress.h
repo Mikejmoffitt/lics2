@@ -24,7 +24,7 @@ typedef enum ProgressAbility
 
 typedef struct ProgressSlot
 {
-	uint16_t magic_0;
+	uint32_t magic_0;
 	char name[16];
 	uint8_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
 
@@ -35,9 +35,12 @@ typedef struct ProgressSlot
 	uint16_t hp_orbs;  // Bitfield for collected HP orb IDs.
 	int16_t hp_capacity;  // Lyle's health capacity (max 15).
 
+	int16_t touched_first_cube;
+	int16_t killed_dancyflower;
+
 	ProgressAbility abilities;
 
-	uint16_t magic_1;
+	uint32_t magic_1;
 } ProgressSlot;
 
 // Initialize progress slots, and load from SRAM.

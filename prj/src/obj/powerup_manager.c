@@ -13,6 +13,7 @@
 #include "common.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
+#include "obj/pause.h"
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
@@ -187,31 +188,38 @@ static inline void powerup_get(Powerup *p)
 		case POWERUP_TYPE_CP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->cp_orbs |= (1 << p->orb_id);
-			// TODO: Trigger indication screen.
+			pause_set_screen(PAUSE_SCREEN_CP_ORB_0 + p->orb_id);
 			break;
 		case POWERUP_TYPE_HP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->hp_orbs |= (1 << p->orb_id);
 			prog->hp_capacity++;
-			// TODO: Trigger indication screen.
+			pause_set_screen(PAUSE_SCREEN_HP_ORB_0 + p->orb_id);
 			break;
 		case POWERUP_TYPE_MAP:
 			prog->abilities |= ABILITY_MAP;
+			prog->touched_first_cube = 1;
+			pause_set_screen(PAUSE_SCREEN_GET_MAP);
 			break;
 		case POWERUP_TYPE_LIFT:
 			prog->abilities |= ABILITY_LIFT;
+			pause_set_screen(PAUSE_SCREEN_GET_CUBE_LIFT);
 			break;
 		case POWERUP_TYPE_JUMP:
 			prog->abilities |= ABILITY_JUMP;
+			pause_set_screen(PAUSE_SCREEN_GET_CUBE_JUMP);
 			break;
 		case POWERUP_TYPE_PHANTOM:
 			prog->abilities |= ABILITY_PHANTOM;
+			pause_set_screen(PAUSE_SCREEN_GET_PHANTOM);
 			break;
 		case POWERUP_TYPE_KICK:
 			prog->abilities |= ABILITY_KICK;
+			pause_set_screen(PAUSE_SCREEN_GET_CUBE_KICK);
 			break;
 		case POWERUP_TYPE_ORANGE:
 			prog->abilities |= ABILITY_ORANGE;
+			pause_set_screen(PAUSE_SCREEN_GET_ORANGE_CUBE);
 			break;
 		
 	}

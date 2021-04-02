@@ -11,8 +11,8 @@
 // out.
 #define PROGRESS_SRAM_POS 0x0002
 
-#define PROGRESS_MAGIC_0 0xDEED
-#define PROGRESS_MAGIC_1 0xA55A
+#define PROGRESS_MAGIC_0 0xDAD68000
+#define PROGRESS_MAGIC_1 0xA55A6502
 
 
 static ProgressSlot s_progress_slots[1];
@@ -23,10 +23,10 @@ static uint16_t s_sram_is_working;
 
 static void reset_slot(int8_t slot)
 {
-	SYSTEM_ASSERT(sizeof(s_progress_slots[0]) % sizeof(uint32_t) == 0);
+	SYSTEM_ASSERT(sizeof(s_progress_slots[0]) % sizeof(uint16_t) == 0);
 
-	uint32_t *raw_mem_uint32 = (uint32_t *)&s_progress_slots[slot];
-	for (uint16_t j = 0; j < sizeof(s_progress_slots[0]) / sizeof(uint32_t); j++)
+	volatile uint16_t *raw_mem_uint32 = (volatile uint16_t *)&s_progress_slots[slot];
+	for (uint16_t j = 0; j < sizeof(s_progress_slots[0]) / sizeof(uint16_t); j++)
 	{
 		raw_mem_uint32[j] = 0;
 	}
@@ -69,6 +69,8 @@ int progress_init(void)
 			reset_slot(i);
 		}
 	}
+
+progress_select_slot(0);
 
 	return 1;
 }

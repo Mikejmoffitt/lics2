@@ -11,6 +11,9 @@
 #include "obj/lyle.h"
 #include "game.h"
 #include "music.h"
+#include "progress.h"
+
+static int16_t s_title_is_visible;
 
 static const fix32_t kfloor_pos = INTTOFIX32(688);
 static const fix32_t kinitial_scroll = INTTOFIX32(360);
@@ -83,16 +86,16 @@ static void vram_load(void)
 {
 	if (s_vram_pos) return;
 
-	const Gfx *g_title = gfx_get(GFX_TITLE_SCR);
-	s_vram_pos = gfx_load(g_title, obj_vram_alloc(g_title->size));
-	const Gfx *g_credits = gfx_get(GFX_EX_CREDITS);
-	vram_credits_pos = gfx_load(g_credits, obj_vram_alloc(g_credits->size));
-	const Gfx *g_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
-	vram_keddums_pos = gfx_load(g_keddums, obj_vram_alloc(g_keddums->size));
-	const Gfx *g_cloakdude = gfx_get(GFX_EX_CLOAKDUDE);
-	vram_cloakdude_pos = gfx_load(g_cloakdude, obj_vram_alloc(g_cloakdude->size));
-	const Gfx *g_title_menu = gfx_get(GFX_EX_TITLE_MENU);
-	vram_title_menu_pos = gfx_load(g_title_menu, obj_vram_alloc(g_title_menu->size));
+	const Gfx *gfx_title = gfx_get(GFX_TITLE_SCR);
+	s_vram_pos = gfx_load(gfx_title, obj_vram_alloc(gfx_title->size));
+	const Gfx *gfx_credits = gfx_get(GFX_EX_CREDITS);
+	vram_credits_pos = gfx_load(gfx_credits, obj_vram_alloc(gfx_credits->size));
+	const Gfx *gfx_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
+	vram_keddums_pos = gfx_load(gfx_keddums, obj_vram_alloc(gfx_keddums->size));
+	const Gfx *gfx_cloakdude = gfx_get(GFX_EX_CLOAKDUDE);
+	vram_cloakdude_pos = gfx_load(gfx_cloakdude, obj_vram_alloc(gfx_cloakdude->size));
+	const Gfx *gfx_title_menu = gfx_get(GFX_EX_TITLE_MENU);
+	vram_title_menu_pos = gfx_load(gfx_title_menu, obj_vram_alloc(gfx_title_menu->size));
 }
 
 static void render_title_logo(int16_t sp_x, int16_t sp_y)
@@ -141,7 +144,7 @@ static void render_title_logo(int16_t sp_x, int16_t sp_y)
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(2, 4));
-	vram += 8;
+	vram += 7;
 
 	spr_put(sp_x + (0 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
@@ -161,8 +164,8 @@ static void render_title_logo(int16_t sp_x, int16_t sp_y)
 	spr_put(sp_x + (3 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
-	        SPR_SIZE(2, 1));
-	vram += 2;
+	        SPR_SIZE(1, 1));
+	vram += 1;
 }
 
 static void render_credits(void)
@@ -180,13 +183,16 @@ static void render_credits(void)
 	        SPR_SIZE(3, 1));
 
 	spr_put(GAME_SCREEN_W_PIXELS - 68, 7,
+	        SPR_ATTR(vram_credits_pos, 0, 0, pal, 0),
+	        SPR_SIZE(1, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 8, 7,
 	        SPR_ATTR(vram_credits_pos + 9, 0, 0, pal, 0),
-	        SPR_SIZE(3, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 7,
-	        SPR_ATTR(vram_credits_pos + 12, 0, 0, pal, 0),
-	        SPR_SIZE(3, 1));
+	        SPR_SIZE(4, 1));
+	spr_put(GAME_SCREEN_W_PIXELS - 68 + 40, 7,
+	        SPR_ATTR(vram_credits_pos + 13, 0, 0, pal, 0),
+	        SPR_SIZE(1, 1));
 	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
-	        SPR_ATTR(vram_credits_pos + 15, 0, 0, pal, 0),
+	        SPR_ATTR(vram_credits_pos + 6, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
 }
 
@@ -531,9 +537,20 @@ static void main_func(Obj *o)
 			lyle_set_pos(lyle_get_x(), INTTOFIX32(64));
 			map_redraw_room();
 
+			s_title_is_visible = 1;
+
 			e->state = TITLE_STATE_INTRO;
 			break;
 		case TITLE_STATE_INTRO:
+
+			// Hibernate HUD and metagrub objects.
+			for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+			{
+				Obj *w = &g_objects[i].obj;
+				if (w->status == OBJ_STATUS_NULL) continue;
+				if (w->type != OBJ_HUD || w->type != OBJ_METAGRUB) continue;
+				w->status = OBJ_STATUS_HIBERNATE;
+			}
 			if (e->state_elapsed >= kscroll_delay_duration) // was v_scroll_complete
 			{
 				draw_high_prio_house_tiles();
@@ -765,6 +782,7 @@ static void main_func(Obj *o)
 				lyle_get()->priority = 0;
 				music_play(1);  // Stage music
 				o->status = OBJ_STATUS_NULL;
+				s_title_is_visible = 0;
 				return;
 			}
 			render_title_full(e);
@@ -792,9 +810,15 @@ void o_load_title(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	e->v_scroll_y = INTTOFIX32(360);
+	s_title_is_visible = 1;
 }
 
 void o_unload_title(void)
 {
 	s_vram_pos = 0;
+}
+
+int16_t title_is_visible(void)
+{
+	return s_title_is_visible;
 }

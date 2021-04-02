@@ -5,9 +5,6 @@
 
 // PSG sound effect streams.
 
-#define SFX_SAMPLE(_pitch_, _vol_) {1, (_pitch_) & 0x3FF, (_vol_) & 0x0F}
-#define SFX_END() {0}
-
 typedef enum SfxId
 {
 	SFX_NULL,
@@ -22,6 +19,7 @@ typedef enum SfxId
 	SFX_CUBE_HIT,
 	SFX_CUBE_FIZZLE,
 	SFX_OBJ_BURST,
+	SFX_OBJ_BURST_HI,
 	SFX_TELEPORT,
 	SFX_TELEPORT_2,
 	SFX_BOINGO_JUMP,
