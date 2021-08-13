@@ -17,6 +17,7 @@ static uint16_t s_vram_pos;
 
 static int16_t kcursor_flash_delay;
 static int16_t kdismissal_delay_frames;
+static int16_t kblank_frames;
 
 static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 7;
@@ -634,6 +635,7 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 
 	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 	{
+		e->blank = kblank_frames;
 		e->screen = PAUSE_SCREEN_NONE;
 	}
 }
@@ -665,10 +667,11 @@ static void main_func(Obj *o)
 	if (first_frame)
 	{
 		e->dismissal_delay_cnt = 0;
+		e->blank = kblank_frames;
 	}
 
 	switch (e->screen)
-	{
+		{
 		case PAUSE_SCREEN_NONE:
 			if (first_frame)
 			{
@@ -681,6 +684,9 @@ static void main_func(Obj *o)
 			if (first_frame)
 			{
 				plot_map_to_window_plane();
+			}
+			else if (e->blank)
+			{
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 			}
@@ -768,6 +774,8 @@ static void main_func(Obj *o)
 		}
 	}
 
+	if (e->blank > 0) e->blank--;
+
 	vdp_set_window_top(e->screen == PAUSE_SCREEN_NONE ? 0 : 31);
 	e->buttons_prev = buttons;
 }
@@ -779,6 +787,7 @@ static inline void set_constants(void)
 
 	kcursor_flash_delay = PALSCALE_DURATION(12);
 	kdismissal_delay_frames = PALSCALE_DURATION(60);
+	kblank_frames = PALSCALE_DURATION(5);
 	s_constants_set = 1;
 }
 
@@ -812,4 +821,10 @@ void o_unload_pause(void)
 void pause_set_screen(PauseScreen screen)
 {
 	s_pause->screen = screen;
+}
+
+// Returns 1 if the pause screen would like the screen blanked.
+int16_t pause_want_blank(void)
+{
+	return s_pause->blank;
 }

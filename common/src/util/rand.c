@@ -1,4 +1,5 @@
 #include "rand.h"
+#include "md/megadrive.h"
 
 static uint16_t s_rand_value = 0x6502;
 

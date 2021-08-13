@@ -64,9 +64,12 @@ typedef struct O_Pause
 	int16_t dismissal_delay_cnt;
 
 	int16_t paused;
+	int16_t blank;  // nonzero if screen should be blanked; counts down.
 } O_Pause;
 
 void pause_set_screen(PauseScreen screen);
+
+int16_t pause_want_blank(void);
 
 void o_load_pause(Obj *o, uint16_t data);
 void o_unload_pause(void);

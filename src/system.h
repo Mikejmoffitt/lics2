@@ -29,6 +29,8 @@ static inline int16_t system_is_debug_enabled(void)
 	return g_system_debug_enabled;
 }
 
+void system_print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num);
+
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)

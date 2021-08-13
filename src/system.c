@@ -87,3 +87,19 @@ void system_print_error(const char *expression,
 	while (!(io_pad_read(0) & BTN_START)) megadrive_finish();
 	__asm("jmp (0x000004).l");
 }
+
+void system_print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num)
+{
+	char nums[3];
+	nums[2] = '\0';
+
+	const uint8_t low = num & 0x0F;
+	const uint8_t high = (num & 0xF0) >> 4;
+
+	if (low < 10) nums[1] = '0' + low;
+	else nums[1] = 'A' + (low - 0xA);
+	if (high < 10) nums[0] = '0' + high;
+	else nums[0] = 'A' + (high - 0xA);
+
+	text_puts(p, x, y, nums);
+}
