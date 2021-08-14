@@ -47,7 +47,7 @@ static inline void set_constants(void)
 	SYSTEM_ASSERT(kidle_duration > 0);
 
 	// TODO: This number was just made up. Measure the original game.
-	kshot_speed = PALSCALE_1ST(3.0);
+	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 
 	s_constants_set = 1;
 }
@@ -151,7 +151,11 @@ static void main_func(Obj *o)
 			{
 				e->state_elapsed = 0;
 				e->state++;
-				// TODO: Fire shot at Lyle
+				const fix32_t x_offset = (o->direction == OBJ_DIRECTION_RIGHT) ? INTTOFIX32(10) : INTTOFIX32(-10);
+				projectile_manager_shoot_at(o->x + x_offset, o->y - INTTOFIX32(32), PROJECTILE_TYPE_BALL2,
+				                            lyle_x, lyle_y - INTTOFIX32(10), kshot_speed);
+				// TODO: Shot speed
+				// TODO: Shot sound
 			}
 			break;
 

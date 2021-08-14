@@ -126,7 +126,7 @@ static void run_timer(Obj *o)
 	{
 		// TODO: Figure out actual shot speed.
 		projectile_manager_shoot_at(o->x, o->y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
-		                            l->head.x, l->head.y, kshot_speed);
+		                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
 		// TODO: Shot sfx
 	}
 
