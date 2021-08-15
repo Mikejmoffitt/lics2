@@ -24,9 +24,9 @@
 #include "obj/shoot.h"
 #include "obj/laser.h"
 #include "obj/killzam.h"
-
+#include "obj/flargy.h"
 #include "obj/plant.h"
-
+#include "obj/tossmuffin.h"
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
 
@@ -135,8 +135,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_SHOOT] = {o_load_shoot, o_unload_shoot},
 	[OBJ_LASER] = {o_load_laser, o_unload_laser},
 	[OBJ_KILLZAM] = {o_load_killzam, o_unload_killzam},
-
+	[OBJ_FLARGY] = {o_load_flargy, o_unload_flargy},
 	[OBJ_PLANT] = {o_load_plant, o_unload_plant},
+	[OBJ_TOSSMUFFIN] = {o_load_tossmuffin, o_unload_tossmuffin},
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},

@@ -99,7 +99,7 @@ void obj_vram_set_base(uint16_t addr);
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes);
 
-// Called by cubes.c when a collision against an object is detected.
+// Called by cube manager when a collision against an object is detected.
 // Calls an object's cube handler, or the default if there is none.
 void obj_cube_impact(Obj *o, Cube *c);
 
@@ -140,7 +140,7 @@ static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 
 static inline int obj_touching_cube(const Obj *o, const Cube *c)
 {
-	const fix32_t margin = INTTOFIX32(1);
+	static const fix32_t margin = INTTOFIX32(1);
 	if (c->y < o->y + o->top - margin) return 0;
 	if (c->y + c->top > o->y + margin) return 0;
 	if (c->x + c->left > o->x + o->right + margin) return 0;

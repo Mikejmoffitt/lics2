@@ -72,10 +72,8 @@ static void render(O_Tossmuffin *e)
 	}
 	else
 	{
-		int16_t frame_index;
-		if (e->anim_frame == 0) frame_index = 10;
-		else if (e->anim_frame == 2) frame_index = 12;
-		else frame_index = 8;
+		static const int16_t frame_table[] = { 10, 8, 12, 8 };
+		const int16_t frame_index = frame_table[e->anim_frame];
 
 		const int16_t off_y = ((e->anim_frame % 2) ? 0 : -1);
 
@@ -117,8 +115,6 @@ static inline void scan_cubes(O_Tossmuffin *e)
 		if (c->status == CUBE_STATUS_IDLE &&
 		    obj_touching_cube(&e->head, c))
 		{
-			e->lift_cnt = klift_len;
-			e->toss_cnt = klift_len;
 
 			// Hold the cube in position above his head.
 			c->y = e->head.y - INTTOFIX32(22);
@@ -126,6 +122,7 @@ static inline void scan_cubes(O_Tossmuffin *e)
 
 			face_towards_lyle(e);
 			e->holding_cube = c;
+			e->lift_cnt = klift_len;
 			break;
 		}
 	}
@@ -162,7 +159,7 @@ static void main_func(Obj *o)
 		e->head.dx = 0;
 		e->toss_cnt--;
 	}
-	else if (!e->holding_cube)
+	else
 	{
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_speed);
 		e->head.dx = (e->head.direction == OBJ_DIRECTION_RIGHT) ? kwalk_dx : -kwalk_dx;
