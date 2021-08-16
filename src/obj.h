@@ -23,7 +23,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 48
+#define OBJ_COUNT_MAX 80
 #define OBJ_BYTES 80
 
 #define OBJ_ACTIVE_DISTANCE 32
@@ -45,6 +45,7 @@ typedef enum ObjFlags
 	OBJ_FLAG_BOUNCE_R = 0x2000,  // Pushes the player to the right on contact.
 	OBJ_FLAG_DEADLY = 0x1000,  // Kills the player immediately on contact.
 	OBJ_FLAG_SENSITIVE = 0x0800,  // Innocuous player contact.
+	OBJ_FLAG_BOUNCE_ANY = 0x0400,  // Picks BOUNCE_L or BOUNCE_R based on side.
 
 
 	OBJ_FLAG_TANGIBLE = 0x0040,  // Can be hit by a cube and get hurt.
@@ -132,10 +133,11 @@ static inline void obj_render_setup(Obj *o, int16_t *sp_x, int16_t *sp_y,
 
 static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 {
-	return !((a->x + a->right < b->x + b->left) ||
-	         (a->x + a->left > b->x + b->right) ||
-	         (a->y < b->y + b->top) ||
-	         (a->y + a->top > b->y));
+	if (a->x + a->right < b->x + b->left) return 0;
+	if (a->x + a->left > b->x + b->right) return 0;
+	if (a->y < b->y + b->top) return 0;
+	if (a->y + a->top > b->y) return 0;
+	return 1;
 }
 
 static inline int obj_touching_cube(const Obj *o, const Cube *c)

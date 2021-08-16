@@ -19,7 +19,7 @@
 #include "res.h"
 
 // Access for Lyle singleton.
-static O_Lyle *lyle;
+O_Lyle *g_lyle;
 
 static MdButton buttons;
 static MdButton buttons_prev;
@@ -28,11 +28,6 @@ static MdButton buttons_prev;
 #define LYLE_ACTION_THROW_TIME 2
 #define LYLE_ACTION_LIFT_TIME 2
 #define LYLE_ACTION_KICK_TIME 3
-
-// Hitboxes
-#define LYLE_LEFT INTTOFIX16(-4)
-#define LYLE_RIGHT INTTOFIX16(4)
-#define LYLE_TOP INTTOFIX16(-19)
 
 #define LYLE_CUBEJUMP_DISABLE_TIME 2
 
@@ -1072,7 +1067,6 @@ static inline void update_exploration(O_Lyle *l)
 static void main_func(Obj *o)
 {
 	O_Lyle *l = (O_Lyle *)o;
-	lyle = l;
 
 	buttons_prev = buttons;
 	buttons = io_pad_read(0);
@@ -1115,13 +1109,13 @@ void o_load_lyle(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Lyle) <= sizeof(ObjSlot));
 	(void)data;
 
-	if (lyle)
+	if (g_lyle)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
 	}
 
-	lyle = (O_Lyle *)o;
+	g_lyle = (O_Lyle *)o;
 
 	vram_load();
 	set_constants();
@@ -1140,7 +1134,7 @@ void o_unload_lyle(void)
 {
 	if (!s_vram_pos) return;
 
-	lyle = NULL;
+	g_lyle = NULL;
 
 	s_vram_pos = 0;
 }
@@ -1148,33 +1142,33 @@ void o_unload_lyle(void)
 // Public functions that act on the Lyle singleton
 void lyle_get_bounced(void)
 {
-	if (!lyle) return;
-	lyle->head.dy = kjump_dy;
-	lyle->head.dx = (lyle->head.direction == OBJ_DIRECTION_RIGHT) ?
+	if (!g_lyle) return;
+	g_lyle->head.dy = kjump_dy;
+	g_lyle->head.dx = (g_lyle->head.direction == OBJ_DIRECTION_RIGHT) ?
 	                khurt_dx : -khurt_dx;
 }
 
 void lyle_get_hurt(void)
 {
-	if (!lyle) return;
-	if (lyle->tele_out_cnt > 0) return;
-	if (lyle->invuln_cnt != 0) return;
-	if (lyle->hurt_cnt != 0) return;
+	if (!g_lyle) return;
+	if (g_lyle->tele_out_cnt > 0) return;
+	if (g_lyle->invuln_cnt != 0) return;
+	if (g_lyle->hurt_cnt != 0) return;
 	lyle_get_bounced();
-	lyle->hurt_cnt = khurt_time;
-	lyle->invuln_cnt = kinvuln_time;
-	lyle->phantom_cnt = 0;
+	g_lyle->hurt_cnt = khurt_time;
+	g_lyle->invuln_cnt = kinvuln_time;
+	g_lyle->phantom_cnt = 0;
 
-	if (lyle->head.hp > 0) lyle->head.hp--;
+	if (g_lyle->head.hp > 0) g_lyle->head.hp--;
 
 	// Cubes that are held get dropped
-	if (lyle->holding_cube != CUBE_TYPE_NULL)
+	if (g_lyle->holding_cube != CUBE_TYPE_NULL)
 	{
-		cube_manager_spawn(lyle->head.x, lyle->head.y - INTTOFIX32(12),
-		                   lyle->holding_cube, CUBE_STATUS_AIR,
-		                   lyle->head.direction == OBJ_DIRECTION_RIGHT ?
+		cube_manager_spawn(g_lyle->head.x, g_lyle->head.y - INTTOFIX32(12),
+		                   g_lyle->holding_cube, CUBE_STATUS_AIR,
+		                   g_lyle->head.direction == OBJ_DIRECTION_RIGHT ?
 		                   kdrop_cube_dx : -kdrop_cube_dx, kdrop_cube_dy);
-		lyle->holding_cube = CUBE_TYPE_NULL;
+		g_lyle->holding_cube = CUBE_TYPE_NULL;
 	}
 
 	sfx_stop(SFX_CUBE_SPAWN);
@@ -1183,66 +1177,61 @@ void lyle_get_hurt(void)
 
 void lyle_kill(void)
 {
-	if (!lyle) return;
-	lyle->head.hp = 0;
-}
-
-O_Lyle *lyle_get(void)
-{
-	return lyle;
+	if (!g_lyle) return;
+	g_lyle->head.hp = 0;
 }
 
 fix32_t lyle_get_x(void)
 {
-	if (!lyle) return 0;
-	return lyle->head.x;
+	if (!g_lyle) return 0;
+	return g_lyle->head.x;
 }
 
 fix32_t lyle_get_y(void)
 {
-	if (!lyle) return 0;
-	return lyle->head.y;
+	if (!g_lyle) return 0;
+	return g_lyle->head.y;
 }
 
 int16_t lyle_get_hp(void)
 {
-	if (!lyle) return 0;
-	return lyle->head.hp;
+	if (!g_lyle) return 0;
+	return g_lyle->head.hp;
 }
 
 int16_t lyle_get_cp(void)
 {
-	if (!lyle) return 0;
-	return lyle->cp;
+	if (!g_lyle) return 0;
+	return g_lyle->cp;
 }
 
 void lyle_set_pos(fix32_t x, fix32_t y)
 {
-	if (!lyle) return;
-	lyle->head.x = x;
-	lyle->head.y = y;
+	if (!g_lyle) return;
+	g_lyle->head.x = x;
+	g_lyle->head.y = y;
 }
 
 void lyle_set_direction(ObjDirection d)
 {
-	if (!lyle) return;
-	lyle->head.direction = d;
+	if (!g_lyle) return;
+	g_lyle->head.direction = d;
 }
 
 void lyle_set_scroll_h_en(int16_t en)
 {
-	if (!lyle) return;
-	lyle->scroll_disable_h = !en;
+	if (!g_lyle) return;
+	g_lyle->scroll_disable_h = !en;
 }
 
 void lyle_set_scroll_v_en(int16_t en)
 {
-	if (!lyle) return;
-	lyle->scroll_disable_v = !en;
+	if (!g_lyle) return;
+	g_lyle->scroll_disable_v = !en;
 }
 
 void lyle_set_control_en(int16_t en)
 {
-	if (!lyle) return;
-	lyle->ext_disable = !en;
+	if (!g_lyle) return;
+	g_lyle->ext_disable = !en;
 }

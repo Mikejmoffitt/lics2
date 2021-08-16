@@ -12,6 +12,11 @@
 #define LYLE_START_CP 5
 #define LYLE_MAX_CP 30
 
+// Hitboxes
+#define LYLE_LEFT INTTOFIX16(-4)
+#define LYLE_RIGHT INTTOFIX16(4)
+#define LYLE_TOP INTTOFIX16(-19)
+
 typedef struct O_Lyle
 {
 	Obj head;
@@ -45,12 +50,24 @@ typedef struct O_Lyle
 	int8_t priority;
 } O_Lyle;
 
+extern O_Lyle *g_lyle;
+
 void o_load_lyle(Obj *o, uint16_t data);
 void o_unload_lyle(void);
 
 // Public functions
 
-O_Lyle *lyle_get(void);
+static inline O_Lyle *lyle_get(void) { return g_lyle; }
+
+// Slightly optimized collision function that hardcodes Lyle's dimensions.
+static inline int16_t lyle_touching_obj(Obj *o)
+{
+	if (g_lyle->head.x + LYLE_RIGHT < o->x + o->left) return 0;
+	if (g_lyle->head.x + LYLE_LEFT > o->x + o->right) return 0;
+	if (g_lyle->head.y < o->y + o->top) return 0;
+	if (g_lyle->head.y + LYLE_TOP > o->y) return 0;
+	return 1;
+}
 
 void lyle_get_bounced(void);
 void lyle_get_hurt(void);

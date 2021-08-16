@@ -29,6 +29,7 @@
 #include "obj/tossmuffin.h"
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
+#include "obj/lava.h"
 
 #include "obj/fissins1.h"
 
@@ -141,6 +142,8 @@ static const SetupFuncs setup_funcs[] =
 
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
+	[OBJ_LAVA] = {o_load_lava, o_unload_lava},
+
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
@@ -180,7 +183,7 @@ int obj_init(void)
 	return 1;
 }
 
-static uint16_t obj_is_offscreen(const Obj *o)
+static inline uint16_t obj_is_offscreen(const Obj *o)
 {
 	const fix32_t cam_left = INTTOFIX32(map_get_x_scroll());
 	const fix32_t cam_top = INTTOFIX32(map_get_y_scroll());
@@ -208,7 +211,7 @@ static void obj_explode(Obj *o)
 	o->status = OBJ_STATUS_NULL;
 }
 
-static uint16_t obj_hurt_process(Obj *o)
+static inline uint16_t obj_hurt_process(Obj *o)
 {
 	if (o->hurt_stun > 0)
 	{
@@ -224,18 +227,10 @@ static uint16_t obj_hurt_process(Obj *o)
 	return 0;
 }
 
-static void obj_check_player(Obj *o)
+static inline void obj_check_player(Obj *o)
 {
 	O_Lyle *l = lyle_get();
-	if (!(o->flags & (OBJ_FLAG_HARMFUL | OBJ_FLAG_DEADLY |
-	                  OBJ_FLAG_BOUNCE_L | OBJ_FLAG_BOUNCE_R |
-	                  OBJ_FLAG_SENSITIVE)))
-	{
-		o->touching_player = 0;
-		return;
-	}
-	o->touching_player = obj_touching_obj(&l->head, o);
-	if (!o->touching_player) return;
+	if (!(o->touching_player = lyle_touching_obj(o))) return;
 
 	if (o->flags & OBJ_FLAG_HARMFUL)
 	{
@@ -245,23 +240,25 @@ static void obj_check_player(Obj *o)
 	{
 		lyle_kill();
 	}
-	if (o->flags & OBJ_FLAG_BOUNCE_L)
+	if (o->flags & OBJ_FLAG_BOUNCE_L ||
+	    (o->flags & OBJ_FLAG_BOUNCE_ANY && o->x > l->head.x))
 	{
 		l->head.direction = OBJ_DIRECTION_RIGHT;
 		lyle_get_bounced();
 	}
-	if (o->flags & OBJ_FLAG_BOUNCE_R)
+	if (o->flags & OBJ_FLAG_BOUNCE_R ||
+	    (o->flags & OBJ_FLAG_BOUNCE_ANY && o->x < l->head.x))
 	{
 		l->head.direction = OBJ_DIRECTION_LEFT;
 		lyle_get_bounced();
 	}
 }
 
+
 void obj_exec(void)
 {
 	ObjSlot *s = &g_objects[0];
-	int16_t i = ARRAYSIZE(g_objects);
-	while (i--)
+	while (s < &g_objects[ARRAYSIZE(g_objects) - 1])
 	{
 		Obj *o = (Obj *)s;
 		s++;
@@ -277,6 +274,10 @@ void obj_exec(void)
 		                OBJ_FLAG_SENSITIVE))
 		{
 			obj_check_player(o);
+		}
+		else
+		{
+			o->touching_player = 0;
 		}
 
 		if (o->main_func) o->main_func(o);
@@ -314,6 +315,8 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 		if (!setup_funcs[type].load_func) continue;
 
 		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
+
+		SYSTEM_ASSERT(sizeof(g_objects[i].raw_mem) % sizeof(uint32_t) == 0);
 		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
 		{
 			raw_mem_uint32[j] = 0;

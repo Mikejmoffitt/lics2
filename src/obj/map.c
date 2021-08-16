@@ -126,9 +126,9 @@ static const MapAssets map_by_id[] =
 	[55] = MAP_ASSETS(55_finaltele),
 };
 
-static inline void draw_vertical(O_Map *m)
+static inline int16_t draw_vertical(O_Map *m)
 {
-	if (g_map_y_scroll == m->y_scroll_prev) return;
+	if (g_map_y_scroll == m->y_scroll_prev) return 0;
 	const uint16_t bottom_side = (g_map_y_scroll > m->y_scroll_prev);
 
 	// VRAM address at which the vertical seam occurs
@@ -205,11 +205,12 @@ static inline void draw_vertical(O_Map *m)
 
 	dma_q_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) dma_q_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
+	return 1;
 }
 
-static inline void draw_horizontal(O_Map *m)
+static inline int16_t draw_horizontal(O_Map *m)
 {
-	if (g_map_x_scroll == m->x_scroll_prev) return;
+	if (g_map_x_scroll == m->x_scroll_prev) return 0;
 	const uint16_t right_side = (g_map_x_scroll > m->x_scroll_prev);
 	const int16_t scroll_idx_x = g_map_x_scroll / 8;
 	const int16_t scroll_idx_y = g_map_y_scroll / 8;
@@ -291,6 +292,7 @@ static inline void draw_horizontal(O_Map *m)
 		                    &s_horizontal_dma_buffer[map_dma_h_len[0]],
 		                    map_dma_h_len[1], stride);
 	}
+	return 1;
 }
 
 static inline void draw_full(void)
@@ -352,6 +354,24 @@ static inline void draw_full(void)
 	}
 }
 
+static inline void prepare_hscroll(void)
+{
+	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
+	while (i--)
+	{
+		s_h_scroll_buffer[i] = -g_map_x_scroll;
+	}
+}
+
+static inline void prepare_vscroll(void)
+{
+	uint16_t i = ARRAYSIZE(s_v_scroll_buffer);
+	while (i--)
+	{
+		s_v_scroll_buffer[i] = g_map_y_scroll;
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Map *m = (O_Map *)o;
@@ -368,19 +388,25 @@ static void main_func(Obj *o)
 		s_v_scroll_buffer[i] = g_map_y_scroll;
 	}
 
-	dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
-	dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
-
 	// Update plane A.
 	if (m->fresh_room)
 	{
 		draw_full();
 		m->fresh_room = 0;
+
+		dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+		dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 	}
 	else
 	{
-		draw_vertical(m);
-		draw_horizontal(m);
+		if (draw_vertical(m))
+		{
+			dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
+		}
+		if (draw_horizontal(m))
+		{
+			dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+		}
 	}
 
 	m->x_scroll_prev = g_map_x_scroll;

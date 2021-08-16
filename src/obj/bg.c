@@ -460,6 +460,7 @@ static inline void technozone_purple_overlay(uint8_t half)
 
 static void technozone_horizontal(int16_t x_scroll)
 {
+	return;
 	static int16_t s_old_x;
 	const int16_t x_off = x_scroll / 8;
 
