@@ -17,7 +17,9 @@ static const Gfx gfx[] =
 	[GFX_BOINGO] = GFX(obj_5_boingo),
 	[GFX_ITEM] = GFX(obj_6_item),
 	[GFX_GAXTER] = GFX(obj_7_gaxter),
+
 	[GFX_BUGGO] = GFX(obj_9_buggo),
+
 	[GFX_DANCYFLOWER] = GFX(obj_11_dancyflower),
 	[GFX_JRAFF] = GFX(obj_12_jraff),
 	[GFX_PILLA] = GFX(obj_13_pilla),
@@ -32,14 +34,22 @@ static const Gfx gfx[] =
 	[GFX_MAGIBEAR] = GFX(obj_22_magibear),
 	[GFX_LAVA] = GFX(obj_23_lava),
 	[GFX_COW] = GFX(obj_24_cow),
+
+	[GFX_HOOP] = GFX(obj_26_hoop),
+
 	[GFX_ELEVATOR] = GFX(obj_31_elevator),
+
 	[GFX_FISSINS1] = GFX(obj_33_fissins1),
 	[GFX_BOSS1] = GFX(obj_34_boss1),
+
 	[GFX_FISSINS2] = GFX(obj_39_fissins2),
+
+	[GFX_BASKETBALL] = GFX(obj_42_basketball),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),
+
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
 

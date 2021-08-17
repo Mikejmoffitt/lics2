@@ -8,10 +8,11 @@ typedef struct O_Lava
 	Obj head;
 
 	Obj *cow;
-	int16_t cow_searched;
 
 	int16_t anim_cnt;
 	int16_t anim_frame;
+	
+	int16_t is_tall;
 
 	fix32_t max_y;
 	int16_t generator_cnt;

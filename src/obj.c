@@ -32,6 +32,9 @@
 #include "obj/lava.h"
 #include "obj/cow.h"
 
+#include "obj/hoop.h"
+#include "obj/falseblock.h"
+
 #include "obj/fissins1.h"
 
 #include "obj/bounds.h"
@@ -74,11 +77,16 @@ static uint16_t obj_vram_pos;
 static uint16_t constants_set;
 static int8_t khurt_stun_time;
 
+static fix16_t kcube_bounce_offset_dy;
+static fix16_t kcube_bounce_base_dx;
+
 static void set_constants(void)
 {
 	if (constants_set) return;
 
 	khurt_stun_time = PALSCALE_DURATION(24);
+	kcube_bounce_offset_dy = INTTOFIX16(PALSCALE_1ST(0));  // Was 0.8333333
+	kcube_bounce_base_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333));
 	constants_set = 1;
 }
 
@@ -146,6 +154,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_LAVA] = {o_load_lava, o_unload_lava},
 	[OBJ_COW] = {o_load_cow, o_unload_cow},
+	
+	[OBJ_HOOP] = {o_load_hoop, o_unload_hoop},
+	[OBJ_FALSEBLOCK] = {o_load_falseblock, o_unload_falseblock},
 
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 
@@ -395,8 +406,14 @@ void obj_standard_cube_response(Obj *o, Cube *c)
 			cube_destroy(c);
 			break;
 		case CUBE_TYPE_GREEN:
+			if (c->dx == 0)
+			{
+				c->dx = (system_rand()) & 1 ?
+				        kcube_bounce_base_dx :
+				        kcube_bounce_base_dx;
+			}
 			cube_bounce_dx(c);
-			c->dy = -c->dy;
+			c->dy = (-c->dy / 2) - kcube_bounce_offset_dy;
 			c->status = CUBE_STATUS_AIR;
 			break;
 		case CUBE_TYPE_ORANGE:

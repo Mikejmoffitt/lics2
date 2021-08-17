@@ -9,6 +9,8 @@
 
 #include "cube.h"
 
+#include <stdlib.h>
+
 #define OBJ_SIMPLE_ANIM(_counter, _frame, _anim_length, _frame_delay) \
 { \
 	_counter++; \
@@ -23,7 +25,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 80
+#define OBJ_COUNT_MAX 64
 #define OBJ_BYTES 80
 
 #define OBJ_ACTIVE_DISTANCE 32
@@ -153,6 +155,19 @@ static inline int obj_touching_cube(const Obj *o, const Cube *c)
 static inline void obj_face_towards_obj(Obj *o, const Obj *e)
 {
 	o->direction = (o->x < e->x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+}
+
+static inline Obj *obj_find_by_type(ObjType type)
+{
+	ObjSlot *s = &g_objects[0];
+	while (s < &g_objects[OBJ_COUNT_MAX])
+	{
+		Obj *o = (Obj *)s;
+		s++;
+		if (o->status != OBJ_STATUS_ACTIVE) continue;
+		if (o->type == type) return o;
+	}
+	return NULL;
 }
 
 

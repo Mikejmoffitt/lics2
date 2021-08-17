@@ -34,7 +34,7 @@ static inline void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(6);
 	ksplat_anim_speed = PALSCALE_DURATION(4);
 	kfall_dy = INTTOFIX16(PALSCALE_1ST(1.66667));
-	kgenerator_speed = PALSCALE_DURATION(9);
+	kgenerator_speed = PALSCALE_DURATION(19);
 
 	s_constants_set = 1;
 }
@@ -50,6 +50,19 @@ static inline void render_splat(O_Lava *e)
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 16 : 8), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
+}
+
+static inline void render_tall(O_Lava *e)
+{
+	Obj *o = &e->head;
+	int16_t sp_x, sp_y;
+
+	static const int16_t offset_x = -8;
+	static const int16_t offset_y = -32;
+	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
+	                 map_get_x_scroll(), map_get_y_scroll());
+	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 }
 
 static inline void render(O_Lava *e)
@@ -72,7 +85,7 @@ static void generator_func(Obj *o)
 	if (e->generator_cnt >= kgenerator_speed)
 	{
 		e->generator_cnt = 0;
-		O_Lava *new_lava = (O_Lava *)obj_spawn(FIX32TOINT(o->x) - 8, FIX32TOINT(o->y) - 16,
+		O_Lava *new_lava = (O_Lava *)obj_spawn(FIX32TOINT(o->x) - 8, FIX32TOINT(o->y) - 48,
 		                                       OBJ_LAVA, FIX32TOINT(e->max_y));
 		new_lava->cow = e->cow;
 	}
@@ -100,13 +113,20 @@ static inline void become_splat(Obj *o)
 	e->anim_frame = 0;
 	o->flags = 0;
 	o->main_func = splat_func;
+	if (e->is_tall)
+	{
+		O_Lava *new_lava = (O_Lava *)obj_spawn(FIX32TOINT(o->x) - 8, FIX32TOINT(o->y) - 32,
+		                                       OBJ_LAVA, FIX32TOINT(e->max_y) | 0x8000);
+		new_lava->cow = e->cow;
+	}
 }
 
 static void check_collision_with_orange_cube(Obj *o)
 {
 	const O_Lyle *l = lyle_get();
-	if (o->x + o->right < l->head.x - INTTOFIX32(16)) return;
-	if (o->x + o->left > l->head.x + INTTOFIX32(16)) return;
+	const fix32_t adj_x = INTTOFIX32(20);
+	if (o->x + adj_x < l->head.x) return;
+	if (o->x - adj_x > l->head.x) return;
 	if (o->y < l->head.y - INTTOFIX32(51)) return;
 	if (o->y + o->top > l->head.y) return;
 
@@ -118,39 +138,21 @@ static void main_func(Obj *o)
 	O_Lava *e = (O_Lava *)o;
 	const O_Lyle *l = lyle_get();
 
-	if (!e->cow_searched)
-	{
-		ObjSlot *s = &g_objects[0];
-		while (s < &g_objects[ARRAYSIZE(g_objects) - 1])
-		{
-			Obj *o = (Obj *)s;
-			s++;
-			if (o->status != OBJ_STATUS_ACTIVE) continue;
-			if (o->type == OBJ_COW)
-			{
-				e->cow = o;
-				break;
-			}
-		}
-		e->cow_searched = 1;
-	}
-
 	if (l->holding_cube && l->holding_cube == CUBE_TYPE_ORANGE)
 	{
-		// If Lyle is holding an orange cube, disable collision detection, as
+		// If Lyle is holding an orange cube, disable collision detection, a
 		// a simpler check will be used.
 		o->flags = 0;
-
 		check_collision_with_orange_cube(o);
+	}
+	else if (e->cow && obj_touching_obj(o, e->cow))
+	{
+		o->flags = OBJ_FLAG_HARMFUL;
+		become_splat(o);
 	}
 	else
 	{
 		o->flags = OBJ_FLAG_HARMFUL;
-	}
-
-	if (e->cow && obj_touching_obj(o, e->cow))
-	{
-		become_splat(o);
 	}
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
@@ -160,7 +162,15 @@ static void main_func(Obj *o)
 		become_splat(o);
 		o->y = INTTOFIX32(FIX32TOINT(o->y) & 0xFFFFFFF8);
 	}
-	render(e);
+	e->is_tall ? render_tall(e) : render(e);
+}
+
+static void initial_main_func(Obj *o)
+{
+	O_Lava *e = (O_Lava *)o;
+	e->cow = obj_find_by_type(OBJ_COW);
+	o->main_func = main_func;
+	main_func(o);
 }
 
 void o_load_lava(Obj *o, uint16_t data)
@@ -171,8 +181,10 @@ void o_load_lava(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
+	const fix16_t height = INTTOFIX16(((data & 0x8000) ? -16 : -32));
+
 	obj_basic_init(o, OBJ_FLAG_HARMFUL,
-	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
+	               INTTOFIX16(-8), INTTOFIX16(8), height, 127);
 	o->cube_func = NULL;
 
 	if (data == 0)
@@ -201,11 +213,12 @@ void o_load_lava(Obj *o, uint16_t data)
 	}
 	else
 	{
-		o->main_func = main_func;
+		o->main_func = initial_main_func;
 		o->left = INTTOFIX16(-4);
 		o->right = INTTOFIX16(4);
 		o->dy = kfall_dy;
-		e->max_y = INTTOFIX32(data);
+		e->max_y = INTTOFIX32(data & 0x7FFF);
+		e->is_tall = data & 0x8000 ? 0 : 1;
 	}
 }
 

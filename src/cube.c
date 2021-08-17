@@ -33,11 +33,11 @@ void cube_set_constants(void)
 	if (constants_set) return;
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1388888888f));
 	kcube_on_cube_dy = INTTOFIX16(PALSCALE_1ST(-1.833));
-	kcube_on_cube_dx = INTTOFIX16(PALSCALE_1ST(1));
 	kbounce_coef = INTTOFIX16(0.35);
 	kbounce_cutoff = INTTOFIX16(PALSCALE_1ST(-0.7)); // -1.04));  // TODO: Check this one - it was imbalanced in the first port; pal was -1.3
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.5));
 	kdx_degrade = INTTOFIX16(PALSCALE_1ST(0.8333333333));
+	kcube_on_cube_dx = kdx_degrade;
 	kdy_degrade = INTTOFIX16(0.42);
 	kspawn_seq[0] = PALSCALE_DURATION(72);
 	kspawn_seq[1] = PALSCALE_DURATION(120);
@@ -240,7 +240,7 @@ static void cube_bg_bounce_top(Cube *c)
 			}
 			else
 			{
-				cx = ((cx - 1) / 8) * 8;
+				cx = ((cx) / 8) * 8;
 			}
 			c->x = INTTOFIX32(cx);
 		}
@@ -319,13 +319,13 @@ static void cube_bg_bounce_ground(Cube *c)
 			// If the center doesn't have a collision, align it to the wall.
 			if (gnd_chk[0])
 			{
-				const int16_t touching_tile_x = 8 + ((cx_left - 1) / 8) * 8;
-				c->x = INTTOFIX32(touching_tile_x) - c->left + 1;
+				const int new_cx = ((cx + 8) / 8) * 8;
+				c->x = INTTOFIX32(new_cx);
 			}
 			else
 			{
-				const int16_t touching_tile_x = ((cx_right + 1) / 8) * 8;
-				c->x = INTTOFIX32(touching_tile_x) - c->right - 1;
+				const int new_cx = ((cx) / 8) * 8;
+				c->x = INTTOFIX32(new_cx);
 			}
 		}
 	}

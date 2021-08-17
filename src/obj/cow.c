@@ -142,19 +142,9 @@ static void main_func(Obj *o)
 		case COW_EATING:
 			if (e->state_elapsed == 0)
 			{
-				ObjSlot *s = &g_objects[0];
 				e->max_x = o->x;
-				while (s < &g_objects[ARRAYSIZE(g_objects) - 1])
-				{
-					Obj *o = (Obj *)s;
-					s++;
-					if (o->status != OBJ_STATUS_ACTIVE) continue;
-					if (o->type == OBJ_BOUNDS)
-					{
-						e->max_x = o->x;
-						break;
-					}
-				}
+				const Obj *bounds = obj_find_by_type(OBJ_BOUNDS);
+				if (bounds) e->max_x = bounds->x;
 			}
 			if (e->hit_cnt > 0)
 			{

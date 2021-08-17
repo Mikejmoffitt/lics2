@@ -34,6 +34,8 @@ static void main_func(Obj *o)
 {
 	O_LavaAnim *e = (O_LavaAnim *)o;
 
+	const int16_t anim_frame_prev = e->anim_frame;
+
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
 	if (e->variant == 1)
@@ -41,7 +43,10 @@ static void main_func(Obj *o)
 		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
 	}
 
-	update_tiles(e);
+	if (e->anim_frame != anim_frame_prev)
+	{
+		update_tiles(e);
+	}
 }
 
 void o_load_lavaanim(Obj *o, uint16_t data)
@@ -57,6 +62,10 @@ void o_load_lavaanim(Obj *o, uint16_t data)
 
 	O_LavaAnim *e = (O_LavaAnim *)o;
 	e->variant = data;
+	if (e->variant)
+	{
+		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
+	}
 	update_tiles(e);
 }
 
