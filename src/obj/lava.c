@@ -95,7 +95,6 @@ static void splat_func(Obj *o)
 static inline void become_splat(Obj *o)
 {
 	O_Lava *e = (O_Lava *)o;
-	o->y = INTTOFIX32(FIX32TOINT(o->y) & 0xFFFFFFF8);
 	o->dy = 0;
 	e->anim_cnt = 0;
 	e->anim_frame = 0;
@@ -118,6 +117,23 @@ static void main_func(Obj *o)
 {
 	O_Lava *e = (O_Lava *)o;
 	const O_Lyle *l = lyle_get();
+
+	if (!e->cow_searched)
+	{
+		ObjSlot *s = &g_objects[0];
+		while (s < &g_objects[ARRAYSIZE(g_objects) - 1])
+		{
+			Obj *o = (Obj *)s;
+			s++;
+			if (o->status != OBJ_STATUS_ACTIVE) continue;
+			if (o->type == OBJ_COW)
+			{
+				e->cow = o;
+				break;
+			}
+		}
+		e->cow_searched = 1;
+	}
 
 	if (l->holding_cube && l->holding_cube == CUBE_TYPE_ORANGE)
 	{
@@ -142,6 +158,7 @@ static void main_func(Obj *o)
 	if (o->y >= e->max_y)
 	{
 		become_splat(o);
+		o->y = INTTOFIX32(FIX32TOINT(o->y) & 0xFFFFFFF8);
 	}
 	render(e);
 }

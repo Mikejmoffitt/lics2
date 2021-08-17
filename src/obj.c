@@ -30,8 +30,11 @@
 #include "obj/teleporter.h"
 #include "obj/magibear.h"
 #include "obj/lava.h"
+#include "obj/cow.h"
 
 #include "obj/fissins1.h"
+
+#include "obj/bounds.h"
 
 #include "obj/lavaanim.h"
 
@@ -139,12 +142,14 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_FLARGY] = {o_load_flargy, o_unload_flargy},
 	[OBJ_PLANT] = {o_load_plant, o_unload_plant},
 	[OBJ_TOSSMUFFIN] = {o_load_tossmuffin, o_unload_tossmuffin},
-
 	[OBJ_TELEPORTER] = {o_load_teleporter, o_unload_teleporter},
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_LAVA] = {o_load_lava, o_unload_lava},
+	[OBJ_COW] = {o_load_cow, o_unload_cow},
 
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
+
+	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},
 
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
 
@@ -303,7 +308,6 @@ void obj_clear(void)
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
 
 	dma_q_fill_vram(OBJ_TILE_VRAM_POSITION, 0, OBJ_TILE_VRAM_LENGTH, 1);
-
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)

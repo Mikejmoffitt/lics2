@@ -150,6 +150,11 @@ static inline int obj_touching_cube(const Obj *o, const Cube *c)
 	return 1;
 }
 
+static inline void obj_face_towards_obj(Obj *o, const Obj *e)
+{
+	o->direction = (o->x < e->x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+}
+
 
 
 #endif  // OBJ_H

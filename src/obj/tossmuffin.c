@@ -101,12 +101,6 @@ static inline void toss_cube(O_Tossmuffin *e)
 	e->holding_cube = NULL;
 }
 
-static inline void face_towards_lyle(O_Tossmuffin *e)
-{
-	const fix32_t lyle_x = lyle_get_x();
-	e->head.direction = (e->head.x < lyle_x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
-}
-
 static inline void scan_cubes(O_Tossmuffin *e)
 {
 	for (uint16_t i = 0; i < ARRAYSIZE(g_cubes); i++)
@@ -120,7 +114,7 @@ static inline void scan_cubes(O_Tossmuffin *e)
 			c->y = e->head.y - INTTOFIX32(22);
 			c->x = e->head.x;
 
-			face_towards_lyle(e);
+			obj_face_towards_obj(&e->head, &lyle_get()->head);
 			e->holding_cube = c;
 			e->lift_cnt = klift_len;
 			break;
@@ -139,7 +133,7 @@ static void main_func(Obj *o)
 
 	if (!e->saw_player)
 	{
-		face_towards_lyle(e);
+		obj_face_towards_obj(&e->head, &lyle_get()->head);
 		e->saw_player = 1;
 	}
 
