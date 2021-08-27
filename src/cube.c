@@ -465,10 +465,10 @@ static void cube_on_cube_collisions(Cube *c)
 			continue;
 		}
 
-		if (c->x + c->left <= d->x + c->right &&
-		    c->x + c->right >= d->x + c->left &&
+		if (c->x + c->left <= d->x + d->right &&
+		    c->x + c->right >= d->x + d->left &&
 		    c->y + c->top <= d->y &&
-		    c->y >= d->y + c->top)
+		    c->y >= d->y + d->top)
 		{
 			if (c->type == CUBE_TYPE_GREEN || c->type == CUBE_TYPE_GREENBLUE)
 			{

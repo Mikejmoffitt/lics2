@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "md/megadrive.h"
-#include "mps/mps_play.h"
 
 #include "res.h"
 

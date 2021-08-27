@@ -140,6 +140,15 @@ static inline int16_t draw_vertical(O_Map *m)
 	uint16_t map_src_x = g_map_x_scroll / 8;
 	uint16_t map_src_y = g_map_row_size * (g_map_y_scroll / 8);
 
+	if (map_src_x == m->v_x_map_src_prev &&
+	    map_src_y == m->v_y_map_src_prev)
+	{
+		return 1;
+	}
+
+	m->v_x_map_src_prev = map_src_x;
+	m->v_y_map_src_prev = map_src_y;
+
 	// What is the position of the tile shown at g_map_x_scroll, g_map_y_scroll?
 	const uint16_t x_scroll_tile = (g_map_x_scroll / 8) % GAME_PLANE_W_CELLS;
 	const uint16_t y_scroll_tile = (g_map_y_scroll / 8) % GAME_PLANE_H_CELLS;
@@ -227,6 +236,15 @@ static inline int16_t draw_horizontal(O_Map *m)
 	                           GAME_SCREEN_W_CELLS + scroll_idx_x :
 	                           scroll_idx_x;
 	const uint16_t map_src_y = g_map_row_size * (g_map_y_scroll / 8);
+
+	if (map_src_x == m->h_x_map_src_prev &&
+	    map_src_y == m->h_y_map_src_prev)
+	{
+		return 1;
+	}
+
+	m->h_x_map_src_prev = map_src_x;
+	m->h_y_map_src_prev = map_src_y;
 
 	// What is the position of the tile shown at g_map_x_scroll, g_map_y_scroll?
 	const uint16_t x_scroll_tile = (scroll_idx_x) % GAME_PLANE_W_CELLS;

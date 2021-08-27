@@ -35,14 +35,19 @@
 #include "obj/hoop.h"
 #include "obj/falseblock.h"
 
+#include "obj/elevator.h"
+#include "obj/elevator_stop.h"
 #include "obj/fissins1.h"
 
 #include "obj/bounds.h"
 
+#include "obj/basketball.h"
 #include "obj/lavaanim.h"
 
 #include "obj/bgscroll.h"
 
+#include "obj/technobg.h"
+#include "obj/bgtile.h"
 #include "obj/columns.h"
 #include "obj/grasses.h"
 #include "obj/purpletree.h"
@@ -108,6 +113,7 @@ static void cube_spawn_stub(Obj *o, uint16_t data)
 	if (!c) return;
 	c->x -= c->left;
 	c->y -= c->top;
+	// TODO: What's up here? Shouldn't orange have a correct c->left?
 	if (c->type == CUBE_TYPE_ORANGE)
 	{
 		c->x -= INTTOFIX32(8);
@@ -121,7 +127,9 @@ static void cube_spawn_stub(Obj *o, uint16_t data)
 static void powerup_spawn_stub(Obj *o, uint16_t data)
 {
 	o->status = OBJ_STATUS_NULL;
-	Powerup *p = powerup_manager_spawn(o->x, o->y, data, 0);
+	const PowerupType type = data & 0xFF;
+	const uint8_t orb_id = data >> 8;
+	Powerup *p = powerup_manager_spawn(o->x, o->y, type, orb_id);
 	if (!p) return;
 	p->x += INTTOFIX32(8);
 	p->y += INTTOFIX32(8);
@@ -158,14 +166,19 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_HOOP] = {o_load_hoop, o_unload_hoop},
 	[OBJ_FALSEBLOCK] = {o_load_falseblock, o_unload_falseblock},
 
+	[OBJ_ELEVATOR] = {o_load_elevator, o_unload_elevator},
+	[OBJ_ELEVATOR_STOP] = {o_load_elevator_stop, o_unload_elevator_stop},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},
 
+	[OBJ_BASKETBALL] = {o_load_basketball, o_unload_basketball},
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
 
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 
+	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
+	[OBJ_BGTILE] = {o_load_bgtile, NULL},
 	[OBJ_COLUMNS] = {o_load_columns, NULL},
 	[OBJ_GRASSES] = {o_load_grasses, NULL},
 	[OBJ_PURPLETREE] = {o_load_purpletree, o_unload_purpletree},
@@ -274,7 +287,8 @@ static inline void obj_check_player(Obj *o)
 void obj_exec(void)
 {
 	ObjSlot *s = &g_objects[0];
-	while (s < &g_objects[ARRAYSIZE(g_objects) - 1])
+	int16_t i = ARRAYSIZE(g_objects);
+	while (i--)
 	{
 		Obj *o = (Obj *)s;
 		s++;
@@ -317,21 +331,18 @@ void obj_clear(void)
 	}
 
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
-
 	dma_q_fill_vram(OBJ_TILE_VRAM_POSITION, 0, OBJ_TILE_VRAM_LENGTH, 1);
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 {
+	if (!setup_funcs[type].load_func) return NULL;
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status != OBJ_STATUS_NULL) continue;
-		if (!setup_funcs[type].load_func) continue;
 
 		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
-
-		SYSTEM_ASSERT(sizeof(g_objects[i].raw_mem) % sizeof(uint32_t) == 0);
 		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
 		{
 			raw_mem_uint32[j] = 0;

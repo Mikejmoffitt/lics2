@@ -9,6 +9,8 @@
 #include "obj/map.h"
 #include "common.h"
 #include "obj/lyle.h"
+#include "obj/exploder.h"
+#include "obj/powerup_manager.h"
 
 static void render(O_Falseblock *e)
 {
@@ -24,6 +26,36 @@ static void render(O_Falseblock *e)
 	                             MAP_PAL_LINE, 0), SPR_SIZE(2, 1));
 	spr_put(sp_x, sp_y + 8, SPR_ATTR(e->base_tile_id + 0x10, 0, 0,
 	                             MAP_PAL_LINE, 0), SPR_SIZE(2, 1));
+}
+
+// Returns 1if any hoops exist.
+static int16_t check_hoops(void)
+{
+	ObjSlot *s = &g_objects[0];
+	while (s < &g_objects[OBJ_COUNT_MAX])
+	{
+		Obj *other = (Obj *)s;
+		s++;
+		if (other->status != OBJ_STATUS_ACTIVE) continue;
+		if (other->type != OBJ_HOOP) continue;
+		return 1;
+	}
+	return 0;
+}
+
+// TODO: It won't matter for the room this is used in, but it'd be nice to do
+// this scan just once and then store the powerup pointer instead.
+static void check_hp_orb(Obj *o)
+{
+	for (uint16_t i = 0; i < ARRAYSIZE(g_powerups); i++)
+	{
+		Powerup *p = &g_powerups[i];
+		if (p->active && p->type == POWERUP_TYPE_HP_ORB)
+		{
+			if (p->dy > 0 && p->y >= o->y + o->top) powerup_bounce(p);
+			return;
+		}
+	}
 }
 
 static void main_func(Obj *o)
@@ -43,6 +75,18 @@ static void main_func(Obj *o)
 	{
 		l->head.dy = 0;
 	}
+
+	check_hp_orb(o);
+
+	if (!check_hoops())
+	{
+		const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
+		exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
+		o->status = OBJ_STATUS_NULL;
+		// TODO: Sound (not sure which cue)
+		return;
+	}
+
 	render(e);
 }
 

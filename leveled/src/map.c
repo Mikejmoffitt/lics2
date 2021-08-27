@@ -20,10 +20,6 @@ void map_data_interview(void)
 	scanf("%d",&arg);
 	map_header.tileset = arg;
 
-	printf("\nSprite palette? (prev == %d)\nDEC >",map_header.sprite_palette);
-	scanf("%d",&arg);
-	map_header.sprite_palette = arg;
-
 	printf("\nBackground? (prev == %d)\nDEC >",map_header.background);
 	scanf("%d",&arg);
 	map_header.background = arg;
@@ -76,7 +72,6 @@ void map_new(void)
 
 static void map_swap_obj_end(void)
 {
-	// Need to swap the object list endianness too
 	for (unsigned int i = 0; i < MAP_NUM_OBJS; i++)
 	{
 		MapObj *o = &(map_header.objects[i]);
@@ -105,12 +100,12 @@ void map_save(void)
 		printf("[map] Error: No map data to write to %s.\n", map_fname);
 		return;
 	}
-	// Need to swap the object list endianness too
+	// Need to swap the object list endianness
 	map_swap_obj_end();
 	fwrite(&map_header,sizeof(map_header),1,f);
 	map_swap_obj_end();
 
-	// Swap endianness again during save
+	// Tile data must also be big-endian
 	size_t map_nwords = (map_header.w * MAP_WIDTH) * (map_header.h * MAP_HEIGHT);
 	for (unsigned int i = 0; i < map_nwords; i++)
 	{
@@ -130,7 +125,7 @@ void map_load()
 	FILE *f = fopen(map_fname,"rb");
 	if (!f)
 	{
-		printf("[map] Couldn't open %s for reading., going to create a new file.\n", map_fname);
+		printf("[map] Couldn't open %s for reading, creating a new file.\n", map_fname);
 		map_new();
 		map_save();
 		return;
@@ -144,10 +139,10 @@ void map_load()
 			map_data = NULL;
 		}
 		size_t map_nwords = (map_header.w * MAP_WIDTH) * (map_header.h * MAP_HEIGHT);
-		printf("[map] Got map sized %d by %d\n",map_header.w * MAP_WIDTH,map_header.h * MAP_HEIGHT);
+		printf("[map] Got map @ $%X sized %d by %d\n", (int)ftell(f), map_header.w * MAP_WIDTH,map_header.h * MAP_HEIGHT);
 		map_data = (uint16_t *)calloc(sizeof(uint16_t),map_nwords);
 
-		// Read in file, swapping from little endian to big endian on the fly
+		// Read in big-endian map data
 		for (unsigned int i = 0; i < map_nwords; i++)
 		{
 			uint16_t val;

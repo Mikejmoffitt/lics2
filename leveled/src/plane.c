@@ -85,6 +85,7 @@ void plane_load_fg(void)
 		[12] = "gauntlet",
 		[13] = "purplecity",
 		[14] = "sandy2",
+		[15] = "basketball",
 	};
 
 	snprintf(tile, sizeof(tile), "res/gfx/fg/%02d_%s.bin", map_header.tileset, base_fname[map_header.tileset]);

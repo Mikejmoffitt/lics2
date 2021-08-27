@@ -1,7 +1,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include "../../prj/src/obj_types.h"
+#include "../../src/obj_types.h"
 
 typedef struct ObjInfo
 {

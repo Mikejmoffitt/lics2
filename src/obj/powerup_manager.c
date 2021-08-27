@@ -17,8 +17,9 @@
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
-static O_PowerupManager *powerup_manager;
-static Powerup powerups[10];
+Powerup g_powerups[10];
+
+static O_PowerupManager *s_powerup_manager;
 
 static int16_t kanim_speed;
 static fix16_t kgravity;
@@ -150,6 +151,11 @@ static inline void powerup_render(Powerup *p)
 	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
 }
 
+void powerup_bounce(Powerup *p)
+{
+	p->dy = kbounce_dy;
+}
+
 static inline void newtonian_physics(Powerup *p)
 {
 	p->y += p->dy;
@@ -157,7 +163,7 @@ static inline void newtonian_physics(Powerup *p)
 	const int16_t px = FIX32TOINT(p->x);
 	const int16_t py = FIX32TOINT(p->y);
 
-	if (p->dy > 0 && map_collision(px, py + 1)) p->dy = kbounce_dy;
+	if (p->dy > 0 && map_collision(px, py + 1)) powerup_bounce(p);
 	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = 0;
 }
 
@@ -287,10 +293,10 @@ static void main_func(Obj *o)
 {
 	(void)o;
 
-	uint16_t i = ARRAYSIZE(powerups);
+	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
-		Powerup *p = &powerups[i];
+		Powerup *p = &g_powerups[i];
 		if (!p->active) continue;
 		powerup_run(p);
 	}
@@ -301,13 +307,13 @@ void o_load_powerup_manager(Obj *o, uint16_t data)
 	(void)data;
 	SYSTEM_ASSERT(sizeof(O_PowerupManager) <= sizeof(ObjSlot));
 
-	if (powerup_manager || s_vram_pos)
+	if (s_powerup_manager || s_vram_pos)
 	{
 		o->status = OBJ_STATUS_NULL;
 		return;
 	}
 
-	powerup_manager = (O_PowerupManager *)o;
+	s_powerup_manager = (O_PowerupManager *)o;
 
 	set_constants();
 	vram_load();
@@ -321,28 +327,28 @@ void o_load_powerup_manager(Obj *o, uint16_t data)
 void o_unload_powerup_manager(void)
 {
 	s_vram_pos = 0;
-	powerup_manager = NULL;
+	s_powerup_manager = NULL;
 }
 
 void powerup_manager_clear(void)
 {
-	if (!powerup_manager) return;
-	uint16_t i = ARRAYSIZE(powerups);
+	if (!s_powerup_manager) return;
+	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
-		powerups[i].active = 0;
+		g_powerups[i].active = 0;
 	}
 }
 
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
                                PowerupType type, int8_t orb_id)
 {
-	if (!powerup_manager) return NULL;
+	if (!s_powerup_manager) return NULL;
 	const ProgressSlot *prog = progress_get();
 	switch (type)
 	{
 		default:
-			break;
+			return NULL;
 		case POWERUP_TYPE_MAP:
 			if (prog->abilities & ABILITY_MAP) return NULL;
 			break;
@@ -368,10 +374,10 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
 			if (prog->hp_orbs & (1 << orb_id)) return NULL;
 			break;
 	}
-	uint16_t i = ARRAYSIZE(powerups);
+	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
-		Powerup *p = &powerups[i];
+		Powerup *p = &g_powerups[i];
 		if (p->active) continue;
 
 		p->active = 1;

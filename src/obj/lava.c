@@ -34,7 +34,7 @@ static inline void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(6);
 	ksplat_anim_speed = PALSCALE_DURATION(4);
 	kfall_dy = INTTOFIX16(PALSCALE_1ST(1.66667));
-	kgenerator_speed = PALSCALE_DURATION(19);
+	kgenerator_speed = PALSCALE_DURATION(18);
 
 	s_constants_set = 1;
 }
@@ -124,6 +124,10 @@ static inline void become_splat(Obj *o)
 static void check_collision_with_orange_cube(Obj *o)
 {
 	const O_Lyle *l = lyle_get();
+
+	// Lava half-width plus cube half-width. Hardcoded to speed up this
+	// collision check as it gets intensive with 40+ lava objects in the
+	// technozone hallway section.
 	const fix32_t adj_x = INTTOFIX32(20);
 	if (o->x + adj_x < l->head.x) return;
 	if (o->x - adj_x > l->head.x) return;

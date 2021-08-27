@@ -18,12 +18,12 @@ typedef enum PowerupType
 	POWERUP_TYPE_KICK = 4,
 	POWERUP_TYPE_ORANGE = 5,
 	// Items which come from boxes or enemies.
-	POWERUP_TYPE_HP,
-	POWERUP_TYPE_HP_2X,
-	POWERUP_TYPE_CP,
-	POWERUP_TYPE_CP_2X,
-	POWERUP_TYPE_CP_ORB,
-	POWERUP_TYPE_HP_ORB,
+	POWERUP_TYPE_HP = 6,
+	POWERUP_TYPE_HP_2X = 7,
+	POWERUP_TYPE_CP = 8,
+	POWERUP_TYPE_CP_2X = 9,
+	POWERUP_TYPE_CP_ORB = 0x0A,
+	POWERUP_TYPE_HP_ORB = 0x0B,
 } PowerupType;
 
 typedef struct Powerup
@@ -46,10 +46,13 @@ typedef struct O_PowerupManager
 	int8_t flicker_4f_anim;
 } O_PowerupManager;
 
+extern Powerup g_powerups[10];
+
 void o_load_powerup_manager(Obj *o, uint16_t data);
 void o_unload_powerup_manager(void);
 
 void powerup_manager_clear(void);
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
+void powerup_bounce(Powerup *p);
 
 #endif  // OBJ_POWERUP_MANAGER_H

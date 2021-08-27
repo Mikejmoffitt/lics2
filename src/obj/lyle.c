@@ -611,7 +611,7 @@ static inline void cube_kick(O_Lyle *l, Cube *c)
 {
 	const ProgressSlot *prog = progress_get();
 	if (!(prog->abilities & ABILITY_KICK)) return;
-	if (c->status != CUBE_STATUS_IDLE || c->type == CUBE_TYPE_SPAWNER) return;
+	if (c->status != CUBE_STATUS_IDLE || c->type == CUBE_TYPE_SPAWNER || c->type == CUBE_TYPE_ORANGE) return;
 	if (!(l->grounded || l->on_cube)) return;
 	if (l->action_cnt > 0) return;
 	if (!((buttons & BTN_B) && !(buttons_prev & BTN_B))) return;
@@ -1067,37 +1067,39 @@ static inline void update_exploration(O_Lyle *l)
 static void main_func(Obj *o)
 {
 	O_Lyle *l = (O_Lyle *)o;
+	if (!l->full_disable)
+	{
+		buttons_prev = buttons;
+		buttons = io_pad_read(0);
 
-	buttons_prev = buttons;
-	buttons = io_pad_read(0);
+		teleport_seq(l);
+		x_acceleration(l);
+		toss_cubes(l);
+		lift_cubes(l);
+		cp(l);
+		jump(l);
 
-	teleport_seq(l);
-	x_acceleration(l);
-	toss_cubes(l);
-	lift_cubes(l);
-	cp(l);
-	jump(l);
+		system_profile(PALRGB(7, 0, 0));
+		obj_standard_physics(&l->head);
+		bg_vertical_collision(l);
+		bg_horizontal_collision(l);
+		head_pushout(l);
+		eval_grounded(l);
+		system_profile(PALRGB(0, 4, 3));
+		cube_collision(l);
+		system_profile(PALRGB(3, 1, 1));
+		exit_check(l);
+		gravity(l);
 
-	system_profile(PALRGB(7, 0, 0));
-	obj_standard_physics(&l->head);
-	bg_vertical_collision(l);
-	bg_horizontal_collision(l);
-	head_pushout(l);
-	eval_grounded(l);
-	system_profile(PALRGB(0, 4, 3));
-	cube_collision(l);
-	system_profile(PALRGB(3, 1, 1));
-	exit_check(l);
-	gravity(l);
-
-	system_profile(PALRGB(3, 1, 5));
-	check_spikes(l);
-	system_profile(PALRGB(6, 6, 7));
-	calc_anim_frame(l);
-	system_profile(PALRGB(1, 1, 1));
-	counters(l);
-	set_map_scroll(l);
-	system_profile(PALRGB(4, 4, 0));
+		system_profile(PALRGB(3, 1, 5));
+		check_spikes(l);
+		system_profile(PALRGB(6, 6, 7));
+		calc_anim_frame(l);
+		system_profile(PALRGB(1, 1, 1));
+		counters(l);
+		set_map_scroll(l);
+		system_profile(PALRGB(4, 4, 0));
+	}
 	draw(l);
 	system_profile(PALRGB(0, 0, 0));
 
@@ -1234,4 +1236,10 @@ void lyle_set_control_en(int16_t en)
 {
 	if (!g_lyle) return;
 	g_lyle->ext_disable = !en;
+}
+
+void lyle_set_master_en(int16_t en)
+{
+	if (!g_lyle) return;
+	g_lyle->full_disable = !en;
 }

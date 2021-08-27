@@ -187,7 +187,9 @@ static const BgDescriptor backgrounds[] =
 	[21] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg21_bin, sizeof(res_bgmap_bg21_bin)},  // Mapping modification of 16.
 	[22] = {GFX_BG_22, res_pal_bg_bg22_bin, res_bgmap_bg22_bin, sizeof(res_bgmap_bg22_bin)},
 	[23] = {GFX_BG_23, res_pal_bg_bg23_bin, res_bgmap_bg23_bin, sizeof(res_bgmap_bg23_bin)},
-	[24] = {0}
+	[24] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},
+	[25] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},  // Same as 24, but vertical.
+	[26] = {0}
 };
 
 static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
@@ -460,7 +462,6 @@ static inline void technozone_purple_overlay(uint8_t half)
 
 static void technozone_horizontal(int16_t x_scroll)
 {
-	return;
 	static int16_t s_old_x;
 	const int16_t x_off = x_scroll / 8;
 
@@ -633,6 +634,30 @@ static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
 	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);
 }
 
+// Simple far purple scrolling 48x48 tile BG, as a companio to the FG tile
+// substitution front layer (horizontal ver.)
+static void bg_technozone_horizontal_simple_func(int16_t x_scroll, int16_t y_scroll)
+{
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t x_front_scroll_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.333333334)));
+	const int16_t x_front_scroll = x_front_scroll_raw % 48;
+
+	set_v_scroll_plane(y_scroll);
+	set_h_scroll_plane(x_front_scroll);
+}
+
+// Simple far purple scrolling 48x48 tile BG, as a companio to the FG tile
+// substitution front layer (vertical ver.)
+static void bg_technozone_vertical_simple_func(int16_t x_scroll, int16_t y_scroll)
+{
+	const fix32_t y_fixed = INTTOFIX32(-y_scroll);
+	const int16_t y_front_scroll_raw = FIX32TOINT(FIX32MUL(y_fixed, INTTOFIX32(0.333333334)));
+	const int16_t y_front_scroll = 47 - (y_front_scroll_raw % 48);
+
+	set_h_scroll_plane(x_scroll);
+	set_v_scroll_plane(y_front_scroll);
+}
+
 static void bg_static_func(int16_t x_scroll, int16_t y_scroll)
 {
 	(void)x_scroll;
@@ -785,6 +810,8 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[21] = bg_brown_grass_func,
 	[22] = bg_static_func,
 	[23] = bg_guantlet_func,
+	[24] = bg_technozone_horizontal_simple_func,
+	[25] = bg_technozone_vertical_simple_func,
 };
 
 static void main_func(Obj *o)

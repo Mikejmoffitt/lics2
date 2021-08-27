@@ -23,11 +23,16 @@ static inline void set_constants(void)
 static void update_tiles(O_LavaAnim *e)
 {
 	const Gfx *g = gfx_get(GFX_LAVAANIM);
-	const uint8_t *src = g->data + (e->anim_frame ? (4 * 32) : 0) + (e->variant * 8 * 32);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0xEE * 32), src, 32 / 2, 2);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0xFE * 32), src + 32, 32 / 2, 2);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0xEF * 32), src + 64, 32 / 2, 2);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0xFF * 32), src + 96, 32 / 2, 2);
+	const uint8_t *src = g->data + e->info.src_data_offset +
+	                     (e->anim_frame ? (e->info.src_anim_offset) : 0);
+
+	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset,
+	                    src, e->info.line_transfer_words, 2);
+
+	src += (e->info.line_transfer_words * 2);
+
+	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset + (0x10 * 32),
+	                    src, e->info.line_transfer_words, 2);
 }
 
 static void main_func(Obj *o)
@@ -38,10 +43,10 @@ static void main_func(Obj *o)
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
-	if (e->variant == 1)
-	{
-		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
-	}
+//	if (e->variant == 1)
+//	{
+//		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
+//	}
 
 	if (e->anim_frame != anim_frame_prev)
 	{
@@ -60,11 +65,44 @@ void o_load_lavaanim(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_LavaAnim *e = (O_LavaAnim *)o;
-	e->variant = data;
-	if (e->variant)
+	static const LavaAnimInfo anim_infos[] = 
 	{
-		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
+		[LAVA_ANIM_REGULAR] =
+		{
+			/*pal=*/NULL,
+			/*pal_size=*/0,
+			/*src_data_offset=*/0,
+			/*src_anim_offset=*/4 * 32,
+			/*dest_vram_offset=*/0xEE * 32,
+			/*line_transfer_words=*/(2 * 32) / 2,
+		},
+		[LAVA_ANIM_GREEN] =
+		{
+			/*pal=*/res_pal_bg_greenlava_bin,
+			/*pal_size=*/sizeof(res_pal_bg_greenlava_bin) / 2,
+			/*src_data_offset=*/8 * 32,
+			/*src_anim_offset=*/4 * 32,
+			/*dest_vram_offset=*/0xEE * 32,
+			/*line_transfer_words=*/(2 * 32) / 2,
+		},
+		[LAVA_ANIM_TECHNO] =
+		{
+			/*pal=*/NULL,
+			/*pal_size=*/0,
+			/*src_data_offset=*/16 * 32,
+			/*src_anim_offset=*/8 * 32,
+			/*dest_vram_offset=*/0xEC * 32,
+			/*line_transfer_words=*/(4 * 32) / 2,
+		},
+	};
+
+	O_LavaAnim *e = (O_LavaAnim *)o;
+	SYSTEM_ASSERT(data < ARRAYSIZE(anim_infos));
+	e->info = anim_infos[data];
+
+	if (e->info.pal)
+	{
+		pal_upload(MAP_TILE_CRAM_POSITION, e->info.pal, e->info.pal_size);
 	}
 	update_tiles(e);
 }

@@ -48,6 +48,8 @@ typedef struct O_Lyle
 	int8_t scroll_disable_h;
 	int8_t scroll_disable_v;
 	int8_t priority;
+
+	int8_t full_disable;
 } O_Lyle;
 
 extern O_Lyle *g_lyle;
@@ -84,5 +86,6 @@ int16_t lyle_get_cp(void);
 void lyle_set_scroll_h_en(int16_t en);
 void lyle_set_scroll_v_en(int16_t en);
 void lyle_set_control_en(int16_t en);
+void lyle_set_master_en(int16_t en);
 
 #endif  // OBJ_LYLE_H

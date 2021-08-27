@@ -3,6 +3,23 @@
 
 #include "obj.h"
 
+typedef enum LavaAnimVariant
+{
+	LAVA_ANIM_REGULAR,
+	LAVA_ANIM_GREEN,
+	LAVA_ANIM_TECHNO,
+} LavaAnimVariant;
+
+typedef struct LavaAnimInfo
+{
+	const uint8_t *pal;
+	uint16_t pal_size;
+	uint16_t src_data_offset;
+	uint16_t src_anim_offset;
+	uint16_t dest_vram_offset;
+	uint16_t line_transfer_words;
+} LavaAnimInfo;
+
 typedef struct O_LavaAnim
 {
 	Obj head;
@@ -10,7 +27,7 @@ typedef struct O_LavaAnim
 	int16_t anim_frame;
 	int16_t anim_cnt;
 
-	uint16_t variant;
+	LavaAnimInfo info;
 } O_LavaAnim;
 
 void o_load_lavaanim(Obj *o, uint16_t data);

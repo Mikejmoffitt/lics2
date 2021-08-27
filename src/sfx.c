@@ -7,6 +7,7 @@
 
 #define SFX_P(_pitch_, _vol_) {1, ((int)(_pitch_)) & 0x3FF, (_vol_) & 0x0F}
 #define SFX_END() {0}
+#define SFX_LOOP() {1, 0xFFFF, 0}
 
 static uint8_t cycle_count = 0;
 static const uint8_t kcycle_max = 4;
@@ -629,6 +630,31 @@ static const SfxSample sfx_explode[] =
 	SFX_P(0x0080 + 0xF0, 0xE),
 	SFX_END()
 };
+
+static const SfxSample sfx_elevator[] =
+{
+	SFX_P(0x3FF, 0),
+	SFX_P(0x3FF, 1),
+	SFX_P(0x3FF, 2),
+	SFX_P(0x3FF, 3),
+	SFX_P(0x3FF, 2),
+	SFX_P(0x3FF, 1),
+	SFX_LOOP(),
+};
+
+static const SfxSample sfx_elevator_2[] =
+{
+	SFX_P(0x3E3, 0),
+	SFX_P(0x3E3, 1),
+	SFX_P(0x3E3, 2),
+	SFX_P(0x3E3, 3),
+	SFX_P(0x3E3, 4),
+	SFX_P(0x3E3, 3),
+	SFX_P(0x3E3, 2),
+	SFX_P(0x3E3, 1),
+	SFX_LOOP(),
+};
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -653,6 +679,8 @@ static const SfxSample *stream_by_id[] =
 	[SFX_GAXTER_SHOT] = sfx_gaxter_shot,
 	[SFX_GAXTER_SHOT_2] = sfx_gaxter_shot_2,
 	[SFX_EXPLODE] = sfx_explode,
+	[SFX_ELEVATOR] = sfx_elevator,
+	[SFX_ELEVATOR_2] = sfx_elevator_2,
 };
 
 // Sound routines.
@@ -700,6 +728,11 @@ void sfx_tick(void)
 			psg_vol(s->channel, 0xF);
 			continue;
 		}
+		else if (sample->pitch == 0xFFFF)
+		{
+			s->stream = s->stream_base;
+			sample = s->stream;
+		}
 		else
 		{
 			s->stream++;
@@ -722,6 +755,7 @@ void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel)
 	if (priority > s->priority) return;
 	s->id = id;
 	s->stream = stream;
+	s->stream_base = stream;
 	s->channel = channel;
 	s->priority = priority;
 	sys_ei();
@@ -738,6 +772,7 @@ void sfx_play(SfxId id, int8_t priority)
 		if (s->stream) continue;
 		s->id = id;
 		s->stream = stream;
+		s->stream_base = stream;
 		s->channel = i;
 		s->priority = priority;
 		goto finish;
@@ -764,6 +799,7 @@ void sfx_play(SfxId id, int8_t priority)
 	SfxChannelState *s = &channel_state[lowest_index];
 	s->id = id;
 	s->stream = stream;
+	s->stream_base = stream;
 	s->channel = lowest_index;
 	s->priority = priority;
 

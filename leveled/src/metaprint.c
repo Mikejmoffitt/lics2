@@ -20,6 +20,7 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 
 	switch (o->type)
 	{
+		default:
 		case OBJ_NULL:
 			sprintf(desc," ");
 			break;
@@ -27,14 +28,15 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			sprintf(desc,"To (%2X, %X)", (o->data & 0xFF00) >> 8, (o->data & 0x00F0) >> 4);
 			sprintf(dat2,"Door #%X (LSN)", o->data & 0x000F);
 			break;
-		case OBJ_DOG:
-			sprintf(dat2,"Releases object after eating 3 eggs");
-			goto cube_desc_area;
 		case OBJ_CONTAINER:
 			sprintf(dat2,"A background element that can be struck.");
 			break;
 		case OBJ_CUBE:
-cube_desc_area:
+		case OBJ_DOG:
+			if (o->type == OBJ_DOG)
+			{
+				sprintf(dat2,"Releases object after eating 3 eggs");
+			}
 			if (o->data == 0x0100)
 			{
 				sprintf(desc,"Blue Cube (destructable)");
@@ -80,11 +82,11 @@ cube_desc_area:
 				}
 				else if ((o->data & 0x00F0) == 0x40)
 				{
-					sprintf(dat2,"CP ORB #%X",o->data & 0x000F);
+					sprintf(dat2,"CP ORB #%X", o->data & 0x000F);
 				}
 				else if ((o->data & 0x00F0) == 0x80)
 				{
-					sprintf(dat2,"HP ORB #%X",o->data & 0x000F);
+					sprintf(dat2,"HP ORB #%X", o->data & 0x000F);
 				}
 			}
 			else
@@ -114,33 +116,47 @@ cube_desc_area:
 			}
 			break;
 		case OBJ_ITEM:
-			if (o->data == 0x0000)
+			switch (o->data & 0xFF)
 			{
-				sprintf(desc, "Map screen");
-			}
-			else if (o->data == 0x0001)
-			{
-				sprintf(desc, "Cube lifting");
-			}
-			else if (o->data == 0x0002)
-			{
-				sprintf(desc, "Cube jumping");
-			}
-			else if (o->data == 0x0003)
-			{
-				sprintf(desc, "Phantom cubes");
-			}
-			else if (o->data == 0x0004)
-			{
-				sprintf(desc, "Kicking cubes");
-			}
-			else if (o->data == 0x0005)
-			{
-				sprintf(desc, "Orange cube lifting");
-			}
-			else
-			{
-				sprintf(desc, "Invalid item (defaults to map)");
+				default:
+					sprintf(desc, "Invalid item (will not spawn)");
+					break;
+				case 0x00:
+					sprintf(desc, "Map screen");
+					break;
+				case 0x01:
+					sprintf(desc, "Cube lifting");
+					break;
+				case 0x02:
+					sprintf(desc, "Phantom cubes");
+					break;
+				case 0x03:
+					sprintf(desc, "Phantom cubes");
+					break;
+				case 0x04:
+					sprintf(desc, "Kicking cubes");
+					break;
+				case 0x05:
+					sprintf(desc, "Orange cube lifting");
+					break;
+				case 0x06:
+					sprintf(desc, "HP UP");
+					break;
+				case 0x07:
+					sprintf(desc, "HP UP 2X");
+					break;
+				case 0x08:
+					sprintf(desc, "HP UP");
+					break;
+				case 0x09:
+					sprintf(desc, "HP UP 2X");
+					break;
+				case 0x0A:
+					sprintf(desc, "CP ORB #%X", (o->data >> 8));
+					break;
+				case 0x0B:
+					sprintf(desc, "HP ORB #%X", (o->data >> 8));
+					break;
 			}
 			break;
 		case OBJ_GAXTER1:
@@ -167,14 +183,7 @@ cube_desc_area:
 			break;
 		case OBJ_PILLA:
 			sprintf(desc,"Walks left and right constrained by BG");
-			if (o->data)
-			{
-				sprintf(dat2,"(head unit)");
-			}
-			else
-			{
-				sprintf(dat2,"(tail unit)");
-			}
+			sprintf(dat2, (o->data) ? "(head unit)" : "(tail unit");
 			break;
 		case OBJ_HEDGEDOG:
 			sprintf(desc,"Jumps up and fires a few shots");
@@ -305,7 +314,7 @@ cube_desc_area:
 	{
 		int cx = x + (TILESIZE * (35 + meta_cursor_pos));
 		al_draw_filled_rectangle(cx + 1, y + 47, cx + TILESIZE, y + 54,
-			al_map_rgba(255, 0, 0, 0));
+		                         al_map_rgba(255, 0, 0, 0));
 	}
 }
 

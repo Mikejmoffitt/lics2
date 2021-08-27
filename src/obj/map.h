@@ -43,6 +43,12 @@ typedef struct O_Map
 	int16_t x_scroll_prev;
 	int16_t y_scroll_prev;
 
+	uint16_t h_x_map_src_prev;
+	uint16_t h_y_map_src_prev;
+
+	uint16_t v_x_map_src_prev;
+	uint16_t v_y_map_src_prev;
+
 	uint8_t next_room_id;
 	uint8_t next_room_entrance;
 } O_Map;

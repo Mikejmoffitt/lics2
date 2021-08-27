@@ -63,6 +63,8 @@ static const Gfx gfx[] =
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
 	[GFX_EX_GRASSES] = GFX(ex_grasses),
 	[GFX_EX_COLUMNS] = GFX(ex_columns),
+	[GFX_EX_TECHNOBGH] = GFX(ex_technobgh),
+	[GFX_EX_TECHNOBGV] = GFX(ex_technobgv),
 	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
 
 	[GFX_BG_1] = GFX(bg_bg1),
@@ -87,6 +89,7 @@ static const Gfx gfx[] =
 	[GFX_BG_22] = GFX(bg_bg22),
 	[GFX_BG_23] = GFX(bg_bg23),
 	[GFX_BG_23_EX] = GFX(bg_bg23_ex),
+	[GFX_BG_24] = GFX(bg_bg24),
 };
 
 int gfx_init(void)

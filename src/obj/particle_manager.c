@@ -101,22 +101,16 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			goto delete_particle;
 		case PARTICLE_TYPE_SPARKLE:
 			animate(p, kanim_speed);
-			px -= 8;
-			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + sparkle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 			animate(p, kanim_speed);
-			px -= 8;
-			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
 			animate(p, kanim_speed);
-			px -= 8;
-			py -= 8;
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame] + 16,
 			        0, 0, LYLE_PAL_LINE, 1);
 			break;
@@ -148,8 +142,6 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			break;
 		case PARTICLE_TYPE_SAND:
 			animate(p, kanim_speed_sand);
-			px -= 4;
-			py -= 4;
 			attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
 			        0, 0, LYLE_PAL_LINE, 1);
 			size = SPR_SIZE(1, 1);
@@ -215,8 +207,19 @@ void particle_manager_clear(void)
 	}
 }
 
-Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
+Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 {
+	// Particles are offset by their width/height divided by two, so as to avoid
+	// applying offsets at runtime while rendering.
+	static const fix32_t position_offset_tbl[] =
+	{
+		[PARTICLE_TYPE_SPARKLE] = INTTOFIX32(8),
+		[PARTICLE_TYPE_FIZZLE] = INTTOFIX32(8),
+		[PARTICLE_TYPE_FIZZLERED] = INTTOFIX32(8),
+		[PARTICLE_TYPE_EXPLOSION] = 0,  // Handled at runtime.
+		[PARTICLE_TYPE_SAND] = INTTOFIX32(4),
+	};
+
 	Particle *ret = NULL;
 	if (!particle_manager) return NULL;
 	if (type == PARTICLE_TYPE_NULL) return NULL;
@@ -230,8 +233,8 @@ Particle *particle_manager_spawn(int32_t x, int32_t y, ParticleType type)
 		if (p->type != PARTICLE_TYPE_NULL) continue;
 
 		p->type = type;
-		p->x = x;
-		p->y = y;
+		p->x = x - position_offset_tbl[p->type];
+		p->y = y - position_offset_tbl[p->type];
 		p->dx = 0;
 		p->dy = 0;
 		switch (type)

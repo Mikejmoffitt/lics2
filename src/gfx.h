@@ -39,7 +39,6 @@ typedef enum GfxId
 	GFX_CP_METER,
 	GFX_DOG,
 	GFX_ELEVATOR,
-	GFX_ELEVATOR_STOP,
 	GFX_FISSINS1,
 	GFX_BOSS1,
 	GFX_FISSINS2,
@@ -61,6 +60,8 @@ typedef enum GfxId
 	GFX_EX_CLOAKDUDE,
 	GFX_EX_GRASSES,
 	GFX_EX_COLUMNS,
+	GFX_EX_TECHNOBGH,
+	GFX_EX_TECHNOBGV,
 	GFX_EX_TITLE_MENU,
 
 	GFX_BG_1,
@@ -86,12 +87,13 @@ typedef enum GfxId
 	GFX_BG_22,
 	GFX_BG_23,
 	GFX_BG_23_EX,
+	GFX_BG_24,
 } GfxId;
 
 typedef struct Gfx
 {
 	const uint8_t *data;
-	const uint16_t size;
+	const uint32_t size;
 } Gfx;
 
 int gfx_init(void);

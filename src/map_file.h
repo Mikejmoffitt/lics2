@@ -34,13 +34,13 @@ typedef struct MapFile
 	// Graphics tileset and palette to display with (enum)
 	uint8_t tileset;
 
-	// Palette for enemies, objects
-	uint8_t sprite_palette;
+	uint8_t ex3;  // Padding
 
 	// Which background to choose from (enum); palette implied
 	uint8_t background;
+	uint8_t ex4;  // Padding
 
-	// Large array of map objects for the object list (null terminated)
+	// Large array of map objects for the object list.
 	MapObj objects[128];
 
 	// Starting point of map data. Overlaid over real binary data.

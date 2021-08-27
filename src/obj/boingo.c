@@ -10,6 +10,7 @@
 #include "common.h"
 #include "sfx.h"
 #include "obj/particle_manager.h"
+#include "progress.h"
 
 #include "cube.h"
 #include "palscale.h"
@@ -303,6 +304,12 @@ void o_load_boingo(Obj *o, uint16_t data)
 	{
 		o->cube_func = cube_func;
 		o->hp = 3;
+	}
+
+	if (!(progress_get()->abilities & ABILITY_LIFT))
+	{
+		o->status = OBJ_STATUS_NULL;
+		return;
 	}
 
 	o->x -= INTTOFIX32(1);

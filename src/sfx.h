@@ -28,6 +28,8 @@ typedef enum SfxId
 	SFX_GAXTER_SHOT,
 	SFX_GAXTER_SHOT_2,
 	SFX_EXPLODE,
+	SFX_ELEVATOR,
+	SFX_ELEVATOR_2,
 } SfxId;
 
 typedef struct SfxSample
@@ -41,6 +43,7 @@ typedef struct SfxChannelState
 {
 	SfxId id;
 	const SfxSample *stream;  // NULL if not playing a sample.
+	const SfxSample *stream_base;
 	int8_t channel;  // 0 - 2.
 	int8_t priority;  // 0 = highest priority.
 } SfxChannelState;

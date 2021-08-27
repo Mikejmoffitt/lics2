@@ -51,8 +51,9 @@ typedef struct PersistentState
 
 static PersistentState s_persistent_state;
 
-static void loop(void)
+static void run_frame(void)
 {
+	int16_t want_display_en = 0;
 	ProgressSlot *prog = progress_get();
 	system_profile(0);
 	switch (s_game_state)
@@ -65,11 +66,11 @@ static void loop(void)
 			sfx_init();
 			progress_init();
 			s_game_state++;
+			want_display_en = 0;
 			s_persistent_state.lyle_hp = prog->hp_capacity;
 			break;
 
 		case GAME_STATE_NEW_ROOM:
-			vdp_set_display_en(0);
 			obj_clear();
 
 			// The order of objects is important.
@@ -91,7 +92,7 @@ static void loop(void)
 			l->cp = s_persistent_state.lyle_cp;
 			l->head.hp = s_persistent_state.lyle_hp;
 			l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
-		                                     OBJ_DIRECTION_RIGHT;
+			                                     OBJ_DIRECTION_RIGHT;
 			l->tele_in_cnt = s_persistent_state.lyle_tele_in_cnt;
 
 			s_persistent_state.track_id = map_get_music_track();
@@ -137,11 +138,18 @@ static void loop(void)
 				s_persistent_state.lyle_hp = l->head.hp;
 				s_persistent_state.lyle_tele_in_cnt = l->tele_in_cnt;
 				s_game_state = GAME_STATE_NEW_ROOM;
+				want_display_en = 0;
 			}
-			vdp_set_display_en(!pause_want_blank() && s_room_elapsed >= 2);
+			else
+			{
+				want_display_en = !pause_want_blank() && s_room_elapsed >= 1;
+			}
 			s_room_elapsed++;
 			break;
 	}
+
+	megadrive_finish();
+	vdp_set_display_en(want_display_en);
 }
 
 // Main dispatch ==============================================================
@@ -150,8 +158,7 @@ void game_main(void)
 	s_game_state = GAME_STATE_INIT;
 	while (1)
 	{
-		loop();
-		megadrive_finish();
+		run_frame();
 		g_elapsed++;
 	}
 }
