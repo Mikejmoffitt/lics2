@@ -1177,12 +1177,6 @@ void lyle_get_hurt(void)
 	sfx_play(SFX_HURT, 4);
 }
 
-void lyle_kill(void)
-{
-	if (!g_lyle) return;
-	g_lyle->head.hp = 0;
-}
-
 fix32_t lyle_get_x(void)
 {
 	if (!g_lyle) return 0;
@@ -1199,6 +1193,12 @@ int16_t lyle_get_hp(void)
 {
 	if (!g_lyle) return 0;
 	return g_lyle->head.hp;
+}
+
+void lyle_set_hp(int16_t hp)
+{
+	if (!g_lyle) return;
+	g_lyle->head.hp = hp;
 }
 
 int16_t lyle_get_cp(void)

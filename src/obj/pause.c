@@ -17,7 +17,6 @@ static uint16_t s_vram_pos;
 
 static int16_t kcursor_flash_delay;
 static int16_t kdismissal_delay_frames;
-static int16_t kblank_frames;
 
 static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 7;
@@ -149,6 +148,34 @@ static inline void draw_map_pause_text(void)
 	        SPR_ATTR(s_vram_pos + 0x60, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 2));
 	spr_put(draw_x + 32, draw_y,
 	        SPR_ATTR(s_vram_pos + 0x68, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 2));
+}
+
+static inline void draw_cube_sector_text(void)
+{
+	int16_t x = (GAME_SCREEN_W_PIXELS / 2) - 38;
+	static const int16_t y = 164;
+	const int16_t tile_base = SPR_ATTR(s_vram_pos + 0x34, 0, 0, MAP_PAL_LINE, 0);
+	static const int16_t cube_mapping[] =
+	{
+		0, 1, 2, 3
+	};
+	static const int16_t sector_mapping[] =
+	{
+		4, 3, 0, 5, 6, 7
+	};
+	
+	for (uint16_t i = 0; i < ARRAYSIZE(cube_mapping); i++)
+	{
+		spr_put(x, y, tile_base + cube_mapping[i], SPR_SIZE(1, 1));
+		x += 8;
+	}
+	x += 3;
+	
+	for (uint16_t i = 0; i < ARRAYSIZE(sector_mapping); i++)
+	{
+		spr_put(x, y, tile_base + sector_mapping[i], SPR_SIZE(1, 1));
+		x += 8;
+	}
 }
 
 static inline void draw_map_location(O_Pause *e)
@@ -292,12 +319,12 @@ static const CharMapping kmapping_2[] =
 
 static const CharMapping kmapping_3[] =
 {
-	{71, 28, '2'},
+	{71, 28, '3'},
 };
 
 static const CharMapping kmapping_4[] =
 {
-	{71, 28, '2'},
+	{71, 28, '4'},
 };
 
 static void draw_char_mapping(int16_t base_x, int16_t base_y,
@@ -541,6 +568,22 @@ static void plot_get_dialogue_text(PauseScreen screen)
 		[PAUSE_SCREEN_HP_ORB_13] = hp_orb_string,
 		[PAUSE_SCREEN_HP_ORB_14] = hp_orb_string,
 		[PAUSE_SCREEN_HP_ORB_15] = hp_orb_string,
+		[PAUSE_SCREEN_CP_ORB_0] = NULL,
+		[PAUSE_SCREEN_CP_ORB_1] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_2] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_3] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_4] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_5] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_6] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_7] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_8] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_9] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_10] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_11] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_12] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_13] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_14] = NULL ,
+		[PAUSE_SCREEN_CP_ORB_15] = NULL ,
 	};
 
 	const char *str = strings[screen];
@@ -635,7 +678,6 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 
 	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 	{
-		e->blank = kblank_frames;
 		e->screen = PAUSE_SCREEN_NONE;
 	}
 }
@@ -667,7 +709,6 @@ static void main_func(Obj *o)
 	if (first_frame)
 	{
 		e->dismissal_delay_cnt = 0;
-		e->blank = kblank_frames;
 	}
 
 	switch (e->screen)
@@ -675,26 +716,26 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_NONE:
 			if (first_frame)
 			{
-				clear_window_plane();
 				map_upload_palette();
+				e->window = 0;
 			}
 			maybe_map(e, buttons);
 			break;
 		case PAUSE_SCREEN_MAP:
 			if (first_frame)
 			{
+				clear_window_plane();
 				plot_map_to_window_plane();
-			}
-			else if (e->blank)
-			{
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
+				e->window = 1;
 			}
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
 			                2, kcursor_flash_delay);
 			draw_map_location(e);
 			draw_map_pause_text();
+			draw_cube_sector_text();
 			maybe_dismiss(e, buttons, 0);
 			break;
 		case PAUSE_SCREEN_GET_MAP:
@@ -709,7 +750,9 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_LYLE_WEAK:
 			if (first_frame)
 			{
+				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
+				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -732,7 +775,9 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_HP_ORB_15:
 			if (first_frame)
 			{
+				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
+				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -755,7 +800,9 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_CP_ORB_15:
 			if (first_frame)
 			{
+				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
+				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -774,9 +821,6 @@ static void main_func(Obj *o)
 		}
 	}
 
-	if (e->blank > 0) e->blank--;
-
-	vdp_set_window_top(e->screen == PAUSE_SCREEN_NONE ? 0 : 31);
 	e->buttons_prev = buttons;
 }
 
@@ -787,7 +831,6 @@ static inline void set_constants(void)
 
 	kcursor_flash_delay = PALSCALE_DURATION(12);
 	kdismissal_delay_frames = PALSCALE_DURATION(60);
-	kblank_frames = PALSCALE_DURATION(5);
 	s_constants_set = 1;
 }
 
@@ -823,8 +866,7 @@ void pause_set_screen(PauseScreen screen)
 	s_pause->screen = screen;
 }
 
-// Returns 1 if the pause screen would like the screen blanked.
-int16_t pause_want_blank(void)
+int16_t pause_want_window(void)
 {
-	return s_pause->blank;
+	return s_pause->window;
 }

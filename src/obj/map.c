@@ -394,7 +394,7 @@ static inline void prepare_vscroll(void)
 static void main_func(Obj *o)
 {
 	O_Map *m = (O_Map *)o;
-
+/*
 	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
 	while (i--)
 	{
@@ -405,11 +405,13 @@ static void main_func(Obj *o)
 	while (i--)
 	{
 		s_v_scroll_buffer[i] = g_map_y_scroll;
-	}
+	}*/
 
 	// Update plane A.
 	if (m->fresh_room)
 	{
+		prepare_vscroll();
+		prepare_hscroll();
 		draw_full();
 		m->fresh_room = 0;
 
@@ -420,10 +422,12 @@ static void main_func(Obj *o)
 	{
 		if (draw_vertical(m))
 		{
+			prepare_vscroll();
 			dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 		}
 		if (draw_horizontal(m))
 		{
+			prepare_hscroll();
 			dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
 		}
 	}

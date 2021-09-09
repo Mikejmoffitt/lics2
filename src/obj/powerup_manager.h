@@ -24,6 +24,8 @@ typedef enum PowerupType
 	POWERUP_TYPE_CP_2X = 9,
 	POWERUP_TYPE_CP_ORB = 0x0A,
 	POWERUP_TYPE_HP_ORB = 0x0B,
+
+	POWERUP_TYPE_NONE = 0xFF,
 } PowerupType;
 
 typedef struct Powerup

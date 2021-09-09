@@ -73,7 +73,6 @@ static inline int16_t lyle_touching_obj(Obj *o)
 
 void lyle_get_bounced(void);
 void lyle_get_hurt(void);
-void lyle_kill(void);
 
 fix32_t lyle_get_x(void);
 fix32_t lyle_get_y(void);
@@ -81,7 +80,9 @@ void lyle_set_pos(fix32_t x, fix32_t y);
 void lyle_set_direction(ObjDirection d);
 
 int16_t lyle_get_hp(void);
+void lyle_set_hp(int16_t hp);
 int16_t lyle_get_cp(void);
+static inline void lyle_kill(void) { lyle_set_hp(0); }
 
 void lyle_set_scroll_h_en(int16_t en);
 void lyle_set_scroll_v_en(int16_t en);

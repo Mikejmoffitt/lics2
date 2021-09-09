@@ -128,8 +128,8 @@ static inline void powerup_render(Powerup *p)
 		pal = BG_PAL_LINE;
 		tile_offset = 0;
 		size = SPR_SIZE(2, 2);
-		tx -= 8;
-		ty -= 16;
+		tx -= 6;
+		ty -= 14;
 		tile_offset += (p->anim_frame % 2) ? 4 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP_ORB)
@@ -137,8 +137,8 @@ static inline void powerup_render(Powerup *p)
 		pal = LYLE_PAL_LINE;
 		tile_offset = 8;
 		size = SPR_SIZE(2, 2);
-		tx -= 8;
-		ty -= 16;
+		tx -= 6;
+		ty -= 14;
 		tile_offset += (p->anim_frame % 2) ? 4 : 0;
 	}
 	else
@@ -175,20 +175,20 @@ static inline void powerup_get(Powerup *p)
 
 	switch (p->type)
 	{
-		case POWERUP_TYPE_HP:
-			lh->hp++;
-			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
-			break;
-		case POWERUP_TYPE_CP:
-			l->cp++;
-			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
+		default:
 			break;
 		case POWERUP_TYPE_HP_2X:
-			lh->hp += 2;
+			lh->hp += 1;
+			// Fall-through intended.
+		case POWERUP_TYPE_HP:
+			lh->hp += 1;
 			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
 			break;
 		case POWERUP_TYPE_CP_2X:
-			l->cp += 2;
+			l->cp += 4;
+			// Fall-through intended.
+		case POWERUP_TYPE_CP:
+			l->cp += 4;
 			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
 			break;
 		case POWERUP_TYPE_CP_ORB:
@@ -348,6 +348,8 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
 	switch (type)
 	{
 		default:
+			break;
+		case POWERUP_TYPE_NONE:
 			return NULL;
 		case POWERUP_TYPE_MAP:
 			if (prog->abilities & ABILITY_MAP) return NULL;

@@ -12,6 +12,7 @@
 #include "game.h"
 #include "music.h"
 #include "progress.h"
+#include "persistent_state.h"
 
 static int16_t s_title_is_visible;
 
@@ -681,7 +682,9 @@ static void main_func(Obj *o)
 			{
 				if (e->menu_choice == 0)
 				{
+					// TODO: This isn't actually working somehow, fix!
 					progress_erase();
+					persistent_state_init();
 				}
 				// TODO: Play menu confirmation sound
 				e->state = TITLE_STATE_BEGIN;
