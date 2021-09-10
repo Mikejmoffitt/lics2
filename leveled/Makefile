@@ -6,7 +6,7 @@ LIBRARIES := `pkg-config --cflags --libs allegro-5 allegro_ttf-5 allegro_font-5 
 
 SOURCES := $(wildcard src/*.c)
 OBJECTS := $(SOURCES:.c=.o)
-EDITOR_EXEC := ../prj/editor
+EDITOR_EXEC := ../editor
 
 .PHONY: all clean
 

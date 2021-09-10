@@ -139,6 +139,75 @@ static void plot_map_to_window_plane(void)
 	plot_map();
 }
 
+static inline void plot_item_display(uint16_t x, uint16_t y)
+{
+	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	x /= 8;
+	y /= 8;
+	plane_base += 2 * ((y * GAME_PLANE_W_CELLS) + x);
+
+	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 0, ENEMY_PAL_LINE, 0));
+	vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
+	plane_base += GAME_PLANE_W_CELLS * 2;
+	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 1, ENEMY_PAL_LINE, 0));
+	vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 1, ENEMY_PAL_LINE, 0));
+}
+
+static void plot_item_displays(void)
+{
+	plot_item_display(96, 192);
+	plot_item_display(120, 192);
+	plot_item_display(152, 192);
+	plot_item_display(184, 192);
+	plot_item_display(208, 192);
+}
+
+static void draw_cp_orb_count(void)
+{
+	const ProgressSlot *progress = progress_get();
+	const int16_t cp_orbs = progress->pending_cp_orbs + progress->registered_cp_orbs;
+	spr_put(272, 204, VDP_ATTR(s_vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+	spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * cp_orbs), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+}
+
+static void draw_item_icons(void)
+{
+	const ProgressSlot *progress = progress_get();
+	
+	if (progress->abilities & ABILITY_LIFT)
+	{
+		spr_put(100, 196, VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+	}
+	
+	if (progress->abilities & ABILITY_JUMP)
+	{
+		spr_put(124, 196, VDP_ATTR(s_vram_pos + 0x72, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+	}
+
+	if (progress->abilities & ABILITY_PHANTOM)
+	{
+		spr_put(152, 192, VDP_ATTR(s_vram_pos + 0x77, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+		int16_t phantom_level = 0;
+		if (progress->abilities & ABILITY_FAST_PHANTOM) phantom_level++;
+		if (progress->abilities & ABILITY_CHEAP_PHANTOM) phantom_level++;
+		if (progress->abilities & ABILITY_2X_DAMAGE_PHANTOM) phantom_level++;
+
+		spr_put(152, 208, VDP_ATTR(s_vram_pos + 0x54, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+		spr_put(160, 208, VDP_ATTR(s_vram_pos + 0x55 + phantom_level, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+	}
+
+	if (progress->abilities & ABILITY_KICK)
+	{
+		spr_put(184, 192, VDP_ATTR(s_vram_pos + 0x73, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+	}
+
+	if (progress->abilities & ABILITY_ORANGE)
+	{
+		spr_put(212, 196, VDP_ATTR(s_vram_pos + 0x71, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+	}
+}
+
 static inline void draw_map_pause_text(void)
 {
 	static const int16_t draw_x = (GAME_SCREEN_W_PIXELS / 2) - 28;
@@ -442,10 +511,10 @@ static void plot_get_side_grid(uint16_t plane_base)
 	static const uint8_t grid_mapping[] =
 	{
 		0x81,0x81,0x81,0x81,0x81,0x85,
-		0x82,0x82,0x82,0x82,0x82,0x86,
-		0x82,0x82,0x82,0x82,0x82,0x86,
-		0x82,0x82,0x82,0x82,0x82,0x86,
-		0x82,0x82,0x82,0x82,0x82,0x86,
+		0x82,0x82,0x82,0x82,0x82,0x1A,
+		0x82,0x82,0x82,0x82,0x82,0x1A,
+		0x82,0x82,0x82,0x82,0x82,0x1A,
+		0x82,0x82,0x82,0x82,0x82,0x1A,
 	};
 	/* clang-format on */
 	int16_t map_index = 0;
@@ -726,6 +795,7 @@ static void main_func(Obj *o)
 			{
 				clear_window_plane();
 				plot_map_to_window_plane();
+				plot_item_displays();
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 				e->window = 1;
@@ -736,6 +806,8 @@ static void main_func(Obj *o)
 			draw_map_location(e);
 			draw_map_pause_text();
 			draw_cube_sector_text();
+			draw_item_icons();
+			draw_cp_orb_count();
 			maybe_dismiss(e, buttons, 0);
 			break;
 		case PAUSE_SCREEN_GET_MAP:

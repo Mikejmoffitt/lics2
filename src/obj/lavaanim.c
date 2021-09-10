@@ -43,10 +43,10 @@ static void main_func(Obj *o)
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
-//	if (e->variant == 1)
-//	{
-//		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
-//	}
+	if (e->variant == LAVA_ANIM_GREEN)
+	{
+		pal_upload(MAP_TILE_CRAM_POSITION, res_pal_bg_greenlava_bin, sizeof(res_pal_bg_greenlava_bin) / 2);
+	}
 
 	if (e->anim_frame != anim_frame_prev)
 	{

@@ -194,6 +194,7 @@ static inline void powerup_get(Powerup *p)
 		case POWERUP_TYPE_CP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->cp_orbs |= (1 << p->orb_id);
+			prog->pending_cp_orbs++;
 			pause_set_screen(PAUSE_SCREEN_CP_ORB_0 + p->orb_id);
 			break;
 		case POWERUP_TYPE_HP_ORB:
