@@ -34,10 +34,10 @@ static void set_constants(void)
 	ksparkle_life = PALSCALE_DURATION(14);
 	kfizzle_life = PALSCALE_DURATION(12);
 	kexplosion_life = PALSCALE_DURATION(21);
-	ksand_life = PALSCALE_DURATION(20);
 	kanim_speed = PALSCALE_DURATION(3.4);
 	kanim_speed_explosion = PALSCALE_DURATION(3.4);
-	kanim_speed_sand = PALSCALE_DURATION(2.3);
+	kanim_speed_sand = PALSCALE_DURATION(3.3);
+	ksand_life = kanim_speed_sand * 5;
 	s_constants_set = 1;
 }
 
@@ -61,7 +61,7 @@ static const uint16_t fizzle_anim[] =
 
 static const uint16_t sand_anim[] =
 {
-	77, 78, 77, 79, 80, 80
+	77, 78, 77, 79, 80, 80, 80, 80, 80
 };
 
 static inline void animate(Particle *p, int16_t speed_check)
@@ -264,8 +264,8 @@ Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 		else
 		{
 			// TODO: These don't take palscale into account.
-			p->dy = INTTOFIX16((system_rand() % 4) - 2);
-			p->dx = INTTOFIX16((system_rand() % 4) - 2);
+			p->dy = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
+			p->dx = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
 			// Don't let dx/dy be zero.
 			if (p->dx == 0) p->dx = INTTOFIX16(2);
 			if (p->dy == 0) p->dy = INTTOFIX16(2);
