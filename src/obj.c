@@ -76,7 +76,7 @@
 #include "palscale.h"
 
 
-#define OBJ_OFFSCREEN_MARGIN INTTOFIX32(64)
+#define OBJ_OFFSCREEN_MARGIN 64
 
 ObjSlot g_objects[OBJ_COUNT_MAX];
 static uint16_t obj_vram_pos;
@@ -258,14 +258,16 @@ int obj_init(void)
 
 static inline uint16_t obj_is_offscreen(const Obj *o)
 {
-	const fix32_t cam_left = INTTOFIX32(map_get_x_scroll());
-	const fix32_t cam_top = INTTOFIX32(map_get_y_scroll());
-	const fix32_t cam_right = INTTOFIX32(map_get_x_scroll() + GAME_SCREEN_W_PIXELS);
-	const fix32_t cam_bottom = INTTOFIX32(map_get_y_scroll() + GAME_SCREEN_H_PIXELS);
-	if (o->x < cam_left - OBJ_OFFSCREEN_MARGIN) return 1;
-	if (o->y < cam_top - OBJ_OFFSCREEN_MARGIN) return 1;
-	if (o->x > cam_right + OBJ_OFFSCREEN_MARGIN) return 1;
-	if (o->y > cam_bottom + OBJ_OFFSCREEN_MARGIN) return 1;
+	const int16_t obj_x = FIX32TOINT(o->x);
+	const int16_t obj_y = FIX32TOINT(o->y);
+	const int16_t cam_left = map_get_x_scroll();
+	const int16_t cam_top = map_get_y_scroll();
+	const int16_t cam_right = map_get_x_scroll() + GAME_SCREEN_W_PIXELS;
+	const int16_t cam_bottom = map_get_y_scroll() + GAME_SCREEN_H_PIXELS;
+	if (obj_x < cam_left - OBJ_OFFSCREEN_MARGIN) return 1;
+	if (obj_y < cam_top - OBJ_OFFSCREEN_MARGIN) return 1;
+	if (obj_x > cam_right + OBJ_OFFSCREEN_MARGIN) return 1;
+	if (obj_y > cam_bottom + OBJ_OFFSCREEN_MARGIN) return 1;
 	return 0;
 }
 
