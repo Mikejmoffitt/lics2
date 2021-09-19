@@ -10,6 +10,7 @@
 #include "common.h"
 #include "obj/lyle.h"
 #include "obj/particle_manager.h"
+#include "game.h"
 
 /*
 
@@ -93,6 +94,19 @@ static void main_func(Obj *o)
 		render(e);
 		return;
 	}
+	// Reverse course if at the screen boundary.
+	const int16_t obj_x_px = FIX32TOINT(o->x);
+	const int16_t cam_left = map_get_x_scroll();
+	const int16_t cam_right = map_get_x_scroll() + GAME_SCREEN_W_PIXELS;
+
+	if (o->direction == OBJ_DIRECTION_LEFT && obj_x_px <= cam_left + 8)
+	{
+		o->direction = OBJ_DIRECTION_RIGHT;
+	}
+	else if (o->direction == OBJ_DIRECTION_RIGHT && obj_x_px >= cam_right - 8)
+	{
+		o->direction = OBJ_DIRECTION_LEFT;
+	}
 
 	// scan for boundaries and use them to reverse course.
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
@@ -112,7 +126,6 @@ static void main_func(Obj *o)
 		}
 	}
 
-	// TODO: Reverse course if at the screen boundary.
 
 	// Set dx based on direction.
 	o->dx = (o->direction == OBJ_DIRECTION_RIGHT) ? kdx : -kdx;
