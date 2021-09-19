@@ -208,7 +208,7 @@ static void main_func(Obj *o)
 					const int16_t down_req = ((buttons & BTN_DOWN) && down_ok);
 					if (up_req || down_req)
 					{
-						o->dy = (buttons & BTN_UP) ? -kmove_dy : kmove_dy;
+						o->dy = (up_req) ? -kmove_dy : kmove_dy;
 						lyle_set_master_en(0);
 						e->collision_delay_cnt = kcollision_delay_frames;
 						sfx_stop_all();
