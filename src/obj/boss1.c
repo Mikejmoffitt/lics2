@@ -25,6 +25,7 @@ static fix16_t kfalldown_gravity;
 
 static int16_t kprecharge_delay;
 static int16_t kprecharge_anim_speed;
+static int16_t kprecharge_duration;
 
 static fix16_t kcharge_dx;
 static int16_t kcharge_anim_speed;
@@ -60,8 +61,8 @@ static inline void set_constants(void)
 	kroar_duration = PALSCALE_DURATION(60);
 
 	kfalldown_delay = PALSCALE_DURATION(100);
-	kfalldown_dx = INTTOFIX16(PALSCALE_1ST(1.5);
-	kfalldown_dy = INTTOFIX16(PALSCALE_1ST(-1.5);
+	kfalldown_dx = INTTOFIX16(PALSCALE_1ST(1.5));
+	kfalldown_dy = INTTOFIX16(PALSCALE_1ST(-1.5));
 	kfalldown_gravity = INTTOFIX16(PALSCALE_2ND(0.167));
 
 	kprecharge_delay = PALSCALE_DURATION(60);
@@ -102,7 +103,7 @@ static void drop_reset(O_Boss1 *e)
 	static const int16_t total_cubes_to_drop = 32;
 	int16_t value = ARRAYSIZE(e->drop.list) + 1;
 	int16_t list_index = 0;
-	for (int16_t i = 0; i < ARRAYSIZE(e->drop.list); i++)
+	for (uint16_t i = 0; i < ARRAYSIZE(e->drop.list); i++)
 	{
 		e->drop.list[i] = -1;
 	}
@@ -121,7 +122,7 @@ static void drop_reset(O_Boss1 *e)
 	e->drop.index = 0;
 	e->drop.greenblue_index = system_rand() % ARRAYSIZE(e->drop.list);
 	e->drop.cnt = 0;
-	c->drop.remaining = total_cubes_to_drop;
+	e->drop.remaining = total_cubes_to_drop;
 }
 
 static void drop_process(O_Boss1 *e)
@@ -129,7 +130,7 @@ static void drop_process(O_Boss1 *e)
 	if (e->drop.remaining == 0) return;
 	if (e->drop.cnt > 0)
 	{
-		e->drop_cnt--;
+		e->drop.cnt--;
 		return;
 	}
 
@@ -277,7 +278,7 @@ static void main_func(Obj *o)
 
 //	drop_process(e);
 
-	if (e->state != e->state_prev) e->state_elapsed = 0;
+	if (e->state != state_prev) e->state_elapsed = 0;
 	else e->state_elapsed++;
 
 	render(e);
@@ -290,7 +291,7 @@ void o_load_boss1(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_ALWAYS_ACTIVE,
+	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 3);
 	// TODO: Does the boss take five hits?
 	o->main_func = main_func;
