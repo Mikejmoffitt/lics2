@@ -13,7 +13,8 @@ typedef enum Boss1State
 	BOSS1_STATE_PRECHARGE,  // Running anim in place.
 	BOSS1_STATE_CHARGE,  // Runs forwards until a wall is hit.
 	BOSS1_STATE_RECOIL,  // Wall hit animation for a short bit.
-	BOSS1_STATE_TURN,  // The boss changes direction.
+	BOSS1_STATE_TURN,  // The boss changes direction and sets up cube drops.
+	BOSS1_STATE_DROP_WAIT,  // Waiting for cubes to fall.
 	BOSS1_STATE_PRESHOT,  // The boss delays and contemplates firing.
 	BOSS1_STATE_SHOT,  // The boss fires a projectile.
 	// Boss reaches this state when HP == 0.
@@ -36,9 +37,6 @@ typedef struct O_Boss1
 	// Data for the cube dropping phase set during precharge.
 	struct
 	{
-		int8_t list[18];  // Random order of numbers 0 - 17.
-		uint16_t index;  // Increments with each drop.
-		uint16_t greenblue_index;  // Random between 0 - 17.
 		int16_t cnt;  // Used to space out drops.
 		int16_t remaining;
 	} drop;

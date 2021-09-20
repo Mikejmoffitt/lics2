@@ -21,6 +21,7 @@ typedef struct O_FakeCube
 
 void o_load_fakecube(Obj *o, uint16_t data);
 
-void fakecube_drop_cube(O_FakeCube *e, CubeType type);
+// Returns 1 if a cube was dropped.
+int16_t fakecube_drop_cube(O_FakeCube *e, CubeType type);
 
 #endif  // OBJ_FAKECUBE_H

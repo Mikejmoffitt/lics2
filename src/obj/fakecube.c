@@ -12,7 +12,7 @@
 #include "obj/cube_manager.h"
 #include "obj/lyle.h"
 
-static uint16_t kspawn_seq[2];  // Same as in cube.c
+static uint16_t kspawn_seq[2];
 static int16_t kspawn_anim_speed;
 static fix16_t kceiling_dy;  // Same as lyle.c
 
@@ -21,8 +21,8 @@ static inline void set_constants(void)
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
 
-	kspawn_seq[0] = PALSCALE_DURATION(72);  // Invisible up to this point.
-	kspawn_seq[1] = PALSCALE_DURATION(120);  // Flashing.
+	kspawn_seq[0] = PALSCALE_DURATION(180);  // Invisible up to this point.
+	kspawn_seq[1] = kspawn_seq[0] + PALSCALE_DURATION(60);  // Flashing.
 	kspawn_anim_speed = PALSCALE_DURATION(4);
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));
 
@@ -59,7 +59,7 @@ static void main_func(Obj *o)
 	{
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kspawn_anim_speed);
 		e->spawn_cnt++;
-		if (e->spawn_cnt < kspawn_seq[0] ||
+		if ((e->spawn_cnt > 2 && e->spawn_cnt < kspawn_seq[0]) ||
 		    e->anim_frame == 1)
 		{
 			new_tile_state = 0;
@@ -67,7 +67,6 @@ static void main_func(Obj *o)
 		if (e->spawn_cnt >= kspawn_seq[1])
 		{
 			e->spawn_cnt = 0;
-			fakecube_drop_cube(e, CUBE_TYPE_BLUE);
 		}
 	}
 
@@ -114,16 +113,16 @@ void o_load_fakecube(Obj *o, uint16_t data)
 	e->id = data & 0x7F;
 }
 
-void fakecube_drop_cube(O_FakeCube *e, CubeType type)
+int16_t fakecube_drop_cube(O_FakeCube *e, CubeType type)
 {
-	if (e->spawn_cnt != 0) return;
+	if (e->spawn_cnt != 0) return 0;
 	e->spawn_cnt = 1;
 	Cube *c = cube_manager_spawn(e->head.x, e->head.y, type, CUBE_STATUS_AIR, 0, 0);
 	if (c)
 	{
-		c->bounce_count = 1;
-
 		// Hack so adjacent cubes don't fizzle each other.
 		c->right = INTTOFIX16(7);
 	}
+
+	return (c != NULL);
 }
