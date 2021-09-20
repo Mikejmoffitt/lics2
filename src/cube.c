@@ -574,6 +574,7 @@ void cube_run(Cube *c)
 	else if (c->type == CUBE_TYPE_BLUE)
 	{
 		// Blue cubes flash the spawner colors if there is a spawner below them.
+		// TODO: Anim counter instead of dividing elapsed time.
 		if (c->spawn_count > 0 && (g_elapsed >> 2) % 2 == 0)
 		{
 			render_type = CUBE_TYPE_SPAWNER;

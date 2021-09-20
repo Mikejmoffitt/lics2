@@ -47,7 +47,7 @@
 #include "obj/lavaanim.h"
 
 #include "obj/bgscroll.h"
-
+#include "obj/fakecube.h"
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
 #include "obj/columns.h"
@@ -218,7 +218,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
 
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
-
+	[OBJ_FAKECUBE] = {o_load_fakecube, NULL},
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},
 	[OBJ_COLUMNS] = {o_load_columns, NULL},

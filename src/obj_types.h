@@ -43,7 +43,7 @@ typedef enum ObjType
 	OBJ_BOSSF1        = 36,  // TODO Remove?
 	OBJ_BOSSF2        = 37,  // TODO Remove?
 	OBJ_EGG           = 38,  // Large teal egg that falls when struck.
-	OBJ_FISSINS2      = 39,  // TODO Jumps horizontally in and out of sand.
+	OBJ_FISSINS2      = 39,  // Jumps horizontally in and out of sand.
 	OBJ_BOUNDS        = 40,  // Enemy path marker.
 	OBJ_SMALLEGG      = 41,  // TODO Drops from pipe, can be bounced to dog.
 	OBJ_BASKETBALL    = 42,  // Orange bouncing ball. Swishes hoops.
@@ -51,7 +51,7 @@ typedef enum ObjType
 	OBJ_SPOOKO        = 44,  // TODO Just a little skull sprite.
 	OBJ_WIP           = 45,  // TODO Just shows a "Work in Progress!" sign.
 	OBJ_BGSCROLLY     = 46,  // Forces the camera Y scroll position.
-	OBJ_FAKECUBE      = 47,  // TODO Used above the boss arena (?)
+	OBJ_FAKECUBE      = 47,  // TODO Used above the boss arena.
 
 	OBJ_TECHNOBG     = 119,  // Causes a tile DMA for the technozone FG.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.

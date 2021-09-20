@@ -80,6 +80,7 @@ struct Cube
 	uint8_t collision_timeout;
 	uint8_t spawn_count;
 	uint8_t fizzle_count;
+	// TODO: anim vars for spawner flashing.
 };
 
 // If needed, initialize constants used by cubes.
