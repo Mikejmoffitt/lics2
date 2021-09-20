@@ -31,23 +31,24 @@
 #include "obj/magibear.h"
 #include "obj/lava.h"
 #include "obj/cow.h"
-
+// container
 #include "obj/hoop.h"
 #include "obj/falseblock.h"
-
+// cp_pad, cp_meter, dog
 #include "obj/elevator.h"
 #include "obj/elevator_stop.h"
 #include "obj/fissins1.h"
-// boss1
+#include "obj/boss1.h"
+// boss2, egg
 #include "obj/fissins2.h"
-
 #include "obj/bounds.h"
-
+// smallegg
 #include "obj/basketball.h"
 #include "obj/lavaanim.h"
-
+// spooko, wip
 #include "obj/bgscroll.h"
 #include "obj/fakecube.h"
+
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
 #include "obj/columns.h"
@@ -209,9 +210,9 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_ELEVATOR] = {o_load_elevator, o_unload_elevator},
 	[OBJ_ELEVATOR_STOP] = {o_load_elevator_stop, o_unload_elevator_stop},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
+	[OBJ_BOSS1] = {o_load_boss1, o_unload_boss1},
 
 	[OBJ_FISSINS2] = {o_load_fissins2, o_unload_fissins2},
-
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},
 
 	[OBJ_BASKETBALL] = {o_load_basketball, o_unload_basketball},
