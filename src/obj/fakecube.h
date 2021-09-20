@@ -15,6 +15,8 @@ typedef struct O_FakeCube
 	int16_t early_frame_cnt;
 
 	uint16_t tile_vram_addr;  // Position of top-left tile on Plane A.
+
+	int8_t id;
 } O_FakeCube;
 
 void o_load_fakecube(Obj *o, uint16_t data);

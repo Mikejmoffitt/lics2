@@ -31,12 +31,14 @@ typedef struct O_Boss1
 	int32_t state_elapsed;
 	int16_t shots_remaining;  // Set between 1 - 5 during turn.
 
+	int16_t metaframe;
+
 	// Data for the cube dropping phase set during precharge.
 	struct
 	{
 		int8_t list[18];  // Random order of numbers 0 - 17.
-		int16_t index;  // Increments with each drop.
-		int16_t greenblue_index;  // Random between 0 - 17.
+		uint16_t index;  // Increments with each drop.
+		uint16_t greenblue_index;  // Random between 0 - 17.
 		int16_t cnt;  // Used to space out drops.
 		int16_t remaining;
 	} drop;

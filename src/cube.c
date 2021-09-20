@@ -263,6 +263,7 @@ static void cube_do_ground_recoil(Cube *c)
 	{
 		c->dy = 0;
 		c->status = CUBE_STATUS_IDLE;
+		if (c->type == CUBE_TYPE_GREENBLUE) c->type = CUBE_TYPE_BLUE;
 	}
 	else if (c->bounce_count == 0)
 	{

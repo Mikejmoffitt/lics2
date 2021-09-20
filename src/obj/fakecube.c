@@ -111,15 +111,19 @@ void o_load_fakecube(Obj *o, uint16_t data)
 	e->tile_vram_addr = vdp_get_plane_base(VDP_PLANE_A) +
 	                    2 * ((tile_y * GAME_PLANE_W_CELLS) +
 	                    tile_x);
-	static int16_t spawnval = 0;
-	spawnval += kspawn_seq[1] / 7;
-	if (spawnval >= kspawn_seq[1]) spawnval -= kspawn_seq[1];
-	e->spawn_cnt = spawnval;
+	e->id = data & 0x7F;
 }
 
 void fakecube_drop_cube(O_FakeCube *e, CubeType type)
 {
 	if (e->spawn_cnt != 0) return;
 	e->spawn_cnt = 1;
-	cube_manager_spawn(e->head.x, e->head.y, type, CUBE_STATUS_AIR, 0, 0);
+	Cube *c = cube_manager_spawn(e->head.x, e->head.y, type, CUBE_STATUS_AIR, 0, 0);
+	if (c)
+	{
+		c->bounce_count = 1;
+
+		// Hack so adjacent cubes don't fizzle each other.
+		c->right = INTTOFIX16(7);
+	}
 }
