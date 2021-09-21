@@ -415,6 +415,7 @@ static void normal_cube_col(Cube *c, Cube *d)
 
 static void green_cube_col(Cube *c, Cube *d)
 {
+	if (d->type == CUBE_TYPE_SPAWNER) return;
 	if (c->status != CUBE_STATUS_IDLE)
 	{
 		if (c->status == CUBE_STATUS_KICKED)

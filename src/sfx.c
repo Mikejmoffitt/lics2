@@ -655,6 +655,171 @@ static const SfxSample sfx_elevator_2[] =
 	SFX_LOOP(),
 };
 
+#define PAUSENOTE(f, p) \
+SFX_P(f, 1 + p), \
+SFX_P(f, 0 + p), \
+SFX_P(f, 1 + p), \
+SFX_P(f, 2 + p), \
+SFX_P(f, 4 + p), \
+SFX_P(f, 6 + p)
+
+static const SfxSample sfx_pause_1[] =
+{
+	PAUSENOTE(PSG_BASE_B / 2, 0),
+	PAUSENOTE(PSG_BASE_Eb / 4, 0),
+	PAUSENOTE(PSG_BASE_Gb / 4, 0),
+	PAUSENOTE(PSG_BASE_B / 4, 0),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(PSG_BASE_B / 4, 5), \
+	SFX_P(PSG_BASE_B / 4, 3), \
+	PAUSENOTE(PSG_BASE_B / 4, 1),
+	SFX_END()
+};
+
+#undef PAUSENOTE
+
+#define PAUSENOTE(f) \
+SFX_P(f, 0), \
+SFX_P(f, 1), \
+SFX_P(f, 2), \
+SFX_P(f, 3), \
+SFX_P(f, 4), \
+SFX_P(f, 15)
+
+static const SfxSample sfx_pause_2[] =
+{
+	PAUSENOTE(PSG_BASE_Eb),
+	PAUSENOTE(PSG_BASE_Gb),
+	PAUSENOTE(PSG_BASE_B),
+	PAUSENOTE(PSG_BASE_Eb / 2),
+	SFX_END()
+};
+
+#undef PAUSENOTE
+
+static const SfxSample sfx_moo_1[] =
+{
+	SFX_P(900, 5),
+	SFX_P(950, 4),
+	SFX_P(1000, 3),
+	SFX_P(1023, 2),
+	SFX_P(925, 2),
+	SFX_P(842, 2),
+	SFX_P(768, 2),
+	SFX_P(722, 2),
+	SFX_P(700, 2),
+	SFX_P(689, 2),
+	SFX_P(682, 2),
+	SFX_P(678, 2),
+	SFX_P(678, 2),
+	SFX_P(677, 2),
+	SFX_P(677, 2),
+	SFX_P(676, 1),
+	SFX_P(676, 1),
+	SFX_P(676, 1),
+	SFX_P(634, 1),
+	SFX_P(588, 1),
+	SFX_P(566, 1),
+	SFX_P(555, 1),
+	SFX_P(540, 1),
+	SFX_P(520, 0),
+	SFX_P(515, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(509, 0),
+	SFX_P(515, 0),
+	SFX_P(520, 0),
+	SFX_P(540, 1),
+	SFX_P(555, 1),
+	SFX_P(566, 1),
+	SFX_P(588, 1),
+	SFX_P(634, 1),
+	SFX_P(677, 2),
+	SFX_P(678, 2),
+	SFX_P(679, 2),
+	SFX_P(712, 2),
+	SFX_P(758, 2),
+	SFX_P(818, 2),
+	SFX_P(923, 2),
+	SFX_P(1022, 2),
+	SFX_END()
+};
+
+static const SfxSample sfx_moo_2[] =
+{
+	SFX_P(-2 + 900, 5),
+	SFX_P(-2 + 950, 4),
+	SFX_P(-2 + 1000, 3),
+	SFX_P(-2 + 1023, 2),
+	SFX_P(-2 + 925, 2),
+	SFX_P(-2 + 842, 2),
+	SFX_P(-2 + 768, 2),
+	SFX_P(-2 + 722, 2),
+	SFX_P(-2 + 700, 2),
+	SFX_P(-2 + 689, 2),
+	SFX_P(-2 + 682, 2),
+	SFX_P(-2 + 678, 2),
+	SFX_P(-2 + 678, 2),
+	SFX_P(-2 + 677, 2),
+	SFX_P(-2 + 677, 2),
+	SFX_P(-2 + 676, 1),
+	SFX_P(-2 + 676, 1),
+	SFX_P(-2 + 676, 1),
+	SFX_P(-2 + 634, 1),
+	SFX_P(-2 + 588, 1),
+	SFX_P(-2 + 566, 1),
+	SFX_P(-2 + 555, 1),
+	SFX_P(-2 + 540, 1),
+	SFX_P(-2 + 520, 0),
+	SFX_P(-2 + 515, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 509, 0),
+	SFX_P(-2 + 515, 0),
+	SFX_P(-2 + 520, 0),
+	SFX_P(-2 + 540, 1),
+	SFX_P(-2 + 555, 1),
+	SFX_P(-2 + 566, 1),
+	SFX_P(-2 + 588, 1),
+	SFX_P(-2 + 634, 1),
+	SFX_P(-2 + 677, 2),
+	SFX_P(-2 + 678, 2),
+	SFX_P(-2 + 679, 2),
+	SFX_P(-2 + 712, 2),
+	SFX_P(-2 + 758, 2),
+	SFX_P(-2 + 818, 2),
+	SFX_P(-2 + 923, 2),
+	SFX_P(-2 + 1022, 2),
+	SFX_END()
+};
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -681,6 +846,10 @@ static const SfxSample *stream_by_id[] =
 	[SFX_EXPLODE] = sfx_explode,
 	[SFX_ELEVATOR] = sfx_elevator,
 	[SFX_ELEVATOR_2] = sfx_elevator_2,
+	[SFX_PAUSE_1] = sfx_pause_1,
+	[SFX_PAUSE_2] = sfx_pause_2,
+	[SFX_MOO_1] = sfx_moo_1,
+	[SFX_MOO_2] = sfx_moo_2,
 };
 
 // Sound routines.

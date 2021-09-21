@@ -68,6 +68,7 @@ static inline void projectile_render(Projectile *p)
 
 	int16_t tx = FIX32TOINT(p->x) - 4 - map_get_x_scroll();
 	int16_t ty = FIX32TOINT(p->y) - 4 - map_get_y_scroll();
+	int8_t xflip = 0;
 	if (tx < -32 || tx > 336 || ty < -32 || ty > 256) return;
 
 	// Death orb flickers as it approaches end-of-life.
@@ -112,12 +113,12 @@ static inline void projectile_render(Projectile *p)
 			tx -= 4;
 			size = SPR_SIZE(2, 2);
 			pal = LYLE_PAL_LINE;
+			if (p->dx < 0) xflip = 1;
 			tile_offset = 13 + (4 * s_projectile_manager->flicker_4f_anim);
 			break;
-
 	}
 
-	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
+	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, xflip, 0, pal, 0), size);
 }
 
 static inline int16_t basic_collision(Projectile *p)

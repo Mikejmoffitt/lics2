@@ -30,6 +30,10 @@ typedef enum SfxId
 	SFX_EXPLODE,
 	SFX_ELEVATOR,
 	SFX_ELEVATOR_2,
+	SFX_PAUSE_1,
+	SFX_PAUSE_2,
+	SFX_MOO_1,
+	SFX_MOO_2,
 } SfxId;
 
 typedef struct SfxSample

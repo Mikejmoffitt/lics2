@@ -11,6 +11,7 @@
 #include "progress.h"
 #include "game.h"
 #include "obj/lyle.h"
+#include "sfx.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
@@ -793,6 +794,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_MAP:
 			if (first_frame)
 			{
+				sfx_play(SFX_PAUSE_1, 0);
+				sfx_play(SFX_PAUSE_2, 0);
 				clear_window_plane();
 				plot_map_to_window_plane();
 				plot_item_displays();
@@ -822,6 +825,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_LYLE_WEAK:
 			if (first_frame)
 			{
+				sfx_play(SFX_PAUSE_1, 0);
+				sfx_play(SFX_PAUSE_2, 0);
 				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
 				e->window = 1;
@@ -847,6 +852,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_HP_ORB_15:
 			if (first_frame)
 			{
+				sfx_play(SFX_PAUSE_1, 0);
+				sfx_play(SFX_PAUSE_2, 0);
 				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
 				e->window = 1;
@@ -872,6 +879,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_CP_ORB_15:
 			if (first_frame)
 			{
+				sfx_play(SFX_PAUSE_1, 0);
+				sfx_play(SFX_PAUSE_2, 0);
 				clear_window_plane();
 				plot_get_dialogue_backing(e->screen);
 				e->window = 1;

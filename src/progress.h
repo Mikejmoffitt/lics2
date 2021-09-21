@@ -40,6 +40,8 @@ typedef struct ProgressSlot
 
 	ProgressAbility abilities;
 
+	int16_t boss_defeated[2];
+
 	uint32_t magic_1;
 } ProgressSlot;
 

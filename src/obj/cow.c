@@ -11,6 +11,7 @@
 #include "obj/lyle.h"
 #include "obj/projectile_manager.h"
 #include "res.h"
+#include "sfx.h"
 
 static const int16_t kAngryHits = 10;
 
@@ -184,6 +185,8 @@ static void main_func(Obj *o)
 			{
 				o->dx = 0;
 				o->dy = -kjump_str;
+				sfx_play(SFX_MOO_1, 0);
+				sfx_play(SFX_MOO_2, 0);
 			}
 			o->dy += kgravity;
 			if (o->dy > 0 && o->y >= e->max_y)

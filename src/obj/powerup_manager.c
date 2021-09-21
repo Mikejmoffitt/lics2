@@ -181,6 +181,7 @@ static inline void powerup_get(Powerup *p)
 			lh->hp += 1;
 			// Fall-through intended.
 		case POWERUP_TYPE_HP:
+			sfx_play(SFX_POWERUP_GET, 10);
 			lh->hp += 1;
 			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
 			break;
@@ -188,6 +189,7 @@ static inline void powerup_get(Powerup *p)
 			l->cp += 4;
 			// Fall-through intended.
 		case POWERUP_TYPE_CP:
+			sfx_play(SFX_POWERUP_GET, 10);
 			l->cp += 4;
 			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
 			break;
@@ -202,6 +204,7 @@ static inline void powerup_get(Powerup *p)
 			prog->hp_orbs |= (1 << p->orb_id);
 			prog->hp_capacity++;
 			pause_set_screen(PAUSE_SCREEN_HP_ORB_0 + p->orb_id);
+			l->head.hp = prog->hp_capacity;
 			break;
 		case POWERUP_TYPE_MAP:
 			prog->abilities |= ABILITY_MAP;
@@ -231,7 +234,6 @@ static inline void powerup_get(Powerup *p)
 		
 	}
 
-	sfx_play(SFX_POWERUP_GET, 10);
 	p->active = 0;
 }
 

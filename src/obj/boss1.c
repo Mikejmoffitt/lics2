@@ -9,6 +9,12 @@
 #include "obj/map.h"
 #include "common.h"
 #include "obj/fakecube.h"
+#include "progress.h"
+#include "obj/particle_manager.h"
+#include "obj/projectile_manager.h"
+#include "obj/cube_manager.h"
+#include "music.h"
+#include "sfx.h"
 
 static uint16_t s_vram_pos;
 
@@ -32,10 +38,13 @@ static int16_t kturn_duration;
 static int16_t kpreshot_duration;
 static int16_t kshot_duration;
 static int16_t kshot_event_frames;
+static fix16_t kshot_dx;
+static fix16_t kshot_dy;
+static int16_t kexplosion_separation;
 static int16_t kexploding_duration;
+static int16_t kflash_speed;
 
 static int16_t kdrop_separation;
-
 static int16_t kstep_sound_separation;
 
 static void vram_load(void)
@@ -71,13 +80,28 @@ static inline void set_constants(void)
 	kpreshot_duration = PALSCALE_DURATION(90);
 	kshot_duration = PALSCALE_DURATION(50);
 	kshot_event_frames = PALSCALE_DURATION(24);
-	kexploding_duration = PALSCALE_DURATION(180);
+	kshot_dx = INTTOFIX16(PALSCALE_1ST(0.833333));
+	kshot_dy = INTTOFIX16(PALSCALE_1ST(-2.9166667));
+	kexplosion_separation = PALSCALE_DURATION(12);
+	kexploding_duration = kexplosion_separation * 20;
+	kflash_speed = PALSCALE_DURATION(2);
 
 	kdrop_separation = PALSCALE_DURATION(23);
-
 	kstep_sound_separation = PALSCALE_DURATION(18);
 
 	s_constants_set = 1;
+}
+
+static void suppress_spawner_cubes(void)
+{
+	for (uint16_t i = 0; i < ARRAYSIZE(g_cubes); i++)
+	{
+		if (g_cubes[i].status != CUBE_STATUS_NULL &&
+		    g_cubes[i].type == CUBE_TYPE_SPAWNER)
+		{
+			g_cubes[i].spawn_count = 1;
+		}
+	}
 }
 
 static void render(O_Boss1 *e)
@@ -91,6 +115,13 @@ static void render(O_Boss1 *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
+
+	if (o->hurt_stun == 0 && e->state == BOSS1_STATE_EXPLODING)
+	{
+		if (e->anim_frame == 1) return;
+		sp_x += (system_rand() % 8) - 3;
+		sp_y += (system_rand() % 8) - 3;
+	}
 
 	if (e->metaframe == 3) sp_y -= 3;
 	else if (e->metaframe == 4) sp_y -= 2;
@@ -159,8 +190,8 @@ static void drop_process(O_Boss1 *e)
 static void main_func(Obj *o)
 {
 	static const fix32_t ground_y = INTTOFIX32(240 - 32);
-	static const fix32_t max_x = INTTOFIX32(320 - 16 - 20);
-	static const fix32_t min_x = INTTOFIX32(16 + 20);
+	static const fix32_t max_x = INTTOFIX32(320 - 16 - 22);
+	static const fix32_t min_x = INTTOFIX32(16 + 22);
 	O_Boss1 *e = (O_Boss1 *)o;
 	const Boss1State state_prev = e->state;
 	if (o->hurt_stun > 0)
@@ -181,7 +212,7 @@ static void main_func(Obj *o)
 
 		case BOSS1_STATE_APPROACH:  // Boss enters from left.
 			if (e->state_elapsed < kapproach_start_delay) break;
-			if (o->x < INTTOFIX32(0))
+			if (o->x < INTTOFIX32(4))
 			{
 				const int16_t frame_prev = e->anim_frame;
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4,
@@ -206,6 +237,10 @@ static void main_func(Obj *o)
 			{
 				e->metaframe = 0;
 				break;
+			}
+			else if (e->state_elapsed == kroar_delay)
+			{
+				// TODO: roar sound
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
 			e->metaframe = 7 + e->anim_frame;
@@ -233,7 +268,9 @@ static void main_func(Obj *o)
 			{
 				o->y = ground_y;
 				o->dy = 0;
-				e->state = BOSS1_STATE_PRECHARGE;  // TODO: Is it shot?
+				e->state = BOSS1_STATE_PRESHOT;
+				e->shots_remaining = 1 + (system_rand() % 4);
+				music_play(10);
 			}
 			break;
 
@@ -289,7 +326,6 @@ static void main_func(Obj *o)
 			{
 				e->metaframe = 0;
 				drop_reset(e);
-				// TODO: stop screen shake
 			}
 			else if (e->state_elapsed >= krecoil_duration)
 			{
@@ -313,7 +349,11 @@ static void main_func(Obj *o)
 			break;
 
 		case BOSS1_STATE_PRESHOT:  // The boss delays and contemplates firing.
-			e->metaframe = 0;
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 0;
+				// TODO: stop screen shake
+			}
 			if (e->state_elapsed < kpreshot_duration) break;
 
 			e->state = (e->shots_remaining > 0) ? BOSS1_STATE_SHOT :
@@ -322,7 +362,11 @@ static void main_func(Obj *o)
 		case BOSS1_STATE_SHOT:  // The boss fires a projectile.
 			if (e->state_elapsed == kshot_event_frames)
 			{
-				// TODO: Shoot projectile (PROJECTILE_TYPE_DEATHORB2.
+				const fix32_t shot_x = o->x + INTTOFIX32((o->direction == OBJ_DIRECTION_RIGHT ? 13 : -13));
+				const fix32_t shot_y = o->y - INTTOFIX32(16);
+				const fix16_t shot_dx = (o->direction == OBJ_DIRECTION_RIGHT) ? kshot_dx : -kshot_dx;
+				projectile_manager_shoot(shot_x, shot_y, PROJECTILE_TYPE_DEATHORB2, shot_dx, kshot_dy);
+				// TODO: roar sound
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
 			e->metaframe = 7 + e->anim_frame;
@@ -332,16 +376,55 @@ static void main_func(Obj *o)
 			break;
 
 		case BOSS1_STATE_EXPLODING:
+			if (e->state_elapsed == 0)
+			{
+				o->flags = OBJ_FLAG_ALWAYS_ACTIVE;
+				o->hurt_stun = 0;
+				o->hp = 1;
+				e->anim_frame = 0;
+				e->anim_cnt = 0;
+			}
+			e->explode_cnt++;
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kflash_speed);
+			if (e->explode_cnt >= kexplosion_separation)
+			{
+				e->explode_cnt = 0;
+				particle_manager_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
+				sfx_play(SFX_EXPLODE, 0);
+			}
 			if (e->state_elapsed < kexploding_duration) break;
+
+			o->flags = OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE;
+			o->hp = 0;
+			o->hurt_stun = 0;
+			progress_get()->boss_defeated[0] = 1;
+			e->state = BOSS1_STATE_EXPLODED;
+			music_stop();
 			break;
+
+		case BOSS1_STATE_EXPLODED:
+			return;
 	}
 
 	drop_process(e);
+	suppress_spawner_cubes();
 
 	if (e->state != state_prev) e->state_elapsed = 0;
 	else e->state_elapsed++;
 
 	render(e);
+}
+
+static void cube_func(Obj *o, Cube *c)
+{
+	c->type = CUBE_TYPE_BLUE;
+	O_Boss1 *e = (O_Boss1 *)o;
+	obj_standard_cube_response(o, c);
+	if (o->hp <= 0)
+	{
+		o->hp = 127;
+		e->state = BOSS1_STATE_EXPLODING;
+	}
 }
 
 void o_load_boss1(Obj *o, uint16_t data)
@@ -351,11 +434,17 @@ void o_load_boss1(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
+	const ProgressSlot *prog = progress_get();
+	if (prog->boss_defeated[0])
+	{
+		o->status = OBJ_STATUS_NULL;
+		return;
+	}
+
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
-	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 3);
-	// TODO: Does the boss take five hits?
+	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 5);
 	o->main_func = main_func;
-	o->cube_func = NULL;
+	o->cube_func = cube_func;
 
 	o->x = -o->right;
 	o->y = INTTOFIX32(96);

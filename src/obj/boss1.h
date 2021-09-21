@@ -19,6 +19,7 @@ typedef enum Boss1State
 	BOSS1_STATE_SHOT,  // The boss fires a projectile.
 	// Boss reaches this state when HP == 0.
 	BOSS1_STATE_EXPLODING,
+	BOSS1_STATE_EXPLODED,
 } Boss1State;
 
 typedef struct O_Boss1
@@ -31,6 +32,8 @@ typedef struct O_Boss1
 
 	int32_t state_elapsed;
 	int16_t shots_remaining;  // Set between 1 - 5 during turn.
+
+	int16_t explode_cnt;
 
 	int16_t metaframe;
 
