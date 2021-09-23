@@ -32,7 +32,7 @@ typedef enum ObjType
 	OBJ_CONTAINER     = 25,  // TODO
 	OBJ_HOOP          = 26,  // A hoop, through which a ball may drop.
 	OBJ_FALSEBLOCK    = 27,  // Fizzles out when all hoops are swished.
-	OBJ_CP_PAD        = 28,  // TODO 
+	OBJ_CP_GIVER      = 28,  // TODO 
 	OBJ_CP_METER      = 29,  // TODO
 	OBJ_DOG           = 30,  // TODO Blue dog that consumes small eggs.
 	OBJ_ELEVATOR      = 31,  // Like it sounds. Goes up and down.
