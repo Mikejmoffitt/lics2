@@ -12,6 +12,8 @@
 #include "game.h"
 #include "obj/lyle.h"
 #include "sfx.h"
+#include "map_file.h"
+#include "music.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
@@ -21,6 +23,48 @@ static int16_t kdismissal_delay_frames;
 
 static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 7;
+
+// String printing utility. Not very fast, but it's alright for this.
+static void window_puts(const char *str, int16_t x, int16_t y, int16_t pal)
+{
+	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+	while (*str)
+	{
+		char a = *str++;
+		if (!a) break;
+		if (a == '\n' || a == '\r')
+		{
+			y++;
+			plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+		}
+		else
+		{
+			if (a == '(')
+			{
+				a = '<';
+			}
+			else if (a == ')')
+			{
+				a = '>';
+			}
+			if (a >= 'a' && a <= 'z')
+			{
+				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
+			}
+			else if (a == ' ')
+			{
+				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x30, 0, 0, pal, 0));
+			}
+			else
+			{
+				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a), 0, 0, pal, 0));
+			}
+			plane_base += 2;
+		}
+	}
+}
 
 // Map drawing routines -------------------------------------------------------
 static inline void clear_window_plane(void)
@@ -662,32 +706,8 @@ static void plot_get_dialogue_text(PauseScreen screen)
 	// Draw the string to the window plane.
 	static const int16_t kleft = 10;
 	const int16_t ktop = 10 - (system_is_ntsc() ? 1 : 0);
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
-	                      2 * ((ktop * GAME_PLANE_W_CELLS) + kleft);
-
-	int16_t line = 0;
-	while (*str)
-	{
-		const char a = *str++;
-		if (!a) break;
-		if (a == '\n')
-		{
-			line++;
-			plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
-	                      2 * (((ktop + line) * GAME_PLANE_W_CELLS) + kleft);
-		}
-		else if (a == ' ')
-		{
-			plane_base += 2;
-		}
-		else
-		{
-			vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80 - 0x20 + a, 0, 0, ENEMY_PAL_LINE, 0));
-			plane_base += 2;
-		}
-	}
+	window_puts(str, kleft, ktop, ENEMY_PAL_LINE);
 }
-
 
 static void plot_get_dialogue_backing(PauseScreen screen)
 {
@@ -760,6 +780,268 @@ static void maybe_map(O_Pause *e, MdButton buttons)
 	}
 }
 
+// Clears the window and plays the sound.
+static void screen_reset(O_Pause *e)
+{
+	sfx_play(SFX_PAUSE_1, 1);
+	sfx_play(SFX_PAUSE_2, 1);
+	clear_window_plane();
+	e->window = 1;
+}
+
+static void maybe_switch_to_debug(O_Pause *e, MdButton buttons)
+{
+	if (buttons & BTN_C)
+	{
+		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
+// Debug top-level menu.
+typedef struct DebugOption
+{
+	const char *label;
+	PauseScreen screen;
+} DebugOption;
+
+static const DebugOption debug_options[] =
+{
+	{"ROOM SELECT", PAUSE_SCREEN_ROOM_SELECT},
+	{"SOUND TEST", PAUSE_SCREEN_SOUND_TEST},
+	{"LYLE EDIT", 0},
+	{"VRAM VIEW", 0},
+	{"PRG VIEW", 0},
+	{"RAM VIEW", 0},
+	{"EXIT", PAUSE_SCREEN_NONE},
+};
+
+static const int16_t kdebug_left = 4;
+static const int16_t kdebug_top = 2;
+
+static void plot_debug_menu(void)
+{
+	window_puts("@ DEBUG @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+
+	for (uint16_t i = 0; i < ARRAYSIZE(debug_options); i++)
+	{
+		const DebugOption *d = &debug_options[i];
+		window_puts(d->label, kdebug_left + 4, kdebug_top + 2 + (2 * i), MAP_PAL_LINE);
+	}
+
+	window_puts("BUTTON C @ SELECT", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+}
+
+static void debug_menu_logic(O_Pause *e, MdButton buttons)
+{
+	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
+	{
+		e->screen = debug_options[e->debug.main_cursor].screen;
+		return;
+	}
+
+	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	{
+		e->debug.main_cursor--;
+		if (e->debug.main_cursor < 0)
+		{
+			e->debug.main_cursor = ARRAYSIZE(debug_options) - 1;
+		}
+	}
+	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	{
+		e->debug.main_cursor++;
+		if (e->debug.main_cursor >= ARRAYSIZE(debug_options))
+		{
+			e->debug.main_cursor = 0;
+		}
+	}
+}
+
+static void draw_debug_main_cursor(O_Pause *e)
+{
+	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.main_cursor * 2)) * 8,
+	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+}
+
+// Room select
+
+static void plot_room_select_title(void)
+{
+	window_puts("@ ROOM SELECT @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+
+	window_puts("BUTTON C @ GO TO ROOM", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+}
+
+static void plot_room_select_list(O_Pause *e)
+{
+	static const int16_t rooms_per_list = 16;
+	const int16_t page = e->debug.room_cursor / 16;
+	for (int16_t i = 0; i < rooms_per_list; i++)
+	{
+		const int16_t id = (page * 16) + i;
+		if (page != e->debug.room_last_page)
+		{
+			window_puts("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+		}
+		if (id >= map_file_count()) continue;
+		const MapFile *file = map_file_by_id(id);
+		window_puts(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+	}
+	e->debug.room_last_page = page;
+}
+
+static void draw_room_select_cursor(O_Pause *e)
+{
+	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.room_cursor % 16)) * 8,
+	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+}
+
+static void debug_room_select_logic(O_Pause *e, MdButton buttons)
+{
+	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	{
+		e->debug.room_cursor--;
+		if (e->debug.room_cursor < 0)
+		{
+			e->debug.room_cursor = map_file_count() - 1;
+		}
+	}
+	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	{
+		e->debug.room_cursor++;
+		if (e->debug.room_cursor >= map_file_count())
+		{
+			e->debug.room_cursor = 0;
+		}
+	}
+	else if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+	{
+		e->debug.room_cursor = ((e->debug.room_cursor / 16) - 1) * 16;
+		while (e->debug.room_cursor < 0)
+		{
+			e->debug.room_cursor += map_file_count();
+		}
+	}
+	else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+	{
+		e->debug.room_cursor = ((e->debug.room_cursor / 16) + 1) * 16;
+		while (e->debug.room_cursor >= map_file_count())
+		{
+			e->debug.room_cursor -= map_file_count();
+		}
+	}
+
+	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+
+	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
+	{
+		e->debug.chosen_room_id = e->debug.room_cursor;
+	}
+	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	{
+		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
+// Sound test
+
+static void plot_sound_test_title(void)
+{
+	window_puts("@ SOUND TEST @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+	window_puts("BGM ID\n\nSFX ID\n\nSILENCE", kdebug_left + 4, kdebug_top + 2, MAP_PAL_LINE);
+
+	window_puts("BUTTON C @ SEND COMMAND", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+}
+
+static void plot_sound_test_ui(O_Pause *e)
+{
+	char id_str[4];
+	id_str[0] = '0' + (e->debug.bgm_id / 100) % 10;
+	id_str[1] = '0' + (e->debug.bgm_id / 10) % 10;
+	id_str[2] = '0' + e->debug.bgm_id % 10;
+	id_str[3] = '\0';
+	window_puts(id_str, kdebug_left + 11, kdebug_top + 2, MAP_PAL_LINE);
+	id_str[0] = '0' + (e->debug.sfx_id / 100) % 10;
+	id_str[1] = '0' + (e->debug.sfx_id / 10) % 10;
+	id_str[2] = '0' + e->debug.sfx_id % 10;
+	id_str[3] = '\0';
+	window_puts(id_str, kdebug_left + 11, kdebug_top + 4, MAP_PAL_LINE);
+}
+
+static void draw_sound_test_cursor(O_Pause *e)
+{
+	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.sound_cursor % 16) * 2) * 8,
+	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+}
+
+static void sound_test_logic(O_Pause *e, MdButton buttons)
+{
+	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	{
+		e->debug.sound_cursor--;
+		if (e->debug.sound_cursor < 0)
+		{
+			e->debug.sound_cursor = 2;
+		}
+	}
+	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	{
+		e->debug.sound_cursor++;
+		if (e->debug.sound_cursor >= 3)
+		{
+			e->debug.sound_cursor = 0;
+		}
+	}
+
+	else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+	{
+		if (e->debug.sound_cursor == 0)
+		{
+			e->debug.bgm_id++;
+		}
+		else if (e->debug.sound_cursor == 1)
+		{
+			e->debug.sfx_id++;
+		}
+	}
+	else if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+	{
+		if (e->debug.sound_cursor == 0)
+		{
+			e->debug.bgm_id--;
+		}
+		else if (e->debug.sound_cursor == 1)
+		{
+			e->debug.sfx_id--;
+		}
+	}
+	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
+	{
+		if (e->debug.sound_cursor == 0)
+		{
+			music_play(e->debug.bgm_id);
+		}
+		else if (e->debug.sound_cursor == 1)
+		{
+			sfx_play(e->debug.sfx_id, 0);
+		}
+		else if (e->debug.sound_cursor == 2)
+		{
+			music_stop();
+			sfx_stop_all();
+		}
+	}
+	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	{
+		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Pause *e = (O_Pause *)o;
@@ -782,7 +1064,7 @@ static void main_func(Obj *o)
 	}
 
 	switch (e->screen)
-		{
+	{
 		case PAUSE_SCREEN_NONE:
 			if (first_frame)
 			{
@@ -794,14 +1076,11 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_MAP:
 			if (first_frame)
 			{
-				sfx_play(SFX_PAUSE_1, 0);
-				sfx_play(SFX_PAUSE_2, 0);
-				clear_window_plane();
+				screen_reset(e);
 				plot_map_to_window_plane();
 				plot_item_displays();
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
-				e->window = 1;
 			}
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
@@ -812,6 +1091,7 @@ static void main_func(Obj *o)
 			draw_item_icons();
 			draw_cp_orb_count();
 			maybe_dismiss(e, buttons, 0);
+			maybe_switch_to_debug(e, buttons);
 			break;
 		case PAUSE_SCREEN_GET_MAP:
 		case PAUSE_SCREEN_GET_CUBE_LIFT:
@@ -825,11 +1105,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_LYLE_WEAK:
 			if (first_frame)
 			{
-				sfx_play(SFX_PAUSE_1, 0);
-				sfx_play(SFX_PAUSE_2, 0);
-				clear_window_plane();
+				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -852,11 +1129,8 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_HP_ORB_15:
 			if (first_frame)
 			{
-				sfx_play(SFX_PAUSE_1, 0);
-				sfx_play(SFX_PAUSE_2, 0);
-				clear_window_plane();
+				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -879,14 +1153,44 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_CP_ORB_15:
 			if (first_frame)
 			{
-				sfx_play(SFX_PAUSE_1, 0);
-				sfx_play(SFX_PAUSE_2, 0);
-				clear_window_plane();
+				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				e->window = 1;
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
+			break;
+		case PAUSE_SCREEN_DEBUG:
+			if (first_frame)
+			{
+				clear_window_plane();
+				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
+				           sizeof(res_pal_debug_bin) / 2);
+				plot_debug_menu();
+			}
+			draw_debug_main_cursor(e);
+			maybe_dismiss(e, buttons, 0);
+			debug_menu_logic(e, buttons);
+			break;
+		case PAUSE_SCREEN_ROOM_SELECT:
+			if (first_frame)
+			{
+				clear_window_plane();
+				plot_room_select_title();
+				e->debug.room_last_page = -1;
+			}
+			debug_room_select_logic(e, buttons);
+			plot_room_select_list(e);
+			draw_room_select_cursor(e);
+			break;
+		case PAUSE_SCREEN_SOUND_TEST:
+			if (first_frame)
+			{
+				clear_window_plane();
+				plot_sound_test_title();
+			}
+			sound_test_logic(e, buttons);
+			plot_sound_test_ui(e);
+			draw_sound_test_cursor(e);
 			break;
 	}
 
@@ -932,6 +1236,7 @@ void o_load_pause(Obj *o, uint16_t data)
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-2), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
+	s_pause->debug.chosen_room_id = -1;
 
 	clear_window_plane();
 }
@@ -950,4 +1255,9 @@ void pause_set_screen(PauseScreen screen)
 int16_t pause_want_window(void)
 {
 	return s_pause->window;
+}
+
+int16_t pause_get_debug_room_id(void)
+{
+	return s_pause->debug.chosen_room_id;
 }

@@ -417,7 +417,6 @@ static void main_func(Obj *o)
 
 static void cube_func(Obj *o, Cube *c)
 {
-	c->type = CUBE_TYPE_BLUE;
 	O_Boss1 *e = (O_Boss1 *)o;
 	obj_standard_cube_response(o, c);
 	if (o->hp <= 0)

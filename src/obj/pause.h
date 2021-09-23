@@ -49,6 +49,9 @@ typedef enum PauseScreen
 	PAUSE_SCREEN_CP_ORB_13,
 	PAUSE_SCREEN_CP_ORB_14,
 	PAUSE_SCREEN_CP_ORB_15,
+	PAUSE_SCREEN_DEBUG,
+	PAUSE_SCREEN_ROOM_SELECT,
+	PAUSE_SCREEN_SOUND_TEST,
 } PauseScreen;
 
 typedef struct O_Pause
@@ -63,6 +66,17 @@ typedef struct O_Pause
 
 	int16_t dismissal_delay_cnt;
 
+	struct
+	{
+		int16_t main_cursor;
+		int16_t room_cursor;
+		int16_t room_last_page;
+		int16_t chosen_room_id;
+		int16_t sound_cursor;
+		uint8_t bgm_id;
+		uint8_t sfx_id;
+	} debug;
+
 	int16_t paused;
 	int16_t window;  // nonzero if window should be shown.
 } O_Pause;
@@ -70,8 +84,10 @@ typedef struct O_Pause
 void pause_set_screen(PauseScreen screen);
 
 int16_t pause_want_window(void);
+int16_t pause_get_debug_room_id(void);
 
 void o_load_pause(Obj *o, uint16_t data);
 void o_unload_pause(void);
+
 
 #endif  // OBJ_PAUSE_H

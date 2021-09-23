@@ -130,4 +130,7 @@ int16_t map_get_world_y_tile(void);
 
 void map_upload_tiles(void);
 void map_upload_palette(void);
+
+const MapFile *map_file_by_id(int16_t id);
+int16_t map_file_count(void);
 #endif  // MAP_H

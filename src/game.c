@@ -98,15 +98,16 @@ static void run_frame(void)
 			// TODO: used to have progress save here on frame 0. Why?
 
 			// TODO: Remove BTN_A debug hack.
-			if (map_get_exit_trigger() || ((io_pad_read(0) & BTN_A)))
+			const int16_t debug_room_id = pause_get_debug_room_id();
+			if (map_get_exit_trigger() || debug_room_id >= 0)
 			{
-				if (io_pad_read(0) & BTN_A)
+				if (debug_room_id >= 0)
 				{
-					prog->abilities = ABILITY_MASK;
+			//		prog->abilities = ABILITY_MASK;
 					O_Lyle *l = lyle_get();
 					l->head.hp = prog->hp_capacity;
 					l->cp = LYLE_MAX_CP;
-					persistent_state->next_room_id++;
+					persistent_state->next_room_id = debug_room_id;
 					persistent_state->next_room_entrance = 0;
 				}
 				else

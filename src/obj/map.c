@@ -614,3 +614,13 @@ void map_upload_palette(void)
 		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
 	}
 }
+
+const MapFile *map_file_by_id(int16_t id)
+{
+	return map_by_id[id].data;
+}
+
+int16_t map_file_count(void)
+{
+	return ARRAYSIZE(map_by_id);
+}
