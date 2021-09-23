@@ -36,8 +36,8 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_HOOP]          = {"Hoop    ", 16, 16},
 	[OBJ_FALSEBLOCK]    = {"Falseblk", 16, 16},
 
-	[OBJ_CP_PAD]        = {"CP Pad  ", 32, 8},
-	[OBJ_CP_METER]      = {"CP Meter", 16, 8},
+	[OBJ_CP_GIVER]      = {"CP Giver", 16, 16},
+	[OBJ_CP_METER]      = {"CP Meter", 16, 80},
 	[OBJ_DOG]           = {"Blue Dog", 48, 32},
 	[OBJ_ELEVATOR]      = {"Elevator", 32, 64},
 
