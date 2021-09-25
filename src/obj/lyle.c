@@ -381,6 +381,7 @@ static inline void lift_cubes(O_Lyle *l)
 		}
 		if (!(progress->abilities & ABILITY_LIFT)) return;
 		Cube *c = l->on_cube;
+		if (c->type == CUBE_TYPE_ORANGE && !(progress->abilities & ABILITY_ORANGE)) return;
 		l->holding_cube = c->type;
 		c->status = CUBE_STATUS_NULL;
 

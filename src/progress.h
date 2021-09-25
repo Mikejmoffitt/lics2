@@ -29,7 +29,7 @@ typedef struct ProgressSlot
 	uint8_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
 
 	uint16_t cp_orbs;  // Bitfield for collected CP orb IDs.
-	int16_t pending_cp_orbs;  // CP orbs Lyle hasn't deposited.
+	int16_t collected_cp_orbs;  // CP orbs Lyle hasn't deposited.
 	int16_t registered_cp_orbs;  // CP orbs Lyle has deposited.
 
 	uint16_t hp_orbs;  // Bitfield for collected HP orb IDs.

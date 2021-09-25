@@ -37,6 +37,7 @@ static const Gfx gfx[] =
 
 	[GFX_HOOP] = GFX(obj_26_hoop),
 
+	[GFX_CP_GIVER] = GFX(obj_28_cp_giver),
 	[GFX_CP_METER] = GFX(obj_29_cp_meter),
 
 	[GFX_ELEVATOR] = GFX(obj_31_elevator),

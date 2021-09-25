@@ -121,17 +121,22 @@ static const SfxSample sfx_hurt[] =
 
 static const SfxSample sfx_cube_lift[] =
 {
-	SFX_P(0x01C0, 0),
-	SFX_P(0x0200, 0),
-	SFX_P(0x0280, 0),
-	SFX_P(0x0300, 0),
-	SFX_P(0x03E0, 0),
-	SFX_P(0x0250, 0),
-	SFX_P(0x01A0, 0),
-	SFX_P(0x0160, 0),
-	SFX_P(0x0120, 0),
-	SFX_P(0x0100, 0),
-	SFX_P(0x0090, 0),
+	SFX_P(0x60 + 0x01C0, 0),
+	SFX_P(0x60 + 0x0200, 0),
+	SFX_P(0x60 + 0x0280, 0),
+	SFX_P(0x60 + 0x0300, 0),
+	SFX_P(0x03FF, 0),
+	SFX_P(0x60 + 0x0250, 0),
+	SFX_P(0x60 + 0x01A0, 0),
+	SFX_P(0x60 + 0x0160, 0),
+	SFX_P(0x60 + 0x0120, 0),
+	SFX_P(0x60 + 0x0100, 0),
+	SFX_P(0x60 + 0x0090, 0),
+	SFX_P(0x60 + 0x01A0, 4),
+	SFX_P(0x60 + 0x0160, 4),
+	SFX_P(0x60 + 0x0120, 4),
+	SFX_P(0x60 + 0x0100, 4),
+	SFX_P(0x60 + 0x0090, 4),
 	SFX_END()
 };
 
@@ -247,32 +252,32 @@ static const SfxSample sfx_cube_spawn[] =
 
 static const SfxSample sfx_cube_toss[] =
 {
-	SFX_P(0x290, 0),
-	SFX_P(0x240, 0),
-	SFX_P(0x1E0, 0),
-	SFX_P(0x1B4, 0),
-	SFX_P(0x174, 0),
-	SFX_P(0x154, 0),
-	SFX_P(0x124, 0),
-	SFX_P(0x94, 0),
-	SFX_P(0x64, 0),
-	SFX_P(0x53, 0),
-	SFX_P(0x47, 0),
-	SFX_P(0x45, 0),
-	SFX_P(0x3E, 0),
-	SFX_P(0x39, 0),
-	SFX_P(0x34, 0),
+	SFX_P(0x0003 + 0x290, 0),
+	SFX_P(0x0003 + 0x240, 0),
+	SFX_P(0x0003 + 0x1E0, 0),
+	SFX_P(0x0003 + 0x1B4, 0),
+	SFX_P(0x0003 + 0x174, 0),
+	SFX_P(0x0003 + 0x154, 0),
+	SFX_P(0x0003 + 0x124, 0),
+	SFX_P(0x0003 + 0x94, 0),
+	SFX_P(0x0003 + 0x64, 0),
+	SFX_P(0x0003 + 0x53, 0),
+	SFX_P(0x0003 + 0x47, 0),
+	SFX_P(0x0003 + 0x45, 0),
+	SFX_P(0x0003 + 0x3E, 0),
+	SFX_P(0x0003 + 0x39, 0),
+	SFX_P(0x0003 + 0x34, 0),
 
-	SFX_P(0x154, 6),
-	SFX_P(0x124, 6),
-	SFX_P(0x94, 6),
-	SFX_P(0x64, 6),
-	SFX_P(0x53, 6),
-	SFX_P(0x47, 6),
-	SFX_P(0x45, 6),
-	SFX_P(0x3E, 6),
-	SFX_P(0x39, 6),
-	SFX_P(0x34, 6),
+	SFX_P(0x0003 + 0x154, 6),
+	SFX_P(0x0003 + 0x124, 6),
+	SFX_P(0x0003 + 0x94, 6),
+	SFX_P(0x0003 + 0x64, 6),
+	SFX_P(0x0003 + 0x53, 6),
+	SFX_P(0x0003 + 0x47, 6),
+	SFX_P(0x0003 + 0x45, 6),
+	SFX_P(0x0003 + 0x3E, 6),
+	SFX_P(0x0003 + 0x39, 6),
+	SFX_P(0x0003 + 0x34, 6),
 	SFX_END()
 };
 
@@ -822,6 +827,64 @@ static const SfxSample sfx_moo_2[] =
 	SFX_END()
 };
 
+#define GIVER_GEN(base, mag) \
+	SFX_P(base, 0), \
+	SFX_P(base - (mag * 1), 7), \
+	SFX_P(base - (mag * 2), 0), \
+	SFX_P(base - (mag * 3), 6), \
+	SFX_P(base - (mag * 4), 0), \
+	SFX_P(base - (mag * 5), 6), \
+	SFX_P(base - (mag * 6), 0), \
+	SFX_P(base - (mag * 7), 6), \
+	SFX_P(base - (mag * 8), 0), \
+	SFX_P(base - (mag * 9), 5), \
+	SFX_P(base - (mag * 10), 0), \
+	SFX_P(base - (mag * 11), 5), \
+	SFX_P(base - (mag * 12), 0), \
+	SFX_P(base - (mag * 13), 4), \
+	SFX_P(base - (mag * 14), 0), \
+	SFX_P(base - (mag * 15), 4), \
+	SFX_P(base - (mag * 16), 0), \
+	SFX_P(base - (mag * 17), 3), \
+	SFX_P(base - (mag * 18), 0), \
+	SFX_P(base - (mag * 19), 3), \
+	SFX_P(base - (mag * 20), 0), \
+	SFX_P(base - (mag * 21), 2), \
+	SFX_P(base - (mag * 22), 0), \
+	SFX_P(base - (mag * 23), 2), \
+	SFX_P(base - (mag * 24), 0), \
+	SFX_P(base - (mag * 25), 1), \
+	SFX_P(base - (mag * 26), 0), \
+	SFX_P(base - (mag * 27), 1), \
+	SFX_P(base - (mag * 28), 0), \
+	SFX_P(base - (mag * 29), 0), \
+	SFX_P(base - (mag * 30), 0), \
+	SFX_P(base - (mag * 31), 0), \
+	SFX_P(base - (mag * 32), 0), \
+	SFX_P(base - (mag * 33), 0), \
+	SFX_P(base - (mag * 34), 0),
+
+#define SWEEPMAG 20
+static const SfxSample sfx_giver_1[] =
+{
+	GIVER_GEN(1023, 20)
+	SFX_END()
+};
+
+static const SfxSample sfx_giver_2[] =
+{
+	GIVER_GEN(900, 19)
+	SFX_END()
+};
+
+static const SfxSample sfx_giver_3[] =
+{
+	GIVER_GEN(780, 18)
+	SFX_END()
+};
+
+#undef SWEEPMAG
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -852,6 +915,9 @@ static const SfxSample *stream_by_id[] =
 	[SFX_PAUSE_2] = sfx_pause_2,
 	[SFX_MOO_1] = sfx_moo_1,
 	[SFX_MOO_2] = sfx_moo_2,
+	[SFX_GIVER_1] = sfx_giver_1,
+	[SFX_GIVER_2] = sfx_giver_2,
+	[SFX_GIVER_3] = sfx_giver_3,
 };
 
 // Sound routines.

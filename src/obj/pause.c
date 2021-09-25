@@ -210,7 +210,7 @@ static void plot_item_displays(void)
 static void draw_cp_orb_count(void)
 {
 	const ProgressSlot *progress = progress_get();
-	const int16_t cp_orbs = progress->pending_cp_orbs + progress->registered_cp_orbs;
+	const int16_t cp_orbs = progress->collected_cp_orbs;
 	spr_put(272, 204, VDP_ATTR(s_vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
 	spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
 	spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * cp_orbs), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
@@ -852,7 +852,7 @@ static void debug_menu_logic(O_Pause *e, MdButton buttons)
 	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
 	{
 		e->debug.main_cursor++;
-		if (e->debug.main_cursor >= ARRAYSIZE(debug_options))
+		if (e->debug.main_cursor >= (int16_t)ARRAYSIZE(debug_options))
 		{
 			e->debug.main_cursor = 0;
 		}

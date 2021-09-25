@@ -34,7 +34,7 @@
 // container
 #include "obj/hoop.h"
 #include "obj/falseblock.h"
-// cp_pad
+#include "obj/cp_giver.h"
 #include "obj/cp_meter.h"
 // dog
 #include "obj/elevator.h"
@@ -209,6 +209,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_HOOP] = {o_load_hoop, o_unload_hoop},
 	[OBJ_FALSEBLOCK] = {o_load_falseblock, o_unload_falseblock},
 	
+	[OBJ_CP_GIVER] = {o_load_cp_giver, o_unload_cp_giver},
 	[OBJ_CP_METER] = {o_load_cp_meter, o_unload_cp_meter},
 
 	[OBJ_ELEVATOR] = {o_load_elevator, o_unload_elevator},
