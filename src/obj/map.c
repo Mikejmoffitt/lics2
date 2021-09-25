@@ -357,7 +357,7 @@ static inline void draw_full(void)
 	const uint16_t v_seam_vram_address = vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset;
 
 	const uint16_t row_count = system_is_ntsc() ? 29 : 31;
-	for (uint16_t y = 0; y < row_count; y++)
+	for (uint16_t y = 0; y < row_count + 1; y++)
 	{
 		for (uint16_t i = 0; i < ARRAYSIZE(dma_src); i++)
 		{

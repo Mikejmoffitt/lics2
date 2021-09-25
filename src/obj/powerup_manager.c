@@ -25,6 +25,7 @@ static int16_t kanim_speed;
 static fix16_t kgravity;
 static fix16_t kspawn_dy;
 static fix16_t kbounce_dy;
+static fix16_t kceiling_dy;
 // TODO: Anim speeds
 
 static uint16_t s_vram_pos;
@@ -34,10 +35,10 @@ static void set_constants(void)
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
 
-	// TODO: Get the real values for these. They are all fabricated.
-	kgravity = INTTOFIX16(PALSCALE_2ND(0.25));
-	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-3.0));
-	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-2.0));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
+	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
+	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-1.666667));
+	kceiling_dy = INTTOFIX16(PALSCALE_1ST(4.16666666667));
 	kanim_speed = PALSCALE_DURATION(6);
 
 	s_constants_set = 1;
@@ -153,7 +154,7 @@ static inline void powerup_render(Powerup *p)
 
 void powerup_bounce(Powerup *p)
 {
-	p->dy = kbounce_dy;
+	p->dy = (-p->dy / 2) + kbounce_dy;
 }
 
 static inline void newtonian_physics(Powerup *p)
@@ -164,7 +165,7 @@ static inline void newtonian_physics(Powerup *p)
 	const int16_t py = FIX32TOINT(p->y);
 
 	if (p->dy > 0 && map_collision(px, py + 1)) powerup_bounce(p);
-	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = 0;
+	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = kceiling_dy;;
 }
 
 static inline void powerup_get(Powerup *p)
@@ -248,6 +249,7 @@ static inline void powerup_run(Powerup *p)
 		case POWERUP_TYPE_CP_ORB:
 		case POWERUP_TYPE_HP_ORB:
 			newtonian_physics(p);
+			// TODO: Scan for cubes and bounce up from them.
 			break;
 		default:
 			break;
@@ -377,6 +379,10 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
 			break;
 		case POWERUP_TYPE_HP_ORB:
 			if (prog->hp_orbs & (1 << orb_id)) return NULL;
+			break;
+		case POWERUP_TYPE_CP:
+		case POWERUP_TYPE_CP_2X:
+			if (!(prog->abilities & ABILITY_PHANTOM)) return NULL;
 			break;
 	}
 	uint16_t i = ARRAYSIZE(g_powerups);

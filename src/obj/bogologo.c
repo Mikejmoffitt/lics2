@@ -8,6 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 #include "common.h"
+#include "sfx.h"
 
 static uint16_t s_vram_pos;
 
@@ -79,6 +80,12 @@ static void main_func(Obj *o)
 	e->appear_cnt++;
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 	OBJ_SIMPLE_ANIM(e->flicker_cnt, e->flicker_frame, 2, kflicker_speed);
+
+	if (e->appear_cnt == kappear_frame)
+	{
+		sfx_play(SFX_TELEPORT, 3);
+		sfx_play(SFX_TELEPORT_2, 3);
+	}
 
 	if (e->appear_cnt < kappear_frame ||
 	    (e->appear_cnt < ksolid_frame && e->flicker_frame == 0))

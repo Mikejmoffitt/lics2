@@ -177,7 +177,7 @@ static const BgDescriptor backgrounds[] =
 	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, sizeof(res_bgmap_bg11_bin)},
 	[12] = {GFX_BG_12, res_pal_bg_bg10_bin, res_bgmap_bg12_bin, sizeof(res_bgmap_bg12_bin)},  // Mapping modification of 10.
 	[13] = {GFX_BG_13, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},
-	[14] = {GFX_BG_14, res_pal_bg_bg13_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},
+	[14] = {GFX_BG_14, res_pal_bg_bg14_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},  // Palette modification of 13.
 	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin)},
 	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin)},
 //  [17]
@@ -197,6 +197,7 @@ static void bg_city_func(int16_t x_scroll, int16_t y_scroll)
 	const int16_t x_offset = -38;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll + x_offset);
 	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
+	if (map_get_bottom() == INTTOFIX32(240)) y_scroll -= 32;
 	set_v_scroll_plane(y_scroll + 24);
 	set_h_scroll_plane(-x_scroll / 2);
 
@@ -565,9 +566,11 @@ static void bg_crazy_city_func(int16_t x_scroll, int16_t y_scroll)
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_v_scroll_plane(y_scroll);
 
+	const int16_t split = 11 + system_is_ntsc() ? 0 : 2;
+
 	set_h_scroll_plane(-x_scroll / 2);
 
-	for (uint16_t i = 12; i < 12+5; i++)
+	for (uint16_t i = split; i < split+5; i++)
 	{
 		h_scroll_buffer[i] = purple_x;
 	}
@@ -579,9 +582,11 @@ static void bg_crazy_city_low_func(int16_t x_scroll, int16_t y_scroll)
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_v_scroll_plane(y_scroll);
 
+	const int16_t split = 18 + system_is_ntsc() ? 0 : 2;
+
 	set_h_scroll_plane(-x_scroll / 2);
 
-	for (uint16_t i = 18; i < 18+5; i++)
+	for (uint16_t i = split; i < split+5; i++)
 	{
 		h_scroll_buffer[i] = purple_x;
 	}
@@ -590,10 +595,10 @@ static void bg_crazy_city_low_func(int16_t x_scroll, int16_t y_scroll)
 static void bg_elevator_func(int16_t x_scroll, int16_t y_scroll)
 {
 	(void)x_scroll;
-	const int16_t close_y = y_scroll / 2;
-	const int16_t med_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));
-	const int16_t far_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.66666667)));
-	const int16_t red_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));
+	const int16_t far_y = y_scroll / 2;  // far
+	const int16_t close_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));  // close
+	const int16_t med_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.66666667)));  // med
+	const int16_t red_y = y_scroll / 8;
 
 	v_scroll_buffer[0] = close_y;
 	v_scroll_buffer[1] = close_y;

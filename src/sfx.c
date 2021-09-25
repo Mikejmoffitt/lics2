@@ -523,6 +523,8 @@ static const SfxSample sfx_teleport_2[] =
 	SFX_END()
 };
 
+#undef SFX_TELE_SWEEP
+
 static const SfxSample sfx_boingo_jump[] =
 {
 	SFX_P(0x380, 0),
@@ -540,17 +542,47 @@ static const SfxSample sfx_boingo_jump[] =
 
 static const SfxSample sfx_powerup_get[] =
 {
-	SFX_TELE_SWEEP(0x0066, 0),
-	SFX_TELE_SWEEP(0x0050, 1),
-	SFX_TELE_SWEEP(0x0040, 2),
-	SFX_TELE_SWEEP(0x0033, 3),
+	SFX_P(-300 + 529, 0),
+	SFX_P(-300 + 589, 0),
+	SFX_P(-300 + 630, 0),
+	SFX_P(-200 + 700, 0),
+	SFX_P(-200 + 810, 0),
+	SFX_P(-100 + 940, 0),
+	SFX_P(-100 + 1023, 0),
+	SFX_P(-300 + 600, 0),
+	SFX_P(-310 + 580, 0),
+	SFX_P(-320 + 560, 0),
+	SFX_P(-320 + 540, 0),
+	SFX_P(-330 + 520, 0),
+	SFX_P(-330 + 500, 0),
+	SFX_P(-340 + 480, 0),
+	SFX_P(-340 + 460, 0),
+	SFX_P(-350 + 440, 0),
+	SFX_P(-350 + 420, 0),
+	SFX_P(-360 + 400, 0),
+
+	SFX_P(-330 + 520, 3),
+	SFX_P(-330 + 500, 3),
+	SFX_P(-340 + 480, 3),
+	SFX_P(-340 + 460, 3),
+	SFX_P(-350 + 440, 3),
+	SFX_P(-350 + 420, 3),
+	SFX_P(-360 + 400, 3),
+
+	SFX_P(-330 + 520, 6),
+	SFX_P(-330 + 500, 6),
+	SFX_P(-340 + 480, 6),
+	SFX_P(-340 + 460, 6),
+	SFX_P(-350 + 440, 6),
+	SFX_P(-350 + 420, 6),
+	SFX_P(-360 + 400, 6),
 	SFX_END()
 };
 
 static const SfxSample sfx_magibear_shot[] =
 {
-	SFX_P(0X0242, 0),
-	SFX_P(0X0273, 0),
+	SFX_P(0x0242, 0),
+	SFX_P(0x0273, 0),
 	SFX_P(0x02F5, 0),
 	SFX_P(0x0336, 0),
 	SFX_P(0x03B8, 0),
