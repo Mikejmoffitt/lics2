@@ -50,6 +50,7 @@
 // spooko, wip
 #include "obj/bgscroll.h"
 #include "obj/fakecube.h"
+#include "obj/radio.h"
 
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
@@ -225,6 +226,8 @@ static const SetupFuncs setup_funcs[] =
 
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 	[OBJ_FAKECUBE] = {o_load_fakecube, NULL},
+	[OBJ_RADIO] = {o_load_radio, o_unload_radio},
+
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},
 	[OBJ_COLUMNS] = {o_load_columns, NULL},

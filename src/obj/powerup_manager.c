@@ -129,7 +129,7 @@ static inline void powerup_render(Powerup *p)
 		pal = BG_PAL_LINE;
 		tile_offset = 0;
 		size = SPR_SIZE(2, 2);
-		tx -= 6;
+		tx -= 7;
 		ty -= 14;
 		tile_offset += (p->anim_frame % 2) ? 4 : 0;
 	}
@@ -138,7 +138,7 @@ static inline void powerup_render(Powerup *p)
 		pal = LYLE_PAL_LINE;
 		tile_offset = 8;
 		size = SPR_SIZE(2, 2);
-		tx -= 6;
+		tx -= 7;
 		ty -= 14;
 		tile_offset += (p->anim_frame % 2) ? 4 : 0;
 	}
@@ -214,6 +214,7 @@ static inline void powerup_get(Powerup *p)
 			break;
 		case POWERUP_TYPE_LIFT:
 			prog->abilities |= ABILITY_LIFT;
+			prog->touched_first_cube = 1;
 			pause_set_screen(PAUSE_SCREEN_GET_CUBE_LIFT);
 			break;
 		case POWERUP_TYPE_JUMP:

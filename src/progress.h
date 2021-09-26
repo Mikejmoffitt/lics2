@@ -42,6 +42,8 @@ typedef struct ProgressSlot
 
 	int16_t boss_defeated[2];
 
+	uint16_t teleporters_active;
+
 	uint32_t magic_1;
 } ProgressSlot;
 

@@ -11,6 +11,7 @@
 #include "obj/particle_manager.h"
 #include "game.h"
 #include "sfx.h"
+#include "progress.h"
 
 // Constants.
 
@@ -115,7 +116,11 @@ static void main_func(Obj *o)
 	if (!t->disabled && t->active_cnt == 0 && l->grounded &&
 	    o->touching_player && l->tele_out_cnt == 0)
 	{
-		// TODO: Mark in SRAM that teleporter[t->id] has been discovered.
+		if (t->activator)
+		{
+			ProgressSlot *prog = progress_get();
+			prog->teleporters_active |= (1 << t->id);
+		}
 
 		// If the player is teleporting IN, disable the teleporter once the anim is over.
 		if (l->tele_in_cnt > 0)
@@ -181,6 +186,17 @@ void o_load_teleporter(Obj *o, uint16_t data)
 
 	t->id = data & 0xFF;
 	t->activator = (data & 0xFF00) >> 8;
+
+	SYSTEM_ASSERT(t->id < (sizeof(uint16_t) * 8));
+
+	if (!t->activator)
+	{
+		const ProgressSlot *prog = progress_get();
+		if (!(prog->teleporters_active & (1 << t->id)))
+		{
+			o->status = OBJ_STATUS_NULL;
+		}
+	}
 }
 
 void o_unload_teleporter(void)

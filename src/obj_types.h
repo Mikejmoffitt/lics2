@@ -52,6 +52,8 @@ typedef enum ObjType
 	OBJ_WIP           = 45,  // TODO Just shows a "Work in Progress!" sign.
 	OBJ_BGSCROLLY     = 46,  // Forces the camera Y scroll position.
 	OBJ_FAKECUBE      = 47,  // Used above the boss arena.
+	OBJ_RADIO         = 48,  // Releases an item (HP orb 4 in the original).
+	OBJ_CHIMNEY       = 49,  // Releases an item when struck.
 
 	OBJ_TECHNOBG     = 119,  // Causes a tile DMA for the technozone FG.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.

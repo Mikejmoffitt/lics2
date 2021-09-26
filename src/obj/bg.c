@@ -180,7 +180,7 @@ static const BgDescriptor backgrounds[] =
 	[14] = {GFX_BG_14, res_pal_bg_bg14_bin, res_bgmap_bg13_bin, sizeof(res_bgmap_bg13_bin)},  // Palette modification of 13.
 	[15] = {GFX_BG_15, res_pal_bg_bg15_bin, res_bgmap_bg15_bin, sizeof(res_bgmap_bg15_bin)},
 	[16] = {GFX_BG_16, res_pal_bg_bg16_bin, res_bgmap_bg16_bin, sizeof(res_bgmap_bg16_bin)},
-//  [17]
+	[17] = {GFX_BG_2, res_pal_bg_bg2_bin, res_bgmap_bg2_bin, sizeof(res_bgmap_bg2_bin)},
 	[18] = {GFX_BG_18, res_pal_bg_bg18_bin, res_bgmap_bg18_bin, sizeof(res_bgmap_bg18_bin)},
 	[19] = {GFX_NULL, res_pal_bg_bg19_bin, res_bgmap_bg19_bin, sizeof(res_bgmap_bg19_bin)},
 	[20] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
@@ -241,6 +241,20 @@ static void bg_plane_func(int16_t x_scroll, int16_t y_scroll)
 
 	set_v_scroll_plane(y_scroll/2);
 }
+
+static void bg_plane_func_offset(int16_t x_scroll, int16_t y_scroll)
+{
+	y_scroll -= 112;
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t far_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
+	set_h_scroll_plane(far_x);
+
+	// If it's a single-screen height room, hike the chevrons upwards.
+	if (map_get_bottom() == INTTOFIX32(240)) y_scroll -= 384;
+
+	set_v_scroll_plane(y_scroll/2);
+}
+
 
 static void bg_blue_bumps_func(int16_t x_scroll, int16_t y_scroll)
 {
@@ -712,8 +726,7 @@ static void bg_guantlet_func(int16_t x_scroll, int16_t y_scroll)
 
 
 */
-
-	set_v_scroll_plane(y_scroll);
+	(void)y_scroll;
 	set_v_scroll_plane((system_is_ntsc() ? 8 : 0));
 
 	static const int16_t modulo = 48;
@@ -790,6 +803,12 @@ static void bg_longsand_func(int16_t x_scroll, int16_t y_scroll)
 	buffer[21] = x_1_2;
 }
 
+static void bg_thin_bricks_func(int16_t x_scroll, int16_t y_scroll)
+{
+	set_v_scroll_plane(y_scroll / 2);
+	set_h_scroll_plane(-x_scroll / 2);
+}
+
 static void (*bg_funcs[])(int16_t, int16_t) =
 {
 	[0] = NULL,
@@ -802,13 +821,13 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[7] = bg_orange_balls_func,
 	[9] = bg_undersand_columns_func,
 	[10] = bg_crazy_city_func,
-
+	[11] = bg_thin_bricks_func,
 	[12] = bg_crazy_city_low_func,
 	[13] = bg_elevator_func,
 	[14] = bg_elevator_func,
 
 	[16] = bg_brown_grass_func,
-
+	[17] = bg_plane_func_offset,
 	[18] = bg_longsand_func,
 	[19] = bg_technozone_func,
 	[20] = bg_columns_2_func,

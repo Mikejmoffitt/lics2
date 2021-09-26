@@ -7,12 +7,12 @@
 typedef struct O_Teleporter
 {
 	Obj head;
-	int8_t id;
-	int8_t activator;
-	int8_t anim_cnt;
-	int8_t anim_frame;
-	int8_t active_cnt;  // Transition from 1 --> 0 disables teleporter.
-	int8_t disabled;
+	uint16_t id;
+	int16_t activator;
+	int16_t anim_cnt;
+	int16_t anim_frame;
+	int16_t active_cnt;  // Transition from 1 --> 0 disables teleporter.
+	int16_t disabled;
 } O_Teleporter;
 
 void o_load_teleporter(Obj *o, uint16_t data);
