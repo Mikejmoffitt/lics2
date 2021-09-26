@@ -403,7 +403,7 @@ static const CharMapping kmapping_phantom_cube_magic_1[] =
 	{44+8, 28, 0x5E},  // Shorter A
 	{51+8, 28, 'G'},
 	{59+8, 28, 0x5F},  // Shorter I
-	{61+8, 28, 'C'},
+	{62+8, 28, 'C'},
 };
 
 static const CharMapping kmapping_phantom_cube_magic_x[] =
@@ -423,7 +423,7 @@ static const CharMapping kmapping_phantom_cube_magic_x[] =
 	{44, 28, 0x5E},  // Shorter A
 	{51, 28, 'G'},
 	{59, 28, 0x5F},  // Shorter I
-	{61, 28, 'C'},
+	{62, 28, 'C'},
 };
 
 static const CharMapping kmapping_2[] =
