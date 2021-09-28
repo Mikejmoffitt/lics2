@@ -102,6 +102,6 @@ const Gfx *gfx_get(GfxId id);
 // Loads Gfx structure g into VRAM address load_pos.
 // Returns the tile index at which data was loaded in VRAM.
 uint16_t gfx_load(const Gfx *g, uint16_t load_pos);
-uint16_t gfx_load_ex(const Gfx *g, int16_t start, int16_t size, uint16_t load_pos);
+uint16_t gfx_load_ex(const Gfx *g, int16_t start, uint16_t size, uint16_t load_pos);
 
 #endif  // GFX_H

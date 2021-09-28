@@ -30,7 +30,7 @@ static inline void set_constants(void)
 	if (s_constants_set) return;
 	// Set constants here.
 
-	kdx = INTTOFIX16(PALSCALE_1ST(0.277777777776));
+	kdx = INTTOFIX16(PALSCALE_1ST(0.416666666667));
 	kdy_max = INTTOFIX16(PALSCALE_1ST(3.333333333));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1388888888892));
 	kanim_speed = PALSCALE_DURATION(10);

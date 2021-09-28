@@ -115,7 +115,7 @@ uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
 }
 
 
-uint16_t gfx_load_ex(const Gfx *g, int16_t start, int16_t size, uint16_t load_pos)
+uint16_t gfx_load_ex(const Gfx *g, int16_t start, uint16_t size, uint16_t load_pos)
 {
 	if (!g->data) return 0;
 	if (size > g->size) size = g->size;

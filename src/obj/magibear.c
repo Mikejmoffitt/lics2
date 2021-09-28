@@ -38,7 +38,7 @@ static inline void set_constants(void)
 	kmouth_open_frames = PALSCALE_DURATION(24);
 	kshot_delay = PALSCALE_DURATION(120);
 	kanim_frame_duration = PALSCALE_DURATION(10);
-	kshot_speed = INTTOFIX16(PALSCALE_1ST(0.75));
+	kshot_speed = INTTOFIX16(PALSCALE_1ST(0.9));  // TODO: 0.75f was too slow. Should be MMF "Speed 8"
 	kmouth_anim_frame_duration = PALSCALE_DURATION(4);
 
 	s_constants_set = 1;

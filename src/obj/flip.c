@@ -25,7 +25,7 @@ static void set_constants(void)
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.4));
-	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
+	kdx = INTTOFIX16(PALSCALE_1ST(0.41666666667));
 	kanim_delay = PALSCALE_DURATION(10);
 
 	s_constants_set = 1;

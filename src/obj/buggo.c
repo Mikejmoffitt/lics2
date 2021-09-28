@@ -42,7 +42,7 @@ static void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(7);
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 
-	kdx = INTTOFIX16(PALSCALE_1ST(.20833333333333334));
+	kdx = INTTOFIX16(PALSCALE_1ST(.277777777777778));
 	s_constants_set = 1;
 }
 

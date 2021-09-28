@@ -32,7 +32,7 @@ static void set_constants(void)
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.18));
 	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.17));
-	kdx = INTTOFIX16(PALSCALE_1ST(0.333333333));
+	kdx = INTTOFIX16(PALSCALE_1ST(0.416666666667));
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(2.3));
 	kanim_len = PALSCALE_DURATION(2.2);
 	kshot_clock_max = PALSCALE_DURATION(120);
