@@ -163,7 +163,7 @@ static inline void powerup_render(Powerup *p)
 
 void powerup_bounce(Powerup *p)
 {
-	p->dy = (-p->dy / 2) + kbounce_dy;
+	p->dy = (p->dy / 2) + kbounce_dy;
 }
 
 static inline void newtonian_physics(Powerup *p)
