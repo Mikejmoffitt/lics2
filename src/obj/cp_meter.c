@@ -38,8 +38,8 @@ static void render(O_CpMeter *e)
 	static const int16_t offset_x = -8;
 	static const int16_t offset_y = -8;
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	const ProgressSlot *progress = progress_get();
 	const int16_t orbs = progress->registered_cp_orbs;
 	for (int16_t i = 0; i < orbs; i++)

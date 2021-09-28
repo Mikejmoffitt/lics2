@@ -46,8 +46,8 @@ static inline void render_splat(O_Lava *e)
 
 	static const int16_t offset_x = -16;
 	static const int16_t offset_y = -16;
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 16 : 8), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 }
@@ -59,8 +59,8 @@ static inline void render_tall(O_Lava *e)
 
 	static const int16_t offset_x = -8;
 	static const int16_t offset_y = -32;
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 }
@@ -72,8 +72,8 @@ static inline void render(O_Lava *e)
 
 	static const int16_t offset_x = -8;
 	static const int16_t offset_y = -16;
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
@@ -121,7 +121,7 @@ static inline void become_splat(Obj *o)
 	}
 }
 
-static void check_collision_with_orange_cube(Obj *o)
+static inline void check_collision_with_orange_cube(Obj *o)
 {
 	const O_Lyle *l = lyle_get();
 
@@ -131,7 +131,7 @@ static void check_collision_with_orange_cube(Obj *o)
 	const fix32_t adj_x = INTTOFIX32(20);
 	if (o->x + adj_x < l->head.x) return;
 	if (o->x - adj_x > l->head.x) return;
-	if (o->y < l->head.y - INTTOFIX32(51)) return;
+	if (o->y < l->head.y - INTTOFIX32(55)) return;
 	if (o->y + o->top > l->head.y) return;
 
 	become_splat(o);
@@ -142,7 +142,7 @@ static void main_func(Obj *o)
 	O_Lava *e = (O_Lava *)o;
 	const O_Lyle *l = lyle_get();
 
-	if (l->holding_cube && l->holding_cube == CUBE_TYPE_ORANGE)
+	if (l->holding_cube == CUBE_TYPE_ORANGE)
 	{
 		// If Lyle is holding an orange cube, disable collision detection, a
 		// a simpler check will be used.
@@ -166,7 +166,7 @@ static void main_func(Obj *o)
 		become_splat(o);
 		o->y = INTTOFIX32(FIX32TOINT(o->y) & 0xFFFFFFF8);
 	}
-	e->is_tall ? render_tall(e) : render(e);
+	e->render_func(e);
 }
 
 static void initial_main_func(Obj *o)
@@ -190,6 +190,7 @@ void o_load_lava(Obj *o, uint16_t data)
 	obj_basic_init(o, OBJ_FLAG_HARMFUL,
 	               INTTOFIX16(-8), INTTOFIX16(8), height, 127);
 	o->cube_func = NULL;
+	e->render_func = render;
 
 	if (data == 0)
 	{
@@ -223,6 +224,7 @@ void o_load_lava(Obj *o, uint16_t data)
 		o->dy = kfall_dy;
 		e->max_y = INTTOFIX32(data & 0x7FFF);
 		e->is_tall = data & 0x8000 ? 0 : 1;
+		e->render_func = e->is_tall ? render_tall : render;
 	}
 }
 

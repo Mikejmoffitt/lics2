@@ -146,8 +146,7 @@ static void vram_load(void)
 {
 	if (s_vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_LYLE);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	s_vram_pos = obj_vram_alloc(3 * 3 * 32) / 32;
 }
 
 static inline uint16_t is_control_disabled(O_Lyle *l)
@@ -256,7 +255,6 @@ static inline void x_acceleration(O_Lyle *l)
 	}
 
 	// snap dx to 0 if it is near
-	// TODO: Is this needed?
 	if (l->head.dx > -kdx_snap &&
 	    l->head.dx < kdx_snap && !(buttons & (BTN_RIGHT | BTN_LEFT)))
 	{
@@ -264,8 +262,7 @@ static inline void x_acceleration(O_Lyle *l)
 	}
 
 	// limit top speed
-	fix16_t dx_max = kdx_max;
-	if (l->holding_cube == CUBE_TYPE_ORANGE) dx_max /= 2;
+	fix16_t dx_max = (l->holding_cube == CUBE_TYPE_ORANGE) ? kdx_max / 2 : kdx_max;
 	if (l->head.dx > dx_max) l->head.dx = dx_max;
 	else if (l->head.dx < -dx_max) l->head.dx = -dx_max;
 }
@@ -374,12 +371,15 @@ static inline void lift_cubes(O_Lyle *l)
 	if (l->lift_cnt == 1 && l->on_cube)
 	{
 		ProgressSlot *progress = progress_get();
-		if (!(progress->touched_first_cube))
+		if (!(progress->abilities & ABILITY_LIFT))
 		{
-			progress->touched_first_cube = 1;
-			pause_set_screen(PAUSE_SCREEN_LYLE_WEAK);
+			if (!(progress->touched_first_cube))
+			{
+				progress->touched_first_cube = 1;
+				pause_set_screen(PAUSE_SCREEN_LYLE_WEAK);
+			}
+			return;
 		}
-		if (!(progress->abilities & ABILITY_LIFT)) return;
 		Cube *c = l->on_cube;
 		if (c->type == CUBE_TYPE_ORANGE && !(progress->abilities & ABILITY_ORANGE)) return;
 		l->holding_cube = c->type;
@@ -982,17 +982,18 @@ static inline void draw(O_Lyle *l)
 	}
 	
 	// Now change anim_frame to reflect the offset in VRAM
-	// TODO: Make a fucking table
 	const uint16_t tile_offset = (l->anim_frame < 0x14) ?
 	                              l->anim_frame * 6 :
 	                              (120 + (9 * (l->anim_frame - 0x14)));
 	uint8_t size;
 	int16_t yoff;
 	int16_t xoff;
+	int16_t transfer_bytes;
 
 	// Set sprite size and Y offset based on frame
 	if (l->anim_frame < 0x10)
 	{
+		transfer_bytes = 2 * 3 * 32;
 		size = SPR_SIZE(2, 3);
 		yoff = LYLE_DRAW_TOP;
 		xoff = LYLE_DRAW_LEFT + ((l->lift_cnt > 0) ?
@@ -1000,16 +1001,21 @@ static inline void draw(O_Lyle *l)
 	}
 	else if (l->anim_frame < 0x14)
 	{
+		transfer_bytes = 2 * 3 * 32;
 		size = SPR_SIZE(3, 2);
 		yoff = LYLE_DRAW_TOP + 8;
 		xoff = LYLE_DRAW_LEFT -4;
 	}
 	else
 	{
+		transfer_bytes = 3 * 3 * 32;
 		size = SPR_SIZE(3, 3);
 		yoff = LYLE_DRAW_TOP;
 		xoff = LYLE_DRAW_LEFT + (l->head.direction == OBJ_DIRECTION_LEFT ? -8 : 0);
 	}
+
+	const Gfx *g = gfx_get(GFX_LYLE);
+	gfx_load_ex(g, tile_offset * 32, transfer_bytes, s_vram_pos * 32);
 
 	int16_t sp_x = FIX32TOINT(l->head.x) + xoff - map_get_x_scroll();
 	int16_t sp_y = FIX32TOINT(l->head.y) + yoff - map_get_y_scroll();
@@ -1019,7 +1025,7 @@ static inline void draw(O_Lyle *l)
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
 	spr_put(sp_x, sp_y,
-	        SPR_ATTR(s_vram_pos + tile_offset,
+	        SPR_ATTR(s_vram_pos,
 	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
 	                 LYLE_PAL_LINE, l->priority),
 	        size);

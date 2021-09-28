@@ -219,8 +219,8 @@ static void render_title_full(O_Title *e)
 	static const int16_t offset_x = -56;
 	static const int16_t offset_y = -72;
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 
 	render_title_logo(sp_x, sp_y);
 	render_credits();

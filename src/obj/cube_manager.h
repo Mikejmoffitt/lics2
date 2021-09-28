@@ -34,33 +34,35 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 	{
 		case CUBE_TYPE_GREENBLUE:
 		case CUBE_TYPE_BLUE:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos, 0, 0, 1, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0),
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_RED:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 8, 0, 0, 3, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 8, 0, 0, LYLE_PAL_LINE, 0),
 			        SPR_SIZE(2, 2));
 			break;
 
 		case CUBE_TYPE_GREEN:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 12, 0, 0, 3, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 12, 0, 0, LYLE_PAL_LINE, 0),
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_PHANTOM:
 			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 16 +
 			                       (4 * g_cube_phantom_anim_frame),
-			        0, 0, 3, 0), SPR_SIZE(2, 2));
+			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		default: // Handle all yellow variants with the default label.
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 4, 0, 0, 3, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 4, 0, 0, LYLE_PAL_LINE, 0),
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_ORANGE:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, 1, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 0),
+			        SPR_SIZE(4, 4));
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 0),
 			        SPR_SIZE(4, 4));
 			break;
 		case CUBE_TYPE_SPAWNER:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 48, 0, 0, 1, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 48, 0, 0, BG_PAL_LINE, 0),
 			        SPR_SIZE(2, 2));
 			break;
 	}

@@ -47,8 +47,8 @@ static void render(O_Bogologo *e)
 	static const int16_t offset_x = -64;
 	static const int16_t offset_y = -48;
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 
 	for (int16_t x = 0; x < 4; x++)
 	{

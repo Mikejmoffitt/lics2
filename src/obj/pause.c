@@ -22,7 +22,7 @@ static int16_t kcursor_flash_delay;
 static int16_t kdismissal_delay_frames;
 
 static const uint16_t kmap_left = 8;
-static const uint16_t kmap_top = 7;
+static const uint16_t kmap_top = 5;
 
 // String printing utility. Not very fast, but it's alright for this.
 static void window_puts(const char *str, int16_t x, int16_t y, int16_t pal)
@@ -256,7 +256,7 @@ static void draw_item_icons(void)
 static inline void draw_map_pause_text(void)
 {
 	static const int16_t draw_x = (GAME_SCREEN_W_PIXELS / 2) - 28;
-	static const int16_t draw_y = 24;
+	static const int16_t draw_y = 8;
 
 	spr_put(draw_x, draw_y,
 	        SPR_ATTR(s_vram_pos + 0x60, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 2));
@@ -267,7 +267,7 @@ static inline void draw_map_pause_text(void)
 static inline void draw_cube_sector_text(void)
 {
 	int16_t x = (GAME_SCREEN_W_PIXELS / 2) - 38;
-	static const int16_t y = 164;
+	static const int16_t y = 148;
 	const int16_t tile_base = SPR_ATTR(s_vram_pos + 0x34, 0, 0, MAP_PAL_LINE, 0);
 	static const int16_t cube_mapping[] =
 	{
@@ -400,9 +400,9 @@ static const CharMapping kmapping_phantom_cube_magic_1[] =
 	{17+2, 28, 'B'},
 	{25+2, 28, 'E'},
 	{36+8, 28, 'M'},
-	{44+8, 28, 0x5E},  // Shorter A
+	{44+8, 28, 0x3F},  // Shorter A
 	{51+8, 28, 'G'},
-	{59+8, 28, 0x5F},  // Shorter I
+	{59+8, 28, 0x3A},  // Shorter I
 	{62+8, 28, 'C'},
 };
 
@@ -420,9 +420,9 @@ static const CharMapping kmapping_phantom_cube_magic_x[] =
 	{17, 28, 'B'},
 	{25, 28, 'E'},
 	{36, 28, 'M'},
-	{44, 28, 0x5E},  // Shorter A
+	{44, 28, 0x3F},  // Shorter A
 	{51, 28, 'G'},
-	{59, 28, 0x5F},  // Shorter I
+	{59, 28, 0x3A},  // Shorter I
 	{62, 28, 'C'},
 };
 
@@ -517,7 +517,7 @@ static void draw_you_got(PauseScreen screen)
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 	spr_put(base_x + 56, base_y + 9, SPR_ATTR(s_vram_pos + 0x7F, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
-	spr_put(base_x + 64, base_y + 9, SPR_ATTR(s_vram_pos + 0x9B, 0, 0,
+	spr_put(base_x + 64, base_y + 9, SPR_ATTR(s_vram_pos + 0x8F, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 
 }
@@ -1081,6 +1081,8 @@ static void main_func(Obj *o)
 				plot_item_displays();
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 			}
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
@@ -1107,6 +1109,8 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -1131,6 +1135,8 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
@@ -1155,6 +1161,8 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
+				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);

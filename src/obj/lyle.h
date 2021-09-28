@@ -37,6 +37,7 @@ typedef struct O_Lyle
 
 	int8_t anim_cnt;
 	int8_t anim_frame;
+	int8_t metaframe;
 
 	int8_t action_cnt;
 	int8_t grounded;

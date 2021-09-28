@@ -32,7 +32,7 @@ int system_init(void)
 	a += b;
 	SYSTEM_ASSERT(a == 70032);
 
-	system_srand(0x1234);
+	system_srand(0x12345678);
 
 	return 1;
 }

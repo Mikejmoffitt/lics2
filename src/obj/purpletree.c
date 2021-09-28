@@ -26,8 +26,8 @@ static void render(O_PurpleTree *e)
 	static const int16_t offset_x = -8;
 	static const int16_t offset_y = -16;
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (4 * e->tile), 0, 0,
 	                             MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
 }

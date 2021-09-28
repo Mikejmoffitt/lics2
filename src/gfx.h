@@ -10,12 +10,12 @@ typedef enum GfxId
 	GFX_LYLE,
 	GFX_CUBES,
 	GFX_PAUSE,
+	GFX_POWERUP_MANAGER,
 	GFX_TEMPLATE,
 
 	GFX_METAGRUB,
 	GFX_FLIP,
 	GFX_BOINGO,
-	GFX_ITEM,
 	GFX_GAXTER,
 	GFX_BUGGO,
 	GFX_DANCYFLOWER,
@@ -51,7 +51,6 @@ typedef enum GfxId
 	GFX_TITLE_SCR,
 	GFX_BOGOLOGO,
 
-	GFX_EX_ITEMS,
 	GFX_EX_PROJECTILES,
 	GFX_EX_PARTICLES,
 	GFX_EX_HUD,
@@ -103,5 +102,6 @@ const Gfx *gfx_get(GfxId id);
 // Loads Gfx structure g into VRAM address load_pos.
 // Returns the tile index at which data was loaded in VRAM.
 uint16_t gfx_load(const Gfx *g, uint16_t load_pos);
+uint16_t gfx_load_ex(const Gfx *g, int16_t start, int16_t size, uint16_t load_pos);
 
 #endif  // GFX_H

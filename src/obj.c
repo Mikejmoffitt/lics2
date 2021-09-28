@@ -347,8 +347,7 @@ void obj_exec(void)
 	int16_t i = ARRAYSIZE(g_objects);
 	while (i--)
 	{
-		Obj *o = (Obj *)s;
-		s++;
+		Obj *o = (Obj *)s++;
 		if (o->status != OBJ_STATUS_ACTIVE) continue;
 
 		o->offscreen = obj_is_offscreen(o);
@@ -388,7 +387,6 @@ void obj_clear(void)
 	}
 
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
-	dma_q_fill_vram(OBJ_TILE_VRAM_POSITION, 0, OBJ_TILE_VRAM_LENGTH, 1);
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)

@@ -95,8 +95,8 @@ static void render(O_CpGiver *e)
 
 	const int16_t yscroll = map_get_y_scroll();
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), yscroll);
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), yscroll);
 	spr_put(sp_x + giver_frames[e->metaframe].xoff,
 	        sp_y + giver_frames[e->metaframe].yoff,
 	        SPR_ATTR(s_vram_pos + giver_frames[e->metaframe].tile, 0, 0, ENEMY_PAL_LINE, 0),

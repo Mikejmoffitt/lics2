@@ -15,7 +15,6 @@ static const Gfx gfx[] =
 	[GFX_METAGRUB] = GFX(obj_3_metagrub),
 	[GFX_FLIP] = GFX(obj_4_flip),
 	[GFX_BOINGO] = GFX(obj_5_boingo),
-	[GFX_ITEM] = GFX(obj_6_item),
 	[GFX_GAXTER] = GFX(obj_7_gaxter),
 
 	[GFX_BUGGO] = GFX(obj_9_buggo),
@@ -57,12 +56,11 @@ static const Gfx gfx[] =
 
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
+	[GFX_POWERUP_MANAGER] = GFX(obj_136_powerup_manager),
 
-	[GFX_EX_ITEMS] = GFX(ex_items),
 	[GFX_EX_PROJECTILES] = GFX(ex_projectiles),
 	[GFX_EX_PARTICLES] = GFX(ex_particles),
 	[GFX_EX_HUD] = GFX(ex_hud),
-	[GFX_EX_POWERUPS] = GFX(ex_powerups),
 	[GFX_EX_CREDITS] = GFX(ex_credits),
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
@@ -113,6 +111,17 @@ uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
 	// DMA operates in terms of words rather than bytes
 	const uint16_t transfer_words = g->size / 2;
 	dma_q_transfer_vram(load_pos, (void *)g->data, transfer_words, 2);
+	return load_pos / 32;
+}
+
+
+uint16_t gfx_load_ex(const Gfx *g, int16_t start, int16_t size, uint16_t load_pos)
+{
+	if (!g->data) return 0;
+	if (size > g->size) size = g->size;
+	const uint16_t transfer_words = size / 2;
+	const uint8_t *gdata = (const uint8_t *)g->data;
+	dma_q_transfer_vram(load_pos, &gdata[start], transfer_words, 2);
 	return load_pos / 32;
 }
 

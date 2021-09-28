@@ -3,9 +3,11 @@
 
 #include "obj.h"
 
-typedef struct O_Lava
+typedef struct O_Lava O_Lava;
+struct O_Lava
 {
 	Obj head;
+	void (*render_func)(O_Lava *e);
 
 	Obj *cow;
 
@@ -17,7 +19,7 @@ typedef struct O_Lava
 	fix32_t max_y;
 	int16_t generator_cnt;
 
-} O_Lava;
+};
 
 void o_load_lava(Obj *o, uint16_t data);
 void o_unload_lava(void);

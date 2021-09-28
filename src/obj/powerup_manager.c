@@ -26,7 +26,6 @@ static fix16_t kgravity;
 static fix16_t kspawn_dy;
 static fix16_t kbounce_dy;
 static fix16_t kceiling_dy;
-// TODO: Anim speeds
 
 static uint16_t s_vram_pos;
 
@@ -39,7 +38,7 @@ static void set_constants(void)
 	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-1.666667));
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(4.16666666667));
-	kanim_speed = PALSCALE_DURATION(6);
+	kanim_speed = PALSCALE_DURATION(4);
 
 	s_constants_set = 1;
 }
@@ -48,7 +47,7 @@ static void vram_load(void)
 {
 	if (s_vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_EX_POWERUPS);
+	const Gfx *g = gfx_get(GFX_POWERUP_MANAGER);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
@@ -77,14 +76,21 @@ static inline void powerup_render(Powerup *p)
 
 	if (p->type < POWERUP_TYPE_HP)
 	{
-		tile_offset = 24 + (8 * p->type);
-		pal = LYLE_PAL_LINE;
+		tile_offset = 24 + (4 * p->type);
+		pal = ENEMY_PAL_LINE;
 		size = SPR_SIZE(2, 2);
 		tx -= 8;
 		ty -= 16;
-		if (p->anim_frame == 0) ty -= 1;
-		else if (p->anim_frame == 2) ty += 1;
-		tile_offset += (p->anim_frame % 2) ? 4 : 0;
+		if ((p->anim_frame / 2) == 0) ty -= 1;
+		else if ((p->anim_frame / 2) == 2) ty += 1;
+		if (p->anim_frame % 2)
+		{
+			pal_upload(ENEMY_CRAM_POSITION, res_pal_items1_bin, sizeof(res_pal_items1_bin) / 2);
+		}
+		else
+		{
+			pal_upload(ENEMY_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
+		}
 	}
 	else if (p->type == POWERUP_TYPE_HP)
 	{
@@ -94,7 +100,7 @@ static inline void powerup_render(Powerup *p)
 		pal = BG_PAL_LINE;
 		tx -= 4;
 		ty -= 8;
-		tile_offset += (p->anim_frame % 2) ? 1 : 0;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_HP_2X)
 	{
@@ -104,6 +110,7 @@ static inline void powerup_render(Powerup *p)
 		pal = BG_PAL_LINE;
 		tx -= 4;
 		ty -= 8;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
 		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP)
@@ -113,6 +120,7 @@ static inline void powerup_render(Powerup *p)
 		size = SPR_SIZE(1, 1);
 		tx -= 4;
 		ty -= 8;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
 		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP_2X)
@@ -122,6 +130,7 @@ static inline void powerup_render(Powerup *p)
 		size = SPR_SIZE(1, 1);
 		tx -= 4;
 		ty -= 8;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
 		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_HP_ORB)
@@ -131,7 +140,7 @@ static inline void powerup_render(Powerup *p)
 		size = SPR_SIZE(2, 2);
 		tx -= 7;
 		ty -= 14;
-		tile_offset += (p->anim_frame % 2) ? 4 : 0;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 4 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP_ORB)
 	{
@@ -140,7 +149,7 @@ static inline void powerup_render(Powerup *p)
 		size = SPR_SIZE(2, 2);
 		tx -= 7;
 		ty -= 14;
-		tile_offset += (p->anim_frame % 2) ? 4 : 0;
+		tile_offset += ((p->anim_frame / 2) % 2) ? 4 : 0;
 	}
 	else
 	{
@@ -179,17 +188,25 @@ static inline void powerup_get(Powerup *p)
 		default:
 			break;
 		case POWERUP_TYPE_HP_2X:
+			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			                       PARTICLE_TYPE_SPARKLE);
 			lh->hp += 1;
 			// Fall-through intended.
 		case POWERUP_TYPE_HP:
+			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			                       PARTICLE_TYPE_SPARKLE);
 			sfx_play(SFX_POWERUP_GET, 10);
 			lh->hp += 1;
 			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
 			break;
 		case POWERUP_TYPE_CP_2X:
+			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			                       PARTICLE_TYPE_SPARKLE);
 			l->cp += 4;
 			// Fall-through intended.
 		case POWERUP_TYPE_CP:
+			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			                       PARTICLE_TYPE_SPARKLE);
 			sfx_play(SFX_POWERUP_GET, 10);
 			l->cp += 4;
 			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
@@ -209,7 +226,6 @@ static inline void powerup_get(Powerup *p)
 			break;
 		case POWERUP_TYPE_MAP:
 			prog->abilities |= ABILITY_MAP;
-			prog->touched_first_cube = 1;
 			pause_set_screen(PAUSE_SCREEN_GET_MAP);
 			break;
 		case POWERUP_TYPE_LIFT:
@@ -291,7 +307,7 @@ static inline void powerup_run(Powerup *p)
 	{
 		p->anim_cnt = 0;
 		p->anim_frame++;
-		if (p->anim_frame >= 4) p->anim_frame = 0;
+		if (p->anim_frame >= 8) p->anim_frame = 0;
 	}
 }
 

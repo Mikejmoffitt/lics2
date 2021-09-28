@@ -131,6 +131,15 @@ static inline void obj_render_setup(Obj *o, int16_t *sp_x, int16_t *sp_y,
 	}
 }
 
+// Same as above, but for objects which do not need hurt stun.
+static inline void obj_render_setup_simple(Obj *o, int16_t *sp_x, int16_t *sp_y,
+                                           int16_t x_offset, int16_t y_offset,
+                                           int16_t x_scroll, int16_t y_scroll)
+{
+	*sp_x = FIX32TOINT(o->x) + x_offset - x_scroll;
+	*sp_y = FIX32TOINT(o->y) + y_offset - y_scroll;
+}
+
 
 static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
 {

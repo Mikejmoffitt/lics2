@@ -53,8 +53,8 @@ static inline void render(O_Teleporter *t)
 	Obj *o = &t->head;
 	int16_t sp_x, sp_y;
 
-	obj_render_setup(o, &sp_x, &sp_y, -16, 15,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, -16, 15,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	// The "L" insignias flashing, if applicable.
 	if (!((t->disabled || t->anim_frame >= 2)))
 	{

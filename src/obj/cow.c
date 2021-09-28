@@ -231,6 +231,9 @@ static void main_func(Obj *o)
 	obj_standard_physics(o);
 
 	render(e);
+
+	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_cow_bin,
+	           sizeof(res_pal_enemy_cow_bin) / 2);
 }
 
 void o_load_cow(Obj *o, uint16_t data)
@@ -250,10 +253,6 @@ void o_load_cow(Obj *o, uint16_t data)
 
 	O_Cow *e = (O_Cow *)o;
 	e->max_y = o->y;
-
-	// Upload the alternate Cow enemy palette to the enemy pal line.
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_cow_bin,
-	           sizeof(res_pal_enemy_cow_bin) / 2);
 }
 
 void o_unload_cow(void)

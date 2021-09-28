@@ -53,8 +53,8 @@ static void render(O_Laser *e)
 		offset = 4 + (4 * (e->anim_frame / 2));
 	}
 
-	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
-	                 map_get_x_scroll(), map_get_y_scroll());
+	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
+	                        map_get_x_scroll(), map_get_y_scroll());
 	for (int16_t i = 0 ; i < e->height; i++)
 	{
 		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset, e->anim_frame % 2, 0,

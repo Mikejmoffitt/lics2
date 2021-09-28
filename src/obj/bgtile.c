@@ -17,7 +17,7 @@ static void main_func(Obj *o)
 	const int16_t sp_x = FIX32TOINT(o->x) - map_get_x_scroll();
 	const int16_t sp_y = FIX32TOINT(o->y) - map_get_y_scroll();
 
-	uint16_t attr = SPR_ATTR(e->base_tile_id, 0, 0, e->pal, 0);
+	const uint16_t attr = SPR_ATTR(e->base_tile_id, 0, 0, e->pal, 0);
 
 	spr_put(sp_x, sp_y, attr, SPR_SIZE(2, 1));
 	spr_put(sp_x, sp_y + 8, attr + 0x10, SPR_SIZE(2, 1));
