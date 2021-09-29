@@ -10,6 +10,7 @@
 #include "obj/map.h"
 #include "game.h"
 #include "sfx.h"
+#include "obj/lyle.h"
 
 #include "md/megadrive.h"
 
@@ -486,6 +487,20 @@ static void cube_on_cube_collisions(Cube *c)
 
 void cube_run(Cube *c)
 {
+	if (c->type == CUBE_TYPE_ORANGE && c->status == CUBE_STATUS_IDLE && !c->lyle_spawn_check)
+	{
+		static const fix32_t margin = INTTOFIX32(64);
+		const O_Lyle *l = lyle_get();
+		if (!(c->x + margin < l->head.x ||
+		      c->x - margin > l->head.x ||
+		      c->y + margin < l->head.y ||
+		      c->y - margin > l->head.y))
+		{
+			c->status = CUBE_STATUS_NULL;
+			return;
+		}
+		c->lyle_spawn_check = 1;
+	}
 	if (c->status == CUBE_STATUS_AIR || c->status == CUBE_STATUS_KICKED)
 	{
 		system_profile(PALRGB(6, 6, 7));
@@ -504,6 +519,7 @@ void cube_run(Cube *c)
 			cube_on_cube_collisions(c);
 		}
 	}
+	
 	system_profile(PALRGB(0, 1, 0));
 
 	// Check if the cube is off-screen, and skip some things if so.
@@ -549,7 +565,11 @@ void cube_run(Cube *c)
 			c->fizzle_count--;
 			cube_scan_objects(c);
 		}
-		if (c->fizzle_count <= 0) c->status = CUBE_STATUS_NULL;
+		if (c->fizzle_count <= 0)
+		{
+			c->status = CUBE_STATUS_NULL;
+			return;
+		}
 	}
 
 	// Spawn particles.

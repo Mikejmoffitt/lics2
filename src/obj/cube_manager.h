@@ -83,6 +83,7 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 		c->dx = dx;
 		c->dy = dy;
 		c->spawned_cube = NULL;
+		c->lyle_spawn_check = 0;
 		if (c->type == CUBE_TYPE_ORANGE)
 		{
 			c->left = INTTOFIX16(-15);

@@ -125,6 +125,7 @@ static const MapAssets map_by_id[] =
 	[53] = MAP_ASSETS(53_purplecity),
 	[54] = MAP_ASSETS(54_gauntlet),
 	[55] = MAP_ASSETS(55_finaltele),
+	[56] = MAP_ASSETS(56_boss2),
 };
 
 static inline int16_t draw_vertical(O_Map *m)
