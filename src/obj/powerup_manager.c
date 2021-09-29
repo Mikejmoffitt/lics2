@@ -37,7 +37,7 @@ static void set_constants(void)
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
 	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-1.666667));
-	kceiling_dy = INTTOFIX16(PALSCALE_1ST(4.16666666667));
+	kceiling_dy = INTTOFIX16(PALSCALE_1ST(0.833333333));
 	kanim_speed = PALSCALE_DURATION(4);
 
 	s_constants_set = 1;
@@ -174,7 +174,7 @@ static inline void newtonian_physics(Powerup *p)
 	const int16_t py = FIX32TOINT(p->y);
 
 	if (p->dy > 0 && map_collision(px, py + 1)) powerup_bounce(p);
-	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = kceiling_dy;;
+	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = kceiling_dy;
 }
 
 static inline void powerup_get(Powerup *p)

@@ -50,6 +50,7 @@ static const Gfx gfx[] =
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 	[GFX_RADIO] = GFX(obj_48_radio),
 	[GFX_CHIMNEY] = GFX(obj_49_chimney),
+	[GFX_CORK] = GFX(obj_50_cork),
 
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),
