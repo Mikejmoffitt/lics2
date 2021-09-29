@@ -54,7 +54,7 @@ static inline void render(O_Gaxter1 *f)
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
-	                    LYLE_PAL_LINE, 1), SPR_SIZE(2, 2));
+	                    ENEMY_PAL_LINE, 1), SPR_SIZE(2, 2));
 }
 
 static void main_func(Obj *o)

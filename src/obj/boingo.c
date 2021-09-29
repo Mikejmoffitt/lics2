@@ -305,6 +305,10 @@ void o_load_boingo(Obj *o, uint16_t data)
 		o->cube_func = cube_func;
 		o->hp = 3;
 	}
+	else if (b->boingo_type == BOINGO_TYPE_ANGRY)
+	{
+		o->hp = 3;
+	}
 
 	if (!(progress_get()->abilities & ABILITY_LIFT))
 	{

@@ -11,8 +11,8 @@
 // out.
 #define PROGRESS_SRAM_POS 0x0002
 
-#define PROGRESS_MAGIC_0 0xDAD68000
-#define PROGRESS_MAGIC_1 0xA55A6502
+#define PROGRESS_MAGIC_0 0x00068000
+#define PROGRESS_MAGIC_1 0x21512612
 
 
 static ProgressSlot s_progress_slots[1];

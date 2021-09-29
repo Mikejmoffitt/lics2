@@ -124,6 +124,7 @@ static void render(O_Cow *e)
 static void cube_func(Obj *o, Cube *c)
 {
 	O_Cow *e = (O_Cow *)o;
+	if (o->hurt_stun > 0) return;
 	e->hit_cnt++;
 	obj_standard_cube_response(o, c);
 	o->hp = 127;
