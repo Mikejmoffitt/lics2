@@ -59,7 +59,7 @@ static inline void set_constants(void)
 	const fix16_t kdy_spread = INTTOFIX16(PALSCALE_1ST(-1.66667 / ARRAYSIZE(kjump_dy_table)));
 	for (uint16_t i = 0; i < ARRAYSIZE(kjump_dy_table); i++)
 	{
-		kjump_dy_table[i] = kdy_base - (i * kdy_spread);
+		kjump_dy_table[i] = kdy_base + (i * kdy_spread);
 	}
 
 	s_constants_set = 1;
