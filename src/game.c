@@ -95,9 +95,7 @@ static void run_frame(void)
 			vdp_set_window_top(pause_want_window() ? 31 : 0);
 			music_handle_pending();
 			obj_exec();
-			// TODO: used to have progress save here on frame 0. Why?
 
-			// TODO: Remove BTN_A debug hack.
 			const int16_t debug_room_id = pause_get_debug_room_id();
 			if (map_get_exit_trigger() || debug_room_id >= 0)
 			{

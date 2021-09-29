@@ -11,7 +11,7 @@ void persistent_state_init(void)
 	{
 		raw[i] = 0;
 	}
-	s_persistent_state.lyle_hp = progress_get()->hp_capacity;
+	s_persistent_state.lyle_hp = 5;
 }
 
 PersistentState *persistent_state_get(void)

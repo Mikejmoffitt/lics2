@@ -236,7 +236,7 @@ static inline void projectile_run(Projectile *p)
 	      (p->y < lh->y + lh->top) ||
 	      (p->y - (2 * PROJECTILE_MARGIN) > lh->y)))
 	{
-		lyle_get_hurt();
+		lyle_get_hurt(0);
 		p->type = PROJECTILE_TYPE_NULL;
 		return;
 	}

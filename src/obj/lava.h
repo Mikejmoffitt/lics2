@@ -19,6 +19,7 @@ struct O_Lava
 	fix32_t max_y;
 	int16_t generator_cnt;
 
+	int16_t is_generator;
 };
 
 void o_load_lava(Obj *o, uint16_t data);

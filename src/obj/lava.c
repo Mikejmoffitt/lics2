@@ -187,7 +187,7 @@ void o_load_lava(Obj *o, uint16_t data)
 
 	const fix16_t height = INTTOFIX16(((data & 0x8000) ? -16 : -32));
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL,
+	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_HARMFUL,
 	               INTTOFIX16(-8), INTTOFIX16(8), height, 127);
 	o->cube_func = NULL;
 	e->render_func = render;
@@ -215,6 +215,8 @@ void o_load_lava(Obj *o, uint16_t data)
 
 		// If ground wasn't found within accepted bounds, cancel spawn.
 		if (e->max_y == o->y) o->status = OBJ_STATUS_NULL;
+
+		e->is_generator = 1;
 	}
 	else
 	{

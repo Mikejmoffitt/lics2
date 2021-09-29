@@ -73,7 +73,7 @@ static inline int16_t lyle_touching_obj(Obj *o)
 }
 
 void lyle_get_bounced(void);
-void lyle_get_hurt(void);
+void lyle_get_hurt(int16_t bypass_invuln);
 
 fix32_t lyle_get_x(void);
 fix32_t lyle_get_y(void);

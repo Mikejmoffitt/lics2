@@ -12,6 +12,8 @@
 #include "obj/projectile_manager.h"
 #include "res.h"
 #include "sfx.h"
+#include "progress.h"
+#include "obj/lava.h"
 
 static const int16_t kAngryHits = 10;
 
@@ -228,6 +230,25 @@ static void main_func(Obj *o)
 	}
 	else e->state_elapsed++;
 
+	// Destroy lava spawners if relevant orb has been collected
+	const ProgressSlot *prog = progress_get();
+	if (((e->orb_id & 0xFFF0) == 0x840 &&
+	     (prog->cp_orbs & (1 << (e->orb_id & 0xF)))) ||
+	    ((e->orb_id & 0xFF00) == 0x880 &&
+	     (prog->hp_orbs & (1 << (e->orb_id & 0xF)))))
+	{
+		ObjSlot *s = &g_objects[0];
+		while (s < &g_objects[OBJ_COUNT_MAX])
+		{
+			Obj *o = (Obj *)s;
+			s++;
+			if (o->status != OBJ_STATUS_ACTIVE) continue;
+			if (o->type != OBJ_LAVA) continue;
+			O_Lava *l = (O_Lava *)o;
+			if (l->is_generator) o->status = OBJ_STATUS_NULL;
+		}
+	}
+
 	obj_standard_physics(o);
 
 	render(e);
@@ -239,13 +260,12 @@ static void main_func(Obj *o)
 void o_load_cow(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Cow) <= sizeof(ObjSlot));
-	(void)data;
 	set_constants();
 	vram_load();
 
 	obj_basic_init(o, OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-20), INTTOFIX16(20), INTTOFIX16(-24), 127);
-	o->top = INTTOFIX16(-20);
+	o->top = INTTOFIX16(-16);
 	o->left = INTTOFIX16(-14);
 	o->right = INTTOFIX16(14);
 	o->main_func = main_func;
@@ -253,6 +273,7 @@ void o_load_cow(Obj *o, uint16_t data)
 
 	O_Cow *e = (O_Cow *)o;
 	e->max_y = o->y;
+	e->orb_id = data;
 }
 
 void o_unload_cow(void)

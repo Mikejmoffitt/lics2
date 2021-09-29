@@ -111,7 +111,6 @@ static inline void powerup_render(Powerup *p)
 		tx -= 4;
 		ty -= 8;
 		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
-		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP)
 	{
@@ -121,7 +120,6 @@ static inline void powerup_render(Powerup *p)
 		tx -= 4;
 		ty -= 8;
 		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
-		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP_2X)
 	{
@@ -131,7 +129,6 @@ static inline void powerup_render(Powerup *p)
 		tx -= 4;
 		ty -= 8;
 		tile_offset += ((p->anim_frame / 2) % 2) ? 1 : 0;
-		tile_offset += (p->anim_frame % 2) ? 1 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_HP_ORB)
 	{

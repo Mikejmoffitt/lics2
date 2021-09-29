@@ -27,6 +27,8 @@ typedef struct O_Cow
 
 	int16_t hit_cnt;
 
+	int16_t orb_id;
+
 	fix32_t max_x;  // Determined by scanning for Boundary object.
 	fix32_t max_y;
 } O_Cow;

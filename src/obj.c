@@ -322,7 +322,7 @@ static inline void obj_check_player(Obj *o)
 
 	if (o->flags & OBJ_FLAG_HARMFUL)
 	{
-		lyle_get_hurt();
+		lyle_get_hurt((o->flags & OBJ_FLAG_ALWAYS_HARMFUL) ? 1 : 0);
 	}
 	if (o->flags & OBJ_FLAG_DEADLY)
 	{
