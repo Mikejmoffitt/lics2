@@ -84,7 +84,7 @@ static void main_func(Obj *o)
 
 		O_Chimney *e = (O_Chimney *)o;
 		Cube *c = cube_manager_spawn(o->x, o->y, e->data, CUBE_STATUS_IDLE, 0, 0);
-		cube_destroy(c);
+		if (c) cube_destroy(c);
 	}
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 7, kanim_speed);

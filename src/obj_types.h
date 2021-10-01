@@ -54,9 +54,10 @@ typedef enum ObjType
 	OBJ_FAKECUBE      = 47,  // Used above the boss arena.
 	OBJ_RADIO         = 48,  // Releases an item (HP orb 4 in the original).
 	OBJ_CHIMNEY       = 49,  // Releases an item when struck.
-	OBJ_CORK          = 50,  // Releases an item when struck (HP orb 8 in the original).
+	OBJ_CORK          = 50,  // Releases an item when struck.
 	OBJ_BROKEN_EGG    = 51,  // The results of OBJ_EGG falling.
 	OBJ_CHICK         = 52,  // Hatched out of OBJ_BROKEN_EGG.
+	OBJ_LAVAKILL      = 53,  // Kills Lyle if he goes below and to the right.
 
 	OBJ_TECHNOBG     = 119,  // Causes a tile DMA for the technozone FG.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.

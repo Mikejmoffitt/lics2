@@ -65,7 +65,7 @@ static void main_func(Obj *o)
 		o->status = OBJ_STATUS_NULL;
 
 		Cube *c = cube_manager_spawn(o->x, o->y, e->storage, CUBE_STATUS_IDLE, 0, 0);
-		cube_destroy(c);
+		if (c) cube_destroy(c);
 	}
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);

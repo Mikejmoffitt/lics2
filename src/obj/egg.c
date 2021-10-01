@@ -34,6 +34,17 @@ static inline void set_constants(void)
 static void render(O_Egg *e)
 {
 	Obj *o = &e->head;
+
+	const int16_t obj_x = FIX32TOINT(o->x);
+	const int16_t obj_y = FIX32TOINT(o->y);
+	const int16_t cam_left = map_get_x_scroll();
+	const int16_t cam_top = map_get_y_scroll();
+	const int16_t cam_right = map_get_x_scroll() + GAME_SCREEN_W_PIXELS;
+	const int16_t cam_bottom = map_get_y_scroll() + GAME_SCREEN_H_PIXELS;
+	if (obj_x < cam_left - 64) return;
+	if (obj_y < cam_top - 64) return;
+	if (obj_x > cam_right + 64) return;
+	if (obj_y > cam_bottom + 64) return;
 	int16_t sp_x, sp_y;
 	static const int16_t offset_x = -12;
 	static const int16_t offset_y = -32;

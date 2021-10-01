@@ -11,6 +11,8 @@
 
 #include "obj/map.h"
 
+#include "progress.h"
+
 #define CUBE_COUNT_MAX 32
 
 typedef struct O_CubeManager
@@ -71,6 +73,24 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
                                        CubeStatus status, fix16_t dx, fix16_t dy)
 {
+	const ProgressSlot *prog = progress_get();
+	if ((type & 0xFFF0) == 0x0840)  // CP orb
+	{
+		const int16_t orb_id = type & 0x000F;
+		if (prog->cp_orbs & (1 << orb_id))
+		{
+			return NULL;
+		}
+	}
+	else if ((type & 0xFFF0) == 0x0880)  // HP orb
+	{
+		const int16_t orb_id = type & 0x000F;
+		if (prog->hp_orbs & (1 << orb_id))
+		{
+			return NULL;
+		}
+	}
+
 	uint16_t i = ARRAYSIZE(g_cubes);
 	while (i--)
 	{

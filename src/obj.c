@@ -56,6 +56,7 @@
 #include "obj/cork.h"
 #include "obj/broken_egg.h"
 #include "obj/chick.h"
+#include "obj/lavakill.h"
 
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
@@ -236,6 +237,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_CORK] = {o_load_cork, o_unload_cork},
 	[OBJ_BROKEN_EGG] = {o_load_broken_egg, o_unload_broken_egg},
 	[OBJ_CHICK] = {o_load_chick, o_unload_chick},
+	[OBJ_LAVAKILL] = {o_load_lavakill, NULL},
 
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},

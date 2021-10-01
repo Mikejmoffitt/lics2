@@ -33,7 +33,7 @@ static inline void set_constants(void)
 	if (s_constants_set) return;
 
 	kmove_dy = INTTOFIX16(PALSCALE_1ST(1.666666667));
-	kanim_speed = PALSCALE_DURATION(12);
+	kanim_speed = PALSCALE_DURATION(8);
 	kcollision_delay_frames = PALSCALE_DURATION(60);
 
 	s_constants_set = 1;
