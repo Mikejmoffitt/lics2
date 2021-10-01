@@ -6,6 +6,7 @@
 #include "system.h"
 #include "util/fixed.h"
 #include "obj_types.h"
+#include "game.h"
 
 #include "cube.h"
 
@@ -25,7 +26,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 88
+#define OBJ_COUNT_MAX 68
 #define OBJ_BYTES 80
 
 #define OBJ_ACTIVE_DISTANCE 32
@@ -127,8 +128,16 @@ static inline void obj_render_setup(Obj *o, int16_t *sp_x, int16_t *sp_y,
 	*sp_y = FIX32TOINT(o->y) + y_offset - y_scroll;
 	if (o->hurt_stun > 0)
 	{
-		*sp_x += (system_rand() % 8) - 3;
-		*sp_y += (system_rand() % 8) - 3;
+		if (o->hurt_stun % 2 == 0)
+		{
+			*sp_x = GAME_SCREEN_W_PIXELS + 64;
+			*sp_y = GAME_SCREEN_H_PIXELS + 64;
+		}
+		else
+		{
+			*sp_x += (system_rand() % 8) - 3;
+			*sp_y += (system_rand() % 8) - 3;
+		}
 	}
 }
 

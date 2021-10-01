@@ -6,6 +6,9 @@
 typedef struct O_TechnoBg
 {
 	Obj head;
+	const uint8_t *source;  // Pointer to tile data.
+	uint16_t last_index;
+
 } O_TechnoBg;
 
 void o_load_technobg(Obj *o, uint16_t data);

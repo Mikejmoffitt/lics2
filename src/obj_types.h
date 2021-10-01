@@ -29,11 +29,11 @@ typedef enum ObjType
 	OBJ_MAGIBEAR      = 22,  // Belches sinusoidal attack patterns.
 	OBJ_LAVA          = 23,  // A column of lava spewing from a pipe.
 	OBJ_COW           = 24,  // A cow that jumps up when hit with a cube.
-	OBJ_CONTAINER     = 25,  // TODO
+	OBJ_CONTAINER     = 25,  //
 	OBJ_HOOP          = 26,  // A hoop, through which a ball may drop.
 	OBJ_FALSEBLOCK    = 27,  // Fizzles out when all hoops are swished.
-	OBJ_CP_GIVER      = 28,  // TODO 
-	OBJ_CP_METER      = 29,  // TODO
+	OBJ_CP_GIVER      = 28,  // Long arm that absorbs cube power orbs.
+	OBJ_CP_METER      = 29,  // Meter that shows Lyle's cube power count.
 	OBJ_DOG           = 30,  // TODO Blue dog that consumes small eggs.
 	OBJ_ELEVATOR      = 31,  // Like it sounds. Goes up and down.
 	OBJ_ELEVATOR_STOP = 32,  // Marks where an elevator should stop.
@@ -45,16 +45,18 @@ typedef enum ObjType
 	OBJ_EGG           = 38,  // Large teal egg that falls when struck.
 	OBJ_FISSINS2      = 39,  // Jumps horizontally in and out of sand.
 	OBJ_BOUNDS        = 40,  // Enemy path marker.
-	OBJ_SMALLEGG      = 41,  // TODO Drops from pipe, can be bounced to dog.
+	OBJ_SMALL_EGG     = 41,  // Drops from pipe, can be bounced to dog.
 	OBJ_BASKETBALL    = 42,  // Orange bouncing ball. Swishes hoops.
 	OBJ_LAVAANIM      = 43,  // Causes a tile DMA to occur to animate lava.
 	OBJ_SPOOKO        = 44,  // TODO Just a little skull sprite.
-	OBJ_WIP           = 45,  // TODO Just shows a "Work in Progress!" sign.
+	OBJ_WIP           = 45,  // TODO Shows a "Work in Progress!" sign.
 	OBJ_BGSCROLLY     = 46,  // Forces the camera Y scroll position.
 	OBJ_FAKECUBE      = 47,  // Used above the boss arena.
 	OBJ_RADIO         = 48,  // Releases an item (HP orb 4 in the original).
 	OBJ_CHIMNEY       = 49,  // Releases an item when struck.
 	OBJ_CORK          = 50,  // Releases an item when struck (HP orb 8 in the original).
+	OBJ_BROKEN_EGG    = 51,  // The results of OBJ_EGG falling.
+	OBJ_CHICK         = 52,  // Hatched out of OBJ_BROKEN_EGG.
 
 	OBJ_TECHNOBG     = 119,  // Causes a tile DMA for the technozone FG.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.

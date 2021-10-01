@@ -894,7 +894,21 @@ static const SfxSample sfx_moo_2[] =
 	SFX_P(base - (mag * 31), 0), \
 	SFX_P(base - (mag * 32), 0), \
 	SFX_P(base - (mag * 33), 0), \
-	SFX_P(base - (mag * 34), 0),
+	SFX_P(base - (mag * 34), 0), \
+	SFX_P(base - (mag * 21), 9), \
+	SFX_P(base - (mag * 22), 7), \
+	SFX_P(base - (mag * 23), 9), \
+	SFX_P(base - (mag * 24), 7), \
+	SFX_P(base - (mag * 25), 8), \
+	SFX_P(base - (mag * 26), 7), \
+	SFX_P(base - (mag * 27), 8), \
+	SFX_P(base - (mag * 28), 7), \
+	SFX_P(base - (mag * 29), 7), \
+	SFX_P(base - (mag * 30), 7), \
+	SFX_P(base - (mag * 31), 7), \
+	SFX_P(base - (mag * 32), 7), \
+	SFX_P(base - (mag * 33), 7), \
+	SFX_P(base - (mag * 34), 7),
 
 #define SWEEPMAG 20
 static const SfxSample sfx_giver_1[] =
@@ -905,13 +919,19 @@ static const SfxSample sfx_giver_1[] =
 
 static const SfxSample sfx_giver_2[] =
 {
-	GIVER_GEN(900, 19)
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	GIVER_GEN(780, 18)
 	SFX_END()
 };
 
 static const SfxSample sfx_giver_3[] =
 {
-	GIVER_GEN(780, 18)
+	SFX_P(0, 15),
+	SFX_P(0, 15),
+	GIVER_GEN(500, 10)
 	SFX_END()
 };
 

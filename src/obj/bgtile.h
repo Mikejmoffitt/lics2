@@ -7,8 +7,9 @@ typedef struct O_BgTile
 {
 	Obj head;
 
-	uint8_t base_tile_id;
-	uint8_t pal;
+	uint16_t attr;
+	int16_t px;
+	int16_t py;
 } O_BgTile;
 
 void o_load_bgtile(Obj *o, uint16_t data);

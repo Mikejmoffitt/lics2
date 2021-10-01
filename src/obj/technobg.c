@@ -82,13 +82,14 @@ static const int source_data_offset_tbl[] =
 // The horizontal scroller transfers an 8 x 5 region of tiles into FG memory.
 static void hori_func(Obj *o)
 {
-	(void)o;
-	const Gfx *g = gfx_get(GFX_EX_TECHNOBGH);
+	O_TechnoBg *e = (O_TechnoBg *)o;
 
 	uint16_t x_index = 63 - (((map_get_x_scroll() + 1) / 2) % 64);
+	if (x_index == e->last_index) return;
+	e->last_index = x_index;
 
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x08;
-	const uint8_t *source = g->data + source_data_offset_tbl[x_index];
+	const uint8_t *source = e->source + source_data_offset_tbl[x_index];
 	const int16_t data_size = (8 * 32);
 	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
@@ -108,13 +109,13 @@ static void hori_func(Obj *o)
 // The vertical scroller transfers a 6 x 8 region of tiles into FG memory.
 static void vert_func(Obj *o)
 {
-	(void)o;
-	const Gfx *g = gfx_get(GFX_EX_TECHNOBGV);
-
+	O_TechnoBg *e = (O_TechnoBg *)o;
 	uint16_t y_index = 63 - (((map_get_y_scroll() + 1) / 2) % 64);
+	if (y_index == e->last_index) return;
+	e->last_index = y_index;
 
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x0A;
-	const uint8_t *source = g->data + source_data_offset_tbl[y_index];
+	const uint8_t *source = e->source + source_data_offset_tbl[y_index];
 	const int16_t data_size = (6 * 32);
 	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
@@ -138,17 +139,17 @@ static void vert_func(Obj *o)
 	dest_vram += 0x10;
 	source += data_size;
 	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
-	dest_vram += 0x10;
-	source += data_size;
 }
 
 void o_load_technobg(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_TechnoBg) <= sizeof(ObjSlot));
-	(void)data;
 
 	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = data ? vert_func : hori_func;
 	o->cube_func = NULL;
+
+	O_TechnoBg *e = (O_TechnoBg *)o;
+	e->source = data ? gfx_get(GFX_EX_TECHNOBGV)->data : gfx_get(GFX_EX_TECHNOBGH)->data;
 }

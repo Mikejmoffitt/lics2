@@ -160,11 +160,13 @@ static inline void powerup_render(Powerup *p)
 
 void powerup_bounce(Powerup *p)
 {
+	p->dx = 0;
 	p->dy = (p->dy / 2) + kbounce_dy;
 }
 
 static inline void newtonian_physics(Powerup *p)
 {
+	p->x += p->dx;
 	p->y += p->dy;
 	p->dy += kgravity;
 	const int16_t px = FIX32TOINT(p->x);
@@ -410,6 +412,7 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
 		p->type = type;
 		p->x = x;
 		p->y = y;
+		p->dx = 0;
 		p->dy = kspawn_dy;
 		
 		return p;

@@ -11,6 +11,7 @@
 #include "obj/lyle.h"
 #include "obj/pause.h"
 #include "sfx.h"
+#include "obj/cube_manager.h"
 
 static uint16_t s_vram_pos;
 
@@ -149,6 +150,18 @@ static void main_func(Obj *o)
 				l->head.dy = 0;
 				lyle_set_control_en(0);
 				l->anim_frame = 0;
+				if (l->holding_cube != CUBE_TYPE_NULL)
+				{
+					// Destroy the cube that Lyle is holding.
+					Cube *c = cube_manager_spawn(l->head.x, l->head.y - INTTOFIX32(32),
+					                             l->holding_cube, CUBE_STATUS_AIR,
+					                             0, 0);
+					if (c->type != CUBE_TYPE_GREEN)
+					{
+						cube_destroy(c);
+					}
+					l->holding_cube = CUBE_TYPE_NULL;
+				}
 			}
 			break;
 
@@ -169,9 +182,9 @@ static void main_func(Obj *o)
 		case CP_GIVER_STATE_TAKING:
 			if (e->state_elapsed == 0)
 			{
-				sfx_play(SFX_GIVER_1, 0);
-				sfx_play(SFX_GIVER_2, 1);
-				sfx_play(SFX_GIVER_3, 1);
+				sfx_play(SFX_GIVER_1, 5);
+				sfx_play(SFX_GIVER_2, 6);
+				sfx_play(SFX_GIVER_3, 7);
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 			e->metaframe = 1 + e->anim_frame;
@@ -183,9 +196,9 @@ static void main_func(Obj *o)
 				e->orb_flicker_cnt = 0;
 				e->orb_anim_cnt = 0;
 				e->orb_anim_frame = 0;
-				sfx_play(SFX_GIVER_1, 0);
-				sfx_play(SFX_GIVER_2, 1);
-				sfx_play(SFX_GIVER_3, 2);
+				sfx_play(SFX_GIVER_1, 1);
+				sfx_play(SFX_GIVER_2, 2);
+				sfx_play(SFX_GIVER_3, 3);
 			}
 			else if (e->state_elapsed > ktake_orb_rise_time)
 			{

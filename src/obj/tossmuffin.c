@@ -10,6 +10,7 @@
 #include "common.h"
 #include "obj/lyle.h"
 #include "obj/cube_manager.h"
+#include "sfx.h"
 
 static uint16_t s_vram_pos;
 
@@ -96,6 +97,7 @@ static inline void toss_cube(O_Tossmuffin *e)
 		           ktoss_cube_dx : -ktoss_cube_dx;
 		cube->dy = ktoss_cube_dy;
 		cube->status = CUBE_STATUS_AIR;
+		sfx_play(SFX_CUBE_TOSS, 5);
 	}
 
 	e->holding_cube = NULL;
@@ -103,6 +105,7 @@ static inline void toss_cube(O_Tossmuffin *e)
 
 static inline void scan_cubes(O_Tossmuffin *e)
 {
+	if (e->head.hp == 0) return;
 	for (uint16_t i = 0; i < ARRAYSIZE(g_cubes); i++)
 	{
 		Cube *c = &g_cubes[i];
@@ -117,6 +120,7 @@ static inline void scan_cubes(O_Tossmuffin *e)
 			obj_face_towards_obj(&e->head, &lyle_get()->head);
 			e->holding_cube = c;
 			e->lift_cnt = klift_len;
+			sfx_play(SFX_CUBE_LIFT, 10);
 			break;
 		}
 	}
@@ -171,7 +175,7 @@ static void main_func(Obj *o)
 		else if (e->head.direction == OBJ_DIRECTION_LEFT &&
 		    map_collision(left - 1, bottom - 4))
 		{
-			e->head.direction = OBJ_DIRECTION_LEFT;
+			e->head.direction = OBJ_DIRECTION_RIGHT;
 			e->head.x += INTTOFIX32(1);
 		}
 		scan_cubes(e);

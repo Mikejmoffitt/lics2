@@ -56,9 +56,9 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 			        SPR_SIZE(2, 2));
 			break;
 		case CUBE_TYPE_ORANGE:
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 1),
 			        SPR_SIZE(4, 4));
-			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 0),
+			spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 1),
 			        SPR_SIZE(4, 4));
 			break;
 		case CUBE_TYPE_SPAWNER:

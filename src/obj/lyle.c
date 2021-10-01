@@ -200,7 +200,10 @@ static inline void teleport_seq(O_Lyle *l)
 			Cube *c = cube_manager_spawn(l->head.x, l->head.y - INTTOFIX32(32),
 			                             l->holding_cube, CUBE_STATUS_AIR,
 			                             0, 0);
-			cube_destroy(c);
+			if (c->type != CUBE_TYPE_GREEN)
+			{
+				cube_destroy(c);
+			}
 			l->holding_cube = CUBE_TYPE_NULL;
 		}
 		l->tele_out_cnt--;
@@ -1161,8 +1164,8 @@ void lyle_get_hurt(int16_t bypass_invuln)
 {
 	if (!g_lyle) return;
 	if (g_lyle->tele_out_cnt > 0) return;
-	if (!bypass_invuln && g_lyle->invuln_cnt != 0) return;
 	if (g_lyle->hurt_cnt != 0) return;
+	if (g_lyle->invuln_cnt != 0 && !bypass_invuln) return;
 	lyle_get_bounced();
 	g_lyle->hurt_cnt = khurt_time;
 	g_lyle->invuln_cnt = kinvuln_time;

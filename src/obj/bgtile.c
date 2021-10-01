@@ -14,13 +14,11 @@
 static void main_func(Obj *o)
 {
 	O_BgTile *e = (O_BgTile *)o;
-	const int16_t sp_x = FIX32TOINT(o->x) - map_get_x_scroll();
-	const int16_t sp_y = FIX32TOINT(o->y) - map_get_y_scroll();
+	const int16_t sp_x = e->px - map_get_x_scroll();
+	const int16_t sp_y = e->py - map_get_y_scroll();
 
-	const uint16_t attr = SPR_ATTR(e->base_tile_id, 0, 0, e->pal, 0);
-
-	spr_put(sp_x, sp_y, attr, SPR_SIZE(2, 1));
-	spr_put(sp_x, sp_y + 8, attr + 0x10, SPR_SIZE(2, 1));
+	spr_put(sp_x, sp_y, e->attr, SPR_SIZE(2, 1));
+	spr_put(sp_x, sp_y + 8, e->attr + 0x10, SPR_SIZE(2, 1));
 }
 
 void o_load_bgtile(Obj *o, uint16_t data)
@@ -34,7 +32,7 @@ void o_load_bgtile(Obj *o, uint16_t data)
 	o->y -= INTTOFIX32(16);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-
-	e->pal = (data & 0x0300) >> 8;
-	e->base_tile_id = data & 0x00FF;
+	e->attr = SPR_ATTR(data & 0x00FF, 0, 0, (data & 0x0300) >> 8, 0);
+	e->px = FIX32TOINT(o->x);
+	e->py = FIX32TOINT(o->y);
 }

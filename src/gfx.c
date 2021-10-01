@@ -35,24 +35,25 @@ static const Gfx gfx[] =
 	[GFX_COW] = GFX(obj_24_cow),
 
 	[GFX_HOOP] = GFX(obj_26_hoop),
-
 	[GFX_CP_GIVER] = GFX(obj_28_cp_giver),
 	[GFX_CP_METER] = GFX(obj_29_cp_meter),
-
+	[GFX_DOG] = GFX(obj_30_dog),
 	[GFX_ELEVATOR] = GFX(obj_31_elevator),
-
 	[GFX_FISSINS1] = GFX(obj_33_fissins1),
 	[GFX_BOSS1] = GFX(obj_34_boss1),
 
 	[GFX_EGG] = GFX(obj_38_egg),
 
 	[GFX_FISSINS2] = GFX(obj_39_fissins2),
+	[GFX_SMALL_EGG] = GFX(obj_41_small_egg),
 
 	[GFX_BASKETBALL] = GFX(obj_42_basketball),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 	[GFX_RADIO] = GFX(obj_48_radio),
 	[GFX_CHIMNEY] = GFX(obj_49_chimney),
 	[GFX_CORK] = GFX(obj_50_cork),
+	[GFX_BROKEN_EGG] = GFX(obj_51_broken_egg),
+	[GFX_CHICK] = GFX(obj_52_chick),
 
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),

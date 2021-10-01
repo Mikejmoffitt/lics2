@@ -36,7 +36,7 @@
 #include "obj/falseblock.h"
 #include "obj/cp_giver.h"
 #include "obj/cp_meter.h"
-// dog
+#include "obj/dog.h"
 #include "obj/elevator.h"
 #include "obj/elevator_stop.h"
 #include "obj/fissins1.h"
@@ -45,7 +45,7 @@
 #include "obj/egg.h"
 #include "obj/fissins2.h"
 #include "obj/bounds.h"
-// smallegg
+#include "obj/small_egg.h"
 #include "obj/basketball.h"
 #include "obj/lavaanim.h"
 // spooko, wip
@@ -53,6 +53,8 @@
 #include "obj/fakecube.h"
 #include "obj/radio.h"
 #include "obj/cork.h"
+#include "obj/broken_egg.h"
+#include "obj/chick.h"
 
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
@@ -208,30 +210,30 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_LAVA] = {o_load_lava, o_unload_lava},
 	[OBJ_COW] = {o_load_cow, o_unload_cow},
-	
+	// container?
 	[OBJ_HOOP] = {o_load_hoop, o_unload_hoop},
 	[OBJ_FALSEBLOCK] = {o_load_falseblock, o_unload_falseblock},
-	
 	[OBJ_CP_GIVER] = {o_load_cp_giver, o_unload_cp_giver},
 	[OBJ_CP_METER] = {o_load_cp_meter, o_unload_cp_meter},
-
+	[OBJ_DOG] = {o_load_dog, o_unload_dog},
 	[OBJ_ELEVATOR] = {o_load_elevator, o_unload_elevator},
 	[OBJ_ELEVATOR_STOP] = {o_load_elevator_stop, o_unload_elevator_stop},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 	[OBJ_BOSS1] = {o_load_boss1, o_unload_boss1},
-
+	// boss2
 	[OBJ_EGG] = {o_load_egg, o_unload_egg},
-
 	[OBJ_FISSINS2] = {o_load_fissins2, o_unload_fissins2},
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},
-
+	[OBJ_SMALL_EGG] = {o_load_small_egg, o_unload_small_egg},
 	[OBJ_BASKETBALL] = {o_load_basketball, o_unload_basketball},
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
-
+	// spooko, wip
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 	[OBJ_FAKECUBE] = {o_load_fakecube, NULL},
 	[OBJ_RADIO] = {o_load_radio, o_unload_radio},
 	[OBJ_CORK] = {o_load_cork, o_unload_cork},
+	[OBJ_BROKEN_EGG] = {o_load_broken_egg, o_unload_broken_egg},
+	[OBJ_CHICK] = {o_load_chick, o_unload_chick},
 
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},

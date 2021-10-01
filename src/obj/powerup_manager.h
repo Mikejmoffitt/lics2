@@ -36,7 +36,7 @@ typedef struct Powerup
 	int16_t anim_frame;
 	PowerupType type;
 	fix32_t x, y;
-	fix16_t dy;
+	fix16_t dx, dy;
 } Powerup;
 
 typedef struct O_PowerupManager
