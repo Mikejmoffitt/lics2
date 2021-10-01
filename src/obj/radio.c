@@ -44,7 +44,7 @@ static void render(O_Radio *e)
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
-	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
 static void main_func(Obj *o)
@@ -70,7 +70,17 @@ static void main_func(Obj *o)
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
-	// TODO: Palette transfer based on anim frame
+	if (e->anim_frame == 0)
+	{
+		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_radio_1_bin,
+		           sizeof(res_pal_enemy_radio_1_bin) / 2);
+	}
+	else
+	{
+		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_radio_2_bin,
+		           sizeof(res_pal_enemy_radio_2_bin) / 2);
+	}
+
 	render(e);
 }
 
