@@ -124,9 +124,9 @@ static void set_constants(void)
 	kcubejump_anim_len = PALSCALE_DURATION(24);  // was 24 : 20
 	klift_time = PALSCALE_DURATION(18) + 1;  // was 18 : 15
 
-	khurt_time = PALSCALE_DURATION(35);  // was 35 : 29
+	khurt_time = PALSCALE_DURATION(36);
 	khurt_timeout = PALSCALE_DURATION(24);  // was 24 : 20
-	kinvuln_time = PALSCALE_DURATION(95);  // was 95 : 79
+	kinvuln_time = PALSCALE_DURATION(96);
 
 	kcp_restore_period = PALSCALE_DURATION(300);  // was 300 : 250
 	kcp_restore_period_fast = PALSCALE_DURATION(150);  // was 150 : 125
@@ -386,16 +386,17 @@ static inline void lift_cubes(O_Lyle *l)
 		Cube *c = l->on_cube;
 		if (c->type == CUBE_TYPE_ORANGE && !(progress->abilities & ABILITY_ORANGE)) return;
 		l->holding_cube = c->type;
-		c->status = CUBE_STATUS_NULL;
 
 		// Repro of MMF1 version bug where you can jump while lifting.
 		if (buttons & BTN_C)
 		{
 			sfx_play(SFX_JUMP, 17);
-			l->head.dy = kjump_dy;
+			l->head.dy = (c->type == CUBE_TYPE_ORANGE) ? (kjump_dy / 2) : kjump_dy;
 		}
 		l->action_cnt = LYLE_ACTION_LIFT_TIME;
 		sfx_play(SFX_CUBE_LIFT, 10);
+
+		c->status = CUBE_STATUS_NULL;
 	}
 }
 
@@ -415,7 +416,7 @@ static inline void jump(O_Lyle *l)
 	{
 		if (l->grounded || l->on_cube)
 		{
-			l->head.dy = kjump_dy;
+			l->head.dy = (l->holding_cube == CUBE_TYPE_ORANGE) ? (kjump_dy / 2) : kjump_dy;
 			sfx_play(SFX_JUMP, 9);
 		}
 		else if (l->holding_cube && !l->cube_jump_disable_cnt &&
@@ -439,7 +440,7 @@ static inline void jump(O_Lyle *l)
 			l->holding_cube = CUBE_TYPE_NULL;
 
 			sfx_play(SFX_CUBE_TOSS, 5);
-			l->head.dy = kjump_dy;
+			l->head.dy = (l->holding_cube == CUBE_TYPE_ORANGE) ? (kjump_dy / 2) : kjump_dy;
 		}
 	}
 }
@@ -748,7 +749,7 @@ static inline void gravity(O_Lyle *l)
 	if (l->grounded || l->on_cube) return;
 	// TODO: Alternate gravity when dying. Or, just use another object...
 
-	if ((buttons & BTN_C) && l->head.dy < 0)
+	if ((buttons & BTN_C) && (l->hurt_cnt <= 0) && l->head.dy < 0)
 	{
 		l->head.dy += kgravity_weak;
 	}

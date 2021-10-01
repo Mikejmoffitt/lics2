@@ -15,6 +15,7 @@
 #include "obj/cube_manager.h"
 #include "music.h"
 #include "sfx.h"
+#include "obj/lyle.h"
 
 static uint16_t s_vram_pos;
 
@@ -189,7 +190,7 @@ static void drop_process(O_Boss1 *e)
 
 static void main_func(Obj *o)
 {
-	static const fix32_t ground_y = INTTOFIX32(240 - 32);
+	static const fix32_t ground_y = INTTOFIX32(240);
 	static const fix32_t max_x = INTTOFIX32(320 - 16 - 22);
 	static const fix32_t min_x = INTTOFIX32(16 + 22);
 	O_Boss1 *e = (O_Boss1 *)o;
@@ -205,9 +206,11 @@ static void main_func(Obj *o)
 		default:
 		case BOSS1_STATE_INIT:  // Positions or deletes the boss.
 			o->x = -o->right;
-			o->y = INTTOFIX32(96);
+			o->y = INTTOFIX32(128);
 			e->state = BOSS1_STATE_APPROACH;
 			e->metaframe = 0;
+			lyle_set_scroll_v_en(0);
+			lyle_set_scroll_h_en(0);
 			break;
 
 		case BOSS1_STATE_APPROACH:  // Boss enters from left.
@@ -320,7 +323,7 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 6;
-				// TODO: start screen shake
+				e->drop.shaking = 1;
 			}
 			else if (e->state_elapsed == krecoil_frame_change)
 			{
@@ -352,7 +355,7 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 0;
-				// TODO: stop screen shake
+				e->drop.shaking = 0;
 			}
 			if (e->state_elapsed < kpreshot_duration) break;
 
@@ -368,6 +371,111 @@ static void main_func(Obj *o)
 				projectile_manager_shoot(shot_x, shot_y, PROJECTILE_TYPE_DEATHORB2, shot_dx, kshot_dy);
 				// TODO: roar sound
 			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
+			e->metaframe = 7 + e->anim_frame;
+			if (e->state_elapsed < kshot_duration) break;
+			e->state = BOSS1_STATE_PRESHOT;
+			e->shots_remaining--;
+			break;
+
+		case BOSS1_STATE_EXPLODING:
+			if (e->state_elapsed == 0)
+			{
+				o->flags = OBJ_FLAG_ALWAYS_ACTIVE;
+				o->hurt_stun = 0;
+				o->hp = 1;
+				e->anim_frame = 0;
+				e->anim_cnt = 0;
+			}
+			e->explode_cnt++;
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kflash_speed);
+			if (e->explode_cnt >= kexplosion_separation)
+			{
+				e->explode_cnt = 0;
+				particle_manager_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
+				sfx_play(SFX_EXPLODE, 0);
+			}
+			if (e->state_elapsed < kexploding_duration) break;
+
+			o->flags = OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE;
+			o->hp = 0;
+			o->hurt_stun = 0;
+			progress_get()->boss_defeated[0] = 1;
+			e->state = BOSS1_STATE_EXPLODED;
+			music_stop();
+			break;
+
+		case BOSS1_STATE_EXPLODED:
+			return;
+	}
+
+	drop_process(e);
+	suppress_spawner_cubes();
+	if (e->drop.shaking)
+	{
+		int16_t shake_y = (system_rand() % 4) - 1;
+		if (shake_y == 0) shake_y = -2;
+		map_set_y_scroll(32 + shake_y);
+		// TODO: Periodic rumbling sound.
+	}
+	else
+	{
+		map_set_y_scroll(32);
+	}
+
+	if (o->hp >= 127)
+	{
+		e->state = BOSS1_STATE_EXPLODING;
+	}
+
+	if (e->state != state_prev) e->state_elapsed = 0;
+	else e->state_elapsed++;
+
+	render(e);
+}
+
+static void cube_func(Obj *o, Cube *c)
+{
+	obj_standard_cube_response(o, c);
+	if (o->hp <= 0)
+	{
+		o->hp = 127;
+	}
+}
+
+void o_load_boss1(Obj *o, uint16_t data)
+{
+	SYSTEM_ASSERT(sizeof(O_Boss1) <= sizeof(ObjSlot));
+	(void)data;
+	set_constants();
+	vram_load();
+
+	lyle_set_scroll_v_en(0);
+	map_set_y_scroll(32);
+
+	const ProgressSlot *prog = progress_get();
+	if (prog->boss_defeated[0])
+	{
+		o->status = OBJ_STATUS_NULL;
+		return;
+	}
+
+	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
+	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 5);
+	o->main_func = main_func;
+	o->cube_func = cube_func;
+
+	o->x = -o->right;
+	o->y = INTTOFIX32(96);
+}
+
+void o_unload_boss1(void)
+{
+	s_vram_pos = 0;
+}
+
+/*
+
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
 			e->metaframe = 7 + e->anim_frame;
 			if (e->state_elapsed < kshot_duration) break;
@@ -449,7 +557,5 @@ void o_load_boss1(Obj *o, uint16_t data)
 	o->y = INTTOFIX32(96);
 }
 
-void o_unload_boss1(void)
-{
-	s_vram_pos = 0;
-}
+
+*/

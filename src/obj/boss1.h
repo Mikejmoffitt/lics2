@@ -42,6 +42,7 @@ typedef struct O_Boss1
 	{
 		int16_t cnt;  // Used to space out drops.
 		int16_t remaining;
+		int16_t shaking;
 	} drop;
 } O_Boss1;
 
