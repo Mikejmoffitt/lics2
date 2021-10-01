@@ -33,7 +33,7 @@ static const Gfx gfx[] =
 	[GFX_MAGIBEAR] = GFX(obj_22_magibear),
 	[GFX_LAVA] = GFX(obj_23_lava),
 	[GFX_COW] = GFX(obj_24_cow),
-
+	[GFX_BALL] = GFX(obj_25_ball),
 	[GFX_HOOP] = GFX(obj_26_hoop),
 	[GFX_CP_GIVER] = GFX(obj_28_cp_giver),
 	[GFX_CP_METER] = GFX(obj_29_cp_meter),

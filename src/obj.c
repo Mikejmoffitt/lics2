@@ -31,7 +31,7 @@
 #include "obj/magibear.h"
 #include "obj/lava.h"
 #include "obj/cow.h"
-// container
+#include "obj/ball.h"
 #include "obj/hoop.h"
 #include "obj/falseblock.h"
 #include "obj/cp_giver.h"
@@ -52,6 +52,7 @@
 #include "obj/bgscroll.h"
 #include "obj/fakecube.h"
 #include "obj/radio.h"
+#include "obj/chimney.h"
 #include "obj/cork.h"
 #include "obj/broken_egg.h"
 #include "obj/chick.h"
@@ -210,7 +211,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_MAGIBEAR] = {o_load_magibear, o_unload_magibear},
 	[OBJ_LAVA] = {o_load_lava, o_unload_lava},
 	[OBJ_COW] = {o_load_cow, o_unload_cow},
-	// container?
+	[OBJ_BALL] = {o_load_ball, o_unload_ball},
 	[OBJ_HOOP] = {o_load_hoop, o_unload_hoop},
 	[OBJ_FALSEBLOCK] = {o_load_falseblock, o_unload_falseblock},
 	[OBJ_CP_GIVER] = {o_load_cp_giver, o_unload_cp_giver},
@@ -231,6 +232,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 	[OBJ_FAKECUBE] = {o_load_fakecube, NULL},
 	[OBJ_RADIO] = {o_load_radio, o_unload_radio},
+	[OBJ_CHIMNEY] = {o_load_chimney, o_unload_chimney},
 	[OBJ_CORK] = {o_load_cork, o_unload_cork},
 	[OBJ_BROKEN_EGG] = {o_load_broken_egg, o_unload_broken_egg},
 	[OBJ_CHICK] = {o_load_chick, o_unload_chick},

@@ -66,7 +66,7 @@ static inline void render(O_Buggo *f)
 
 	Obj *o = &f->head;
 	int16_t sp_x, sp_y;
-	obj_render_setup(o, &sp_x, &sp_y, -8, -7,
+	obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 	                 map_get_x_scroll(), map_get_y_scroll());
 	if (o->type == OBJ_BUGGO1)
 	{
@@ -84,7 +84,6 @@ static inline void render(O_Buggo *f)
 	}
 	else
 	{
-		sp_y += 4;
 		if (f->spin_cnt == 0)
 		{
 			// Normal walking animation.
@@ -154,7 +153,7 @@ static void main_func(Obj *o)
 
 	// Collision.
 	if (o->dx > 0 &&
-	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y)))
+	    map_collision(FIX32TOINT(o->x + o->right), FIX32TOINT(o->y) - 1))
 	{
 		o->direction = OBJ_DIRECTION_LEFT;
 		o->dx = -kdx;
@@ -162,7 +161,7 @@ static void main_func(Obj *o)
 		f->x_max = o->x;
 	}
 	else if (o->dx < 0 &&
-	         map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y)))
+	         map_collision(FIX32TOINT(o->x + o->left), FIX32TOINT(o->y) - 1))
 	{
 		o->direction = OBJ_DIRECTION_RIGHT;
 		o->dx = kdx;
@@ -202,9 +201,9 @@ static void main_func(Obj *o)
 		{
 			f->shot_clock = 0;
 			f->spin_cnt = kbuggo2_spark_time / 2;
-			projectile_manager_shoot(o->x, o->y + INTTOFIX32(8), PROJECTILE_TYPE_SPARK,
+			projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
 			                         kbuggo2_spark_dx, 0);
-			projectile_manager_shoot(o->x, o->y + INTTOFIX32(8), PROJECTILE_TYPE_SPARK,
+			projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
 			                         -kbuggo2_spark_dx, 0);
 			sfx_play(SFX_GAXTER_SHOT, 15);
 
@@ -242,14 +241,21 @@ void o_load_buggo(Obj *o, uint16_t data)
 	set_constants();
 
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
-	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-7),
+	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16),
 	               o->type == OBJ_BUGGO1 ? 2 : 1);
 	o->main_func = main_func;
 	f->x_min = o->x - INTTOFIX32(50);
 	f->x_max = o->x;
 	o->dx = -kdx;
 
-	if (o->type == OBJ_BUGGO2) o->cube_func = buggo2_cube_func;
+	o->left = INTTOFIX16(-7);
+	o->right = INTTOFIX16(7);
+
+	if (o->type == OBJ_BUGGO2)
+	{
+		o->cube_func = buggo2_cube_func;
+		o->top = INTTOFIX16(-11);
+	}
 	o->direction = OBJ_DIRECTION_LEFT;
 }
 
