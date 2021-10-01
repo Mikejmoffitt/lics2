@@ -28,14 +28,30 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			sprintf(desc,"To (%2X, %X)", (o->data & 0xFF00) >> 8, (o->data & 0x00F0) >> 4);
 			sprintf(dat2,"Door #%X (LSN)", o->data & 0x000F);
 			break;
-		case OBJ_CONTAINER:
-			sprintf(dat2,"A background element that can be struck.");
-			break;
+		case OBJ_BALL:
 		case OBJ_CUBE:
 		case OBJ_DOG:
+		case OBJ_CHIMNEY:
+		case OBJ_CORK:
 			if (o->type == OBJ_DOG)
 			{
 				sprintf(dat2,"Releases object after eating 3 eggs");
+			}
+			else if (o->type == OBJ_BALL)
+			{
+				sprintf(dat2,"A ball that flashes green.");
+			}
+			else if (o->type == OBJ_RADIO)
+			{
+				sprintf(dat2, "A radio on a tall stalk that flashes.");
+			}
+			else if (o->type == OBJ_CHIMNEY)
+			{
+				sprintf(dat2, "A chimney that pulsates green.");
+			}
+			else if (o->type == OBJ_CORK)
+			{
+				sprintf(dat2, "A cork.");
 			}
 			if (o->data == 0x0100)
 			{
@@ -240,8 +256,8 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 		case OBJ_FALSEBLOCK:
 			sprintf(desc,"A block that vanishes on room event.");
 			break;
-		case OBJ_CP_PAD:
-			sprintf(desc,"Active area for the CP orb sucker");
+		case OBJ_CP_GIVER:
+			sprintf(desc,"Giver for CP room");
 			break;
 		case OBJ_CP_METER:
 			sprintf(desc,"Indicator for CP meter position");
@@ -272,14 +288,6 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			break;
 		case OBJ_FISSINS2:
 			sprintf(desc,"Jumps up from sand; bound by marker");
-			if (o->data)
-			{
-				sprintf(dat2,"This is a marker");
-			}
-			else
-			{
-				sprintf(dat2,"This is the fissins");
-			}
 			break;
 		case OBJ_SPOOKO:
 			sprintf(desc,"Spooky scary");
@@ -288,15 +296,7 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			sprintf(desc,"Under Construction sign.");
 			break;
 		case OBJ_BGSCROLLY:
-			sprintf(desc,"Enables BG scroll modifications.");
-			if (o->data == 0x0000)
-			{
-				sprintf(dat2,"Scrolls the far BG horizontally.");
-			}
-			else if (o->data < 0x0010)
-			{
-				sprintf(dat2,"Screen off %d pixels from bottom.", o->data);
-			}
+			sprintf(desc,"Forces Y scroll to a specific value.");
 			break;
 		case OBJ_FAKECUBE:
 			sprintf(desc,"Fake ceiling cube for boss 1.");

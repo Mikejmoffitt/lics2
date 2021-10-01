@@ -32,13 +32,13 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_LAVA]          = {"Lava Gen", 16, 16},
 	
 	[OBJ_COW]           = {"Cow     ", 40, 24},
-	[OBJ_CONTAINER]     = {"Containr", 16, 16},
+	[OBJ_BALL]          = {"Ball    ", 16, 16},
 	[OBJ_HOOP]          = {"Hoop    ", 16, 16},
 	[OBJ_FALSEBLOCK]    = {"Falseblk", 16, 16},
 
 	[OBJ_CP_GIVER]      = {"CP Giver", 16, 16},
 	[OBJ_CP_METER]      = {"CP Meter", 16, 80},
-	[OBJ_DOG]           = {"Blue Dog", 48, 32},
+	[OBJ_DOG]           = {"Blue Dog", 48, 48},
 	[OBJ_ELEVATOR]      = {"Elevator", 32, 64},
 
 	[OBJ_ELEVATOR_STOP] = {"Ele.Stop", 32, 8},
@@ -48,11 +48,11 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 
 	[OBJ_BOSSF1]        = {"Boss F1 ", 64, 64},
 	[OBJ_BOSSF2]        = {"Boss F2 ", 64, 64},
-	[OBJ_EGG]           = {"Egg     ", 32, 32},
+	[OBJ_EGG]           = {"Egg     ", 24, 32},
 	[OBJ_FISSINS2]      = {"Fissins2", 16, 16},
 
 	[OBJ_BOUNDS]        = {"Bounds  ", 16, 96},
-	[OBJ_SMALLEGG]      = {"SmallEgg", 16, 16},
+	[OBJ_SMALL_EGG]     = {"SmallEgg", 16, 16},
 	[OBJ_BASKETBALL]    = {"BsktBall", 16, 16},
 	[OBJ_LAVAANIM]      = {"LavaAnim", 8, 8},
 
@@ -60,6 +60,13 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_WIP]           = {"WIP     ", 48, 32},
 	[OBJ_BGSCROLLY]     = {"BgScroll", 8, 8},
 	[OBJ_FAKECUBE]      = {"FakeCube", 16, 16},
+
+	[OBJ_RADIO]         = {"Radio   ", 16, 64},
+	[OBJ_CHIMNEY]       = {"Chimney ", 16, 16},
+	[OBJ_CORK]          = {"Cork    ", 16, 16},
+	[OBJ_BROKEN_EGG]    = {"Brkn Egg", 24, 16},
+
+	[OBJ_CHICK]         = {"Chick   ", 16, 16},
 
 	[OBJ_TECHNOBG ]     = {"TechnoBG", 16, 16},
 	[OBJ_BGTILE]        = {"BG Tile ", 16, 16},
