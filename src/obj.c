@@ -48,7 +48,8 @@
 #include "obj/small_egg.h"
 #include "obj/basketball.h"
 #include "obj/lavaanim.h"
-// spooko, wip
+#include "obj/spooko.h"
+// wip
 #include "obj/bgscroll.h"
 #include "obj/fakecube.h"
 #include "obj/radio.h"
@@ -229,7 +230,8 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_SMALL_EGG] = {o_load_small_egg, o_unload_small_egg},
 	[OBJ_BASKETBALL] = {o_load_basketball, o_unload_basketball},
 	[OBJ_LAVAANIM] = {o_load_lavaanim, o_unload_lavaanim},
-	// spooko, wip
+	[OBJ_SPOOKO] = {o_load_spooko, o_unload_spooko},
+	// wip
 	[OBJ_BGSCROLLY] = {o_load_bgscroll, o_unload_bgscroll},
 	[OBJ_FAKECUBE] = {o_load_fakecube, NULL},
 	[OBJ_RADIO] = {o_load_radio, o_unload_radio},

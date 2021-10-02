@@ -49,6 +49,7 @@ static const Gfx gfx[] =
 
 	[GFX_BASKETBALL] = GFX(obj_42_basketball),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
+	[GFX_SPOOKO] = GFX(obj_44_spooko),
 	[GFX_RADIO] = GFX(obj_48_radio),
 	[GFX_CHIMNEY] = GFX(obj_49_chimney),
 	[GFX_CORK] = GFX(obj_50_cork),

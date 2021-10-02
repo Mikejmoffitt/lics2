@@ -85,13 +85,13 @@ static void main_func(Obj *o)
 	const int16_t right = FIX32TOINT(o->x + o->right);
 	const int16_t bottom = FIX32TOINT(o->y);
 
-	if (o->dx > 0 && map_collision(right + 1, bottom - 4))
+	if (o->dx > 0 && map_collision(right + 1, bottom - 7))
 	{
 		o->dx = -kdx;
 		o->x = INTTOFIX32(FIX32TOINT(o->x));
 		o->direction = OBJ_DIRECTION_LEFT;
 	}
-	else if (o->dx < 0 && map_collision(left - 1, bottom - 4))
+	else if (o->dx < 0 && map_collision(left - 1, bottom - 7))
 	{
 		o->dx = kdx;
 		o->x = INTTOFIX32(FIX32TOINT(o->x));
@@ -101,7 +101,7 @@ static void main_func(Obj *o)
 	obj_standard_physics(o);
 
 	// Vertical movement.
-	if (!map_collision(left, bottom + 1) && !map_collision(right, bottom + 1))
+	if (!map_collision(left + 2, bottom + 1) && !map_collision(right - 2, bottom + 1))
 	{
 		o->dy += kgravity;
 	}
