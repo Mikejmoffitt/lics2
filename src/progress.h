@@ -30,7 +30,7 @@ typedef struct ProgressSlot
 	int16_t hp_capacity;  // Lyle's health capacity (max 15).
 
 	uint16_t cp_orbs;  // Bitfield for collected CP orb IDs.
-	int8_t collected_cp_orbs;  // CP orbs Lyle hasn't deposited.
+	int8_t collected_cp_orbs;  // CP orbs Lyle has collected.
 	int8_t registered_cp_orbs;  // CP orbs Lyle has deposited.
 
 	int8_t touched_first_cube;
