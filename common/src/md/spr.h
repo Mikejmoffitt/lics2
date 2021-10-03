@@ -10,9 +10,6 @@ Michael Moffitt 2018-2020 */
 #define SPR_ATTR(_tile, _hf, _vf, _pal, _prio) VDP_ATTR(_tile, _hf, _vf, _pal, _prio)
 #define SPR_SIZE(w, h) (((h-1) & 0x3) | (((w-1) & 0x3) << 2))
 
-#define SPR_Y_HIDDEN -128
-#define SPR_X_PRIO_CANCEL -128
-
 #define SPR_MAX 80
 
 typedef struct SprSlot
@@ -34,18 +31,29 @@ static inline void spr_init(void);
 // Terminate the sprite list and schedule a DMA. Resets g_sprite_next.
 void spr_finish(void);
 
+// Place a sprite using screen position coordinates.
+static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size);
+
+// Masks off any sprites on scanlines that span between y and the height.
+static inline void spr_mask_line_full(int16_t y, uint8_t size);
+
+// Masks off any sprites on scanlines that intersect two sprite positions.
+static inline void spr_mask_line_comb(int16_t y1, uint8_t size1,
+                                      int16_t y2, uint8_t size2);
+
+// Static implementations =====================================================
+
 static inline void spr_init(void)
 {
-	g_sprite_table[0].ypos = SPR_Y_HIDDEN;
+	g_sprite_table[0].ypos = 0;
 	g_sprite_count = 0;
 	spr_finish();
 }
 
-// Place a sprite. Tile index is VRAM position / 32.
 static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size)
 {
 	if (g_sprite_count >= SPR_MAX) return;
-	if (x + 128 <= 1) return;
+	if (x <= -32 || x >= 320) return;
 	SprSlot *spr = &g_sprite_table[g_sprite_count];
 	spr->ypos = y + 128;
 	spr->size = size;
@@ -53,4 +61,32 @@ static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size)
 	spr->attr = attr;
 	spr->xpos = x + 128;
 }
+
+// Masks off any later sprites within a scanline.
+static inline void spr_mask_line_full(int16_t y, uint8_t size)
+{
+	if (g_sprite_count >= SPR_MAX) return;
+	SprSlot *spr = &g_sprite_table[g_sprite_count];
+	spr->ypos = y + 128;
+	spr->size = size;
+	spr->link = ++g_sprite_count;
+	spr->xpos = 0;
+}
+
+static inline void spr_mask_line_overlap(int16_t y1, uint8_t size1,
+                                         int16_t y2, uint8_t size2)
+{
+	if (g_sprite_count >= SPR_MAX - 1) return;
+	SprSlot *spr = &g_sprite_table[g_sprite_count];
+	spr->ypos = y1 + 128;
+	spr->size = size1;
+	spr->link = ++g_sprite_count;
+	spr->xpos = 0;
+	spr++;
+	spr->ypos = y2 + 128;
+	spr->size = size2;
+	spr->link = ++g_sprite_count;
+	spr->xpos = 1;
+}
+
 #endif  // MD_SPR_H

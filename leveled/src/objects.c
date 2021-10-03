@@ -67,6 +67,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_BROKEN_EGG]    = {"Brkn Egg", 24, 16},
 
 	[OBJ_CHICK]         = {"Chick   ", 16, 16},
+	[OBJ_LAVAKILL]      = {"Lavakill", 16, 16},
 
 	[OBJ_TECHNOBG ]     = {"TechnoBG", 16, 16},
 	[OBJ_BGTILE]        = {"BG Tile ", 16, 16},

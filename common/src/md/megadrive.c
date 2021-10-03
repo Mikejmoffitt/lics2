@@ -13,7 +13,7 @@ void megadrive_init(void)
 	dma_q_init();
 	for (int i = 0; i < 64; i++)
 	{
-		pal_set(i, i * 2);
+		pal_set(i, 0);
 	}
 	io_gamepad_en(0);
 	io_gamepad_en(1);
