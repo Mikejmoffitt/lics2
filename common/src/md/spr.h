@@ -31,14 +31,8 @@ extern uint8_t g_sprite_count;
 // Clears sprites and initialize g_sprite_next.
 static inline void spr_init(void);
 
-// Terminate the sprite list. Resets g_sprite_next. A DMA should be triggered
-// or scheduled after this.
+// Terminate the sprite list and schedule a DMA. Resets g_sprite_next.
 void spr_finish(void);
-
-// Run or schedule a DMA for the sprite list. Call after spr_finish().
-// This function is separate so that it is easier to force the sprite list
-// update to occur before other transfers.
-void spr_dma(int16_t now);
 
 static inline void spr_init(void)
 {
@@ -51,6 +45,7 @@ static inline void spr_init(void)
 static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size)
 {
 	if (g_sprite_count >= SPR_MAX) return;
+	if (x + 128 <= 1) return;
 	SprSlot *spr = &g_sprite_table[g_sprite_count];
 	spr->ypos = y + 128;
 	spr->size = size;

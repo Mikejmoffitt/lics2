@@ -28,11 +28,9 @@ void o_load_bgtile(Obj *o, uint16_t data)
 
 	obj_basic_init(o, 0, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);
-	o->x -= INTTOFIX32(8);
-	o->y -= INTTOFIX32(16);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 	e->attr = SPR_ATTR(data & 0x00FF, 0, 0, (data & 0x0300) >> 8, 0);
-	e->px = FIX32TOINT(o->x);
-	e->py = FIX32TOINT(o->y);
+	e->px = FIX32TOINT(o->x) - 8;
+	e->py = FIX32TOINT(o->y) - 16;
 }

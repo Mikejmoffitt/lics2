@@ -40,7 +40,6 @@ static inline void megadrive_finish(void)
 {
 	spr_finish();
 	vdp_wait_vblank();
-	spr_dma(/*now=*/1);
 	io_poll();
 	dma_q_process();
 }

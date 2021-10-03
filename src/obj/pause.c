@@ -71,12 +71,12 @@ static inline void clear_window_plane(void)
 {
 	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
 	const uint16_t plane_size = GAME_PLANE_W_CELLS * 30;
-	vdp_wait_dma();
-	dma_set_stride(2);
 	const uint16_t fill_tile = VDP_ATTR(s_vram_pos + 0x30, 0, 0, MAP_PAL_LINE, 0);
-	dma_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size - 1);
-	dma_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size - 1);
+	dma_q_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size, 2);
+	dma_q_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size, 2);
+	dma_q_process();
 	vdp_poke(plane_base, fill_tile);  // TODO: Is DMA fill really buggy?
+
 }
 
 static inline void plot_map_side_borders(void)
