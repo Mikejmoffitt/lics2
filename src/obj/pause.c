@@ -212,8 +212,8 @@ static void draw_cp_orb_count(void)
 	const ProgressSlot *progress = progress_get();
 	const int16_t cp_orbs = progress->collected_cp_orbs;
 	spr_put(272, 204, VDP_ATTR(s_vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
-	spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40 + (cp_orbs > 10 ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
-	spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * cp_orbs % 10), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
 }
 
 static void draw_item_icons(void)

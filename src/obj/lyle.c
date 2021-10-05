@@ -649,7 +649,7 @@ static inline void cube_kick(O_Lyle *l, Cube *c)
 
 static inline void cube_collision(O_Lyle *l)
 {
-	int i = ARRAYSIZE(g_cubes);
+	uint16_t i = ARRAYSIZE(g_cubes);
 	l->on_cube = NULL;
 	while (i--)
 	{

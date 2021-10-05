@@ -60,7 +60,6 @@ static inline void set_constants(void)
 {
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
-	// TODO: Set up the timings based on source.
 	kapproach_start_delay = PALSCALE_DURATION(240);
 	kapproach_dx = INTTOFIX16(PALSCALE_1ST(1.0));
 	kroar_delay = PALSCALE_DURATION(30);
@@ -473,89 +472,3 @@ void o_unload_boss1(void)
 {
 	s_vram_pos = 0;
 }
-
-/*
-
-			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
-			e->metaframe = 7 + e->anim_frame;
-			if (e->state_elapsed < kshot_duration) break;
-			e->state = BOSS1_STATE_PRESHOT;
-			e->shots_remaining--;
-			break;
-
-		case BOSS1_STATE_EXPLODING:
-			if (e->state_elapsed == 0)
-			{
-				o->flags = OBJ_FLAG_ALWAYS_ACTIVE;
-				o->hurt_stun = 0;
-				o->hp = 1;
-				e->anim_frame = 0;
-				e->anim_cnt = 0;
-			}
-			e->explode_cnt++;
-			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kflash_speed);
-			if (e->explode_cnt >= kexplosion_separation)
-			{
-				e->explode_cnt = 0;
-				particle_manager_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
-				sfx_play(SFX_EXPLODE, 0);
-			}
-			if (e->state_elapsed < kexploding_duration) break;
-
-			o->flags = OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE;
-			o->hp = 0;
-			o->hurt_stun = 0;
-			progress_get()->boss_defeated[0] = 1;
-			e->state = BOSS1_STATE_EXPLODED;
-			music_stop();
-			break;
-
-		case BOSS1_STATE_EXPLODED:
-			return;
-	}
-
-	drop_process(e);
-	suppress_spawner_cubes();
-
-	if (e->state != state_prev) e->state_elapsed = 0;
-	else e->state_elapsed++;
-
-	render(e);
-}
-
-static void cube_func(Obj *o, Cube *c)
-{
-	O_Boss1 *e = (O_Boss1 *)o;
-	obj_standard_cube_response(o, c);
-	if (o->hp <= 0)
-	{
-		o->hp = 127;
-		e->state = BOSS1_STATE_EXPLODING;
-	}
-}
-
-void o_load_boss1(Obj *o, uint16_t data)
-{
-	SYSTEM_ASSERT(sizeof(O_Boss1) <= sizeof(ObjSlot));
-	(void)data;
-	set_constants();
-	vram_load();
-
-	const ProgressSlot *prog = progress_get();
-	if (prog->boss_defeated[0])
-	{
-		o->status = OBJ_STATUS_NULL;
-		return;
-	}
-
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
-	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 5);
-	o->main_func = main_func;
-	o->cube_func = cube_func;
-
-	o->x = -o->right;
-	o->y = INTTOFIX32(96);
-}
-
-
-*/

@@ -41,7 +41,7 @@
 #include "obj/elevator_stop.h"
 #include "obj/fissins1.h"
 #include "obj/boss1.h"
-// boss2
+#include "obj/boss2.h"
 #include "obj/egg.h"
 #include "obj/fissins2.h"
 #include "obj/bounds.h"
@@ -223,7 +223,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_ELEVATOR_STOP] = {o_load_elevator_stop, o_unload_elevator_stop},
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 	[OBJ_BOSS1] = {o_load_boss1, o_unload_boss1},
-	// boss2
+	[OBJ_BOSS2] = {o_load_boss2, o_unload_boss2},
 	[OBJ_EGG] = {o_load_egg, o_unload_egg},
 	[OBJ_FISSINS2] = {o_load_fissins2, o_unload_fissins2},
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},

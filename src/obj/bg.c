@@ -171,7 +171,7 @@ static const BgDescriptor backgrounds[] =
 	[5] = {GFX_BG_5, res_pal_bg_bg5_bin, res_bgmap_bg5_bin, sizeof(res_bgmap_bg5_bin)},
 	[6] = {GFX_BG_6, res_pal_bg_bg1_bin, res_bgmap_bg6_bin, sizeof(res_bgmap_bg6_bin)},  // Mapping modification of 1.
 	[7] = {GFX_BG_7, res_pal_bg_bg7_bin, res_bgmap_bg7_bin, sizeof(res_bgmap_bg7_bin)},
-//	[8] = {GFX_BG_8, res_pal_bg_bg8_bin, res_bgmap_bg8_bin, sizeof(res_bgmap_bg8_bin)},
+	[8] = {GFX_BG_8, res_pal_bg_bg16_bin, res_bgmap_bg8_bin, sizeof(res_bgmap_bg8_bin)},
 	[9] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
 	[10] = {GFX_BG_10, res_pal_bg_bg10_bin, res_bgmap_bg10_bin, sizeof(res_bgmap_bg10_bin)},
 	[11] = {GFX_BG_11, res_pal_bg_bg11_bin, res_bgmap_bg11_bin, sizeof(res_bgmap_bg11_bin)},
@@ -628,7 +628,17 @@ static void bg_elevator_func(int16_t x_scroll, int16_t y_scroll)
 	v_scroll_buffer[19] = close_y;
 }
 
-static void bg_brown_grass_func(int16_t x_scroll, int16_t y_scroll)
+static void bg_brown_grass_solo_func(int16_t x_scroll, int16_t y_scroll)
+{
+	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
+	const int16_t x_squiggle_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
+	(void)y_scroll;
+
+	set_v_scroll_plane(y_scroll);
+	set_h_scroll_plane(x_squiggle_scroll);
+}
+
+static void bg_brown_grass_and_green_func(int16_t x_scroll, int16_t y_scroll)
 {
 	const Gfx *g = gfx_get(GFX_BG_16_EX);
 
@@ -819,6 +829,7 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[5] = bg_plane_func,
 	[6] = bg_city_red_func,
 	[7] = bg_orange_balls_func,
+	[8] = bg_brown_grass_solo_func,
 	[9] = bg_undersand_columns_func,
 	[10] = bg_crazy_city_func,
 	[11] = bg_thin_bricks_func,
@@ -826,12 +837,12 @@ static void (*bg_funcs[])(int16_t, int16_t) =
 	[13] = bg_elevator_func,
 	[14] = bg_elevator_func,
 
-	[16] = bg_brown_grass_func,
+	[16] = bg_brown_grass_and_green_func,
 	[17] = bg_plane_func_offset,
 	[18] = bg_longsand_func,
 	[19] = bg_technozone_func,
 	[20] = bg_columns_2_func,
-	[21] = bg_brown_grass_func,
+	[21] = bg_brown_grass_and_green_func,
 	[22] = bg_static_func,
 	[23] = bg_guantlet_func,
 	[24] = bg_technozone_horizontal_simple_func,

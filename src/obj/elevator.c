@@ -224,6 +224,10 @@ static void main_func(Obj *o)
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 
 	if (!e->hidden) render(e);
+
+	// Upload the alternate Elevator enemy palette to the enemy pal line.
+	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_elevator_bin,
+	           sizeof(res_pal_enemy_elevator_bin) / 2);
 }
 
 static void cube_func(Obj *o, Cube *c)
@@ -242,10 +246,6 @@ void o_load_elevator(Obj *o, uint16_t data)
 	               INTTOFIX16(-16), INTTOFIX16(16), INTTOFIX16(-56), 127);
 	o->main_func = main_func;
 	o->cube_func = cube_func;
-
-	// Upload the alternate Elevator enemy palette to the enemy pal line.
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_elevator_bin,
-	           sizeof(res_pal_enemy_elevator_bin) / 2);
 	O_Elevator *e = (O_Elevator *)o;
 	e->original_y = o->y;
 }

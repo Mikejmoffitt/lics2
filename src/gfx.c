@@ -41,6 +41,7 @@ static const Gfx gfx[] =
 	[GFX_ELEVATOR] = GFX(obj_31_elevator),
 	[GFX_FISSINS1] = GFX(obj_33_fissins1),
 	[GFX_BOSS1] = GFX(obj_34_boss1),
+	[GFX_BOSS2] = GFX(obj_35_boss2),
 
 	[GFX_EGG] = GFX(obj_38_egg),
 
@@ -83,6 +84,7 @@ static const Gfx gfx[] =
 	[GFX_BG_6] = GFX(bg_bg1),
 	[GFX_BG_7] = GFX(bg_bg7),
 	[GFX_BG_7_EX] = GFX(bg_bg7_ex),
+	[GFX_BG_8] = GFX(bg_bg8),
 	[GFX_BG_9] = GFX(bg_bg9),
 	[GFX_BG_10] = GFX(bg_bg10),
 	[GFX_BG_11] = GFX(bg_bg11),

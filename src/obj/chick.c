@@ -47,8 +47,8 @@ static inline void set_constants(void)
 	kflying_anim_speed = PALSCALE_DURATION(7);
 	kreverse_time = PALSCALE_DURATION(75);
 
-	kflying_accel = INTTOFIX16(PALSCALE_1ST(0.20833333334));
-	kflying_top_speed = INTTOFIX16(PALSCALE_1ST(4.16666666667));
+	kflying_accel = INTTOFIX16(PALSCALE_2ND(0.20833333334));
+	kflying_top_speed = INTTOFIX16(PALSCALE_2ND(4.16666666667));
 
 	korb_dx = INTTOFIX16(PALSCALE_1ST(0.8333333334));
 	korb_dy = INTTOFIX16(PALSCALE_1ST(-3.333333333));
