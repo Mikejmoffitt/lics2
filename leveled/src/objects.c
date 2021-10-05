@@ -44,7 +44,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_ELEVATOR_STOP] = {"Ele.Stop", 32, 8},
 	[OBJ_FISSINS1]      = {"Fissins1", 16, 16},
 	[OBJ_BOSS1]         = {"Boss 1  ", 48, 32},
-	[OBJ_BOSS2]         = {"Boss 2  ", 64, 64},
+	[OBJ_BOSS2]         = {"Boss 2  ", 8, 8},
 
 	[OBJ_BOSSF1]        = {"Boss F1 ", 64, 64},
 	[OBJ_BOSSF2]        = {"Boss F2 ", 64, 64},

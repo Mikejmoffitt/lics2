@@ -5,8 +5,14 @@
   <property key="viewStatusBar" value="true"/>
   <property key="viewToolBar" value="true"/>
   <property key="maxRecentFiles" value="10"/>
-  <property key="recentFile" value="/home/moffitt/Development/lics2/prj/res/gfx/obj/128_lyle.bin"/>
-  <property key="recentFile" value="/home/moffitt/.mame/roms/tdragon2/1.bin"/>
-  <property key="recentFile" value="/home/moffitt/.mame/roms/hachamfp/kf-obj0.ic8"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/52_chick.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/41_small_egg.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/util/tm2"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/util/tm3"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/ex/technobgv.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/23_lava.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/43_lavaanim.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/30_dog.bin"/>
+  <property key="recentFile" value="/home/moffitt/Development/lics2/res/gfx/obj/50_cork.bin"/>
   <property key="recentFile" value="/home/moffitt/.mame/roms/hachamfp/kf-obj1.ic11"/>
 </settings>
