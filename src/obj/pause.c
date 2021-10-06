@@ -25,10 +25,12 @@ static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 5;
 
 // String printing utility. Not very fast, but it's alright for this.
-static void window_puts(const char *str, int16_t x, int16_t y, int16_t pal)
+static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 {
 	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+	vdp_set_autoinc(2);
+	vdp_set_addr(plane_base);
 	while (*str)
 	{
 		char a = *str++;
@@ -37,7 +39,8 @@ static void window_puts(const char *str, int16_t x, int16_t y, int16_t pal)
 		{
 			y++;
 			plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
-	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+			             2 * ((y * GAME_PLANE_W_CELLS) + x);
+			vdp_set_addr(plane_base);
 		}
 		else
 		{
@@ -51,15 +54,15 @@ static void window_puts(const char *str, int16_t x, int16_t y, int16_t pal)
 			}
 			if (a >= 'a' && a <= 'z')
 			{
-				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
+				vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
 			}
 			else if (a == ' ')
 			{
-				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x30, 0, 0, pal, 0));
+				vdp_write(VDP_ATTR(s_vram_pos + 0x30, 0, 0, pal, 0));
 			}
 			else
 			{
-				vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a), 0, 0, pal, 0));
+				vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a), 0, 0, pal, 0));
 			}
 			plane_base += 2;
 		}
@@ -132,23 +135,25 @@ static inline void plot_map(void)
 	const uint16_t tile_base = VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0);
 	uint16_t pausemap_offset = 0;
 
+	vdp_set_autoinc(2);
+
 	plane_base += 2 * ((kmap_top * GAME_PLANE_W_CELLS) + kmap_left);
 	for (int16_t y = 0; y < PROGRESS_MAP_H; y++)
 	{
+		vdp_set_addr(plane_base);
 		for (int16_t x = 0; x < PROGRESS_MAP_W; x++)
 		{
 			if ((progress->abilities & ABILITY_MAP) && progress->map_explored[y][x])
 			{
-				vdp_poke(plane_base, tile_base + res_pausemap_bin[pausemap_offset]);
+				vdp_write(tile_base + res_pausemap_bin[pausemap_offset]);
 			}
 			else
 			{
-				vdp_poke(plane_base, tile_base);
+				vdp_write(tile_base);
 			}
 			pausemap_offset++;
-			plane_base += 2;
 		}
-		plane_base += 2 * (GAME_PLANE_W_CELLS - PROGRESS_MAP_W);
+		plane_base += 2 * (GAME_PLANE_W_CELLS);
 	}
 }
 
@@ -706,7 +711,7 @@ static void plot_get_dialogue_text(PauseScreen screen)
 	// Draw the string to the window plane.
 	static const int16_t kleft = 10;
 	const int16_t ktop = 10 - (system_is_ntsc() ? 1 : 0);
-	window_puts(str, kleft, ktop, ENEMY_PAL_LINE);
+	plot_string(str, kleft, ktop, ENEMY_PAL_LINE);
 }
 
 static void plot_get_dialogue_backing(PauseScreen screen)
@@ -808,7 +813,7 @@ static const DebugOption debug_options[] =
 {
 	{"ROOM SELECT", PAUSE_SCREEN_ROOM_SELECT},
 	{"SOUND TEST", PAUSE_SCREEN_SOUND_TEST},
-	{"LYLE EDIT", 0},
+	{"PROGRESS EDIT", PAUSE_SCREEN_PROGRESS_EDIT},
 	{"VRAM VIEW", 0},
 	{"PRG VIEW", 0},
 	{"RAM VIEW", 0},
@@ -820,16 +825,16 @@ static const int16_t kdebug_top = 2;
 
 static void plot_debug_menu(void)
 {
-	window_puts("@ DEBUG @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+	plot_string("@ DEBUG @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
 
 	for (uint16_t i = 0; i < ARRAYSIZE(debug_options); i++)
 	{
 		const DebugOption *d = &debug_options[i];
-		window_puts(d->label, kdebug_left + 4, kdebug_top + 2 + (2 * i), MAP_PAL_LINE);
+		plot_string(d->label, kdebug_left + 4, kdebug_top + 2 + (2 * i), MAP_PAL_LINE);
 	}
 
-	window_puts("BUTTON C @ SELECT", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
-	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+	plot_string("BUTTON C @ SELECT", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
 static void debug_menu_logic(O_Pause *e, MdButton buttons)
@@ -861,6 +866,7 @@ static void debug_menu_logic(O_Pause *e, MdButton buttons)
 
 static void draw_debug_main_cursor(O_Pause *e)
 {
+	if (e->cursor_flash_frame == 0) return;
 	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.main_cursor * 2)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
@@ -869,10 +875,10 @@ static void draw_debug_main_cursor(O_Pause *e)
 
 static void plot_room_select_title(void)
 {
-	window_puts("@ ROOM SELECT @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+	plot_string("@ ROOM SELECT @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
 
-	window_puts("BUTTON C @ GO TO ROOM", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
-	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+	plot_string("BUTTON C @ GO TO ROOM", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
 static void plot_room_select_list(O_Pause *e)
@@ -884,17 +890,18 @@ static void plot_room_select_list(O_Pause *e)
 		const int16_t id = (page * 16) + i;
 		if (page != e->debug.room_last_page)
 		{
-			window_puts("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+			plot_string("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 		}
 		if (id >= map_file_count()) continue;
 		const MapFile *file = map_file_by_id(id);
-		window_puts(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+		plot_string(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 	}
 	e->debug.room_last_page = page;
 }
 
 static void draw_room_select_cursor(O_Pause *e)
 {
+	if (e->cursor_flash_frame == 0) return;
 	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.room_cursor % 16)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
@@ -950,11 +957,11 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 
 static void plot_sound_test_title(void)
 {
-	window_puts("@ SOUND TEST @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
-	window_puts("BGM ID\n\nSFX ID\n\nSILENCE", kdebug_left + 4, kdebug_top + 2, MAP_PAL_LINE);
+	plot_string("@ SOUND TEST @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+	plot_string("BGM ID\n\nSFX ID\n\nSILENCE", kdebug_left + 4, kdebug_top + 2, MAP_PAL_LINE);
 
-	window_puts("BUTTON C @ SEND COMMAND", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
-	window_puts("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+	plot_string("BUTTON C @ SEND COMMAND", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
 static void plot_sound_test_ui(O_Pause *e)
@@ -964,16 +971,17 @@ static void plot_sound_test_ui(O_Pause *e)
 	id_str[1] = '0' + (e->debug.bgm_id / 10) % 10;
 	id_str[2] = '0' + e->debug.bgm_id % 10;
 	id_str[3] = '\0';
-	window_puts(id_str, kdebug_left + 11, kdebug_top + 2, MAP_PAL_LINE);
+	plot_string(id_str, kdebug_left + 11, kdebug_top + 2, MAP_PAL_LINE);
 	id_str[0] = '0' + (e->debug.sfx_id / 100) % 10;
 	id_str[1] = '0' + (e->debug.sfx_id / 10) % 10;
 	id_str[2] = '0' + e->debug.sfx_id % 10;
 	id_str[3] = '\0';
-	window_puts(id_str, kdebug_left + 11, kdebug_top + 4, MAP_PAL_LINE);
+	plot_string(id_str, kdebug_left + 11, kdebug_top + 4, MAP_PAL_LINE);
 }
 
 static void draw_sound_test_cursor(O_Pause *e)
 {
+	if (e->cursor_flash_frame == 0) return;
 	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.sound_cursor % 16) * 2) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
@@ -1039,6 +1047,240 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
+// Progress edit
+
+static void plot_progress_edit_title(void)
+{
+	plot_string("@ PROGRESS EDIT @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+
+	plot_string("BUTTON C @ SELECT", kdebug_left, kdebug_top + 20, ENEMY_PAL_LINE);
+	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+}
+
+static inline void plot_hex16(uint16_t data, int16_t x, int16_t y, int16_t pal)
+{
+	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
+	vdp_set_autoinc(2);
+	vdp_set_addr(plane_addr);
+
+	vdp_write(tile_base + '0');
+	vdp_write(tile_base + 'X');
+
+	static const char digits[] =
+	{
+		'0', '1', '2', '3',
+		'4', '5', '6', '7',
+		'8', '9', 'A', 'B',
+		'C', 'D', 'E', 'F'
+	};
+
+	static const int16_t data_bits = sizeof(data) * 8;
+	static const int16_t digit_bits = 4;
+	static const int16_t shift_bits = data_bits - digit_bits;
+	for (uint16_t i = 0; i < data_bits / digit_bits; i++)
+	{
+		vdp_write(tile_base + (digits[(data & 0xF000) >> shift_bits]));
+		data = data << digit_bits;
+	}
+}
+
+static inline void plot_bitfield16(uint16_t data, int16_t x, int16_t y, int16_t pal)
+{
+	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+	vdp_set_autoinc(2);
+	vdp_set_addr(plane_addr);
+
+	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
+	static const uint16_t mask = 1 << ((sizeof(data) * 8) - 1);
+
+	for (uint16_t i = 0; i < sizeof(data) * 8; i++)
+	{
+		vdp_write(tile_base + ((data & mask) ? '1' : '0'));
+		data = data << 1;
+	}
+}
+
+static inline void plot_bool(int16_t data, int16_t x, int16_t y, int16_t pal)
+{
+	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
+	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
+	vdp_set_addr(plane_addr);
+	vdp_write(tile_base + (data ? '1' : '0'));
+}
+
+typedef enum ProgressEditType
+{
+	PROGRESS_EDIT_BITFIELD16,
+	PROGRESS_EDIT_UINT16,
+	PROGRESS_EDIT_BOOL16,
+} ProgressEditType;
+
+typedef struct ProgressEditSlot
+{
+	const char label[32];
+	uint16_t *data;
+	ProgressEditType type;
+} ProgressEditSlot;
+
+static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
+{
+	ProgressSlot *prog = progress_get();
+
+	ProgressEditSlot slots[] =
+	{
+		{"ABILITIES", &prog->abilities, PROGRESS_EDIT_BITFIELD16},
+		{"TELEPORTERS", &prog->teleporters_active, PROGRESS_EDIT_BITFIELD16},
+		{"HP ORBS", &prog->hp_orbs, PROGRESS_EDIT_BITFIELD16},
+		{"HP CAPACITY", &prog->hp_capacity, PROGRESS_EDIT_UINT16},
+		{"CP ORBS", &prog->cp_orbs, PROGRESS_EDIT_BITFIELD16},
+		{"CP ORBS COLLECTED", &prog->collected_cp_orbs, PROGRESS_EDIT_UINT16},
+		{"CP ORBS REGISTERED", &prog->registered_cp_orbs, PROGRESS_EDIT_UINT16},
+		{"TOUCHED FIRST CUBE", &prog->touched_first_cube, PROGRESS_EDIT_BOOL16},
+		{"KILLED DANCYFLOWER", &prog->killed_dancyflower, PROGRESS_EDIT_BOOL16},
+		{"EGG DROPPED", &prog->egg_dropped, PROGRESS_EDIT_BOOL16},
+		{"BOSS 1 DEFEATED", &prog->boss_defeated[0], PROGRESS_EDIT_BOOL16},
+		{"BOSS 2 DEFEATED", &prog->boss_defeated[1], PROGRESS_EDIT_BOOL16},
+	};
+
+	static const int16_t x = kdebug_left + 4;
+	int16_t y = kdebug_top + 2;
+
+	for (uint16_t i = 0; i < ARRAYSIZE(slots); i++)
+	{
+		const ProgressEditSlot *s = &slots[i];
+		plot_string(s->label, x, y, ENEMY_PAL_LINE);
+		switch (s->type)
+		{
+			case PROGRESS_EDIT_BITFIELD16:
+				plot_bitfield16(*s->data, x + 16, y, MAP_PAL_LINE);
+				break;
+
+			default:
+			case PROGRESS_EDIT_UINT16:
+				plot_hex16(*s->data, x + 26, y, MAP_PAL_LINE);
+				break;
+
+			case PROGRESS_EDIT_BOOL16:
+				plot_bool(*s->data, x + 31, y, MAP_PAL_LINE);
+				break;
+		}
+		y++;
+	}
+
+	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	ProgressEditSlot *s = &slots[e->debug.progress_cursor_main];
+	if (e->debug.progress_cursor_bit < 0)
+	{
+		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		{
+			e->debug.progress_cursor_main++;
+		}
+		if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		{
+			e->debug.progress_cursor_main--;
+		}
+
+		if (e->debug.progress_cursor_main >= (signed)ARRAYSIZE(slots))
+		{
+			e->debug.progress_cursor_main = 0;
+		}
+		else if (e->debug.progress_cursor_main < 0)
+		{
+			e->debug.progress_cursor_main = ARRAYSIZE(slots) - 1;
+		}
+
+		if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+		{
+			e->screen = PAUSE_SCREEN_DEBUG;
+		}
+		else if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
+		{
+			if (s->type == PROGRESS_EDIT_BITFIELD16)
+			{
+				e->debug.progress_cursor_bit = 0;
+			}
+			else
+			{
+				e->debug.progress_cursor_bit = 127;
+			}
+		}
+	}
+	else if (e->debug.progress_cursor_bit == 127)
+	{
+		if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+		{
+			e->debug.progress_cursor_bit = -1;
+		}
+		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		{
+			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 0;
+			else (*s->data)--;
+		}
+		else if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		{
+			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 1;
+			else (*s->data)++;
+		}
+	}
+	else
+	{
+		if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+		{
+			e->debug.progress_cursor_bit++;
+		}
+		else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+		{
+			e->debug.progress_cursor_bit--;
+		}
+		if (e->debug.progress_cursor_bit < 0)
+		{
+			e->debug.progress_cursor_bit = 15;
+		}
+		else if (e->debug.progress_cursor_bit > 15)
+		{
+			e->debug.progress_cursor_bit = 0;
+		}
+		if ((buttons & (BTN_B | btn_chk)) && !(e->buttons_prev & (BTN_B | btn_chk)))
+		{
+			e->debug.progress_cursor_bit = -1;
+		}
+		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		{
+			*s->data &= ~(1 << e->debug.progress_cursor_bit);
+		}
+		else if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		{
+			*s->data |= (1 << e->debug.progress_cursor_bit);
+		}
+	}
+}
+
+static void draw_progress_edit_cursor(O_Pause *e)
+{
+	if (e->cursor_flash_frame == 0)
+	{
+		spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+	}
+	if (e->cursor_flash_cnt % 2) return;
+
+	if (e->debug.progress_cursor_bit == 127)
+	{
+		spr_put((kdebug_left + 32) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+	}
+	else if (e->debug.progress_cursor_bit >= 0)
+	{
+		spr_put((kdebug_left + 19 + (16 - e->debug.progress_cursor_bit)) * 8,
+		        (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 }
 
@@ -1166,10 +1408,14 @@ static void main_func(Obj *o)
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
+			
+			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
+			                2, kcursor_flash_delay);
 			break;
 		case PAUSE_SCREEN_DEBUG:
 			if (first_frame)
 			{
+				e->debug.main_cursor = 0;
 				clear_window_plane();
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
 				           sizeof(res_pal_debug_bin) / 2);
@@ -1178,6 +1424,9 @@ static void main_func(Obj *o)
 			draw_debug_main_cursor(e);
 			maybe_dismiss(e, buttons, 0);
 			debug_menu_logic(e, buttons);
+			
+			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
+			                2, kcursor_flash_delay);
 			break;
 		case PAUSE_SCREEN_ROOM_SELECT:
 			if (first_frame)
@@ -1189,6 +1438,9 @@ static void main_func(Obj *o)
 			debug_room_select_logic(e, buttons);
 			plot_room_select_list(e);
 			draw_room_select_cursor(e);
+			
+			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
+			                2, kcursor_flash_delay);
 			break;
 		case PAUSE_SCREEN_SOUND_TEST:
 			if (first_frame)
@@ -1199,6 +1451,23 @@ static void main_func(Obj *o)
 			sound_test_logic(e, buttons);
 			plot_sound_test_ui(e);
 			draw_sound_test_cursor(e);
+			
+			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
+			                2, kcursor_flash_delay);
+			break;
+		case PAUSE_SCREEN_PROGRESS_EDIT:
+			if (first_frame)
+			{
+				clear_window_plane();
+				plot_progress_edit_title();
+				e->debug.progress_cursor_main = 0;
+				e->debug.progress_cursor_bit = -1;
+			}
+			progress_edit_logic_and_plot(e, buttons);
+			draw_progress_edit_cursor(e);
+			
+			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
+			                2, kcursor_flash_delay / 2);
 			break;
 	}
 

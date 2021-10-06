@@ -247,11 +247,14 @@ uint8_t vdp_get_raster_height(void);
 uint16_t vdp_get_raster_width(void);
 
 // Data transfer and DMA configuration
-static inline void vdp_poke(uint16_t addr, uint16_t value);
-static inline void vdp_write(uint16_t value);  // only writes to data.
-static inline uint16_t vdp_peek(uint16_t addr);
-static inline uint16_t vdp_read(void);  // only reads from data.
 static inline void vdp_set_autoinc(uint8_t inc);
+static inline void vdp_set_addr(uint16_t addr);
+static inline void vdp_write(uint16_t value);
+static inline uint16_t vdp_read(void);
+
+static inline void vdp_poke(uint16_t addr, uint16_t value);
+static inline uint16_t vdp_peek(uint16_t addr);
+
 static inline void vdp_wait_dma(void);
 
 // Accessors
@@ -384,6 +387,21 @@ static inline void vdp_set_autoinc(uint8_t inc)
 	vdp_set_reg(VDP_AUTOINC, inc);
 }
 
+static inline void vdp_set_addr(uint16_t addr)
+{
+	VDPPORT_CTRL32 = VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(addr);
+}
+
+static inline void vdp_write(uint16_t value)
+{
+	VDPPORT_DATA = value;
+}
+
+static inline uint16_t vdp_read(void)
+{
+	return VDPPORT_DATA;
+}
+
 static inline void vdp_wait_dma(void)
 {
 	while(vdp_get_status() & VDP_STATUS_DMA)
@@ -394,24 +412,14 @@ static inline void vdp_wait_dma(void)
 
 static inline void vdp_poke(uint16_t addr, uint16_t value)
 {
-	VDPPORT_CTRL32 = VDP_CTRL_VRAM_WRITE | VDP_CTRL_ADDR(addr);
-	VDPPORT_DATA = value;
-}
-
-static inline void vdp_write(uint16_t value)
-{
-	VDPPORT_DATA = value;
+	vdp_set_addr(addr);
+	vdp_write(value);
 }
 
 static inline uint16_t vdp_peek(uint16_t addr)
 {
-	VDPPORT_CTRL32 = VDP_CTRL_VRAM_READ | VDP_CTRL_ADDR(addr);
-	return VDPPORT_DATA;
-}
-
-static inline uint16_t vdp_read(void)
-{
-	return VDPPORT_DATA;
+	vdp_set_addr(addr);
+	return vdp_read();
 }
 
 // HV Counter

@@ -52,6 +52,7 @@ typedef enum PauseScreen
 	PAUSE_SCREEN_DEBUG,
 	PAUSE_SCREEN_ROOM_SELECT,
 	PAUSE_SCREEN_SOUND_TEST,
+	PAUSE_SCREEN_PROGRESS_EDIT,
 } PauseScreen;
 
 typedef struct O_Pause
@@ -72,9 +73,13 @@ typedef struct O_Pause
 		int16_t room_cursor;
 		int16_t room_last_page;
 		int16_t chosen_room_id;
+
 		int16_t sound_cursor;
 		uint8_t bgm_id;
 		uint8_t sfx_id;
+
+		int16_t progress_cursor_main;
+		int16_t progress_cursor_bit;
 	} debug;
 
 	int16_t paused;

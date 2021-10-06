@@ -27,21 +27,21 @@ typedef struct ProgressSlot
 	uint32_t magic_0;  // For save file sanity.
 
 	uint16_t hp_orbs;  // Bitfield for collected HP orb IDs.
-	int16_t hp_capacity;  // Lyle's health capacity (max 15).
+	uint16_t hp_capacity;  // Lyle's health capacity (max 15).
 
 	uint16_t cp_orbs;  // Bitfield for collected CP orb IDs.
-	int8_t collected_cp_orbs;  // CP orbs Lyle has collected.
-	int8_t registered_cp_orbs;  // CP orbs Lyle has deposited.
+	uint16_t collected_cp_orbs;  // CP orbs Lyle has collected.
+	uint16_t registered_cp_orbs;  // CP orbs Lyle has deposited.
 
-	int8_t touched_first_cube;
-	int8_t killed_dancyflower;
+	uint16_t touched_first_cube;
+	uint16_t killed_dancyflower;
 
-	int8_t boss_defeated[2];
-	int8_t egg_dropped;
+	uint16_t boss_defeated[2];
+	uint16_t egg_dropped;
 
 	uint16_t teleporters_active;  // Bitfield for active teleporters.
 
-	uint8_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
+	uint16_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
 	ProgressAbility abilities;
 
 	uint32_t magic_1;  // For save file sanity.
