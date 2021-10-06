@@ -18,6 +18,7 @@
 #include "obj/cube_manager.h"
 #include "res.h"
 #include "music.h"
+#include "obj/rockman_door.h"
 
 static uint16_t s_vram_pos;
 
@@ -609,6 +610,7 @@ static void main_func(Obj *o)
 
 	if (o->hurt_stun == 0)
 	{
+		const O_Lyle *l = lyle_get();
 		static const fix32_t ball_size = INTTOFIX32(3);
 		static const fix32_t ground_y = INTTOFIX32(223);
 		static const fix32_t growth_activation_y = INTTOFIX32(52);
@@ -625,6 +627,11 @@ static void main_func(Obj *o)
 				{
 					e->anim_frame = 0;
 					e->anim_cnt = 0;
+				}
+
+				if (l->head.x + l->head.right < INTTOFIX32(304))
+				{
+					rockman_door_set_closed(1);
 				}
 
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame,
@@ -969,6 +976,7 @@ static void main_func(Obj *o)
 				}
 				break;
 			case BOSS2_STATE_EXPLODED:
+				rockman_door_set_closed(0);
 				bricks_reset();
 				bricks_process(e);
 				return;

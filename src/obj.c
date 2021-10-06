@@ -58,6 +58,7 @@
 #include "obj/broken_egg.h"
 #include "obj/chick.h"
 #include "obj/lavakill.h"
+#include "obj/rockman_door.h"
 
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
@@ -240,6 +241,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_BROKEN_EGG] = {o_load_broken_egg, o_unload_broken_egg},
 	[OBJ_CHICK] = {o_load_chick, o_unload_chick},
 	[OBJ_LAVAKILL] = {o_load_lavakill, NULL},
+	[OBJ_ROCKMAN_DOOR] = {o_load_rockman_door, o_unload_rockman_door},
 
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},

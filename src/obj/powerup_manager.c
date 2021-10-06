@@ -239,6 +239,7 @@ static inline void powerup_get(Powerup *p)
 		case POWERUP_TYPE_PHANTOM:
 			prog->abilities |= ABILITY_PHANTOM;
 			pause_set_screen(PAUSE_SCREEN_GET_PHANTOM);
+			l->cp = LYLE_MAX_CP;
 			break;
 		case POWERUP_TYPE_KICK:
 			prog->abilities |= ABILITY_KICK;

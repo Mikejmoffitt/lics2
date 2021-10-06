@@ -1,6 +1,8 @@
 #include "persistent_state.h"
 #include "progress.h"
 
+#include "obj/lyle.h"
+
 static PersistentState s_persistent_state;
 
 void persistent_state_init(void)
@@ -11,7 +13,8 @@ void persistent_state_init(void)
 	{
 		raw[i] = 0;
 	}
-	s_persistent_state.lyle_hp = 5;
+	s_persistent_state.lyle_hp = LYLE_START_HP;
+	s_persistent_state.lyle_cp = LYLE_START_CP;
 }
 
 PersistentState *persistent_state_get(void)

@@ -56,6 +56,7 @@ static const Gfx gfx[] =
 	[GFX_CORK] = GFX(obj_50_cork),
 	[GFX_BROKEN_EGG] = GFX(obj_51_broken_egg),
 	[GFX_CHICK] = GFX(obj_52_chick),
+	[GFX_ROCKMAN_DOOR] = GFX(obj_54_rockman_door),
 
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),

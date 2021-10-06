@@ -58,6 +58,7 @@ typedef enum ObjType
 	OBJ_BROKEN_EGG    = 51,  // The results of OBJ_EGG falling.
 	OBJ_CHICK         = 52,  // Hatched out of OBJ_BROKEN_EGG.
 	OBJ_LAVAKILL      = 53,  // Kills Lyle if he goes below and to the right.
+	OBJ_ROCKMAN_DOOR  = 54,  // Door that seals off a boss arena.
 
 	OBJ_TECHNOBG     = 119,  // Causes a tile DMA for the technozone FG.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.
