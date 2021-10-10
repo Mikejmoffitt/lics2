@@ -63,8 +63,7 @@ static inline void set_constants(void)
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
 
-//	kintro_dx = INTTOFIX16(PALSCALE_1ST(-0.2777777773));
-	kintro_dx = INTTOFIX16(PALSCALE_1ST(-0.2083333333));
+	kintro_dx = INTTOFIX16(PALSCALE_1ST(-0.2777777773));
 	kintro_anim_speed = PALSCALE_DURATION(14);  // Cribbed from title.c
 	kintro_rockman_door_activate_time = PALSCALE_DURATION(216);
 	kintro_walk_stop_time = PALSCALE_DURATION(420);
@@ -154,6 +153,9 @@ static void render(O_Vyle1 *e)
 		{0, 0, SPR_ATTR(0x9C, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 18 shoot air 2
 		{0, 0, SPR_ATTR(0xA5, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 19 recoil
 		{0, 2, SPR_ATTR(0xAE, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 20 on ground
+		{0, 0, SPR_ATTR(0x54, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 21 run 1
+		{0, 0, SPR_ATTR(0x5D, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 22 run 2
+		{0, 0, SPR_ATTR(0x66, 0, 0, pal, 0), SPR_SIZE(3, 3)},  // 23 run 3
 	};
 
 	const SprDef *def = &frames[e->metaframe];
@@ -177,7 +179,7 @@ static void main_func(Obj *o)
 	switch (e->state)
 	{
 		case VYLE1_STATE_INIT:
-			o->x = INTTOFIX32(GAME_SCREEN_W_PIXELS) - o->left;
+			o->x = INTTOFIX32(GAME_SCREEN_W_PIXELS + 32);
 			e->metaframe = 0;
 
 			if (l->head.x >= INTTOFIX32(64))
@@ -383,7 +385,6 @@ static void main_func(Obj *o)
 
 			if (o->hp >= 127)
 			{
-				// TODO: not sure if this explosion sound should be here or not.
 				sfx_play(SFX_OBJ_BURST, 3);
 				sfx_play(SFX_OBJ_BURST_HI, 3);
 				music_stop();
@@ -441,10 +442,9 @@ static void main_func(Obj *o)
 				o->direction = OBJ_DIRECTION_RIGHT;
 				o->dx = kdx * 2;
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kwalk_anim_speed);
-				// TODO: Add running w/o gun animation for this.
 				static const int16_t metaframes[] =
 				{
-					10, 11, 12, 11
+					21, 22, 23, 22
 				};
 				e->metaframe = metaframes[e->anim_frame];
 			}
@@ -481,7 +481,7 @@ void o_load_vyle1(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL,
+	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-24), 20);
 	o->main_func = main_func;
 	o->cube_func = cube_func;
