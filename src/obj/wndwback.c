@@ -46,7 +46,7 @@ static void render(O_Wndwback *e)
 static void main_func(Obj *o)
 {
 	O_Wndwback *e = (O_Wndwback *)o;
-	render(e);
+	if (e->visible) render(e);
 }
 
 void o_load_wndwback(Obj *o, uint16_t data)
@@ -65,4 +65,22 @@ void o_load_wndwback(Obj *o, uint16_t data)
 void o_unload_wndwback(void)
 {
 	s_vram_pos = 0;
+}
+
+void wndwback_set_visible(int16_t visible)
+{
+	ObjSlot *s = &g_objects[0];
+	int16_t i = ARRAYSIZE(g_objects);
+	while (i--)
+	{
+		Obj *b = (Obj *)s;
+		s++;
+		if (b->status == OBJ_STATUS_NULL ||
+		    b->type != OBJ_WNDWBACK)
+		{
+			continue;
+		}
+		O_Wndwback *e = (O_Wndwback *)b;
+		e->visible = visible;
+	}
 }

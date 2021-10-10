@@ -143,13 +143,14 @@ static inline void plot_map(void)
 		vdp_set_addr(plane_base);
 		for (int16_t x = 0; x < PROGRESS_MAP_W; x++)
 		{
-			if ((progress->abilities & ABILITY_MAP) && progress->map_explored[y][x])
+			if (map_get_world_y_tile() > PROGRESS_MAP_H ||
+			    !(progress->abilities & ABILITY_MAP) || !progress->map_explored[y][x])
 			{
-				vdp_write(tile_base + res_pausemap_bin[pausemap_offset]);
+				vdp_write(tile_base);
 			}
 			else
 			{
-				vdp_write(tile_base);
+				vdp_write(tile_base + res_pausemap_bin[pausemap_offset]);
 			}
 			pausemap_offset++;
 		}
@@ -300,7 +301,7 @@ static inline void draw_cube_sector_text(void)
 static inline void draw_map_location(O_Pause *e)
 {
 	const ProgressSlot *progress = progress_get();
-	if ((progress->abilities & ABILITY_MAP))
+	if (map_get_world_y_tile() <= PROGRESS_MAP_H && (progress->abilities & ABILITY_MAP))
 	{
 		if (e->cursor_flash_frame == 0) return;
 		const int16_t px = FIX32TOINT(lyle_get_x());
@@ -1426,7 +1427,7 @@ static void main_func(Obj *o)
 			debug_menu_logic(e, buttons);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
-			                2, kcursor_flash_delay);
+			                2, kcursor_flash_delay / 2);
 			break;
 		case PAUSE_SCREEN_ROOM_SELECT:
 			if (first_frame)
@@ -1440,7 +1441,7 @@ static void main_func(Obj *o)
 			draw_room_select_cursor(e);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
-			                2, kcursor_flash_delay);
+			                2, kcursor_flash_delay / 2);
 			break;
 		case PAUSE_SCREEN_SOUND_TEST:
 			if (first_frame)
@@ -1453,7 +1454,7 @@ static void main_func(Obj *o)
 			draw_sound_test_cursor(e);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
-			                2, kcursor_flash_delay);
+			                2, kcursor_flash_delay / 2);
 			break;
 		case PAUSE_SCREEN_PROGRESS_EDIT:
 			if (first_frame)

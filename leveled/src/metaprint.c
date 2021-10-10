@@ -29,7 +29,11 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			sprintf(dat2,"Door #%X (LSN)", o->data & 0x000F);
 			break;
 		case OBJ_ROCKMAN_DOOR:
-			sprintf(dat2, "%s side door", (o->data) ? "Right" : "Left");
+			if (o->data & 0xFF00)
+			{
+				sprintf(desc, "Using BG tile $%02X", (o->data & 0xFF00) >> 8);
+			}
+			sprintf(dat2, "%s side door", (o->data & 0x0001) ? "Right" : "Left");
 			break;
 		case OBJ_BALL:
 		case OBJ_CUBE:

@@ -42,6 +42,7 @@ static const Gfx gfx[] =
 	[GFX_FISSINS1] = GFX(obj_33_fissins1),
 	[GFX_BOSS1] = GFX(obj_34_boss1),
 	[GFX_BOSS2] = GFX(obj_35_boss2),
+	[GFX_VYLE1] = GFX(obj_36_vyle1),
 
 	[GFX_EGG] = GFX(obj_38_egg),
 

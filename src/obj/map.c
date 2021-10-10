@@ -23,13 +23,7 @@ static uint16_t s_horizontal_dma_buffer[64];
 static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
 static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
 
-#define TILESET_ASSETS(name) { res_gfx_fg_##name##_bin,\
-                               sizeof(res_gfx_fg_##name##_bin),\
-                               res_pal_fg_##name##_bin,\
-                               sizeof(res_pal_fg_##name##_bin) }
 
-#define MAP_ASSETS(name) { (const MapFile *)(res_map_##name##_bin),\
-                           sizeof(res_map_##name##_bin) }
 
 // LUT representing the data needed for a given tileset ID.
 typedef struct TilesetAssets
@@ -40,6 +34,10 @@ typedef struct TilesetAssets
 	uint32_t pal_data_size;
 } TilesetAssets;
 
+#define TILESET_ASSETS(name) { res_gfx_fg_##name##_bin,\
+                               sizeof(res_gfx_fg_##name##_bin),\
+                               res_pal_fg_##name##_bin,\
+                               sizeof(res_pal_fg_##name##_bin) }
 static const TilesetAssets tileset_by_id[] =
 {
 	[0] = TILESET_ASSETS(00_outside1),
@@ -59,6 +57,7 @@ static const TilesetAssets tileset_by_id[] =
 	[14] = TILESET_ASSETS(14_sandy2),
 	[15] = TILESET_ASSETS(15_basketball),
 };
+#undef TILESET_ASSETS
 
 // LUT for map data by ID
 typedef struct MapAssets
@@ -67,6 +66,8 @@ typedef struct MapAssets
 	unsigned int size;
 } MapAssets;
 
+#define MAP_ASSETS(name) { (const MapFile *)(res_map_##name##_bin),\
+                           sizeof(res_map_##name##_bin) }
 static const MapAssets map_by_id[] =
 {
 	[0] = MAP_ASSETS(00_roomzero),
@@ -126,7 +127,9 @@ static const MapAssets map_by_id[] =
 	[54] = MAP_ASSETS(54_gauntlet),
 	[55] = MAP_ASSETS(55_finaltele),
 	[56] = MAP_ASSETS(56_boss2),
+	[57] = MAP_ASSETS(57_finalboss),
 };
+#undef MAP_ASSETS
 
 static inline int16_t draw_vertical(O_Map *m)
 {

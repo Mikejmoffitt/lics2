@@ -42,6 +42,8 @@
 #include "obj/fissins1.h"
 #include "obj/boss1.h"
 #include "obj/boss2.h"
+#include "obj/vyle1.h"
+// #include "obj/vyle2.h"
 #include "obj/egg.h"
 #include "obj/fissins2.h"
 #include "obj/bounds.h"
@@ -49,7 +51,7 @@
 #include "obj/basketball.h"
 #include "obj/lavaanim.h"
 #include "obj/spooko.h"
-// wip
+// previously WIP; use for next object
 #include "obj/bgscroll.h"
 #include "obj/fakecube.h"
 #include "obj/radio.h"
@@ -225,6 +227,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_FISSINS1] = {o_load_fissins1, o_unload_fissins1},
 	[OBJ_BOSS1] = {o_load_boss1, o_unload_boss1},
 	[OBJ_BOSS2] = {o_load_boss2, o_unload_boss2},
+	[OBJ_VYLE1] = {o_load_vyle1, o_unload_vyle1},
 	[OBJ_EGG] = {o_load_egg, o_unload_egg},
 	[OBJ_FISSINS2] = {o_load_fissins2, o_unload_fissins2},
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},

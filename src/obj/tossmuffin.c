@@ -181,6 +181,11 @@ static void main_func(Obj *o)
 		scan_cubes(e);
 	}
 
+	if (o->hp <= 0 && e->holding_cube)
+	{
+		e->holding_cube->status = CUBE_STATUS_AIR;
+	}
+
 	render(e);
 }
 

@@ -46,8 +46,8 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_BOSS1]         = {"Boss 1  ", 48, 32},
 	[OBJ_BOSS2]         = {"Boss 2  ", 8, 8},
 
-	[OBJ_BOSSF1]        = {"Boss F1 ", 64, 64},
-	[OBJ_BOSSF2]        = {"Boss F2 ", 64, 64},
+	[OBJ_VYLE1]         = {"Vyle 1  ", 24, 24},
+	[OBJ_VYLE2]         = {"Vyle 2  ", 24, 24},
 	[OBJ_EGG]           = {"Egg     ", 24, 32},
 	[OBJ_FISSINS2]      = {"Fissins2", 16, 16},
 
@@ -69,6 +69,9 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_CHICK]         = {"Chick   ", 16, 16},
 	[OBJ_LAVAKILL]      = {"Lavakill", 16, 16},
 	[OBJ_ROCKMAN_DOOR]  = {"RockMnDr", 16, 48},
+	[OBJ_PSYCHOWAVE]    = {"PsychoWv", 48, 48},
+
+	[OBJ_KEDDUMS]       = {"Keddums ", 24, 16},
 
 	[OBJ_TECHNOBG ]     = {"TechnoBG", 16, 16},
 	[OBJ_BGTILE]        = {"BG Tile ", 16, 16},

@@ -34,6 +34,21 @@ static inline void set_constants(void)
 	s_constants_set = 1;
 }
 
+static inline void draw_segment(O_RockmanDoor *e, int16_t sp_x, int16_t sp_y)
+{
+	if (e->tile)
+	{
+		const uint16_t attr = SPR_ATTR(e->tile, 0, 0, MAP_PAL_LINE, 0);
+		spr_put(sp_x, sp_y, attr, SPR_SIZE(2, 1));
+		spr_put(sp_x, sp_y + 8, attr + 0x10, SPR_SIZE(2, 1));
+	}
+	else
+	{
+		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+		                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+	}
+}
+
 static void render(O_RockmanDoor *e)
 {
 	Obj *o = &e->head;
@@ -46,8 +61,8 @@ static void render(O_RockmanDoor *e)
 	for (uint16_t i = 0; i < ARRAYSIZE(kthresh); i++)
 	{
 		if (e->state < kthresh[i]) return;
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
-		                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+
+		draw_segment(e, sp_x, sp_y);
 		sp_y += 16;
 	}
 }
@@ -105,8 +120,10 @@ void o_load_rockman_door(Obj *o, uint16_t data)
 	o->right = INTTOFIX16(10);
 	o->main_func = main_func;
 	o->cube_func = cube_func;
+	o->direction = (data & 0x0001) ? OBJ_DIRECTION_LEFT : OBJ_DIRECTION_RIGHT;
 
-	o->direction = data ? OBJ_DIRECTION_LEFT : OBJ_DIRECTION_RIGHT;
+	O_RockmanDoor *e = (O_RockmanDoor *)o;
+	e->tile = data >> 8;
 }
 
 void o_unload_rockman_door(void)
@@ -129,5 +146,24 @@ void rockman_door_set_closed(int16_t closed)
 		}
 		O_RockmanDoor *e = (O_RockmanDoor *)b;
 		e->closed = closed;
+	}
+}
+
+void rockman_door_set_single_closed(int16_t left, int16_t right)
+{
+	ObjSlot *s = &g_objects[0];
+	int16_t i = ARRAYSIZE(g_objects);
+	while (i--)
+	{
+		Obj *b = (Obj *)s;
+		s++;
+		if (b->status == OBJ_STATUS_NULL ||
+		    b->type != OBJ_ROCKMAN_DOOR)
+		{
+			continue;
+		}
+		O_RockmanDoor *e = (O_RockmanDoor *)b;
+		e->closed = (b->direction == OBJ_DIRECTION_RIGHT && left) ||
+		            (b->direction == OBJ_DIRECTION_LEFT && right);
 	}
 }

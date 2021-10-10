@@ -970,6 +970,8 @@ static void main_func(Obj *o)
 				{
 					o->flags = OBJ_FLAG_SENSITIVE;
 					e->state = BOSS2_STATE_ROAM;
+					e->hover_phase = 0;
+					e->hover_d = 0;
 					o->dy = 0;
 					o->y = growth_activation_y;
 					bricks_init(e, o->hp);

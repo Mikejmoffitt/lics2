@@ -13,6 +13,7 @@
 #include "music.h"
 #include "progress.h"
 #include "persistent_state.h"
+#include "obj/wndwback.h"
 
 static int16_t s_title_is_visible;
 
@@ -536,6 +537,7 @@ static void main_func(Obj *o)
 			lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
 			lyle_set_direction(OBJ_DIRECTION_LEFT);
 			lyle_set_pos(lyle_get_x(), INTTOFIX32(64));
+			wndwback_set_visible(0);
 			map_redraw_room();
 
 			s_title_is_visible = 1;
@@ -576,6 +578,7 @@ static void main_func(Obj *o)
 						// After the bouncing has stopped, go to next state.
 						e->state = TITLE_STATE_CUTSCENE;
 						e->v_scroll_y = kfloor_pos;
+						wndwback_set_visible(1);
 					}
 				}
 			}
@@ -656,6 +659,7 @@ static void main_func(Obj *o)
 				e->menu_choice = 1;  // Continue.
 				music_play(14);  // Alone in the Dark
 				lyle_set_pos(o->x - INTTOFIX32(32), INTTOFIX32(679));
+				wndwback_set_visible(1);
 			}
 
 			e->menu_flash_cnt++;
