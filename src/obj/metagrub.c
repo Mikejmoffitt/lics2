@@ -15,6 +15,8 @@ static int16_t klunge_time;
 
 static uint16_t s_constants_set;
 
+static int16_t s_disable;
+
 static inline void set_constants(void)
 {
 	if (s_constants_set) return;
@@ -72,7 +74,7 @@ static void metagrub_main(Obj *o)
 {
 	O_Metagrub *e = (O_Metagrub *)o;
 
-	if (title_is_visible()) return;
+	if (s_disable) return;
 	const fix32_t lyle_x = lyle_get_x();
 
 	if (o->hurt_stun > 0)
@@ -133,4 +135,9 @@ void o_load_metagrub(Obj *o, uint16_t data)
 void o_unload_metagrub(void)
 {
 	s_vram_pos = 0;
+}
+
+void metagrub_set_enable(int16_t enable)
+{
+	s_disable = !enable;
 }

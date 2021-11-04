@@ -72,19 +72,18 @@ static void run_frame(void)
 			obj_spawn(0, 0, OBJ_BG, 0);
 			obj_spawn(0, 0, OBJ_PAUSE, 0);
 
-			O_Lyle *l = lyle_get();
-			l->head.dx = persistent_state->lyle_entry_dx;
-			l->head.dy = persistent_state->lyle_entry_dy;
-			l->phantom_cnt = persistent_state->lyle_phantom_cnt;
-			l->cp = persistent_state->lyle_cp;
-			l->head.hp = persistent_state->lyle_hp;
-			l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
-			                                     OBJ_DIRECTION_RIGHT;
-			l->tele_in_cnt = persistent_state->lyle_tele_in_cnt;
-
-			persistent_state->track_id = map_get_music_track();
-			music_play(persistent_state->track_id);
-			// s_room_loaded = 1;
+			{
+				O_Lyle *l = lyle_get();
+				l->head.dx = persistent_state->lyle_entry_dx;
+				l->head.dy = persistent_state->lyle_entry_dy;
+				l->phantom_cnt = persistent_state->lyle_phantom_cnt;
+				l->cp = persistent_state->lyle_cp;
+				l->head.hp = persistent_state->lyle_hp;
+				l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
+				                                     OBJ_DIRECTION_RIGHT;
+				l->tele_in_cnt = persistent_state->lyle_tele_in_cnt;
+			}
+			music_play(map_get_music_track());
 			s_room_elapsed = 0;
 			progress_save();
 			s_game_state++;
@@ -97,16 +96,31 @@ static void run_frame(void)
 			obj_exec();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();
-			if (map_get_exit_trigger() || debug_room_id >= 0)
+			const MapExitTrigger exit_trigger = map_get_exit_trigger();
+			if ((exit_trigger != MAP_EXIT_NONE) || debug_room_id >= 0)
 			{
+				O_Lyle *l = lyle_get();
 				if (debug_room_id >= 0)
 				{
-			//		prog->abilities = ABILITY_MASK;
-					O_Lyle *l = lyle_get();
 					l->head.hp = prog->hp_capacity;
 					l->cp = LYLE_MAX_CP;
 					persistent_state->next_room_id = debug_room_id;
 					persistent_state->next_room_entrance = 0;
+				}
+				else if (exit_trigger == MAP_EXIT_DEAD)
+				{
+					persistent_state->next_room_id = 127;
+				}
+				else if (exit_trigger == MAP_EXIT_RESTART)
+				{
+					persistent_state_init();
+					persistent_state->next_room_id = map_get_next_room_id();
+					persistent_state->next_room_entrance =
+					    map_get_next_room_entrance();
+					l->cp = persistent_state->lyle_cp;
+					l->head.hp = persistent_state->lyle_hp;
+					l->head.dx = 0;
+					l->head.dy = 0;
 				}
 				else
 				{
@@ -116,7 +130,6 @@ static void run_frame(void)
 				}
 
 				// Save Lyle's position and status information.
-				const O_Lyle *l = lyle_get();
 				persistent_state->lyle_entry_dx = l->head.dx;
 				// Have Lyle thrust upwards if exiting from the top.
 				persistent_state->lyle_entry_dy = (map_get_exit_trigger() == MAP_EXIT_TOP) ?

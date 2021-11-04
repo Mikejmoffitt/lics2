@@ -62,6 +62,7 @@ typedef enum ObjType
 	OBJ_PSYCHOWAVE    = 55,  // Kitty powered psychowave.
 	OBJ_KEDDUMS       = 56,  // Lyle's cat in the psychowave.
 
+	OBJ_GAMEOVER     = 118,  // Game over cube / sequence.
 	OBJ_TECHNOBG     = 119,  // Tile DMA for technozone foreground.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.
 	OBJ_COLUMNS      = 121,  // Tile DMA for columns foreground.

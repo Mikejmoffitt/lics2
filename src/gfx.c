@@ -15,6 +15,7 @@ static const Gfx gfx[] =
 	[GFX_METAGRUB] = GFX(obj_3_metagrub),
 	[GFX_FLIP] = GFX(obj_4_flip),
 	[GFX_BOINGO] = GFX(obj_5_boingo),
+
 	[GFX_GAXTER] = GFX(obj_7_gaxter),
 
 	[GFX_BUGGO] = GFX(obj_9_buggo),
@@ -43,32 +44,34 @@ static const Gfx gfx[] =
 	[GFX_BOSS1] = GFX(obj_34_boss1),
 	[GFX_BOSS2] = GFX(obj_35_boss2),
 	[GFX_VYLE1] = GFX(obj_36_vyle1),
-
+	[GFX_VYLE2] = GFX(obj_37_vyle2),
 	[GFX_EGG] = GFX(obj_38_egg),
-
 	[GFX_FISSINS2] = GFX(obj_39_fissins2),
-	[GFX_SMALL_EGG] = GFX(obj_41_small_egg),
 
+	[GFX_SMALL_EGG] = GFX(obj_41_small_egg),
 	[GFX_BASKETBALL] = GFX(obj_42_basketball),
 	[GFX_LAVAANIM] = GFX(obj_43_lavaanim),
 	[GFX_SPOOKO] = GFX(obj_44_spooko),
+
 	[GFX_RADIO] = GFX(obj_48_radio),
 	[GFX_CHIMNEY] = GFX(obj_49_chimney),
 	[GFX_CORK] = GFX(obj_50_cork),
 	[GFX_BROKEN_EGG] = GFX(obj_51_broken_egg),
 	[GFX_CHICK] = GFX(obj_52_chick),
+
 	[GFX_ROCKMAN_DOOR] = GFX(obj_54_rockman_door),
 
+	[GFX_GAMEOVER] = GFX(obj_118_gameover),
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),
 
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
+	[GFX_HUD] = GFX(obj_132_hud),
 	[GFX_POWERUP_MANAGER] = GFX(obj_136_powerup_manager),
 
 	[GFX_EX_PROJECTILES] = GFX(ex_projectiles),
 	[GFX_EX_PARTICLES] = GFX(ex_particles),
-	[GFX_EX_HUD] = GFX(ex_hud),
 	[GFX_EX_CREDITS] = GFX(ex_credits),
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
@@ -114,23 +117,19 @@ const Gfx *gfx_get(GfxId id)
 	return &gfx[id];
 }
 
-uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
-{
-	if (!g->data) return 0;
-	// DMA operates in terms of words rather than bytes
-	const uint16_t transfer_words = g->size / 2;
-	dma_q_transfer_vram(load_pos, (void *)g->data, transfer_words, 2);
-	return load_pos / 32;
-}
-
-
-uint16_t gfx_load_ex(const Gfx *g, int16_t start, uint16_t size, uint16_t load_pos)
+uint16_t gfx_load_ex(const Gfx *g, uint16_t start, uint16_t size, uint16_t load_pos)
 {
 	if (!g->data) return 0;
 	if (size > g->size) size = g->size;
+//	// DMA operates in terms of words rather than bytes
 	const uint16_t transfer_words = size / 2;
 	const uint8_t *gdata = (const uint8_t *)g->data;
 	dma_q_transfer_vram(load_pos, &gdata[start], transfer_words, 2);
 	return load_pos / 32;
 }
 
+uint16_t gfx_load(const Gfx *g, uint16_t load_pos)
+{
+	if (!g->data) return 0;
+	return gfx_load_ex(g, 0, g->size, load_pos);
+}

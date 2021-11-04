@@ -270,9 +270,20 @@ static void main_func(Obj *o)
 			{
 				o->y = ground_y;
 				o->dy = 0;
+				e->state = BOSS1_STATE_SHAKE_DELAY;
+				e->drop.shaking = 1;
+				e->metaframe = 0;
+				// TODO: play loud crash sound
+			}
+			break;
+
+		case BOSS1_STATE_SHAKE_DELAY:  // Wait for screen shake to finish.
+			if (e->state_elapsed >= kroar_delay)
+			{
 				e->state = BOSS1_STATE_PRESHOT;
 				e->shots_remaining = 1 + (system_rand() % 4);
 				music_play(10);
+				e->drop.shaking = 0;
 			}
 			break;
 

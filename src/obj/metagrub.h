@@ -12,4 +12,6 @@ typedef struct O_Metagrub
 
 void o_load_metagrub(Obj *o, uint16_t data);
 void o_unload_metagrub(void);
+
+void metagrub_set_enable(int16_t enable);
 #endif  // OBJ_METAGRUB_H

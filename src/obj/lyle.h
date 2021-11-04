@@ -51,6 +51,7 @@ typedef struct O_Lyle
 	int8_t priority;
 
 	int8_t full_disable;
+	int8_t dead;
 } O_Lyle;
 
 extern O_Lyle *g_lyle;

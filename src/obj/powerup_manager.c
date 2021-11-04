@@ -283,7 +283,8 @@ static inline void powerup_run(Powerup *p)
 	const Obj *lh = &lyle_get()->head;
 
 	// Check for collision with player
-	if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
+	if (lh->hp > 0 &&
+	    !((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
 	      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
 	      (p->y < lh->y + lh->top) ||
 	      (p->y - (2 * POWERUP_MARGIN) > lh->y)))

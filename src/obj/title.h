@@ -56,6 +56,4 @@ typedef struct O_Title
 void o_load_title(Obj *o, uint16_t data);
 void o_unload_title(void);
 
-int16_t title_is_visible(void);
-
 #endif  // OBJ_TITLE_H

@@ -56,6 +56,8 @@ static const TilesetAssets tileset_by_id[] =
 	[13] = TILESET_ASSETS(13_purplecity),
 	[14] = TILESET_ASSETS(14_sandy2),
 	[15] = TILESET_ASSETS(15_basketball),
+	[16] = TILESET_ASSETS(16_finalfight),
+	[17] = TILESET_ASSETS(17_gameover),
 };
 #undef TILESET_ASSETS
 
@@ -128,6 +130,9 @@ static const MapAssets map_by_id[] =
 	[55] = MAP_ASSETS(55_finaltele),
 	[56] = MAP_ASSETS(56_boss2),
 	[57] = MAP_ASSETS(57_finalboss),
+	[58] = MAP_ASSETS(58_truefinalboss),
+
+	[127] = MAP_ASSETS(127_gameover),
 };
 #undef MAP_ASSETS
 

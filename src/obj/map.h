@@ -23,7 +23,9 @@ typedef enum MapExitTrigger
 	MAP_EXIT_LEFT,
 	MAP_EXIT_RIGHT,
 	MAP_EXIT_TELEPORT,
-	AMP_EXIT_OTHER
+	MAP_EXIT_DEAD,
+	MAP_EXIT_RESTART,
+	MAP_EXIT_OTHER
 } MapExitTrigger;
 
 typedef struct O_Map

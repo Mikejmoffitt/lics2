@@ -14,8 +14,9 @@
 #include "progress.h"
 #include "persistent_state.h"
 #include "obj/wndwback.h"
-
-static int16_t s_title_is_visible;
+#include "obj/metagrub.h"
+#include "obj/hud.h"
+#include "sfx.h"
 
 static const fix32_t kfloor_pos = INTTOFIX32(688);
 static const fix32_t kinitial_scroll = INTTOFIX32(360);
@@ -509,7 +510,7 @@ static void maybe_skip_to_menu(O_Title *e)
 		return;
 	}
 	const MdButton buttons = io_pad_read(0);
-	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+	if ((buttons & (BTN_START | BTN_A | BTN_C)) && !(e->buttons_prev & (BTN_A | BTN_C | BTN_START)))
 	{
 		e->v_scroll_y = kfloor_pos;
 		e->state_elapsed = 0;
@@ -540,7 +541,8 @@ static void main_func(Obj *o)
 			wndwback_set_visible(0);
 			map_redraw_room();
 
-			s_title_is_visible = 1;
+			hud_set_visible(0);
+			metagrub_set_enable(0);
 
 			e->state = TITLE_STATE_INTRO;
 			break;
@@ -672,17 +674,17 @@ static void main_func(Obj *o)
 				e->menu_choice != 0)
 			{
 				e->menu_choice = 0;
-				// TODO: Play select sound
+				sfx_play(SFX_BEEP, 1);
 			}
 
 			if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT) &&
 				e->menu_choice != 1)
 			{
 				e->menu_choice = 1;
-				// TODO: Play select sound
+				sfx_play(SFX_BEEP, 1);
 			}
 
-			if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+			if ((buttons & (BTN_START | BTN_A | BTN_C)) && !(e->buttons_prev & (BTN_START | BTN_A | BTN_C)))
 			{
 				if (e->menu_choice == 0)
 				{
@@ -690,8 +692,9 @@ static void main_func(Obj *o)
 					progress_erase();
 					persistent_state_init();
 				}
-				// TODO: Play menu confirmation sound
 				e->state = TITLE_STATE_BEGIN;
+				sfx_play(SFX_SELECT_1, 0);
+				sfx_play(SFX_SELECT_2, 0);
 			}
 
 			render_title_full(e);
@@ -789,7 +792,8 @@ static void main_func(Obj *o)
 				lyle_get()->priority = 0;
 				music_play(1);  // Stage music
 				o->status = OBJ_STATUS_NULL;
-				s_title_is_visible = 0;
+				hud_set_visible(1);
+				metagrub_set_enable(1);
 				return;
 			}
 			render_title_full(e);
@@ -817,7 +821,8 @@ void o_load_title(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	e->v_scroll_y = INTTOFIX32(360);
-	s_title_is_visible = 1;
+	hud_set_visible(0);
+	metagrub_set_enable(0);
 }
 
 void o_unload_title(void)
@@ -825,7 +830,3 @@ void o_unload_title(void)
 	s_vram_pos = 0;
 }
 
-int16_t title_is_visible(void)
-{
-	return s_title_is_visible;
-}

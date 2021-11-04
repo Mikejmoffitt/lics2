@@ -9,6 +9,7 @@ typedef enum Boss1State
 	BOSS1_STATE_APPROACH,  // Boss enters from left.
 	BOSS1_STATE_ROAR,  // Delay, then roar.
 	BOSS1_STATE_FALLDOWN,  // Delay, then drops down.
+	BOSS1_STATE_SHAKE_DELAY,  // Delay waiting for screen shake to complete.
 	// These states loop and form the fight,
 	BOSS1_STATE_PRECHARGE,  // Running anim in place.
 	BOSS1_STATE_CHARGE,  // Runs forwards until a wall is hit.

@@ -937,6 +937,83 @@ static const SfxSample sfx_giver_3[] =
 
 #undef SWEEPMAG
 
+#define SELECTNOTE(f, e) \
+SFX_P(f, e+0), \
+SFX_P(f, e+1)
+
+static const SfxSample sfx_select_1[] =
+{
+	SELECTNOTE(PSG_BASE_C, 0),
+	SELECTNOTE(PSG_BASE_C, 2),
+	SELECTNOTE(PSG_BASE_E, 0),
+	SELECTNOTE(PSG_BASE_E, 2),
+	SELECTNOTE(PSG_BASE_G, 0),
+	SELECTNOTE(PSG_BASE_G, 2),
+	SELECTNOTE(PSG_BASE_B, 0),
+	SELECTNOTE(PSG_BASE_B, 2),
+	SELECTNOTE(PSG_BASE_D / 2, 0),
+	SELECTNOTE(PSG_BASE_D / 2, 2),
+	SELECTNOTE(PSG_BASE_G, 3),
+	SELECTNOTE(PSG_BASE_B, 5),
+	SELECTNOTE(PSG_BASE_B, 3),
+	SELECTNOTE(PSG_BASE_D / 2, 5),
+	SELECTNOTE(PSG_BASE_D / 2, 3),
+	SELECTNOTE(PSG_BASE_G, 4),
+	SELECTNOTE(PSG_BASE_B, 6),
+	SELECTNOTE(PSG_BASE_B, 4),
+	SELECTNOTE(PSG_BASE_D / 2, 6),
+	SELECTNOTE(PSG_BASE_D / 2, 4),
+	SFX_END()
+};
+#undef SELECTNOTE
+
+#define SELECTNOTE(f, e) \
+SFX_P(f / 2, e+0), \
+SFX_P(f / 2, e+1)
+static const SfxSample sfx_select_2[] =
+{
+	SELECTNOTE(PSG_BASE_C, 0),
+	SELECTNOTE(PSG_BASE_C, 2),
+	SELECTNOTE(PSG_BASE_E, 0),
+	SELECTNOTE(PSG_BASE_E, 2),
+	SELECTNOTE(PSG_BASE_G, 0),
+	SELECTNOTE(PSG_BASE_G, 2),
+	SELECTNOTE(PSG_BASE_B, 0),
+	SELECTNOTE(PSG_BASE_B, 2),
+	SELECTNOTE(PSG_BASE_D / 2, 0),
+	SELECTNOTE(PSG_BASE_D / 2, 2),
+	SELECTNOTE(PSG_BASE_G, 3),
+	SELECTNOTE(PSG_BASE_B, 5),
+	SELECTNOTE(PSG_BASE_B, 3),
+	SELECTNOTE(PSG_BASE_D / 2, 5),
+	SELECTNOTE(PSG_BASE_D / 2, 3),
+	SELECTNOTE(PSG_BASE_G, 4),
+	SELECTNOTE(PSG_BASE_B, 6),
+	SELECTNOTE(PSG_BASE_B, 4),
+	SELECTNOTE(PSG_BASE_D / 2, 6),
+	SELECTNOTE(PSG_BASE_D / 2, 4),
+	SFX_END()
+};
+
+#undef SELECTNOTE
+
+static const SfxSample sfx_beep[] =
+{
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 2, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_P(PSG_BASE_D / 4, 0),
+	SFX_END()
+};
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -970,6 +1047,9 @@ static const SfxSample *stream_by_id[] =
 	[SFX_GIVER_1] = sfx_giver_1,
 	[SFX_GIVER_2] = sfx_giver_2,
 	[SFX_GIVER_3] = sfx_giver_3,
+	[SFX_BEEP] = sfx_beep,
+	[SFX_SELECT_1] = sfx_select_1,
+	[SFX_SELECT_2] = sfx_select_2,
 };
 
 // Sound routines.

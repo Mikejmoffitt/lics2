@@ -43,7 +43,7 @@
 #include "obj/boss1.h"
 #include "obj/boss2.h"
 #include "obj/vyle1.h"
-// #include "obj/vyle2.h"
+#include "obj/vyle2.h"
 #include "obj/egg.h"
 #include "obj/fissins2.h"
 #include "obj/bounds.h"
@@ -62,6 +62,7 @@
 #include "obj/lavakill.h"
 #include "obj/rockman_door.h"
 
+#include "obj/gameover.h"
 #include "obj/technobg.h"
 #include "obj/bgtile.h"
 #include "obj/columns.h"
@@ -228,6 +229,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_BOSS1] = {o_load_boss1, o_unload_boss1},
 	[OBJ_BOSS2] = {o_load_boss2, o_unload_boss2},
 	[OBJ_VYLE1] = {o_load_vyle1, o_unload_vyle1},
+	[OBJ_VYLE2] = {o_load_vyle2, o_unload_vyle2},
 	[OBJ_EGG] = {o_load_egg, o_unload_egg},
 	[OBJ_FISSINS2] = {o_load_fissins2, o_unload_fissins2},
 	[OBJ_BOUNDS] = {o_load_bounds, o_unload_bounds},
@@ -246,6 +248,7 @@ static const SetupFuncs setup_funcs[] =
 	[OBJ_LAVAKILL] = {o_load_lavakill, NULL},
 	[OBJ_ROCKMAN_DOOR] = {o_load_rockman_door, o_unload_rockman_door},
 
+	[OBJ_GAMEOVER] = {o_load_gameover, o_unload_gameover},
 	[OBJ_TECHNOBG] = {o_load_technobg, NULL},
 	[OBJ_BGTILE] = {o_load_bgtile, NULL},
 	[OBJ_COLUMNS] = {o_load_columns, NULL},

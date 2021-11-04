@@ -13,6 +13,8 @@ static void main_func(Obj *o)
 	if (l->head.x < o->x) return;
 	if (l->head.y < o->y) return;
 
+
+
 	l->head.hp = 0;
 }
 

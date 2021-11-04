@@ -62,10 +62,16 @@ typedef struct O_Pause
 	PauseScreen screen;
 	PauseScreen screen_prev;
 
-	int16_t cursor_flash_frame;
 	int16_t cursor_flash_cnt;
+	int16_t cursor_flash_frame;
 
 	int16_t dismissal_delay_cnt;
+	int16_t select_delay_cnt;
+
+	int16_t menu_flash_cnt;
+	int16_t menu_flash_frame;
+	int16_t pause_choice;  // 0 - continue; 1 = save & quit; 2 = yes; 3 = no
+	int16_t pause_select_cnt;
 
 	struct
 	{

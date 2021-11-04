@@ -9,7 +9,6 @@
 #include "obj/map.h"
 #include "common.h"
 #include "obj/lyle.h"
-#include "obj/title.h"
 #include "progress.h"
 
 // On-screen height of CP meter. Should be a multiple of 8.
@@ -20,11 +19,13 @@
 
 static uint16_t s_vram_pos;
 
+static int16_t s_visible;
+
 static void vram_load(void)
 {
 	if (s_vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_EX_HUD);
+	const Gfx *g = gfx_get(GFX_HUD);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
@@ -33,7 +34,7 @@ static void vram_load(void)
 static inline void draw_hp(void)
 {
 	const ProgressSlot *progress = progress_get();
-	const int16_t hud_x = 4;
+	static const int16_t hud_x = 5;
 	const int16_t y_offset = vdp_get_raster_height() == 240 ? 0 : -8;
 
 	// Label.
@@ -60,8 +61,8 @@ static inline void draw_hp(void)
 
 static inline void draw_cp(void)
 {
-	const int16_t hud_x = 4;
-	const int16_t y_offset = vdp_get_raster_height() == 240 ? 0 : -8;
+	static const int16_t hud_x = 5;
+	const int16_t y_offset = vdp_get_raster_height() == 240 ? 0 : -2;
 
 	// Label.
 	spr_put(hud_x, y_offset + 206,
@@ -87,7 +88,7 @@ static void main_func(Obj *o)
 {
 	(void)o;
 
-	if (title_is_visible()) return;
+	if (!s_visible) return;
 	const ProgressSlot *progress = progress_get();
 	draw_hp();
 	if (progress->abilities & ABILITY_PHANTOM) draw_cp();
@@ -107,4 +108,9 @@ void o_load_hud(Obj *o, uint16_t data)
 void o_unload_hud(void)
 {
 	s_vram_pos = 0;
+}
+
+void hud_set_visible(int16_t visible)
+{
+	s_visible = visible;
 }

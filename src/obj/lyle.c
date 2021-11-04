@@ -5,6 +5,7 @@
 #include "system.h"
 #include "gfx.h"
 #include "sfx.h"
+#include "music.h"
 
 #include "game.h"
 #include "palscale.h"
@@ -47,10 +48,12 @@ static fix16_t kdy_max;
 static fix16_t kx_accel;
 static fix16_t kgravity;
 static fix16_t kgravity_weak;
+static fix16_t kgravity_dead;
 static fix16_t kjump_dy;
 static fix16_t kceiling_dy;
 static fix16_t khurt_dx;
 static fix16_t kdx_snap;  // 0.1
+static fix16_t kdead_dy;
 
 static fix16_t ktoss_cube_dx_short;
 static fix16_t ktoss_cube_dy_short;
@@ -86,6 +89,7 @@ static int16_t kcp_spawn_fast;
 static int16_t kcp_spawn_slow;
 static int16_t kcube_fx;
 static int16_t kanim_speed;
+static int16_t kdead_anim_speed;
 static int16_t ktele_anim;
 
 static void set_constants(void)
@@ -98,10 +102,12 @@ static void set_constants(void)
 	kx_accel = INTTOFIX16(PALSCALE_2ND(0.10416666667));
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.15972222223));  // Was 0.21 : 0.3024
 	kgravity_weak = INTTOFIX16(PALSCALE_2ND(0.0903777777777));  // Was 0.10 : 0.144
+	kgravity_dead = INTTOFIX16(PALSCALE_2ND(0.09259259259259));
 	kjump_dy = INTTOFIX16(PALSCALE_1ST(-2.94));  // was -2.94 : -3.58
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));  // was -0.42 : -0.5
 	khurt_dx = INTTOFIX16(PALSCALE_1ST(-1.91666667));  // was -1.92 : -2.3
 	kdx_snap = INTTOFIX16(PALSCALE_1ST(0.1));
+	kdead_dy = INTTOFIX16(PALSCALE_1ST(-3.24074074074));
 
 	ktoss_cube_dx_short = INTTOFIX16(PALSCALE_1ST(0.83333333333));
 	ktoss_cube_dy_short = INTTOFIX16(PALSCALE_1ST(-2.5));
@@ -135,6 +141,7 @@ static void set_constants(void)
 
 	kcube_fx = PALSCALE_DURATION(6.3);
 	kanim_speed = PALSCALE_DURATION(6.8);
+	kdead_anim_speed = PALSCALE_DURATION(6);
 	ktele_anim = PALSCALE_DURATION(75);  // was 75 : 62
 
 	s_constants_set = 1;
@@ -190,7 +197,7 @@ static inline void eval_grounded(O_Lyle *l)
 	l->grounded = (map_collision(px_r, py) || map_collision(px_l, py));
 }
 
-static inline void teleport_seq(O_Lyle *l)
+static inline void handle_teleportation_counters(O_Lyle *l)
 {
 	if (l->tele_out_cnt > 0)
 	{
@@ -721,6 +728,14 @@ static inline void cube_collision(O_Lyle *l)
 	}
 }
 
+static inline void dead_exit_check(O_Lyle *l)
+{
+	if (l->head.y > INTTOFIX32(map_get_y_scroll() + GAME_SCREEN_H_PIXELS))
+	{
+		map_set_exit_trigger(MAP_EXIT_DEAD);
+	}
+}
+
 static inline void exit_check(O_Lyle *l)
 {
 	const fix32_t x_margin = INTTOFIX32(6);
@@ -746,10 +761,13 @@ static inline void exit_check(O_Lyle *l)
 
 static inline void gravity(O_Lyle *l)
 {
-	if (l->grounded || l->on_cube) return;
-	// TODO: Alternate gravity when dying. Or, just use another object...
+	if (l->head.hp > 0 && (l->grounded || l->on_cube)) return;
 
-	if ((buttons & BTN_C) && (l->hurt_cnt <= 0) && l->head.dy < 0)
+	if (l->head.hp <= 0)
+	{
+		l->head.dy += kgravity_dead;
+	}
+	else if ((buttons & BTN_C) && (l->hurt_cnt <= 0) && l->head.dy < 0)
 	{
 		l->head.dy += kgravity_weak;
 	}
@@ -866,24 +884,46 @@ static void calc_anim_frame(O_Lyle *l)
 	{
 		return;
 	}
-	if (l->grounded || l->on_cube)
+	if (l->head.hp > 0)
 	{
-		l->anim_cnt++;
-		if (l->anim_cnt == kanim_speed * 4) l->anim_cnt = 0;
-	}
-	else
-	{
-		l->anim_cnt = 0;
+		if (l->grounded || l->on_cube)
+		{
+			l->anim_cnt++;
+			if (l->anim_cnt == kanim_speed * 4) l->anim_cnt = 0;
+		}
+		else
+		{
+			l->anim_cnt = 0;
+		}
 	}
 
-	// TODO: Shouldn't this skip the render instead?
-	if (l->invuln_cnt && (g_elapsed % 2))
+	if (l->head.hp > 0 && l->invuln_cnt && (g_elapsed % 2))
 	{
 		return;
 	}
-	// TODO: Dying sequence
 	
-	if (l->tele_out_cnt > 0 || l->tele_in_cnt > 0)  // Teleporting
+	// TODO: This really sucks, and it's more or less a port of the crummy old
+	// code from long ago. This should be replaced with a simple table.
+	if (l->head.hp <= 0)
+	{
+		if (l->anim_cnt >= kdead_anim_speed)
+		{
+			l->anim_cnt = 0;
+			l->anim_frame = (l->anim_frame == 0x0F) ? 0x10 : 0x0F;
+			if (l->anim_frame == 0x0F)
+			{
+				l->head.direction = (l->head.direction == OBJ_DIRECTION_LEFT) ?
+				                    OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+			}
+		}
+		else
+		{
+			l->anim_cnt++;
+		}
+		if (l->anim_frame < 0x0F) l->anim_frame = 0x0F;
+		else if (l->anim_frame > 0x10) l->anim_frame = 0x10;
+	}
+	else if (l->tele_out_cnt > 0 || l->tele_in_cnt > 0)  // Teleporting
 	{
 		l->anim_frame = 0x00;
 	}
@@ -971,7 +1011,7 @@ static inline void draw(O_Lyle *l)
 		                       FIX32TOINT(l->head.y) + y_offset,
 		                       l->holding_cube);
 	}
-	if (l->invuln_cnt && odd_frame) return;
+	if (l->head.hp > 0 && l->invuln_cnt && odd_frame) return;
 
 	// Teleporter in flashing
 	if (l->tele_out_cnt > 0)
@@ -989,10 +1029,11 @@ static inline void draw(O_Lyle *l)
 	const uint16_t tile_offset = (l->anim_frame < 0x14) ?
 	                              l->anim_frame * 6 :
 	                              (120 + (9 * (l->anim_frame - 0x14)));
-	uint8_t size;
-	int16_t yoff;
-	int16_t xoff;
-	int16_t transfer_bytes;
+	uint8_t size = 0;
+	int16_t yoff = 0;
+	int16_t xoff = 0;
+	int16_t transfer_bytes = 0;
+	int16_t yflip = 0;
 
 	// Set sprite size and Y offset based on frame
 	if (l->anim_frame < 0x10)
@@ -1008,7 +1049,8 @@ static inline void draw(O_Lyle *l)
 		transfer_bytes = 2 * 3 * 32;
 		size = SPR_SIZE(3, 2);
 		yoff = LYLE_DRAW_TOP + 8;
-		xoff = LYLE_DRAW_LEFT -4;
+		xoff = LYLE_DRAW_LEFT - 4;
+		if (l->anim_frame == 0x10) yoff -= 4;
 	}
 	else
 	{
@@ -1016,6 +1058,17 @@ static inline void draw(O_Lyle *l)
 		size = SPR_SIZE(3, 3);
 		yoff = LYLE_DRAW_TOP;
 		xoff = LYLE_DRAW_LEFT + (l->head.direction == OBJ_DIRECTION_LEFT ? -8 : 0);
+	}
+
+	if (l->anim_frame >= 0x0F && l->anim_frame <= 0x10 &&
+	    l->head.direction == OBJ_DIRECTION_LEFT)
+	{
+		yflip = 1;
+	}
+
+	if (l->anim_frame >= 0x14 && l->anim_frame <= 0x15)
+	{
+		yoff += 2;
 	}
 
 	const Gfx *g = gfx_get(GFX_LYLE);
@@ -1030,7 +1083,7 @@ static inline void draw(O_Lyle *l)
 
 	spr_put(sp_x, sp_y,
 	        SPR_ATTR(s_vram_pos,
-	                 l->head.direction == OBJ_DIRECTION_LEFT, 0,
+	                 l->head.direction == OBJ_DIRECTION_LEFT, yflip,
 	                 LYLE_PAL_LINE, l->priority),
 	        size);
 }
@@ -1075,6 +1128,25 @@ static inline void update_exploration(O_Lyle *l)
 	prog->map_explored[y_index][x_index] = 1;
 }
 
+static void maybe_die(O_Lyle *l)
+{
+	if (l->head.hp == 0 && !l->dead)
+	{
+		// TODO: Play big hurt sound
+		sfx_stop_all();
+		sfx_play(SFX_HURT, 0);
+		music_stop();
+
+		l->head.dx = 0;
+		l->head.dy = kdead_dy;
+
+		l->holding_cube = CUBE_TYPE_NULL;
+		l->priority = 1;
+
+		l->dead = 1;
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Lyle *l = (O_Lyle *)o;
@@ -1083,37 +1155,42 @@ static void main_func(Obj *o)
 		buttons_prev = buttons;
 		buttons = io_pad_read(0);
 
-		teleport_seq(l);
-		x_acceleration(l);
-		toss_cubes(l);
-		lift_cubes(l);
-		cp(l);
-		jump(l);
+		maybe_die(l);
 
-		system_profile(PALRGB(7, 0, 0));
-		obj_standard_physics(&l->head);
-		bg_vertical_collision(l);
-		bg_horizontal_collision(l);
-		head_pushout(l);
-		eval_grounded(l);
-		system_profile(PALRGB(0, 4, 3));
-		cube_collision(l);
-		system_profile(PALRGB(3, 1, 1));
-		exit_check(l);
-		gravity(l);
+		if (o->hp > 0)
+		{
+			handle_teleportation_counters(l);
+			x_acceleration(l);
+			toss_cubes(l);
+			lift_cubes(l);
+			cp(l);
+			jump(l);
 
-		system_profile(PALRGB(3, 1, 5));
-		check_spikes(l);
-		system_profile(PALRGB(6, 6, 7));
-		calc_anim_frame(l);
-		system_profile(PALRGB(1, 1, 1));
-		counters(l);
-		set_map_scroll(l);
-		system_profile(PALRGB(4, 4, 0));
+			obj_standard_physics(&l->head);
+			bg_vertical_collision(l);
+			bg_horizontal_collision(l);
+			head_pushout(l);
+			eval_grounded(l);
+			cube_collision(l);
+			exit_check(l);
+			gravity(l);
+
+			check_spikes(l);
+			calc_anim_frame(l);
+			counters(l);
+			set_map_scroll(l);
+		}
+		else
+		{
+			obj_standard_physics(&l->head);
+			cp(l);
+			gravity(l);
+			dead_exit_check(l);
+			calc_anim_frame(l);
+		}
 	}
-	draw(l);
-	system_profile(PALRGB(0, 0, 0));
 
+	draw(l);
 	update_exploration(l);
 }
 
@@ -1135,7 +1212,7 @@ void o_load_lyle(Obj *o, uint16_t data)
 
 	// Lyle is not marked tangible because he does his own cube detection.
 	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
-	                  LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 5);
+	                  LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 2);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;

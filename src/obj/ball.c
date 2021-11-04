@@ -30,7 +30,7 @@ static inline void set_constants(void)
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
 
-	kanim_speed = PALSCALE_DURATION(12);
+	kanim_speed = PALSCALE_DURATION(4);
 
 	s_constants_set = 1;
 }

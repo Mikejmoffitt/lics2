@@ -20,6 +20,8 @@ static uint16_t s_vram_pos;
 
 static int16_t kcursor_flash_delay;
 static int16_t kdismissal_delay_frames;
+static int16_t kselect_delay_frames;
+static int16_t kmenu_flash_delay;
 
 static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 5;
@@ -772,9 +774,11 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 		return;
 	}
 
-	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+	if (e->select_delay_cnt == 0 && (buttons & BTN_START) && !(e->buttons_prev & BTN_START))
 	{
-		e->screen = PAUSE_SCREEN_NONE;
+		sfx_play(SFX_SELECT_1, 0);
+		sfx_play(SFX_SELECT_2, 0);
+		e->select_delay_cnt = 1;
 	}
 }
 
@@ -797,7 +801,7 @@ static void screen_reset(O_Pause *e)
 
 static void maybe_switch_to_debug(O_Pause *e, MdButton buttons)
 {
-	if (buttons & BTN_C)
+	if (buttons & (BTN_B))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
 	}
@@ -1285,16 +1289,125 @@ static void draw_progress_edit_cursor(O_Pause *e)
 	}
 }
 
+static void draw_pause_menu(O_Pause *e)
+{
+	const int16_t continue_offs = (e->pause_choice == 0 && e->menu_flash_frame) ? 0xD8 : 0xD0;
+	static const int16_t continue_x = 80;
+	static const int16_t continue_y = 168;
+	const int16_t quit_offs = (e->pause_choice == 1 && e->menu_flash_frame) ? 0xE9 : 0xE0;
+	static const int16_t quit_x = 168;
+	static const int16_t quit_y = 168;
+	const int16_t yes_offs = (e->pause_choice == 2 && e->menu_flash_frame) ? 0xF2 : 0xF5;
+	static const int16_t yes_x = 96 + 22;
+	static const int16_t yes_y = 176;
+	const int16_t no_offs = (e->pause_choice == 3 && e->menu_flash_frame) ? 0xF8 : 0xFA;
+	static const int16_t no_x = 96 + 83;
+	static const int16_t no_y = 176;
+	static const int16_t sure_x = 96 + 38;
+	static const int16_t sure_y = 168;
+	switch (e->pause_choice)
+	{
+		case 0:
+		case 1:
+			spr_put(continue_x, continue_y, VDP_ATTR(s_vram_pos + continue_offs,
+			                                         0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			spr_put(continue_x + 32, continue_y, VDP_ATTR(s_vram_pos + continue_offs + 4,
+			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			spr_put(quit_x, quit_y, VDP_ATTR(s_vram_pos + quit_offs,
+			                                         0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			spr_put(quit_x + 32, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 4,
+			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			spr_put(quit_x + 64, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 8,
+			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
+			break;
+		case 2:
+		case 3:
+			spr_put(sure_x, sure_y, VDP_ATTR(s_vram_pos + 0xC0, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			spr_put(sure_x + 32, sure_y, VDP_ATTR(s_vram_pos + 0xC0 + 4, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
+			spr_put(yes_x, yes_y, VDP_ATTR(s_vram_pos + yes_offs,
+			                               0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
+			spr_put(no_x, no_y, VDP_ATTR(s_vram_pos + no_offs,
+			                             0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
+			break;
+	}
+}
+
+static void pause_menu_logic(O_Pause *e, MdButton buttons)
+{
+	const int16_t right_trigger = (buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT);
+	const int16_t left_trigger = (buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT);
+
+	if (e->pause_select_cnt == 0)
+	{
+		if (e->pause_choice >= 0 && e->pause_choice <= 1)
+		{
+			if (left_trigger)
+			{
+				e->pause_choice = 0;
+				sfx_play(SFX_BEEP, 1);
+			}
+			else if (right_trigger)
+			{
+				e->pause_choice = 1;
+				sfx_play(SFX_BEEP, 1);
+			}
+		}
+		else if (e->pause_choice >= 2 && e->pause_choice <= 3)
+		{
+			if (left_trigger)
+			{
+				e->pause_choice = 2;
+				sfx_play(SFX_BEEP, 1);
+			}
+			else if (right_trigger)
+			{
+				e->pause_choice = 3;
+				sfx_play(SFX_BEEP, 1);
+			}
+		}
+		if ((buttons & (BTN_A | BTN_C | BTN_START) && !(e->buttons_prev & (BTN_A | BTN_C | BTN_START))))
+		{
+			e->pause_select_cnt = kselect_delay_frames;
+			sfx_play(SFX_SELECT_1, 0);
+			sfx_play(SFX_SELECT_2, 0);
+		}
+	}
+	else
+	{
+		e->pause_select_cnt--;
+		if (e->pause_select_cnt == 0)
+		{
+			switch (e->pause_choice)
+			{
+				case 0:
+					e->screen = PAUSE_SCREEN_NONE;
+					break;
+				case 1:
+					e->pause_choice = 3;
+					break;
+				case 2:
+					map_set_next_room(0, 0);
+					map_set_exit_trigger(MAP_EXIT_RESTART);
+					break;
+				case 3:
+					e->pause_choice = 1;
+					break;
+			}
+		}
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Pause *e = (O_Pause *)o;
 
-	// Search for an active title object, and abort early if it's present.
+	// Search for an active title or gameover object, and abort early.
 	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 		if (o->type == OBJ_TITLE) return;
+		if (o->type == OBJ_GAMEOVER) return;
 	}
 
 	const MdButton buttons = io_pad_read(0);
@@ -1311,6 +1424,7 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_NONE:
 			if (first_frame)
 			{
+				e->select_delay_cnt = 0;
 				map_upload_palette();
 				e->window = 0;
 			}
@@ -1326,16 +1440,30 @@ static void main_func(Obj *o)
 				           sizeof(res_pal_pause_bin) / 2);
 				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
+				e->pause_choice = 0;
+				e->pause_select_cnt = 0;
 			}
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
 			                2, kcursor_flash_delay);
+			OBJ_SIMPLE_ANIM(e->menu_flash_cnt, e->menu_flash_frame,
+			                2, kmenu_flash_delay);
+			pause_menu_logic(e, buttons);
 			draw_map_location(e);
 			draw_map_pause_text();
 			draw_cube_sector_text();
 			draw_item_icons();
 			draw_cp_orb_count();
+			draw_pause_menu(e);
+			/*
+			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
 			maybe_dismiss(e, buttons, 0);
+			if (e->select_delay_cnt >= kselect_delay_frames)
+			{
+				// TODO: Open "are you sure?" dialogue, and accept save & quit
+				e->screen = PAUSE_SCREEN_NONE;
+			}
+			*/
 			maybe_switch_to_debug(e, buttons);
 			break;
 		case PAUSE_SCREEN_GET_MAP:
@@ -1357,6 +1485,11 @@ static void main_func(Obj *o)
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
+			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
+			if (e->select_delay_cnt >= kselect_delay_frames)
+			{
+				e->screen = PAUSE_SCREEN_NONE;
+			}
 			break;
 		case PAUSE_SCREEN_HP_ORB_0:
 		case PAUSE_SCREEN_HP_ORB_1:
@@ -1383,6 +1516,11 @@ static void main_func(Obj *o)
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
+			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
+			if (e->select_delay_cnt >= kselect_delay_frames)
+			{
+				e->screen = PAUSE_SCREEN_NONE;
+			}
 			break;
 		case PAUSE_SCREEN_CP_ORB_0:
 		case PAUSE_SCREEN_CP_ORB_1:
@@ -1409,6 +1547,11 @@ static void main_func(Obj *o)
 			}
 			draw_you_got(e->screen);
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
+			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
+			if (e->select_delay_cnt >= kselect_delay_frames)
+			{
+				e->screen = PAUSE_SCREEN_NONE;
+			}
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
 			                2, kcursor_flash_delay);
@@ -1424,6 +1567,7 @@ static void main_func(Obj *o)
 			}
 			draw_debug_main_cursor(e);
 			maybe_dismiss(e, buttons, 0);
+			if (e->select_delay_cnt != 0) e->screen = PAUSE_SCREEN_NONE;
 			debug_menu_logic(e, buttons);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
@@ -1494,6 +1638,8 @@ static inline void set_constants(void)
 
 	kcursor_flash_delay = PALSCALE_DURATION(12);
 	kdismissal_delay_frames = PALSCALE_DURATION(60);
+	kselect_delay_frames = PALSCALE_DURATION(36);
+	kmenu_flash_delay = PALSCALE_DURATION(5);
 	s_constants_set = 1;
 }
 
