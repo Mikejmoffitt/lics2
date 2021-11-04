@@ -51,10 +51,6 @@ typedef enum MdButton
 #define IO_LOC_RXD3    (IO_LOC_BASE + 0x1D)
 #define IO_LOC_SERIO3  (IO_LOC_BASE + 0x1F)
 
-// Poll controller inputs.
-// This should be called during vblank.
-void io_poll(void);
-
 // Get the state of one control port (0 through 2)
 // This returns from the cache captured during vblank, so there are no
 // concerns about touching IO ports or disabling the Z80.
@@ -67,5 +63,10 @@ void io_gamepad_en(uint8_t port);
 // Turn on IRQ generation for the TH pin.
 // Make sure to enable thint on the VDP (vdp_set_thint_en)
 void io_thint_en(uint8_t port, uint8_t enabled);
+
+// Internal Use ---------------------------------------------------------------
+
+// Poll controller inputs.
+void io_poll(void);
 
 #endif // MD_IO_H

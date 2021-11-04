@@ -1,5 +1,5 @@
 /* md-toolchain header and C runtime startup
-Michael Moffitt 2018 */
+Michael Moffitt 2021 */
 
 	.section	.text.keepboot
 
@@ -16,6 +16,7 @@ Michael Moffitt 2018 */
 	.extern _v_irq5
 	.extern _v_irq6
 	.extern _v_irq7
+	.extern megadrive_init
 
 	.global	_v_table
 	.global	_start
@@ -203,6 +204,7 @@ start:
 	.global	softreset
 softreset:
 	move.l	#0xFFFFE0, %sp
+	jsr	megadrive_init
 	jmp	start
 
 .include	"md/irq.inc"

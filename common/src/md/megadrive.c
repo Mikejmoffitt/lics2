@@ -11,10 +11,7 @@ void megadrive_init(void)
 	sys_di();
 	vdp_init();
 	dma_q_init();
-	for (int i = 0; i < 64; i++)
-	{
-		pal_set(i, 0);
-	}
+	pal_poll();
 	io_gamepad_en(0);
 	io_gamepad_en(1);
 	io_gamepad_en(2);

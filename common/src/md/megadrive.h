@@ -2,7 +2,6 @@
 // 2018-2020 Michael Moffitt
 // ===========================================================================
 
-
 #ifndef MD_MEGADRIVE_H
 #define MD_MEGADRIVE_H
 
@@ -16,7 +15,18 @@
 #include "md/psg.h"   // SN76489-compatible PSG sound chip
 #include "md/sram.h"  // Support for battery-backed SRAM
 
-// (optional) default startup.
+// Run after completing the logic in one game tick loop.
+static inline void megadrive_finish(void)
+{
+	spr_finish();
+	pal_poll();
+	vdp_wait_vblank();
+	io_poll();
+	dma_q_process();
+}
+
+// Internal use ---------------------------------------------------------------
+
 // * Initializes VDP with VDP defaults (see vdp.c):
 //     * Vertical blank interrupt enabled
 //     * 320 x 224 (40x28 cell) video mode
@@ -34,14 +44,5 @@
 // * Configures IO ports for gamepad reads
 // * Enables interrupts
 void megadrive_init(void);
-
-// Run after completing the logic in one game tick loop.
-static inline void megadrive_finish(void)
-{
-	spr_finish();
-	vdp_wait_vblank();
-	io_poll();
-	dma_q_process();
-}
 
 #endif // MD_MEGADRIVE_H

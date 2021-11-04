@@ -28,9 +28,6 @@ extern uint8_t g_sprite_count;
 // Clears sprites and initialize g_sprite_next.
 static inline void spr_init(void);
 
-// Terminate the sprite list and schedule a DMA. Resets g_sprite_next.
-void spr_finish(void);
-
 // Place a sprite using screen position coordinates.
 static inline void spr_put(int16_t x, int16_t y, uint16_t attr, uint8_t size);
 
@@ -40,6 +37,11 @@ static inline void spr_mask_line_full(int16_t y, uint8_t size);
 // Masks off any sprites on scanlines that intersect two sprite positions.
 static inline void spr_mask_line_comb(int16_t y1, uint8_t size1,
                                       int16_t y2, uint8_t size2);
+
+// Internal Use ---------------------------------------------------------------
+
+// Terminate the sprite list and schedule a DMA. Called by megadrive_finish().
+void spr_finish(void);
 
 // Static implementations =====================================================
 

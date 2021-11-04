@@ -44,6 +44,8 @@ void dma_q_fill_vram(uint16_t dest, uint16_t val, uint16_t bytes, uint16_t strid
 // Schedule a DMA for next vblank to copy n words from VRAM src to VRAM dest.
 void dma_q_copy_vram(uint16_t dest, uint16_t src, uint16_t bytes, uint16_t stride);
 
+// Internal Use ---------------------------------------------------------------
+
 // Process any queued DMA requests.
 void dma_q_process(void);
 
