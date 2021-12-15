@@ -53,6 +53,7 @@ typedef enum PauseScreen
 	PAUSE_SCREEN_ROOM_SELECT,
 	PAUSE_SCREEN_SOUND_TEST,
 	PAUSE_SCREEN_PROGRESS_EDIT,
+	PAUSE_SCREEN_VRAM_VIEW,
 } PauseScreen;
 
 typedef struct O_Pause
@@ -86,6 +87,9 @@ typedef struct O_Pause
 
 		int16_t progress_cursor_main;
 		int16_t progress_cursor_bit;
+
+		uint16_t vram_view_offset;
+		uint8_t vram_view_pal;
 	} debug;
 
 	int16_t paused;

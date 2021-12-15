@@ -11,7 +11,6 @@ void megadrive_init(void)
 	sys_di();
 	vdp_init();
 	dma_q_init();
-	pal_poll();
 	io_gamepad_en(0);
 	io_gamepad_en(1);
 	io_gamepad_en(2);

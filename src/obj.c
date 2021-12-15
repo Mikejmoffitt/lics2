@@ -442,6 +442,11 @@ uint16_t obj_vram_alloc(uint16_t bytes)
 	return ret;
 }
 
+uint16_t obj_get_vram_pos(void)
+{
+	return obj_vram_pos;
+}
+
 void obj_cube_impact(Obj *o, Cube *c)
 {
 	if (o->cube_func) o->cube_func(o, c);

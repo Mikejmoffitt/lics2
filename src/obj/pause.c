@@ -862,7 +862,7 @@ static const DebugOption debug_options[] =
 	{"ROOM SELECT", PAUSE_SCREEN_ROOM_SELECT},
 	{"SOUND TEST", PAUSE_SCREEN_SOUND_TEST},
 	{"PROGRESS EDIT", PAUSE_SCREEN_PROGRESS_EDIT},
-	{"VRAM VIEW", 0},
+	{"VRAM VIEW", PAUSE_SCREEN_VRAM_VIEW},
 	{"PRG VIEW", 0},
 	{"RAM VIEW", 0},
 	{"EXIT", PAUSE_SCREEN_NONE},
@@ -1368,6 +1368,155 @@ static void draw_press_button(int16_t x, int16_t y, int16_t frame)
 	spr_put(x, y, base_attr + n_offs, SPR_SIZE(1, 1));
 }
 
+// vram view
+
+static void plot_vram_view_title(void)
+{
+	plot_string("@ VIDEO MEMORY VIEWER @", kdebug_left, kdebug_top, ENEMY_PAL_LINE);
+	plot_string("D@PAD    @ CHANGE OFFSET", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
+	plot_string("BUTTON C @ CHANGE PALETTE", kdebug_left, kdebug_top + 22, ENEMY_PAL_LINE);
+	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 23, ENEMY_PAL_LINE);
+
+	plot_string("x 0123456789ABCDEF", kdebug_left, kdebug_top + 2, ENEMY_PAL_LINE);
+	plot_string("0\n1\n2\n3\n4\n5\n6\n7\n8\n9\nA\nB\nC\nD\nE\nF", kdebug_left, kdebug_top + 4, ENEMY_PAL_LINE);
+}
+
+static const int16_t kvram_view_column_count = 16;
+
+static void plot_vram_view(uint16_t offset, uint8_t pal)
+{
+	static const int16_t x = kdebug_left + 2;
+	static const int16_t y = kdebug_top + 4;
+	static const int16_t krow_count = 16;
+
+	uint16_t attr = VDP_ATTR(offset, 0, 0, pal, 1);
+
+
+	SYSTEM_ASSERT(kvram_view_column_count % 4 == 0);
+
+	/*
+	const uint16_t base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	for (int16_t row = 0; row < krow_count; row++)
+	{
+		const uint16_t addr = base + 2 * (((y + row) * GAME_PLANE_W_CELLS) + x);
+		vdp_set_autoinc(2);
+		vdp_set_addr(addr);
+		for (int16_t col = 0; col < kvram_view_column_count; col++)
+		{
+			vdp_write(attr);
+			attr++;
+		}
+	}
+*/
+	uint16_t spr_y = y * 8;
+	for (int16_t row = 0; row < krow_count; row++)
+	{
+		uint16_t spr_x = x * 8;
+		for (int16_t col = 0; col < kvram_view_column_count; col += 4)
+		{
+			spr_put(spr_x, spr_y, attr, SPR_SIZE(4, 1));
+			spr_x += 32;
+			attr += 4;
+		}
+		spr_y += 8;
+	}
+
+	char hex_str[7];
+	hex_str[0] = '0';
+	hex_str[1] = 'x';
+	for (int16_t i = 0; i < 4; i++)
+	{
+		const uint8_t digit = offset & 0xF;
+		const int16_t idx = 2 + (3 - i);
+		if (digit >= 0xA) hex_str[idx] = 'A' + (digit - 0xA);
+		else hex_str[idx] = '0' + (digit);
+		offset = offset >> 4;
+	}
+	hex_str[6] = '\0';
+
+	plot_string("OFFSET", kdebug_left + 24, kdebug_top + 1, ENEMY_PAL_LINE);
+	plot_string(hex_str, kdebug_left + 24, kdebug_top + 2, ENEMY_PAL_LINE);
+
+	uint16_t vpal = pal;
+	for (int16_t i = 0; i < 4; i++)
+	{
+		const uint8_t digit = vpal & 0xF;
+		const int16_t idx = 2 + (3 - i);
+		if (digit >= 0xA) hex_str[idx] = 'A' + (digit - 0xA);
+		else hex_str[idx] = '0' + (digit);
+		vpal = vpal >> 4;
+	}
+	plot_string("PAL", kdebug_left + 24, kdebug_top + 4, ENEMY_PAL_LINE);
+	plot_string(hex_str, kdebug_left + 24, kdebug_top + 5, ENEMY_PAL_LINE);
+
+	plot_string("OBJ USED", kdebug_left + 24, kdebug_top + 7, ENEMY_PAL_LINE);
+	uint16_t obj_tiles = obj_get_vram_pos() - OBJ_TILE_VRAM_POSITION;
+
+	for (int16_t i = 0; i < 4; i++)
+	{
+		const uint8_t digit = obj_tiles & 0xF;
+		const int16_t idx = 2 + (3 - i);
+		if (digit >= 0xA) hex_str[idx] = 'A' + (digit - 0xA);
+		else hex_str[idx] = '0' + (digit);
+		obj_tiles = obj_tiles >> 4;
+	}
+	plot_string(hex_str, kdebug_left + 24, kdebug_top + 8, ENEMY_PAL_LINE);
+
+	plot_string("OBJ FREE", kdebug_left + 24, kdebug_top + 10, ENEMY_PAL_LINE);
+
+	uint16_t obj_free = OBJ_TILE_VRAM_LENGTH - (obj_get_vram_pos() - OBJ_TILE_VRAM_POSITION);
+
+	for (int16_t i = 0; i < 4; i++)
+	{
+		const uint8_t digit = obj_free & 0xF;
+		const int16_t idx = 2 + (3 - i);
+		if (digit >= 0xA) hex_str[idx] = 'A' + (digit - 0xA);
+		else hex_str[idx] = '0' + (digit);
+		obj_free = obj_free >> 4;
+	}
+	plot_string(hex_str, kdebug_left + 24, kdebug_top + 11, ENEMY_PAL_LINE);
+}
+
+static void vram_view_logic(O_Pause *e)
+{
+	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	const MdButton buttons = io_pad_read(0);
+
+	if (buttons & BTN_DOWN && !(e->buttons_prev & BTN_DOWN) &&
+	    e->debug.vram_view_offset <= 0x06F0)
+	{
+		e->debug.vram_view_offset += 0x0010;
+	}
+	if (buttons & BTN_UP && !(e->buttons_prev & BTN_UP) &&
+	    e->debug.vram_view_offset >= 0x0010)
+	{
+		e->debug.vram_view_offset -= 0x0010;
+	}
+
+	if (buttons & BTN_RIGHT && !(e->buttons_prev & BTN_RIGHT) &&
+	    e->debug.vram_view_offset <= 0x600)
+	{
+		e->debug.vram_view_offset += 0x0100;
+	}
+	if (buttons & BTN_LEFT && !(e->buttons_prev & BTN_LEFT) &&
+	    e->debug.vram_view_offset >= 0x0100)
+	{
+		e->debug.vram_view_offset -= 0x0100;
+	}
+
+	if (buttons & btn_chk && !(e->buttons_prev & btn_chk))
+	{
+		e->debug.vram_view_pal++;
+	}
+	e->debug.vram_view_pal &= 0x03;
+	if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	{
+		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
+// pause menu
+
 static void draw_pause_menu(O_Pause *e)
 {
 	const int16_t continue_offs = (e->pause_choice == 0 && e->menu_flash_frame) ? 0xD0 : 0xD8;
@@ -1696,6 +1845,21 @@ static void main_func(Obj *o)
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
 			                2, kcursor_flash_delay / 2);
+			break;
+		case PAUSE_SCREEN_VRAM_VIEW:
+			if (first_frame)
+			{
+				clear_window_plane();
+				e->debug.vram_view_offset = 0;
+				e->debug.vram_view_pal = 0;
+				map_upload_palette();
+				bg_upload_palette();
+				lyle_upload_palette();
+				plot_vram_view_title();
+			}
+
+			vram_view_logic(e);
+			plot_vram_view(e->debug.vram_view_offset, e->debug.vram_view_pal);
 			break;
 	}
 

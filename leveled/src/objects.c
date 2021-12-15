@@ -47,7 +47,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_BOSS2]         = {"Boss 2  ", 8, 8},
 
 	[OBJ_VYLE1]         = {"Vyle 1  ", 24, 24},
-	[OBJ_VYLE2]         = {"Vyle 2  ", 24, 24},
+	[OBJ_VYLE2]         = {"Vyle 2  ", 64, 64},
 	[OBJ_EGG]           = {"Egg     ", 24, 32},
 	[OBJ_FISSINS2]      = {"Fissins2", 16, 16},
 
@@ -73,7 +73,8 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 
 	[OBJ_KEDDUMS]       = {"Keddums ", 24, 16},
 
-	[OBJ_TECHNOBG ]     = {"TechnoBG", 16, 16},
+	[OBJ_GAMEOVER]      = {"GameOver", 64, 64},
+	[OBJ_TECHNOBG]      = {"TechnoBG", 16, 16},
 	[OBJ_BGTILE]        = {"BG Tile ", 16, 16},
 	[OBJ_COLUMNS]       = {"Columns ", 16, 16},
 	[OBJ_GRASSES]       = {"Grasses ", 16, 16},

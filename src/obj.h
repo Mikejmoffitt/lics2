@@ -103,6 +103,8 @@ void obj_vram_set_base(uint16_t addr);
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes);
 
+uint16_t obj_get_vram_pos(void);
+
 // Called by cube manager when a collision against an object is detected.
 // Calls an object's cube handler, or the default if there is none.
 void obj_cube_impact(Obj *o, Cube *c);
