@@ -674,6 +674,7 @@ static void main_func(Obj *o)
 				e->menu_choice != 0)
 			{
 				e->menu_choice = 0;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 
@@ -681,6 +682,7 @@ static void main_func(Obj *o)
 				e->menu_choice != 1)
 			{
 				e->menu_choice = 1;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 
