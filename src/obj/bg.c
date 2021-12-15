@@ -11,7 +11,7 @@
 #include "game.h"
 #include "res.h"
 
-static uint16_t s_loaded;
+static O_Bg *s_bg;
 
 static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
 static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
@@ -65,14 +65,6 @@ static inline void set_v_scroll_plane(int16_t value)
 		s_v_scroll_buffer[i] = value;
 	}
 }
-
-typedef struct BgDescriptor
-{
-	GfxId gfx_id;
-	const uint8_t *palette;
-	const uint8_t *mapping;
-	uint16_t mapping_size;
-} BgDescriptor;
 
 static const BgDescriptor backgrounds[] =
 {
@@ -650,14 +642,9 @@ void o_load_bg(Obj *o, uint16_t data)
 	(void)data;
 
 	// Only allow one BG object to be loaded.
-	SYSTEM_ASSERT(!s_loaded);
-	if (s_loaded)
-	{
-		o->status = OBJ_STATUS_NULL;
-		return;
-	}
-
+	SYSTEM_ASSERT(s_bg == NULL);
 	O_Bg *f = (O_Bg *)o;
+	s_bg = f;
 
 	f->last_x_scroll = -1;
 	f->last_y_scroll = -1;
@@ -669,21 +656,10 @@ void o_load_bg(Obj *o, uint16_t data)
 	scratch_clear();
 
 	f->bg_id = map_get_background();
-	const BgDescriptor *b = &backgrounds[f->bg_id];
+	f->descriptor = &backgrounds[f->bg_id];
+	const BgDescriptor *b = f->descriptor;
 
-	// Load palette.
-	pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
-	           sizeof(res_pal_bg_common_bin) / 2);
-	// Load graphics tiles.
-
-	if (b->palette)
-	{
-		pal_upload(BG_CRAM_POSITION, b->palette, 8);
-	}
-	else
-	{
-		pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
-	}
+	bg_upload_palette();
 
 	if (b->gfx_id != GFX_NULL)
 	{
@@ -721,11 +697,29 @@ void o_load_bg(Obj *o, uint16_t data)
 	set_v_scroll_plane(0);
 	dma_q_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 	dma_q_transfer_vram(vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 4);
-
-	s_loaded = 1;
 }
 
 void o_unload_bg(void)
 {
-	s_loaded = 0;
+	s_bg = NULL;
+}
+
+void bg_upload_palette(void)
+{
+	if (!s_bg) return;
+	const BgDescriptor *b = s_bg->descriptor;
+
+	// Load palette.
+	pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
+	           sizeof(res_pal_bg_common_bin) / 2);
+	// Load graphics tiles.
+
+	if (b->palette)
+	{
+		pal_upload(BG_CRAM_POSITION, b->palette, 8);
+	}
+	else
+	{
+		pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
+	}
 }
