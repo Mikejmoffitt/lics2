@@ -91,4 +91,6 @@ void lyle_set_scroll_v_en(int16_t en);
 void lyle_set_control_en(int16_t en);
 void lyle_set_master_en(int16_t en);
 
+void lyle_upload_palette(void);
+
 #endif  // OBJ_LYLE_H

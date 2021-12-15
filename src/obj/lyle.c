@@ -1217,6 +1217,11 @@ void o_load_lyle(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
+	lyle_upload_palette();
+}
+
+void lyle_upload_palette(void)
+{
 	pal_upload(LYLE_CRAM_POSITION, res_pal_lyle_bin, sizeof(res_pal_lyle_bin) / 2);
 }
 
