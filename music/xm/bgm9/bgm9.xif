@@ -3,7 +3,7 @@
 
 # PSG1 is often used for SFX so try not to use it
 
-FILE "..\..\prj\music\xm\bgm9\bgm9.xm"
+FILE "..\..\\music\xm\bgm9\bgm9.xm"
 TYPE BGM LOOP
 
 TEMPO 4

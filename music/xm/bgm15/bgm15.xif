@@ -1,6 +1,6 @@
 # Created by XM2ESFGUI
 # FROM DAT OERG866 YEYEYE
-FILE "..\..\prj\music\xm\bgm15\bgm15.xm"
+FILE "..\..\\music\xm\bgm15\bgm15.xm"
 TYPE BGM LOOP
 TEMPO 6
 PSG 0

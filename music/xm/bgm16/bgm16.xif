@@ -1,42 +1,41 @@
 # Created by XM2ESFGUI
 # FROM DAT OERG866 YEYEYE
+FILE "..\..\\music\xm\bgm16\bgm16.xm"
 
-# PSG1 is often used for SFX so try not to use it
-
-FILE "..\..\\music\xm\bgm5\bgm5.xm"
 TYPE BGM LOOP
 TEMPO 6
-PSG 0
 NOISE 1
 FM 5
 PCM 1
+
 FM1 1
 FM2 2
 FM3 3
 FM4 4
-FM5 5
+FM4 5
 PCMC 6
 PSGN 7
+
 [Instruments]
-1 25
-2 0
-3 0
-4 1
-5 4
-6 6
-7 5
-8 26
-9 0
-10 0
+1 4
+2 5
+3 20
+4 1F
+5 0
+6 06
+7 1E
+8 7
+9 21
+10 10
 11 0
 12 0
 13 0
-14 27
-15 2
+14 0
+15 0
 16 0
 17 0
 18 0
-19 0
+19 C
 20 0
 21 0
 22 0
@@ -147,12 +146,12 @@ PSGN 7
 127 0
 128 0
 [Pitch]
-FM1 -13
-FM2 -1
-FM3 -1
-FM4 -1
-FM5 -1
-PSGN 30
+FM1 -5
+FM2 -5
+FM3 -5
+FM4 -5
+FM5 -5
+PSGN 0
 [Volume]
 FM1 50
 FM2 50

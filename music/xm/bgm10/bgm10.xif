@@ -1,5 +1,5 @@
 # Created by XM2ESFGUI
-FILE "..\..\prj\music\xm\bgm10\bgm10.xm"
+FILE "..\..\\music\xm\bgm10\bgm10.xm"
 TYPE BGM LOOP
 
 TEMPO 4

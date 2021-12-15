@@ -95,6 +95,8 @@ static const void * const instrument_list[] =
 	[0x4F] = res_mus_eif_4f_title_arps_eif,
 	[0x50] = res_mus_eif_50_title_chord_eif,
 	[0x51] = res_mus_eif_51_title_saw_att_eif,
+	[0x52] = res_mus_eif_52_sine_decay_2_eif,
+	[0x53] = res_mus_eif_53_synth5_with_decay_eif,
 	NULL
 };
 
@@ -119,7 +121,7 @@ static const BgmEntry bgm_list[] =
 	{res_mus_esf_bgm10_esf, 0xBD},
 	{res_mus_esf_bgm11_esf, 0xBD},
 	{NULL, 0xC9},
-	{NULL, 0xC9},
+	{res_mus_esf_bgm13_esf, 0xC9},
 	{res_mus_esf_bgm14_esf, 0xC9},
 	{res_mus_esf_bgm15_esf, 0xC7},
 	{res_mus_esf_bgm16_esf, 0xC7},

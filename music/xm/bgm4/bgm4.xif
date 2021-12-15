@@ -1,10 +1,10 @@
 # Created by XM2ESFGUI
 # FROM DAT OERG866 YEYEYE
-FILE "..\..\prj\music\xm\bgm4\bgm4.xm"
+FILE "..\..\\music\xm\bgm4\bgm4.xm"
 
 TYPE BGM LOOP
-TEMPO 6
-NOISE 1
+TEMPO 7
+NOISE 0
 FM 5
 PCM 1
 
@@ -12,21 +12,20 @@ FM1 1
 FM2 2
 FM3 3
 FM4 4
-FM4 5
+FM5 5
 PCMC 6
-PSGN 7
 
 [Instruments]
-1 4
-2 5
-3 20
-4 1F
+1 49
+2 4B
+3 4D
+4 4E
 5 0
-6 06
+6 48
 7 1E
-8 7
+8 05
 9 21
-10 10
+10 4A
 11 0
 12 0
 13 0
@@ -146,17 +145,17 @@ PSGN 7
 127 0
 128 0
 [Pitch]
-FM1 -5
-FM2 -5
-FM3 -5
-FM4 -5
-FM5 -5
+FM1 0
+FM2 0
+FM3 0
+FM4 0
+FM5 0
 PSGN 0
 [Volume]
 FM1 50
 FM2 50
-FM3 50
-FM4 50
-FM5 50
+FM3 62
+FM4 62
+FM5 62
 PSGN 64
 [END]

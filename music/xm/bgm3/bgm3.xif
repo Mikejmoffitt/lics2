@@ -1,6 +1,6 @@
 # Created by XM2ESFGUI
 # FROM DAT OERG866 YEYEYE
-FILE "..\..\prj\music\xm\bgm3\bgm3.xm"
+FILE "..\..\\music\xm\bgm3\bgm3.xm"
 
 TYPE BGM LOOP
 TEMPO 3
