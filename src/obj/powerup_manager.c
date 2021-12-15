@@ -29,6 +29,11 @@ static fix16_t kceiling_dy;
 
 static uint16_t s_vram_pos;
 
+uint16_t powerup_manager_get_vram_pos(void)
+{
+	return s_vram_pos;
+}
+
 static void set_constants(void)
 {
 	static int16_t s_constants_set;
@@ -416,6 +421,8 @@ Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
 		p->y = y;
 		p->dx = 0;
 		p->dy = kspawn_dy;
+		p->anim_cnt = 0;
+		p->anim_frame = 0;
 		
 		return p;
 	}

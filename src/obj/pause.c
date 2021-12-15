@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
+#include "obj/bg.h"
 #include "common.h"
 #include "progress.h"
 #include "game.h"
@@ -14,6 +15,7 @@
 #include "sfx.h"
 #include "map_file.h"
 #include "music.h"
+#include "obj/powerup_manager.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
@@ -46,14 +48,9 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 		}
 		else
 		{
-			if (a == '(')
-			{
-				a = '<';
-			}
-			else if (a == ')')
-			{
-				a = '>';
-			}
+			if (a == '(') a = '<';
+			else if (a == ')') a = '>';
+
 			if (a >= 'a' && a <= 'z')
 			{
 				vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
@@ -192,7 +189,7 @@ static void plot_map_to_window_plane(void)
 	plot_map();
 }
 
-static inline void plot_item_display(uint16_t x, uint16_t y)
+static inline void plot_item_display_border(uint16_t x, uint16_t y)
 {
 	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
 	x /= 8;
@@ -206,13 +203,13 @@ static inline void plot_item_display(uint16_t x, uint16_t y)
 	vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 1, ENEMY_PAL_LINE, 0));
 }
 
-static void plot_item_displays(void)
+static void plot_item_display_borders(void)
 {
-	plot_item_display(96, 192);
-	plot_item_display(120, 192);
-	plot_item_display(152, 192);
-	plot_item_display(184, 192);
-	plot_item_display(208, 192);
+	plot_item_display_border(96, 192);
+	plot_item_display_border(120, 192);
+	plot_item_display_border(152, 192);
+	plot_item_display_border(184, 192);
+	plot_item_display_border(208, 192);
 }
 
 static void draw_cp_orb_count(void)
@@ -335,6 +332,21 @@ typedef struct CharMapping
 	int8_t y;
 	char val;
 } CharMapping;
+
+static const CharMapping kmapping_this_is_a_cube[] =
+{
+	{12, 20, 'T'},
+	{20, 20, 'H'},
+	{28, 20, 'I'},
+	{36, 20, 'S'},
+	{52, 20, 'I'},
+	{60, 20, 'S'},
+	{16, 28, 'A'},
+	{32, 28, 'C'},
+	{40, 28, 'U'},
+	{48, 28, 'B'},
+	{56, 28, 'E'},
+};
 
 static const CharMapping kmapping_map[] =
 {
@@ -464,48 +476,75 @@ static void draw_you_got(PauseScreen screen)
 {
 	static const int16_t base_x = 120;
 	const int16_t base_y = 32 - (system_is_ntsc() ? 8 : 0);
+	int16_t show_you_got = 1;
+
+	const uint16_t powerup_vram_pos = powerup_manager_get_vram_pos();
+
+	static const uint16_t pal = MAP_PAL_LINE;
 
 	switch (screen)
 	{
 		case PAUSE_SCREEN_LYLE_WEAK:
+			draw_char_mapping(base_x, base_y, kmapping_this_is_a_cube, ARRAYSIZE(kmapping_this_is_a_cube));
+			spr_put(88, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// Uses same layout, but does not show "you got".
-			return;
+			show_you_got = 0;
+			break;
 		case PAUSE_SCREEN_GET_MAP:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_map, ARRAYSIZE(kmapping_map));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_LIFT:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_lift,
 			                  ARRAYSIZE(kmapping_cube_lift));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_JUMP:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_jump,
 			                  ARRAYSIZE(kmapping_cube_jump));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_KICK:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_kick,
 			                  ARRAYSIZE(kmapping_cube_kick));
 			break;
 		case PAUSE_SCREEN_GET_ORANGE_CUBE:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_big_cube_lift,
 			                  ARRAYSIZE(kmapping_big_cube_lift));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_1,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_1));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_DOUBLE_DAMAGE:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_2,
 			                  ARRAYSIZE(kmapping_2));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_HALF_TIME:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_3,
 			                  ARRAYSIZE(kmapping_3));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_CHEAP:
+			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_4,
@@ -513,9 +552,11 @@ static void draw_you_got(PauseScreen screen)
 			break;
 		default:
 			// TODO: HP Orb, CP Orb
+			// CP orb uses Lyle's pal line, while HP uses the BG common one.
 			break;
 	}
 
+	if (!show_you_got) return;
 	// "YOU GOT:" header.
 	spr_put(base_x + 13, base_y + 9, SPR_ATTR(s_vram_pos + 0x7B, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
@@ -774,7 +815,9 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 		return;
 	}
 
-	if (e->select_delay_cnt == 0 && (buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+	static const uint16_t kbutton_mask = (BTN_START | BTN_A | BTN_C);
+
+	if (e->select_delay_cnt == 0 && (buttons & kbutton_mask) && !(e->buttons_prev & kbutton_mask))
 	{
 		sfx_play(SFX_SELECT_1, 0);
 		sfx_play(SFX_SELECT_2, 0);
@@ -899,7 +942,14 @@ static void plot_room_select_list(O_Pause *e)
 		}
 		if (id >= map_file_count()) continue;
 		const MapFile *file = map_file_by_id(id);
-		plot_string(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+		if (!file || !file->name)
+		{
+			plot_string(" (empty room slot)", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+		}
+		else
+		{
+			plot_string(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+		}
 	}
 	e->debug.room_last_page = page;
 }
@@ -1289,12 +1339,41 @@ static void draw_progress_edit_cursor(O_Pause *e)
 	}
 }
 
+static void draw_press_button(int16_t x, int16_t y, int16_t frame)
+{
+	const uint16_t pr_offs = (frame == 0) ? 0xC7 : 0xCC;
+	const uint16_t es_offs = (frame == 0) ? 0xF3 : 0xF6;
+	const uint16_t s_offs = (frame == 0) ? 0xF4 : 0xF7;
+	const uint16_t bu_offs = (frame == 0) ? 0xC9 : 0xCE;
+	const uint16_t t_offs = (frame == 0) ? 0xCB : 0xBB;
+	const uint16_t o_offs = (frame == 0) ? 0xF9 : 0xFB;
+	const uint16_t n_offs = (frame == 0) ? 0xF8 : 0xFA;
+
+	const uint16_t base_attr = VDP_ATTR(s_vram_pos, 0, 0, ENEMY_PAL_LINE, 0);
+
+	spr_put(x, y, base_attr + pr_offs, SPR_SIZE(2, 1));
+	x += 16;
+	spr_put(x, y, base_attr + es_offs, SPR_SIZE(2, 1));
+	x += 16;
+	spr_put(x, y, base_attr + s_offs, SPR_SIZE(1, 1));
+	x += 11;
+	spr_put(x, y, base_attr + bu_offs, SPR_SIZE(2, 1));
+	x += 16;
+	spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
+	x += 8;
+	spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
+	x += 8;
+	spr_put(x, y, base_attr + o_offs, SPR_SIZE(1, 1));
+	x += 8;
+	spr_put(x, y, base_attr + n_offs, SPR_SIZE(1, 1));
+}
+
 static void draw_pause_menu(O_Pause *e)
 {
-	const int16_t continue_offs = (e->pause_choice == 0 && e->menu_flash_frame) ? 0xD8 : 0xD0;
+	const int16_t continue_offs = (e->pause_choice == 0 && e->menu_flash_frame) ? 0xD0 : 0xD8;
 	static const int16_t continue_x = 80;
 	static const int16_t continue_y = 168;
-	const int16_t quit_offs = (e->pause_choice == 1 && e->menu_flash_frame) ? 0xE9 : 0xE0;
+	const int16_t quit_offs = (e->pause_choice == 1 && e->menu_flash_frame) ? 0xE0 : 0xE9;
 	static const int16_t quit_x = 168;
 	static const int16_t quit_y = 168;
 	const int16_t yes_offs = (e->pause_choice == 2 && e->menu_flash_frame) ? 0xF2 : 0xF5;
@@ -1344,11 +1423,13 @@ static void pause_menu_logic(O_Pause *e, MdButton buttons)
 			if (left_trigger)
 			{
 				e->pause_choice = 0;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 			else if (right_trigger)
 			{
 				e->pause_choice = 1;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 		}
@@ -1357,11 +1438,13 @@ static void pause_menu_logic(O_Pause *e, MdButton buttons)
 			if (left_trigger)
 			{
 				e->pause_choice = 2;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 			else if (right_trigger)
 			{
 				e->pause_choice = 3;
+				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 		}
@@ -1426,6 +1509,8 @@ static void main_func(Obj *o)
 			{
 				e->select_delay_cnt = 0;
 				map_upload_palette();
+				bg_upload_palette();
+				lyle_upload_palette();
 				e->window = 0;
 			}
 			maybe_map(e, buttons);
@@ -1435,7 +1520,7 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_map_to_window_plane();
-				plot_item_displays();
+				plot_item_display_borders();
 				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
@@ -1455,15 +1540,6 @@ static void main_func(Obj *o)
 			draw_item_icons();
 			draw_cp_orb_count();
 			draw_pause_menu(e);
-			/*
-			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
-			maybe_dismiss(e, buttons, 0);
-			if (e->select_delay_cnt >= kselect_delay_frames)
-			{
-				// TODO: Open "are you sure?" dialogue, and accept save & quit
-				e->screen = PAUSE_SCREEN_NONE;
-			}
-			*/
 			maybe_switch_to_debug(e, buttons);
 			break;
 		case PAUSE_SCREEN_GET_MAP:
@@ -1482,8 +1558,15 @@ static void main_func(Obj *o)
 				plot_get_dialogue_backing(e->screen);
 				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
+				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
 			}
+			OBJ_SIMPLE_ANIM(e->menu_flash_cnt, e->menu_flash_frame,
+			                2, kmenu_flash_delay);
 			draw_you_got(e->screen);
+			if (e->dismissal_delay_cnt >= kdismissal_delay_frames)
+			{
+				draw_press_button(114, 192 - (system_is_ntsc() ? 8 : 0), e->menu_flash_frame);
+			}
 			maybe_dismiss(e, buttons, kdismissal_delay_frames);
 			if (e->select_delay_cnt >= 1) e->select_delay_cnt++;
 			if (e->select_delay_cnt >= kselect_delay_frames)
@@ -1566,7 +1649,7 @@ static void main_func(Obj *o)
 				plot_debug_menu();
 			}
 			draw_debug_main_cursor(e);
-			maybe_dismiss(e, buttons, 0);
+			maybe_dismiss(e, buttons, 2);
 			if (e->select_delay_cnt != 0) e->screen = PAUSE_SCREEN_NONE;
 			debug_menu_logic(e, buttons);
 			

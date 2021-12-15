@@ -57,4 +57,6 @@ void powerup_manager_clear(void);
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
 void powerup_bounce(Powerup *p);
 
+uint16_t powerup_manager_get_vram_pos(void);
+
 #endif  // OBJ_POWERUP_MANAGER_H
