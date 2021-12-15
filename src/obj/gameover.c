@@ -12,6 +12,7 @@
 #include "obj/hud.h"
 #include "sfx.h"
 #include "progress.h"
+#include "music.h"
 
 static uint16_t s_vram_pos;
 
@@ -218,7 +219,7 @@ static void main_func(Obj *o)
 			{
 				e->lyle_anim_cnt = 0;
 				e->lyle_anim_frame = 0;
-				// TODO: Play music
+				music_play(13);
 			}
 			o->dy += kgravity_strong;
 			o->y += o->dy;
@@ -238,12 +239,14 @@ static void main_func(Obj *o)
 				if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
 				{
 					e->menu_choice = 0;
-					// TODO: Play select sound
+					sfx_stop(SFX_BEEP);
+					sfx_play(SFX_BEEP, 1);
 				}
 				else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
 				{
 					e->menu_choice = 1;
-					// TODO: Play select sound
+					sfx_stop(SFX_BEEP);
+					sfx_play(SFX_BEEP, 1);
 				}
 				
 				if ((buttons & (BTN_A | BTN_C | BTN_START)) &&
