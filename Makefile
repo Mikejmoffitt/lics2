@@ -24,3 +24,8 @@ RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*')
 include common/md-rules.mk
 
 LDFLAGS += -Map lyle.map
+
+.PHONY: music
+
+music:
+	cd music && ./convert-music.sh
