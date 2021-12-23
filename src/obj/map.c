@@ -474,8 +474,10 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	map->current_map_size = map_by_id[id].size;
 	g_map_data = map->current_map->map_data;
 	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;
-	map->right = INTTOFIX32(map->current_map->w * GAME_SCREEN_W_PIXELS);
-	map->bottom = INTTOFIX32(map->current_map->h * GAME_SCREEN_H_PIXELS);
+	map->right_px = map->current_map->w * GAME_SCREEN_W_PIXELS;
+	map->bottom_px = map->current_map->h * GAME_SCREEN_H_PIXELS;
+	map->right = INTTOFIX32(map->right_px);
+	map->bottom = INTTOFIX32(map->bottom_px);
 	SYSTEM_ASSERT(map->right >= INTTOFIX32(320));
 	SYSTEM_ASSERT(map->bottom >= INTTOFIX32(240));
 	map->fresh_room = 1;
@@ -527,6 +529,16 @@ fix32_t map_get_right(void)
 fix32_t map_get_bottom(void)
 {
 	return map->bottom;
+}
+
+int16_t map_get_right_px(void)
+{
+	return map->right_px;
+}
+
+int16_t map_get_bottom_px(void)
+{
+	return map->bottom_px;
 }
 
 void map_set_x_scroll(int16_t x)

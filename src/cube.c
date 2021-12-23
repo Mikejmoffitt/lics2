@@ -153,17 +153,18 @@ void cube_clamp_dx(Cube *c)
 
 static inline void cube_bg_bounce_sides(Cube *c)
 {
-	const int16_t cx_r = FIX32TOINT(c->x + c->right);
-	const int16_t cx_l = FIX32TOINT(c->x + c->left);
+	int16_t cx_r = FIX32TOINT(c->x + c->right);
+	int16_t cx_l = FIX32TOINT(c->x + c->left);
 	const int16_t cy_top = FIX32TOINT(c->y + c->top);
 	const int16_t cy_bot = FIX32TOINT(c->y);
 
-	if (INTTOFIX32(cx_r + 1) > map_get_right()) return;
-	if (INTTOFIX32(cx_l - 1) < 0) return;
+	const int16_t map_right_px = map_get_right_px();
+	if (cx_r + 1 >= map_right_px) cx_r = map_right_px - 2;
+	if (cx_l - 1 < 0) cx_l = 1;
 
-	if (c->dy > 0 && map_collision(FIX32TOINT(c->x), cy_bot + 2)) return;
+	if (c->dy > 0 && map_collision((cx_r + cx_l) / 2, cy_bot + 2)) return;
 
-	if (c->dx > 0 && c->x + c->right < map_get_right())
+	if (c->dx > 0)
 	{
 		if (map_collision(cx_r + 1, cy_top) ||
 		    map_collision(cx_r + 1, cy_bot))
@@ -182,7 +183,7 @@ static inline void cube_bg_bounce_sides(Cube *c)
 			sfx_play(SFX_CUBE_BOUNCE, 15);
 		}
 	}
-	else if (c->dx < 0 && c->x + c->left > 0)
+	else if (c->dx < 0)
 	{
 		if (map_collision(cx_l - 1, cy_top) ||
 		    map_collision(cx_l - 1, cy_bot))
@@ -206,11 +207,16 @@ static inline void cube_bg_bounce_sides(Cube *c)
 
 static inline void cube_bg_bounce_top(Cube *c)
 {
-	const int16_t cx_left = FIX32TOINT(c->x + c->left);
-	const int16_t cx_right = FIX32TOINT(c->x + c->right);
-	const int16_t cy_top = FIX32TOINT(c->y + c->top);
+	int16_t cx_left = FIX32TOINT(c->x + c->left);
+	int16_t cx_right = FIX32TOINT(c->x + c->right);
+	int16_t cy_top = FIX32TOINT(c->y + c->top);
 	uint16_t gnd_chk[2];
-	if (c->y + c->top < 0) return;
+	if (cy_top <= 0) cy_top = 1;
+
+	const int16_t map_right_px = map_get_right_px();
+	if (cx_left <= 0) cx_left = 1;
+	if (cx_right >= map_right_px - 1) cx_right = map_right_px - 2;
+
 	gnd_chk[0] = map_collision(cx_left, cy_top - 1);
 	gnd_chk[1] = map_collision(cx_right, cy_top - 1);
 	// Both left and right tests count as a collison.
@@ -295,11 +301,16 @@ static inline void cube_do_ground_recoil(Cube *c)
 static inline void cube_bg_bounce_ground(Cube *c)
 {
 	const int16_t cx = FIX32TOINT(c->x);
-	const int16_t cx_left = FIX32TOINT(c->x + c->left);
-	const int16_t cx_right = FIX32TOINT(c->x + c->right);
-	const int16_t cy_bottom = FIX32TOINT(c->y);
+	int16_t cx_left = FIX32TOINT(c->x + c->left);
+	int16_t cx_right = FIX32TOINT(c->x + c->right);
+	int16_t cy_bottom = FIX32TOINT(c->y);
+
+	const int16_t map_bottom_px = map_get_bottom_px();
+	const int16_t map_right_px = map_get_right_px();
+	if (cy_bottom >= map_bottom_px - 1) cy_bottom = map_bottom_px - 2;
+	if (cx_left <= 0) cx_left = 1;
+	if (cx_right >= map_right_px - 1) cx_right = map_right_px - 2;
 	uint16_t gnd_chk[2];
-	if (INTTOFIX32(cy_bottom + 1) > map_get_bottom()) return;
 	gnd_chk[0] = map_collision(cx_left, cy_bottom + 1);
 	gnd_chk[1] = map_collision(cx_right, cy_bottom + 1);
 	// Both left and right tests count as a collison.
@@ -335,23 +346,24 @@ static inline void cube_bg_bounce_ground(Cube *c)
 
 static inline void cube_bg_collision(Cube *c)
 {
-	const int16_t cx_left = FIX32TOINT(c->x + c->left);
-	const int16_t cx_right = FIX32TOINT(c->x + c->right);
-	const int16_t cy_top = FIX32TOINT(c->y + c->top);
-	const int16_t cy_bottom = FIX32TOINT(c->y);
+	int16_t cx_left = FIX32TOINT(c->x + c->left);
+	int16_t cx_right = FIX32TOINT(c->x + c->right);
+	int16_t cy_top = FIX32TOINT(c->y + c->top);
+	int16_t cy_bottom = FIX32TOINT(c->y);
 	if (c->type == CUBE_TYPE_GREEN || c->type == CUBE_TYPE_GREENBLUE)
 	{
 		if (c->dx != 0) cube_bg_bounce_sides(c);
 		if (c->dy > 0) cube_bg_bounce_ground(c);
 		else if (c->dy < 0) cube_bg_bounce_top(c);
 	}
-	else if (cx_left < 0 || c->x + c->right > map_get_right() ||
-	         cy_top < 0 || c->y > map_get_bottom())
-	{
-		return;
-	}
 	else
 	{
+		const int16_t map_bottom_px = map_get_bottom_px();
+		const int16_t map_right_px = map_get_right_px();
+		if (cy_top <= 0) cy_top = 1;
+		if (cy_bottom >= map_bottom_px - 1) cy_bottom = map_bottom_px - 2;
+		if (cx_left <= 0) cx_left = 1;
+		if (cx_right >= map_right_px - 1) cx_right = map_right_px - 2;
 		if ((c->dx > 0 || c->dy > 0) && map_collision(cx_right, cy_bottom)) cube_destroy(c);
 		else if ((c->dx < 0 || c->dy > 0) && map_collision(cx_left, cy_bottom)) cube_destroy(c);
 		else if ((c->dx > 0 || c->dy < 0) && map_collision(cx_right, cy_top)) cube_destroy(c);
@@ -391,10 +403,10 @@ static inline void cube_movement(Cube *c)
 	}
 
 	// Check for cube out of bounds.
-	if (cx_right > map_get_right() ||
-	    cx_left < 0 ||
-	    cy_bottom > map_get_bottom() ||
-	    cy_top < 0)
+	if (cx_left > FIX32TOINT(map_get_right()) ||
+	    cx_right < 0 ||
+	    cy_top > FIX32TOINT(map_get_bottom()) ||
+	    cy_bottom < 0)
 	{
 		c->status = CUBE_STATUS_NULL;
 	}

@@ -40,6 +40,8 @@ typedef struct O_Map
 	// Map limits, in subpixels
 	fix32_t right;
 	fix32_t bottom;
+	int16_t right_px;
+	int16_t bottom_px;
 
 	// Scroll from the previous frame. Used to detect changes and direction.
 	int16_t x_scroll_prev;
@@ -111,6 +113,8 @@ static inline uint16_t map_collision(int16_t x, int16_t y)
 
 fix32_t map_get_right(void);
 fix32_t map_get_bottom(void);
+int16_t map_get_right_px(void);
+int16_t map_get_bottom_px(void);
 
 void map_set_x_scroll(int16_t x);
 void map_set_y_scroll(int16_t y);
