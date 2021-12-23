@@ -37,12 +37,25 @@ int system_init(void)
 	return 1;
 }
 
-static inline void rand_step(void)
+static void rand_step(void)
 {
-	const uint16_t feedback = (s_rand_value & 0x0001) ^
-	                          ((s_rand_value >> 9) & 0x0001);
-	s_rand_value = s_rand_value >> 1;
-	s_rand_value |= (feedback << 31);
+	static const uint32_t feedback_masks[] =
+	{
+		1 << 1,
+		1 << 5,
+		1 << 6,
+		1 << 31
+	};
+	for (int16_t i = 0; i < 8; i++)
+	{
+		const uint16_t feedback =
+		    ((s_rand_value & feedback_masks[0]) ? 1 : 0) ^
+		    ((s_rand_value & feedback_masks[1]) ? 1 : 0) ^
+		    ((s_rand_value & feedback_masks[2]) ? 1 : 0) ^
+		    ((s_rand_value & feedback_masks[3]) ? 1 : 0);
+		s_rand_value = s_rand_value >> 1;
+		if (feedback) s_rand_value |= (1 << 31);
+	}
 }
 
 void system_srand(uint32_t seed)
