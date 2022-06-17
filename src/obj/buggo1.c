@@ -1,4 +1,5 @@
-#include "obj/buggo.h"
+#include "obj/buggo1.h"
+// Ceiling buggo.
 
 #include <stdlib.h>
 #include "obj.h"
@@ -22,9 +23,6 @@ static int16_t kbuggo1_shot_test;
 static int16_t kbuggo1_shot_fire;
 static fix16_t kbuggo1_shot_dy;
 
-static int16_t kbuggo2_spark_time;
-static fix16_t kbuggo2_spark_dx;
-
 static fix16_t kcube_bounce_dy;
 
 static void set_constants(void)
@@ -35,9 +33,6 @@ static void set_constants(void)
 	kbuggo1_shot_test = PALSCALE_DURATION(48);
 	kbuggo1_shot_fire = PALSCALE_DURATION(84);
 	kbuggo1_shot_dy = INTTOFIX16(PALSCALE_1ST(5.416666666667));
-
-	kbuggo2_spark_time = PALSCALE_DURATION(144);
-	kbuggo2_spark_dx = INTTOFIX16(PALSCALE_1ST(2.5));
 
 	kanim_speed = PALSCALE_DURATION(7);
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
@@ -60,7 +55,7 @@ static void vram_load(void)
 
 // Main.
 
-static inline void render(O_Buggo *f)
+static inline void render(O_Buggo1 *f)
 {
 	uint16_t tile_offset;
 
@@ -68,32 +63,16 @@ static inline void render(O_Buggo *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	if (o->type == OBJ_BUGGO1)
+	if (f->shot_clock <= kbuggo1_shot_test)
 	{
-		if (f->shot_clock <= kbuggo1_shot_test)
-		{
-			// Normal walking animation.
-			tile_offset = f->anim_frame * 4;
-		}
-		else
-		{
-			// Vibrate back and forth on frame 2.
-			tile_offset = 8;
-			sp_x += (f->shot_clock / 2) % 2;
-		}
+		// Normal walking animation.
+		tile_offset = f->anim_frame * 4;
 	}
 	else
 	{
-		if (f->spin_cnt == 0)
-		{
-			// Normal walking animation.
-			tile_offset = 16 + (f->anim_frame * 4);
-		}
-		else
-		{
-			tile_offset = 32 + (f->spin_anim_frame * 4);
-			// Spinning animation.
-		}
+		// Vibrate back and forth on frame 2.
+		tile_offset = 8;
+		sp_x += (f->shot_clock / 2) % 2;
 	}
 
 	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
@@ -101,32 +80,10 @@ static inline void render(O_Buggo *f)
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
-static void buggo2_cube_func(Obj *o, Cube *c)
-{
-	if (o->hurt_stun > 0) return;
-	if (c->status == CUBE_STATUS_KICKED)
-	{
-		obj_standard_cube_response(o, c);
-	}
-	else if (c->type == CUBE_TYPE_GREEN)
-	{
-		// Just setting some random high dx to give the cube some direction
-		// since the clamp will put it within a reasonable range.
-		if (c->dx == 0) c->dx = INTTOFIX32(system_rand() % 2 ? 5 : -5);
-		cube_clamp_dx(c);
-		c->dy = kcube_bounce_dy;
-		sfx_play(SFX_CUBE_BOUNCE, 15);
-	}
-	else
-	{
-		cube_destroy(c);
-	}
-}
-
 static void main_func(Obj *o)
 {
 	const fix32_t kbuggo_distance_sense = INTTOFIX32(80);
-	O_Buggo *f = (O_Buggo *)o;
+	O_Buggo1 *f = (O_Buggo1 *)o;
 	const O_Lyle *l = lyle_get();
 
 	if (o->hurt_stun > 0)
@@ -169,52 +126,24 @@ static void main_func(Obj *o)
 		f->x_max = o->x + INTTOFIX32(50);
 	}
 	// Shooting.
-	if (o->type == OBJ_BUGGO1)
+	if (f->shot_clock == kbuggo1_shot_test)
 	{
-		if (f->shot_clock == kbuggo1_shot_test)
-		{
-			if (o->type == OBJ_BUGGO1)
-			{
-				if (!(o->x < l->head.x + kbuggo_distance_sense &&
-				     o->x > l->head.x - kbuggo_distance_sense &&
-				     o->y < l->head.y))
-				{
-					f->shot_clock = 0;
-				}
-			}
-		}
-		else if (f->shot_clock > kbuggo1_shot_fire)
+		if (!(o->x < l->head.x + kbuggo_distance_sense &&
+			 o->x > l->head.x - kbuggo_distance_sense &&
+			 o->y < l->head.y))
 		{
 			f->shot_clock = 0;
-			projectile_manager_shoot(o->x, o->y - INTTOFIX32(4), PROJECTILE_TYPE_SPIKE,
-			                         0, kbuggo1_shot_dy);
-			sfx_play(SFX_GAXTER_SHOT, 15);
 		}
 	}
-	else
+	else if (f->shot_clock > kbuggo1_shot_fire)
 	{
-		if (f->spin_cnt > 0)
-		{
-			f->spin_cnt--;
-		}
-		if (f->shot_clock == kbuggo2_spark_time)
-		{
-			f->shot_clock = 0;
-			f->spin_cnt = kbuggo2_spark_time / 2;
-			projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
-			                         kbuggo2_spark_dx, 0);
-			projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
-			                         -kbuggo2_spark_dx, 0);
-			sfx_play(SFX_GAXTER_SHOT, 15);
-
-		}
+		f->shot_clock = 0;
+		projectile_manager_shoot(o->x, o->y - INTTOFIX32(4), PROJECTILE_TYPE_SPIKE,
+		                         0, kbuggo1_shot_dy);
+		sfx_play(SFX_GAXTER_SHOT, 15);
 	}
 
-	if ((o->type == OBJ_BUGGO1 && f->shot_clock < kbuggo1_shot_test) ||
-	    (o->type == OBJ_BUGGO2 && f->spin_cnt == 0))
-	{
-		obj_standard_physics(o);
-	}
+	if (f->shot_clock < kbuggo1_shot_test) obj_standard_physics(o);
 
 	// Animate.
 	f->anim_cnt++;
@@ -232,17 +161,17 @@ static void main_func(Obj *o)
 
 // Boilerplate.
 
-void o_load_buggo(Obj *o, uint16_t data)
+void o_load_buggo1(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Buggo) <= sizeof(ObjSlot));
-	O_Buggo *f = (O_Buggo *)o;
+	SYSTEM_ASSERT(sizeof(O_Buggo1) <= sizeof(ObjSlot));
+	O_Buggo1 *f = (O_Buggo1 *)o;
 	(void)data;
 	vram_load();
 	set_constants();
 
 	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16),
-	               o->type == OBJ_BUGGO1 ? 2 : 1);
+	               2);
 	o->main_func = main_func;
 	f->x_min = o->x - INTTOFIX32(50);
 	f->x_max = o->x;
@@ -250,16 +179,10 @@ void o_load_buggo(Obj *o, uint16_t data)
 
 	o->left = INTTOFIX16(-7);
 	o->right = INTTOFIX16(7);
-
-	if (o->type == OBJ_BUGGO2)
-	{
-		o->cube_func = buggo2_cube_func;
-		o->top = INTTOFIX16(-11);
-	}
 	o->direction = OBJ_DIRECTION_LEFT;
 }
 
-void o_unload_buggo(void)
+void o_unload_buggo1(void)
 {
 	s_vram_pos = 0;
 }

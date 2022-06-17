@@ -49,9 +49,16 @@ OBJECTS_RES := $(OBJDIR)/res.o
 
 RES_HEADER := res.h
 
-.PHONY: all vars $(RES_HEADER)
+.PHONY: all vars $(RES_HEADER) ext_deps
+
+# Generic var for additional files, etc. that are a build prereq.
+EXTERNAL_DEPS ?=
+EXTERNAL_ARTIFACTS ?=
 
 all: $(BLASTEM) $(BINCLUDE) $(MEGALOADER) $(OUTPUT_GEN)
+
+# Generic target that is intended to be overridden.
+ext_deps: $(EXTERNAL_DEPS)
 
 vars:
 	@echo "CFLAGS is" "$(CFLAGS)"
@@ -90,23 +97,23 @@ $(OBJDIR)/$(OUTPUT_FILE).elf: $(OBJECTS_RES) $(OBJECTS_C) $(OBJECTS_ASM)
 	@bash -c 'printf " \e[36m[ LNK ]\e[0m ... --> $@\n"'
 	@$(LD) -o $@ $(LDFLAGS) $(OBJECTS_RES) $(OBJECTS_C) $(OBJECTS_ASM) $(LIBS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c $(OBJECTS_RES) $(RES_HEADER)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(OBJECTS_RES) $(RES_HEADER) ext_deps
 	@mkdir -p $(dir $@)
 	@bash -c 'printf " \e[96m[  C  ]\e[0m $< --> $@\n"'
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@$(CC) $(CFLAGS) -S $< -o $@.asm
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.s $(OBJECTS_RES)
+$(OBJDIR)/%.o: $(SRCDIR)/%.s $(OBJECTS_RES) ext_deps
 	@mkdir -p $(dir $@)
 	@bash -c 'printf " \e[33m[ ASM ]\e[0m $< --> $@\n"'
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: $(COMMONSRCDIR)/%.c $(OBJECTS_RES)
+$(OBJDIR)/%.o: $(COMMONSRCDIR)/%.c $(OBJECTS_RES) ext_deps
 	@mkdir -p $(dir $@)
 	@bash -c 'printf " \e[96m[ C:C ]\e[0m $< --> $@\n"'
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: $(COMMONSRCDIR)/%.s $(OBJECTS_RES)
+$(OBJDIR)/%.o: $(COMMONSRCDIR)/%.s $(OBJECTS_RES) ext_deps
 	@mkdir -p $(dir $@)
 	@bash -c 'printf " \e[33m[C:ASM]\e[0m $< --> $@\n"'
 	@$(AS) $(ASFLAGS) -c $< -o $@
@@ -141,7 +148,13 @@ debug: all
 test: all
 	@exec $(MDEMU) -m gen $(OUTPUT_GEN)
 
+mame: all
+	@exec mame megadrij -cart $(OUTPUT_GEN) -debug
+
 clean:
 	@-rm -f $(OBJECTS_C) $(OBJECTS_ASM) $(OUTPUT_GEN)
 	@-rm -f $(OUTPUT_ELF) $(OUTPUT_UNPAD)
 	@-rm -f $(OBJECTS_RES) $(OBJDIR)/res.s $(RES_HEADER)
+	ifeq ($(strip $(EXTERNAL_ARTIFACTS)),)
+		@-rm -f $(EXTERNAL_ARTIFACTS)
+	endif

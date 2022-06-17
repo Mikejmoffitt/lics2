@@ -58,7 +58,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 
 	[OBJ_SPOOKO]        = {"Spooko  ", 16, 16},
 	[OBJ_WIP]           = {"WIP     ", 48, 32},
-	[OBJ_BGSCROLLY]     = {"BgScroll", 8, 8},
+	[OBJ_BGSCROLL]      = {"BgScroll", 8, 8},
 	[OBJ_FAKECUBE]      = {"FakeCube", 16, 16},
 
 	[OBJ_RADIO]         = {"Radio   ", 16, 64},

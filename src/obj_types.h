@@ -50,7 +50,7 @@ typedef enum ObjType
 	OBJ_LAVAANIM      = 43,  // Causes a tile DMA to occur to animate lava.
 	OBJ_SPOOKO        = 44,  // Just a little skull sprite.
 	OBJ_WIP           = 45,  // delete
-	OBJ_BGSCROLLY     = 46,  // Forces the camera Y scroll position.
+	OBJ_BGSCROLL      = 46,  // Forces the camera Y scroll position.
 	OBJ_FAKECUBE      = 47,  // Used above the boss arena.
 	OBJ_RADIO         = 48,  // Releases an item (HP orb 4 in the original).
 	OBJ_CHIMNEY       = 49,  // Releases an item when struck.

@@ -302,7 +302,7 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 		case OBJ_WIP:
 			sprintf(desc,"Under Construction sign.");
 			break;
-		case OBJ_BGSCROLLY:
+		case OBJ_BGSCROLL:
 			sprintf(desc,"Forces Y scroll to a specific value.");
 			break;
 		case OBJ_FAKECUBE:

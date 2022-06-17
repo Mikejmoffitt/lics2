@@ -1,10 +1,10 @@
-#ifndef OBJ_BUGGO1_H
-#define OBJ_BUGGO1_H
+#ifndef OBJ_BUGGO2_H
+#define OBJ_BUGGO2_H
 
 #include "obj.h"
 #include <md/megadrive.h>
 
-typedef struct O_Buggo
+typedef struct O_Buggo2
 {
 	Obj head;
 
@@ -18,9 +18,9 @@ typedef struct O_Buggo
 
 	int16_t shot_clock;  // Countdown until the next shot.
 	int16_t spin_cnt;  // Counts upwards for the floor buggo.
-} O_Buggo;
+} O_Buggo2;
 
-void o_load_buggo(Obj *o, uint16_t data);
-void o_unload_buggo(void);
+void o_load_buggo2(Obj *o, uint16_t data);
+void o_unload_buggo2(void);
 
-#endif  // OBJ_BUGGO1_H
+#endif  // OBJ_BUGGO2_H

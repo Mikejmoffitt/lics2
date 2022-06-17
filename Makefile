@@ -21,11 +21,19 @@ COMMONSOURCES_C := $(shell find $(COMMONSRCDIR)/ -type f -name '*.c')
 COMMONSOURCES_ASM := $(shell find $(COMMONSRCDIR)/ -type f -name '*.s')
 RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*')
 
+EXTERNAL_DEPS = obj_dispatch.inc
+
 include common/md-rules.mk
 
 LDFLAGS += -Map lyle.map
 
-.PHONY: music
+.PHONY: music obj_dispatch.inc
 
 music:
 	cd music && ./convert-music.sh
+
+obj_dispatch.inc:
+	@bash -c 'printf " \e[34m[ GEN ]\e[0m $@\n"'
+# python3 generate_obj_dispatch.py setup_funcs $(SRCDIR)/obj $@
+
+dispatch: obj_dispatch.inc
