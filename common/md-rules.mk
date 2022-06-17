@@ -49,7 +49,7 @@ OBJECTS_RES := $(OBJDIR)/res.o
 
 RES_HEADER := res.h
 
-.PHONY: all vars $(RES_HEADER) ext_deps
+.PHONY: all vars $(RES_HEADER)
 
 # Generic var for additional files, etc. that are a build prereq.
 EXTERNAL_DEPS ?=
@@ -155,6 +155,4 @@ clean:
 	@-rm -f $(OBJECTS_C) $(OBJECTS_ASM) $(OUTPUT_GEN)
 	@-rm -f $(OUTPUT_ELF) $(OUTPUT_UNPAD)
 	@-rm -f $(OBJECTS_RES) $(OBJDIR)/res.s $(RES_HEADER)
-	ifeq ($(strip $(EXTERNAL_ARTIFACTS)),)
-		@-rm -f $(EXTERNAL_ARTIFACTS)
-	endif
+	echo $(EXTERNAL_ARTIFACTS) | xargs --no-run-if-empty rm -f $(EXTERNAL_ARTIFACTS)
