@@ -596,6 +596,11 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	o->top = INTTOFIX16(-48);
 	o->main_func = main_func;
 	o->cube_func = NULL;
+
+	lyle_set_scroll_h_en(0);
+	lyle_set_scroll_v_en(0);
+	map_set_y_scroll(0x28);
+
 }
 
 void o_unload_vyle2(void)
