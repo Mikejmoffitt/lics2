@@ -9,6 +9,7 @@
 #include "obj/map.h"
 #include "common.h"
 #include "sfx.h"
+#include "obj/title.h"
 
 static uint16_t s_vram_pos;
 
@@ -16,14 +17,6 @@ static int16_t kanim_speed;
 static int16_t kappear_frame;
 static int16_t ksolid_frame;
 static int16_t kflicker_speed;
-
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	const Gfx *g = gfx_get(GFX_BOGOLOGO);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
-}
 
 // Store static constants here.
 
@@ -85,6 +78,11 @@ static void main_func(Obj *o)
 	{
 		sfx_play(SFX_TELEPORT, 3);
 		sfx_play(SFX_TELEPORT_2, 3);
+		const Obj *title = obj_find_by_type(OBJ_TITLE);
+		// We need the title object to live.
+		if (!title) o->status = OBJ_STATUS_NULL;
+		const Gfx *g = gfx_get(GFX_BOGOLOGO);
+		s_vram_pos = gfx_load(g, title_get_vram_pos());
 	}
 
 	if (e->appear_cnt < kappear_frame ||
@@ -104,7 +102,6 @@ void o_load_bogologo(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Bogologo) <= sizeof(ObjSlot));
 	(void)data;
 	set_constants();
-	vram_load();
 
 	obj_basic_init(o, OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-64), INTTOFIX16(64), INTTOFIX16(-48), 1);

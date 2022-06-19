@@ -149,7 +149,7 @@ test: all
 	@exec $(MDEMU) -m gen $(OUTPUT_GEN)
 
 mame: all
-	@exec mame megadrij -cart $(OUTPUT_GEN) -debug
+	@exec mame megadrij -cart $(OUTPUT_GEN) -debug -r 640x480
 
 clean:
 	@-rm -f $(OBJECTS_C) $(OBJECTS_ASM) $(OUTPUT_GEN)

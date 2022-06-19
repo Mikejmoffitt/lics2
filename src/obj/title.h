@@ -53,6 +53,8 @@ typedef struct O_Title
 	int16_t menu_flash_cnt;
 } O_Title;
 
+uint16_t title_get_vram_pos(void);
+
 void o_load_title(Obj *o, uint16_t data);
 void o_unload_title(void);
 

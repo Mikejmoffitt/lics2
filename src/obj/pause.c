@@ -16,9 +16,11 @@
 #include "map_file.h"
 #include "music.h"
 #include "obj/powerup_manager.h"
+#include "str.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
+static uint16_t s_vram_kana_pos;
 
 static int16_t kcursor_flash_delay;
 static int16_t kdismissal_delay_frames;
@@ -27,6 +29,13 @@ static int16_t kmenu_flash_delay;
 
 static const uint16_t kmap_left = 8;
 static const uint16_t kmap_top = 5;
+
+static void maybe_load_kana_in_vram(void)
+{
+	if (s_vram_kana_pos) return;
+	const Gfx *g_kana = gfx_get(GFX_EX_KANA_FONT);
+	s_vram_kana_pos = gfx_load(g_kana, obj_vram_alloc(g_kana->size));
+}
 
 // String printing utility. Not very fast, but it's alright for this.
 static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
@@ -37,6 +46,7 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 	vdp_set_addr(plane_base);
 	while (*str)
 	{
+		uint8_t *s_u = (uint8_t *)str;
 		char a = *str++;
 		if (!a) break;
 		if (a == '\n' || a == '\r')
@@ -46,6 +56,19 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 			             2 * ((y * GAME_PLANE_W_CELLS) + x);
 			vdp_set_addr(plane_base);
 		}
+		// All hiragana, katakana, kanbun, etc. start at $3000.
+		else if (s_u[0] == 0xE3)
+		{
+			const uint8_t high_nybble = (s_u[1] & 0x3C) >> 2;
+			// We can only handle the first page, contaning Kana.
+			str += 2;
+			if (high_nybble != 0) continue;
+			const uint8_t char_pos = (s_u[2] & 0x3F) | ((s_u[1] & 0x3) << 6);
+
+			vdp_write(VDP_ATTR(s_vram_kana_pos + char_pos, 0, 0, pal, 0));
+			plane_base += 2;
+		}
+		// TODO: Consider ES, FR
 		else
 		{
 			if (a == '(') a = '<';
@@ -642,115 +665,56 @@ static void plot_get_right_grid_addition(uint16_t plane_base)
 
 static void plot_get_dialogue_text(PauseScreen screen)
 {
-	static const char hp_orb_string[] =
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-			"@MAXIMUM HP\n"
-			"INCREASED 1 UNIT\n"
-			"\n"
-			"@HP RESTORED";
-
-	static const char *strings[] =
+	static const StringId string_ids[] =
 	{
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_LYLE_WEAK] =
-			"@LYLE IS TOO MUCH OF\n"
-			"A WEAKLING TO PICK\n"
-			"THESE UP JUST YET\n"
-			"\n"
-			"@TIME TO DO SOME\n"
-			"SEARCHING",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_MAP] =
-			"@MAP NOW VIEWABLE ON\n"
-			"PAUSE SCREEN\n"
-			"\n"
-			"@PRESS START DURING\n"
-			"GAME TO PAUSE",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_CUBE_LIFT] = 
-			"@STAND ON TOP OF\n"
-			"CUBE & PRESS B\n"
-			"TO LIFT\n"
-			"\n"
-			"@PRESS B TO THROW\n"
-			"@UP & B FOR UPWARD\n"
-			"THROW\n"
-			"@DOWN & B FOR SHORT\n"
-			"THROW\n"
-			"@LEFT OR RIGHT & B\n"
-			"FOR LONG THROW\n"
-			"@CAREFUL NOT TO GET\n"
-			"HIT BY THROWN CUBES",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_CUBE_JUMP] =
-			"@PRESS C WHILE\n"
-			"JUMPING & HOLDING\n"
-			"CUBE TO THROW CUBE\n"
-			"DOWNWARDS & JUMP\n"
-			"HIGHER",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_CUBE_KICK] =
-			"@STAND NEXT TO CUBE\n"
-			"& PRESS B TO KICK\n",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_ORANGE_CUBE] =
-			"@LIFT THE LARGE\n"
-			"ORANGE CUBES",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_PHANTOM] =
-			"@HOLD B TO CREATE\n"
-			"PHANTOM CUBE\n"
-			"\n"
-			"@CONSUMES\n"
-			"CUBE POINTS <CP>",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_PHANTOM_DOUBLE_DAMAGE] =
-			"@PHANTOM CUBE DAMAGE\n"
-			"2X",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_PHANTOM_HALF_TIME] =
-			"@PHANTOM CUBE\n"
-			"CREATION TIME HALVED",
-		//   XXXXXXXXXXXXXXXXXXXX x 13
-		[PAUSE_SCREEN_GET_PHANTOM_CHEAP] =
-			"@CP CONSUMPTION\n"
-			"HALVED",
-		[PAUSE_SCREEN_HP_ORB_0] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_1] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_2] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_3] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_4] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_5] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_6] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_7] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_8] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_9] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_10] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_11] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_12] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_13] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_14] = hp_orb_string,
-		[PAUSE_SCREEN_HP_ORB_15] = hp_orb_string,
-		[PAUSE_SCREEN_CP_ORB_0] = NULL,
-		[PAUSE_SCREEN_CP_ORB_1] = NULL,
-		[PAUSE_SCREEN_CP_ORB_2] = NULL,
-		[PAUSE_SCREEN_CP_ORB_3] = NULL,
-		[PAUSE_SCREEN_CP_ORB_4] = NULL,
-		[PAUSE_SCREEN_CP_ORB_5] = NULL,
-		[PAUSE_SCREEN_CP_ORB_6] = NULL,
-		[PAUSE_SCREEN_CP_ORB_7] = NULL,
-		[PAUSE_SCREEN_CP_ORB_8] = NULL,
-		[PAUSE_SCREEN_CP_ORB_9] = NULL,
-		[PAUSE_SCREEN_CP_ORB_10] = NULL,
-		[PAUSE_SCREEN_CP_ORB_11] = NULL,
-		[PAUSE_SCREEN_CP_ORB_12] = NULL,
-		[PAUSE_SCREEN_CP_ORB_13] = NULL,
-		[PAUSE_SCREEN_CP_ORB_14] = NULL,
-		[PAUSE_SCREEN_CP_ORB_15] = NULL,
+		[PAUSE_SCREEN_LYLE_WEAK] = STR_LYLE_TOO_WEAK,
+		[PAUSE_SCREEN_GET_MAP] = STR_GET_MAP,
+		[PAUSE_SCREEN_GET_CUBE_LIFT] = STR_GET_CUBE_LIFT,
+		[PAUSE_SCREEN_GET_CUBE_JUMP] = STR_GET_CUBE_JUMP,
+		[PAUSE_SCREEN_GET_CUBE_KICK] = STR_GET_CUBE_KICK,
+		[PAUSE_SCREEN_GET_ORANGE_CUBE] = STR_GET_ORANGE_CUBE,
+		[PAUSE_SCREEN_GET_PHANTOM] = STR_GET_PHANTOM,
+		[PAUSE_SCREEN_GET_PHANTOM_DOUBLE_DAMAGE] = STR_GET_PHANTOM_DOUBLE_DAMAGE,
+		[PAUSE_SCREEN_GET_PHANTOM_HALF_TIME] = STR_GET_PHANTOM_HALF_TIME,
+		[PAUSE_SCREEN_GET_PHANTOM_CHEAP] = STR_GET_PHANTOM_CHEAP,
+		[PAUSE_SCREEN_HP_ORB_0] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_1] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_2] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_3] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_4] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_5] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_6] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_7] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_8] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_9] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_10] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_11] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_12] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_13] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_14] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_HP_ORB_15] = STR_GET_HP_ORB,
+		[PAUSE_SCREEN_CP_ORB_0] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_1] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_2] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_3] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_4] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_5] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_6] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_7] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_8] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_9] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_10] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_11] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_12] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_13] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_14] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_CP_ORB_15] = STR_GET_CP_ORB,
 	};
 
-	const char *str = strings[screen];
+	const char *str = str_get(string_ids[screen]);
 	if (!str) return;
+	const Gfx *g_kana = gfx_get(GFX_EX_KANA_FONT);
+	s_vram_kana_pos = gfx_load(g_kana, obj_vram_alloc(g_kana->size));
 
 	// Draw the string to the window plane.
 	static const int16_t kleft = 10;
@@ -1915,6 +1879,7 @@ void o_load_pause(Obj *o, uint16_t data)
 void o_unload_pause(void)
 {
 	s_vram_pos = 0;
+	s_vram_kana_pos = 0;
 	s_pause = NULL;
 }
 

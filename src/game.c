@@ -12,6 +12,7 @@
 #include "util/text.h"
 #include "palscale.h"
 #include "res.h"
+#include "str.h"
 
 #include "obj/map.h"
 #include "obj/lyle.h"
@@ -56,6 +57,7 @@ static void run_frame(void)
 			vdp_set_window_top(0);
 			dma_q_fill_vram(0, 0, 32768, 2);
 			dma_q_fill_vram(1, 0, 32768, 2);
+			str_set_locale(sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
 			break;
 
 		case GAME_STATE_NEW_ROOM:
