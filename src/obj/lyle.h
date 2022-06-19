@@ -73,6 +73,7 @@ static inline int16_t lyle_touching_obj(Obj *o)
 	return 1;
 }
 
+
 void lyle_get_bounced(void);
 void lyle_get_hurt(int16_t bypass_invuln);
 
@@ -90,6 +91,7 @@ void lyle_set_scroll_h_en(int16_t en);
 void lyle_set_scroll_v_en(int16_t en);
 void lyle_set_control_en(int16_t en);
 void lyle_set_master_en(int16_t en);
+void lyle_set_anim_frame(int8_t frame);
 
 void lyle_upload_palette(void);
 

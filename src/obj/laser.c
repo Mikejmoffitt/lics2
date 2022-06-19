@@ -72,6 +72,18 @@ static void main_func(Obj *o)
 		return;
 	}
 
+	if (e->mode == LASER_MODE_ON && (e->phase == 0 || e->phase == 3))
+	{
+		e->phase = 1;
+		e->timer = ksequence[0];
+	}
+
+	else if (e->mode == LASER_MODE_OFF && (e->phase == 1 || e->phase == 2))
+	{
+		e->phase = 3;
+		e->timer = ksequence[2];
+	}
+
 	e->timer++;
 	if (e->timer >= ksequence[3])
 	{
@@ -80,39 +92,53 @@ static void main_func(Obj *o)
 
 	if (e->timer < ksequence[0])
 	{
+		// Laser is fully off.
 		e->phase = 0;
+		if (e->mode == LASER_MODE_OFF)
+		{
+			e->timer = 0;
+		}
 	}
 	else if (e->timer < ksequence[1])
 	{
+		// Laser is flickering on.
 		e->phase = 1;
 	}
 	else if (e->timer < ksequence[2])
 	{
+		// Laser is on.
 		e->phase = 2;
+		if (e->mode == LASER_MODE_ON)
+		{
+			e->timer = ksequence[1];
+		}
 	}
 	else
 	{
+		// Laser is flickering off.
 		e->phase = 3;
 	}
 
-	switch (e->phase)
+	if (e->phase == 2)
 	{
-		default:
-		case 0:
-			o->flags &= ~(OBJ_FLAG_HARMFUL);
-			return;
-		case 1:
-		case 3:
-			o->flags &= ~(OBJ_FLAG_HARMFUL);
-			break;
-		case 2:
+		if (e->mode == LASER_MODE_ON)
+		{
+			o->flags |= OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_ANY | OBJ_FLAG_ALWAYS_HARMFUL;
+		}
+		else
+		{
 			o->flags |= OBJ_FLAG_HARMFUL;
-			break;
+		}
 	}
+	else
+	{
+		o->flags &= ~(OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_ANY | OBJ_FLAG_ALWAYS_HARMFUL);
+	}
+
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_delay);
 
-	render(e);
+	if (e->phase != 0) render(e);
 }
 
 void o_load_laser(Obj *o, uint16_t data)
@@ -141,9 +167,24 @@ void o_load_laser(Obj *o, uint16_t data)
 	}
 	o->main_func = main_func;
 	o->cube_func = NULL;
+
+	e->mode = data;
+	SYSTEM_ASSERT(e->mode < 3);
 }
 
 void o_unload_laser(void)
 {
 	s_vram_pos = 0;
+}
+
+void laser_set_mode(LaserMode mode)
+{
+	for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
+	{
+		Obj *o = &g_objects[i].obj;
+		if (o->status == OBJ_STATUS_NULL) continue;
+		if (o->type != OBJ_LASER) continue;
+		O_Laser *e = (O_Laser *)o;
+		e->mode = mode;
+	}
 }

@@ -10,6 +10,7 @@
 
 #include "game.h"
 #include "res.h"
+#include "palscale.h"
 
 static O_Bg *s_bg;
 
@@ -94,7 +95,7 @@ static const BgDescriptor backgrounds[] =
 	[23] = {GFX_BG_23, res_pal_bg_bg23_bin, res_bgmap_bg23_bin, sizeof(res_bgmap_bg23_bin)},
 	[24] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},
 	[25] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},  // Same as 24, but vertical.
-	[26] = {0}
+	[26] = {GFX_BG_26, res_pal_bg_bg26_bin, res_bgmap_bg26_bin, sizeof(res_bgmap_bg26_bin)},
 };
 
 static void bg_city_func(O_Bg *f)
@@ -138,6 +139,15 @@ static void bg_city_red_func(O_Bg *f)
 	}
 }
 
+static void bg_finalboss_func(O_Bg *f)
+{
+	const int16_t anim_speed = PALSCALE_DURATION(8);
+	OBJ_SIMPLE_ANIM(f->anim_cnt, f->anim_frame, 2, anim_speed);
+	// TODO: Check paralax, it may not be this
+	const int16_t x_scroll = f->x_scroll;
+	set_h_scroll_plane(-x_scroll / 2);
+	set_v_scroll_plane(f->anim_frame ? 16 : 0);
+}
 
 static void bg_plane_func(O_Bg *f)
 {
@@ -613,6 +623,7 @@ static void (*bg_funcs[])(O_Bg *f) =
 	[23] = bg_gauntlet_func,
 	[24] = bg_technozone_horizontal_simple_func,
 	[25] = bg_technozone_vertical_simple_func,
+	[26] = bg_finalboss_func,
 };
 
 static void main_func(Obj *o)

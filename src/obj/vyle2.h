@@ -48,6 +48,12 @@ typedef struct O_Vyle2
 	// Position for the camera.
 	fix32_t xscroll;
 
+	int16_t lyle_anim_cnt;
+	int16_t lyle_anim_frame;
+
+	Vyle2State state;
+	int16_t state_elapsed;
+
 	int16_t anim_cnt;
 	int16_t anim_frame;
 	int16_t metaframe;

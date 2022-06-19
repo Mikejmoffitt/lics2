@@ -8,6 +8,10 @@
 #include "palscale.h"
 #include "obj/map.h"
 #include "common.h"
+#include "obj/lyle.h"
+#include "sfx.h"
+#include "music.h"
+#include "obj/laser.h"
 
 // Vyle 2's sprite is huge (64x64px), so he's animated like Lyle, through DMA
 // transfers, instead of loading everything at once.
@@ -23,12 +27,40 @@ static void vram_load(void)
 }
 
 // Store static constants here.
+static fix16_t klyle_walk_dx;
+static fix16_t klyle_run_dx;
+static fix16_t kscroll_pan_dx;
+static int16_t kkeddums_meow_delay_frames;
+static int16_t kpan_start_delay_frames;
+
+static int16_t kvyle_activation_delay_frames;
+static int16_t kvyle_activation_duration_frames;
+
+static int16_t kvyle_grow_frames;
+static int16_t kvyle_grow_post_frames;
+static int16_t kvyle_grow_anim_speed;
+
+static int16_t kvyle_big_walk_anim_speed;
+static int16_t kstart_delay;
 
 static inline void set_constants(void)
 {
 	static int16_t s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
+
+	klyle_walk_dx = INTTOFIX16(PALSCALE_1ST(0.9));  // TODO: This is made up
+	klyle_run_dx = INTTOFIX16(PALSCALE_1ST(1.41666666667));
+	kscroll_pan_dx = INTTOFIX16(PALSCALE_1ST(4));  // "
+	kkeddums_meow_delay_frames = PALSCALE_DURATION(120);
+	kpan_start_delay_frames = PALSCALE_DURATION(50);
+	kvyle_activation_delay_frames = PALSCALE_DURATION(50);
+	kvyle_activation_duration_frames = PALSCALE_DURATION(30);
+	kvyle_grow_frames = PALSCALE_DURATION(60);
+	kvyle_grow_post_frames = PALSCALE_DURATION(120);
+	kvyle_grow_anim_speed = PALSCALE_DURATION(2);
+	kvyle_big_walk_anim_speed = PALSCALE_DURATION(7);
+	kstart_delay = PALSCALE_DURATION(90);
 
 	s_constants_set = 1;
 }
@@ -61,7 +93,7 @@ static void render(O_Vyle2 *e)
 	static const SprDef frames[] =
 	{
 		// 00 - stand w/ gun
-		{-12, -23, 0, SPR_SIZE(3, 3)},
+		{-12, -24, 0, SPR_SIZE(3, 3)},
 		{-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1},
 		// 01 - walk w/ gun 1
 		{-12, -24, 9, SPR_SIZE(3, 3)},
@@ -186,25 +218,367 @@ static void render(O_Vyle2 *e)
 	}
 }
 
+static inline void do_lyle_shake_anim(O_Vyle2 *e, O_Lyle *l)
+{
+	const int8_t last_frame = e->lyle_anim_frame;
+	OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame, 2, PALSCALE_DURATION(2));
+	lyle_set_anim_frame(24);
+	// The shaking
+	if (e->lyle_anim_frame != last_frame)
+	{
+		l->head.x += (e->lyle_anim_frame == 0) ? INTTOFIX16(1) : INTTOFIX16(-1);
+	}
+}
+
+static inline void do_lyle_walk_anim(O_Vyle2 *e)
+{
+	const int16_t lyle_walk_cycle[] = { 25, 26, 27, 26 };
+	const int8_t last_frame = e->lyle_anim_frame;
+	OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame,
+	                4, PALSCALE_DURATION(6.8));
+	lyle_set_anim_frame(lyle_walk_cycle[e->lyle_anim_frame]);
+	// walk sounds.
+	if (e->lyle_anim_frame != last_frame)
+	{
+		if (e->lyle_anim_frame == 0) sfx_play(SFX_WALK1, 8);
+		else if (e->lyle_anim_frame == 2) sfx_play(SFX_WALK2, 8);
+	}
+}
+
 static void main_func(Obj *o)
 {
 	O_Vyle2 *e = (O_Vyle2 *)o;
+	O_Lyle *l = lyle_get();
 	if (o->hurt_stun > 0)
 	{
 		render(e);
 		return;
 	}
 
-	e->anim_cnt++;
-	if (e->anim_cnt == 30)
+	const Vyle2State state_prev = e->state;
+
+	const int16_t vyle_walk_cycle[] = { 2, 1, 2, 3 };
+	const int16_t vyle_big_walk_cycle[] = { 9, 10, 11, 12, 13, 14};
+
+	switch (e->state)
 	{
-		o->direction = (o->direction == OBJ_DIRECTION_RIGHT) ? OBJ_DIRECTION_LEFT : OBJ_DIRECTION_RIGHT;
+		default:
+			break;
+		case VYLE2_STATE_LYLE_WALK_ANGRY:
+			if (e->state_elapsed == 0)
+			{
+				o->direction = OBJ_DIRECTION_LEFT;
+				e->metaframe = 0;
+				lyle_set_control_en(0);
+				lyle_set_master_en(0);
+				lyle_set_scroll_h_en(0);
+				lyle_set_scroll_v_en(0);
+				l->head.dx = klyle_walk_dx;
+				l->head.dy = 0;
+				l->head.direction = OBJ_DIRECTION_RIGHT;
+				map_set_x_scroll(0);
+			}
+
+			// Lyle begins by approaching until he reaches a certain point.
+			do_lyle_walk_anim(e);
+
+			// Once lyle has walked far enough, proceed.
+			if (l->head.x >= INTTOFIX32(92)) e->state = VYLE2_STATE_CAMERA_PAN_TO_MACHINE;
+			obj_standard_physics(&l->head);
+
+			break;
+		case VYLE2_STATE_CAMERA_PAN_TO_MACHINE:
+			// Lyle is halted, and the screen pans to show Vyle and his machine.
+			if (e->state_elapsed == 0)
+			{
+				l->head.dx = 0;
+				sfx_play(SFX_BOINGO_JUMP, 8);
+			}
+
+			do_lyle_shake_anim(e, l);
+
+			// Begin panning after a short pause.
+			if (e->state_elapsed > kpan_start_delay_frames) e->xscroll += kscroll_pan_dx;
+
+			// Once we hit the right edge, proceed.
+			if (e->xscroll >= map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS))
+			{
+				e->xscroll = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS);
+				e->state = VYLE2_STATE_KEDDUMS_MEOW;
+			}
+
+			map_set_x_scroll(FIX32TOINT(e->xscroll));
+			break;
+
+		case VYLE2_STATE_KEDDUMS_MEOW:
+			// After a short time, keddums meows, and the screen moves back.
+			if (e->state_elapsed > kkeddums_meow_delay_frames)
+			{
+				e->state = VYLE2_STATE_CAMERA_PAN_TO_LYLE;
+			}
+			// TODO: actual meow
+			break;
+
+		case VYLE2_STATE_CAMERA_PAN_TO_LYLE:
+			// Camera pans back to Lyle.
+			e->xscroll -= kscroll_pan_dx;
+			if (e->xscroll < 0)
+			{
+				e->xscroll = 0;
+				e->state = VYLE2_STATE_LYLE_APPROACH_MACHINE;
+			}
+			map_set_x_scroll(FIX32TOINT(e->xscroll));
+			break;
+
+		case VYLE2_STATE_LYLE_APPROACH_MACHINE:
+			// Lyle now walks forwards, bringing the camera with him.
+			lyle_set_scroll_h_en(1);
+			do_lyle_walk_anim(e);
+			l->head.dx = klyle_run_dx;
+
+			// once lyle gets far enough, Vyle should start to go towards the machine
+			if (l->head.x >= INTTOFIX32(320 + 56))
+			{
+				e->head.direction = OBJ_DIRECTION_RIGHT;
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame,
+				                4, PALSCALE_DURATION(6.8));
+				e->head.dx = klyle_run_dx;
+				e->metaframe = vyle_walk_cycle[e->anim_frame];
+			}
+
+			obj_standard_physics(&l->head);
+
+			{
+				int16_t px = FIX32TOINT(l->head.x);
+				const int16_t left_bound = GAME_SCREEN_W_PIXELS / 2;
+				px -= left_bound;
+				map_set_x_scroll(px);
+			}
+
+			// Once lyle has gone far enough (and Vyle has reached the machine) proceed.
+			if (l->head.x >= map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS + 52))
+			{
+				e->state = VYLE2_STATE_VYLE_ACTIVATE_MACHINE;
+			}
+			break;
+
+		case VYLE2_STATE_VYLE_ACTIVATE_MACHINE:
+			if (e->state_elapsed == 0)
+			{
+				// Halt both vyle and lyle.
+				e->head.dx = 0;
+				e->metaframe = 0;
+				l->head.dx = 0;
+				lyle_set_anim_frame(24);
+				// Turn on the lasers.
+				// TODO: laser sfx
+				laser_set_mode(LASER_MODE_ON);
+
+				int16_t px = FIX32TOINT(l->head.x);
+				const int16_t left_bound = GAME_SCREEN_W_PIXELS / 2;
+				px -= left_bound;
+				e->xscroll = INTTOFIX32(px);
+			}
+
+			if (e->xscroll < map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS + 128))
+			{
+				e->xscroll += kscroll_pan_dx;
+			}
+
+			do_lyle_shake_anim(e, l);
+
+			// Vyle pushes the button.
+			if (e->state_elapsed == kvyle_activation_delay_frames)
+			{
+				// TODO: keddums meow
+				// TODO: activate big orb thing
+				// TODO: make keddums begin shaking
+				// TODO: Illuminate kitty powered psychowave
+				e->metaframe = 4;
+			}
+			else if (e->state_elapsed == (kvyle_activation_delay_frames +
+			                              kvyle_activation_duration_frames))
+			{
+				// Done pushing the button.
+				e->metaframe = 0;
+			}
+			else if (e->state_elapsed >= (kvyle_activation_delay_frames +
+			                              (kvyle_activation_duration_frames * 2)))
+			{
+				// Vyle begins to walk left.
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame,
+				                4, PALSCALE_DURATION(6.8));
+				e->head.direction = OBJ_DIRECTION_LEFT;
+				e->head.dx = -klyle_run_dx;
+				e->metaframe = vyle_walk_cycle[e->anim_frame];
+
+				if (e->head.x < map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(40))
+				{
+					e->state = VYLE2_STATE_VYLE_GROW_1;
+					e->head.x = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(40);
+				}
+			}
+			map_set_x_scroll(FIX32TOINT(e->xscroll));
+			break;
+
+		case VYLE2_STATE_VYLE_GROW_1:
+			o->dx = 0;
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 5;
+			}
+
+			if (e->state_elapsed == kvyle_grow_post_frames)
+			{
+				e->state = VYLE2_STATE_VYLE_GROW_2;
+			}
+
+			do_lyle_shake_anim(e, l);
+			break;
+
+		case VYLE2_STATE_VYLE_GROW_2:
+			if (e->state_elapsed == 0)
+			{
+				sfx_play(SFX_TELEPORT, 3);
+				sfx_play(SFX_TELEPORT_2, 3);
+			}
+			if (e->state_elapsed < kvyle_grow_frames)
+			{
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_grow_anim_speed);
+				e->metaframe = e->anim_frame ? 5 : 6;
+			}
+			else
+			{
+				e->metaframe = 6;
+			}
+
+			if (e->state_elapsed == kvyle_grow_post_frames)
+			{
+				e->state = VYLE2_STATE_VYLE_GROW_3;
+			}
+
+			do_lyle_shake_anim(e, l);
+			break;
+
+		case VYLE2_STATE_VYLE_GROW_3:
+			if (e->state_elapsed == 0)
+			{
+				sfx_play(SFX_TELEPORT, 3);
+				sfx_play(SFX_TELEPORT_2, 3);
+			}
+			if (e->state_elapsed < kvyle_grow_frames)
+			{
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_grow_anim_speed);
+				e->metaframe = e->anim_frame ? 6 : 7;
+			}
+			else
+			{
+				e->metaframe = 7;
+			}
+
+			if (e->state_elapsed == kvyle_grow_post_frames)
+			{
+				e->state = VYLE2_STATE_VYLE_GROW_4;
+			}
+
+			do_lyle_shake_anim(e, l);
+			break;
+
+		case VYLE2_STATE_VYLE_GROW_4:
+			if (e->state_elapsed == 0)
+			{
+				sfx_play(SFX_TELEPORT, 3);
+				sfx_play(SFX_TELEPORT_2, 3);
+			}
+			if (e->state_elapsed < kvyle_grow_frames)
+			{
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_grow_anim_speed);
+				e->metaframe = e->anim_frame ? 7 : 8;
+			}
+			else
+			{
+				e->metaframe = 8;
+			}
+
+			if (e->state_elapsed == kvyle_grow_post_frames)
+			{
+				e->state = VYLE2_STATE_ENTER_ARENA;
+			}
+
+			do_lyle_shake_anim(e, l);
+			break;
+		case VYLE2_STATE_ENTER_ARENA:
+			// The camera pans back until it reaches the arena.
+			if (e->xscroll > INTTOFIX32(320))
+			{
+				// TODO: laser sfx
+				laser_set_mode(LASER_MODE_OFF);
+				e->xscroll -= kscroll_pan_dx;
+				if (e->xscroll < INTTOFIX32(320))
+				{
+					e->xscroll = INTTOFIX32(320);
+				}
+			}
+			else
+			{
+				// TODO: laser sfx (limit once...)
+				laser_set_mode(LASER_MODE_ON);
+			}
+
+			// Lyle runs back to the left until he reaches a certain point.
+			if (l->head.x > INTTOFIX32(392))
+			{
+				l->head.dx = -klyle_run_dx;
+				l->head.direction = OBJ_DIRECTION_LEFT;
+				do_lyle_walk_anim(e);
+			}
+			else
+			{
+				e->state = VYLE2_STATE_START_DELAY;
+			}
+
+			// Vyle runs to the left, until he reaches the center of the stage.
+			if (e->head.x > INTTOFIX32(480))
+			{
+				e->head.dx = -klyle_run_dx;
+				e->head.direction = OBJ_DIRECTION_LEFT;
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 6, kvyle_big_walk_anim_speed);
+				e->metaframe = vyle_big_walk_cycle[e->anim_frame];
+			}
+			else
+			{
+				e->state = VYLE2_STATE_START_DELAY;
+			}
+
+			obj_standard_physics(&l->head);
+			map_set_x_scroll(FIX32TOINT(e->xscroll));
+			break;
+		case VYLE2_STATE_START_DELAY:
+			if (e->state_elapsed == 0)
+			{
+				l->head.dx = 0;
+				l->head.direction = OBJ_DIRECTION_RIGHT;
+				e->head.dx = 0;
+				e->metaframe = 18;
+			}
+			do_lyle_shake_anim(e, l);
+
+			if (e->state_elapsed == kstart_delay)
+			{
+				// TODO: Is his start state random?
+				e->state = VYLE2_STATE_PRE_JUMP;
+				lyle_set_control_en(1);
+				lyle_set_master_en(1);
+				lyle_set_scroll_h_en(0);
+				music_play(11);
+			}
+			break;
 	}
-	if (e->anim_cnt > 60)
-	{
-		e->anim_cnt = 0;
-		e->metaframe++;
-	}
+
+	if (state_prev != e->state) e->state_elapsed = 0;
+	else e->state_elapsed++;
+	obj_standard_physics(o);
+
 	render(e);
 }
 
@@ -215,7 +589,7 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-32), INTTOFIX16(32), INTTOFIX16(-64), 5);
 	o->left = INTTOFIX16(-18);
 	o->right = INTTOFIX16(18);

@@ -1025,10 +1025,14 @@ static inline void draw(O_Lyle *l)
 		if (l->tele_in_cnt > ktele_anim) return;
 	}
 	
-	// Now change anim_frame to reflect the offset in VRAM
-	const uint16_t tile_offset = (l->anim_frame < 0x14) ?
-	                              l->anim_frame * 6 :
-	                              (120 + (9 * (l->anim_frame - 0x14)));
+	static const uint16_t tile_offset_for_frame[] =
+	{
+		0, 6, 12, 18, 24, 30, 36, 42,
+		48, 54, 60, 66, 72, 80, 84, 90,
+		96, 102, 108, 114, 120, 129, 138, 147,
+		156, 162, 168, 174, 
+	};
+	const uint16_t tile_offset = tile_offset_for_frame[l->anim_frame];
 	uint8_t size = 0;
 	int16_t yoff = 0;
 	int16_t xoff = 0;
@@ -1036,7 +1040,7 @@ static inline void draw(O_Lyle *l)
 	int16_t yflip = 0;
 
 	// Set sprite size and Y offset based on frame
-	if (l->anim_frame < 0x10)
+	if (l->anim_frame < 16 || (l->anim_frame >= 24 && l->anim_frame < 28))
 	{
 		transfer_bytes = 2 * 3 * 32;
 		size = SPR_SIZE(2, 3);
@@ -1044,7 +1048,7 @@ static inline void draw(O_Lyle *l)
 		xoff = LYLE_DRAW_LEFT + ((l->lift_cnt > 0) ?
 		                         (l->lift_cnt / 2) % 2 : 0);
 	}
-	else if (l->anim_frame < 0x14)
+	else if (l->anim_frame >= 16 && l->anim_frame < 20)
 	{
 		transfer_bytes = 2 * 3 * 32;
 		size = SPR_SIZE(3, 2);
@@ -1335,4 +1339,10 @@ void lyle_set_master_en(int16_t en)
 {
 	if (!g_lyle) return;
 	g_lyle->full_disable = !en;
+}
+
+void lyle_set_anim_frame(int8_t frame)
+{
+	if (!g_lyle) return;
+	g_lyle->anim_frame = frame;
 }

@@ -19,6 +19,8 @@ typedef struct O_Bg
 	int16_t y_scroll;
 	int16_t last_x_scroll;
 	int16_t last_y_scroll;
+	int16_t anim_cnt;
+	int16_t anim_frame;
 	const BgDescriptor *descriptor;
 } O_Bg;
 
