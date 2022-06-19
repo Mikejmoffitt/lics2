@@ -713,8 +713,7 @@ static void plot_get_dialogue_text(PauseScreen screen)
 
 	const char *str = str_get(string_ids[screen]);
 	if (!str) return;
-	const Gfx *g_kana = gfx_get(GFX_EX_KANA_FONT);
-	s_vram_kana_pos = gfx_load(g_kana, obj_vram_alloc(g_kana->size));
+	maybe_load_kana_in_vram();
 
 	// Draw the string to the window plane.
 	static const int16_t kleft = 10;
