@@ -1030,7 +1030,7 @@ static inline void draw(O_Lyle *l)
 		0, 6, 12, 18, 24, 30, 36, 42,
 		48, 54, 60, 66, 72, 78, 84, 90,
 		96, 102, 108, 114, 120, 129, 138, 147,
-		156, 162, 168, 174, 
+		156, 162, 168, 174,
 	};
 	const uint16_t tile_offset = tile_offset_for_frame[l->anim_frame];
 	uint8_t size = 0;
