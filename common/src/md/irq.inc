@@ -1,16 +1,12 @@
 /* md-toolchain interrupt handlers
-Michael Moffitt 2018
+Michael Moffitt 2018-2022
 */
 
-/* This is used for vblank waiting. */
+/* This is a flag used for vblank waiting. */
 	.extern	g_vblank_wait
-/* This is called to poll the controllers. */
-	.extern	io_poll
-/* This is called to fire off the DMA queue. */
-	.extern	dma_q_process
 /* This runs the sound effects. */
 	.extern sfx_tick
-/* IRQ vectors unused on the Megadrive */
+/* IRQ vectors unused */
 _v_irq1:
 _v_irq3:
 _v_irq5:

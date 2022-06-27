@@ -37,6 +37,8 @@ LDFLAGS += --gc-sections -nostdlib
 LDFLAGS += -T$(LDSCRIPT)
 LIBS += -lgcc
 
+CFLAGS += -DTARGET_SYSTEM=$(TARGET_SYSTEM)
+
 # Naming intermediates
 OUTPUT_ELF := $(OBJDIR)/$(OUTPUT_FILE).elf
 OUTPUT_UNPAD := $(OBJDIR)/$(OUTPUT_FILE).gen
@@ -146,7 +148,7 @@ debug: all
 	@exec $(MDEMU) -m gen -d $(OUTPUT_GEN)
 
 test: all
-	@exec $(MDEMU) -m gen $(OUTPUT_GEN)
+	@bash -c 'PULSE_LATENCY_MSEC=80 $(MDEMU) -m gen $(OUTPUT_GEN)'
 
 mame: all
 	@exec mame megadrij -cart $(OUTPUT_GEN) -debug -r 640x480

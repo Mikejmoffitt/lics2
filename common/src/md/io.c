@@ -1,9 +1,10 @@
 /* md-toolchain I/O peripheral support
 Michael Moffitt 2018 */
 #include "md/io.h"
+#include "md/mmio.h"
 #include "md/sys.h"
 
-static uint16_t pad_cache[3];
+static uint16_t s_pad_cache[3];
 
 void io_poll(void)
 {
@@ -17,18 +18,18 @@ void io_poll(void)
 	__asm__ volatile ("\tnop\n");
 	__asm__ volatile ("\tnop\n");
 	__asm__ volatile ("\tnop\n");
-	pad_cache[0] = *port_data1 & 0x3F;
-	pad_cache[1] = *port_data2 & 0x3F;
-	pad_cache[2] = *port_data3 & 0x3F;
+	s_pad_cache[0] = *port_data1 & 0x3F;
+	s_pad_cache[1] = *port_data2 & 0x3F;
+	s_pad_cache[2] = *port_data3 & 0x3F;
 	*port_data1 = 0x00;
 	*port_data2 = 0x00;
 	*port_data3 = 0x00;
 	__asm__ volatile ("\tnop\n");
 	__asm__ volatile ("\tnop\n");
 	__asm__ volatile ("\tnop\n");
-	pad_cache[0] |= ((*port_data1 & (0x30)) << 2);
-	pad_cache[1] |= ((*port_data2 & (0x30)) << 2);
-	pad_cache[2] |= ((*port_data3 & (0x30)) << 2);
+	s_pad_cache[0] |= ((*port_data1 & (0x30)) << 2);
+	s_pad_cache[1] |= ((*port_data2 & (0x30)) << 2);
+	s_pad_cache[2] |= ((*port_data3 & (0x30)) << 2);
 	sys_z80_bus_release();
 }
 
@@ -38,7 +39,7 @@ MdButton io_pad_read(uint8_t port)
 	{
 		return 0x0000;
 	}
-	return ~pad_cache[port];
+	return ~s_pad_cache[port];
 }
 
 void io_thint_en(uint8_t port, uint8_t enabled)
@@ -60,4 +61,3 @@ void io_gamepad_en(uint8_t port)
 	volatile uint8_t *port_ctrl = (volatile uint8_t *)(IO_LOC_CTRL1+(port*2));
 	*port_ctrl = 0x40; // Enable TH pin as output to multiplex buttons.
 }
-

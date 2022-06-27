@@ -3,6 +3,7 @@ MIchael Moffitt 2018 */
 #ifndef VDP_H
 #define VDP_H
 
+#include "md/mmio.h"
 #include "md/sys.h"
 #include <stdint.h>
 
@@ -80,11 +81,6 @@ MIchael Moffitt 2018 */
 #define VDP_VSRAMDEST(DEST)		(0x00104000 | ((uint32_t)(DEST) & 0x3FFF) | (((uint32_t)(DEST) & 0xC000) << 2))
 #define VDP_VSRAM32DEST(DEST)	(0x40000010 | (((uint32_t)(DEST) & 0x3FFF) << 16) | (((uint32_t)(DEST) & 0xC000) >> 14))
 #define VDP_CRAMDEST(DEST)		(0x0000C000 | ((uint32_t)(DEST) & 0x3FFF) | (((uint32_t)(DEST) & 0xC000) << 2))
-
-#define VDPPORT_DATA	(*(volatile uint16_t*)0xC00000)
-#define VDPPORT_CTRL	(*(volatile uint16_t*)0xC00004)
-#define VDPPORT_CTRL32	(*(volatile uint32_t*)0xC00004)
-#define VDPPORT_HVCOUNT (*(volatile uint16_t*)0xC00008)
 
 #define VDP_REG_WRITE(reg, val) do { VDPPORT_CTRL = 0x8000 | (reg << 8) | (val); } while(0)
 

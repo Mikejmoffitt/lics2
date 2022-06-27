@@ -13,14 +13,14 @@ Michael Moffitt 2018-2020 */
 // Set a single palette color.
 void pal_set(uint8_t idx, uint16_t val);
 
-// Upload a palette of arbitrary size via DMA.
+// Caches and schedules a transfer to palette data via DMA.
 // Dest refers to palette index (0 - 31).
 // Len is in words (one word = one color).
 void pal_upload(uint8_t dest, const void *source, uint8_t len);
 
 // Internal Use ---------------------------------------------------------------
 
-// Processes fade and schedule DMA transfers. Called by megadrive_finish().
+// Schedules DMA transfers. Called by megadrive_finish().
 void pal_poll(void);
 
 #endif // MD_PAL_H

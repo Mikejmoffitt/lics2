@@ -1,5 +1,5 @@
 /* md-toolchain I/O peripheral support
-Michael Moffitt 2018-2020 */
+Michael Moffitt 2018-2022 */
 #ifndef MD_IO_H
 #define MD_IO_H
 
@@ -8,6 +8,12 @@ Michael Moffitt 2018-2020 */
 // TODO: Make MdIoMode type, configure IO ports using it.
 // TODO: Serial support
 // TODO: 6-button controllers
+
+// Serial port speed configurations
+#define IO_BAUD_4800 0x00
+#define IO_BAUD_2800 0x80
+#define IO_BAUD_1200 0x40
+#define IO_BAUD_300  0x20
 
 // Button masks
 typedef enum MdButton
@@ -25,31 +31,6 @@ typedef enum MdButton
 	BTN_Z     = 0x0400,
 	BTN_MODE  = 0x0800,
 } MdButton;
-
-// Serial port speed configurations
-#define IO_BAUD_4800 0x00
-#define IO_BAUD_2800 0x80
-#define IO_BAUD_1200 0x40
-#define IO_BAUD_300  0x20
-
-// Port definitions
-#define IO_LOC_BASE    0xA10000
-#define IO_LOC_VERSION (IO_LOC_BASE + 0x01)
-#define IO_LOC_DATA1   (IO_LOC_BASE + 0x03)
-#define IO_LOC_DATA2   (IO_LOC_BASE + 0x05)
-#define IO_LOC_DATA3   (IO_LOC_BASE + 0x07)
-#define IO_LOC_CTRL1   (IO_LOC_BASE + 0x09)
-#define IO_LOC_CTRL2   (IO_LOC_BASE + 0x0B)
-#define IO_LOC_CTRL3   (IO_LOC_BASE + 0x0D)
-#define IO_LOC_TXD1    (IO_LOC_BASE + 0x0F)
-#define IO_LOC_RXD1    (IO_LOC_BASE + 0x11)
-#define IO_LOC_SERIO1  (IO_LOC_BASE + 0x13)
-#define IO_LOC_TXD2    (IO_LOC_BASE + 0x15)
-#define IO_LOC_RXD2    (IO_LOC_BASE + 0x17)
-#define IO_LOC_SERIO2  (IO_LOC_BASE + 0x19)
-#define IO_LOC_TXD3    (IO_LOC_BASE + 0x1B)
-#define IO_LOC_RXD3    (IO_LOC_BASE + 0x1D)
-#define IO_LOC_SERIO3  (IO_LOC_BASE + 0x1F)
 
 // Get the state of one control port (0 through 2)
 // This returns from the cache captured during vblank, so there are no

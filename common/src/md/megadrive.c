@@ -9,6 +9,7 @@ Michael Moffitt */
 void megadrive_init(void)
 {
 	sys_di();
+	sys_init();
 	vdp_init();
 	dma_q_init();
 	io_gamepad_en(0);
