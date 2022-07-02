@@ -207,6 +207,7 @@ softreset:
 	jmp	start
 
 .include	"md/irq.inc"
+.include	"md/io.inc"
 .include	"md/sram.inc"
 
 _v_access_fault:

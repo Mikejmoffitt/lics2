@@ -95,7 +95,7 @@ static void main_func(Obj *o)
 
 	const GameOverState state_prev = e->state;
 
-	const MdButton buttons = io_pad_read(0);
+	const MdButton buttons = md_io_pad_read(0);
 
 	switch (e->state)
 	{

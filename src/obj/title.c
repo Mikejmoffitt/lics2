@@ -517,7 +517,7 @@ static void maybe_skip_to_menu(O_Title *e)
 	{
 		return;
 	}
-	const MdButton buttons = io_pad_read(0);
+	const MdButton buttons = md_io_pad_read(0);
 	if ((buttons & (BTN_START | BTN_A | BTN_C)) && !(e->buttons_prev & (BTN_A | BTN_C | BTN_START)))
 	{
 		e->v_scroll_y = kfloor_pos;
@@ -530,7 +530,7 @@ static void main_func(Obj *o)
 {
 	O_Title *e = (O_Title *)o;
 
-	const MdButton buttons = io_pad_read(0);
+	const MdButton buttons = md_io_pad_read(0);
 
 	e->state_prev = e->state;
 	switch (e->state)

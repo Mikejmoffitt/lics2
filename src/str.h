@@ -23,6 +23,7 @@ typedef enum StringId
 	STR_GET_PHANTOM_CHEAP,
 	STR_GET_HP_ORB,
 	STR_GET_CP_ORB,
+	STR_BUTTON_CHECK,
 	STR_INVALID
 } StringId;
 

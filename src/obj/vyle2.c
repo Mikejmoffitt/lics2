@@ -81,6 +81,7 @@ static void render(O_Vyle2 *e)
 	// Vyle 2 uses between 1 and 4 sprites to draw an animation frame.
 	// As mentioned above, a full 64 x 64 bitmap is large, and fitting all of
 	// his frame data into VRAM at once is challenging.
+	// So, we need to transfer what's needed for the current frame into VRAM.
 
 // Macro to define a simple 64 x 64 metasprite out of four 32 x 32 sprites..
 #define FULLFRAME(n, base) \

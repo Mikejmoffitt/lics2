@@ -10,6 +10,8 @@ void sys_init(void)
 {
 	// Figure out if we're on C/C2 or Megadrive. I suppose you could fool this
 	// if you had a 32X attached and a very specific value placed in the FB.
+
+	/*
 	const volatile uint8_t *reg_protection = (volatile uint8_t *)0x840011;
 	const uint8_t test_signature[4] = {'S', 'E', 'G', 'A'};
 	for (int16_t i = 0; i < 4; i++)
@@ -22,7 +24,7 @@ void sys_init(void)
 			g_sys_type = SYSTEM_TYPE_MD;
 			return;
 		}
-	}
+	}*/
 	g_sys_type = SYSTEM_TYPE_C;
 }
 

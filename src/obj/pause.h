@@ -54,6 +54,7 @@ typedef enum PauseScreen
 	PAUSE_SCREEN_SOUND_TEST,
 	PAUSE_SCREEN_PROGRESS_EDIT,
 	PAUSE_SCREEN_VRAM_VIEW,
+	PAUSE_SCREEN_BUTTON_CHECK,
 } PauseScreen;
 
 typedef struct O_Pause

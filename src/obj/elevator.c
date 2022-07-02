@@ -203,7 +203,7 @@ static void main_func(Obj *o)
 					const int16_t up_ok = (stop && stop->id != 0x0000);
 					const int16_t down_ok = (stop && stop->id != 0x0002);
 
-					const MdButton buttons = io_pad_read(0);
+					const MdButton buttons = md_io_pad_read(0);
 					const int16_t up_req = ((buttons & BTN_UP) && up_ok);
 					const int16_t down_req = ((buttons & BTN_DOWN) && down_ok);
 					if (up_req || down_req)

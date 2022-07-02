@@ -826,7 +826,7 @@ static const DebugOption debug_options[] =
 	{"SOUND TEST", PAUSE_SCREEN_SOUND_TEST},
 	{"PROGRESS EDIT", PAUSE_SCREEN_PROGRESS_EDIT},
 	{"VRAM VIEW", PAUSE_SCREEN_VRAM_VIEW},
-	{"PRG VIEW", 0},
+	{"BUTTON CHECK", PAUSE_SCREEN_BUTTON_CHECK},
 	{"RAM VIEW", 0},
 	{"EXIT", PAUSE_SCREEN_NONE},
 };
@@ -968,6 +968,28 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
+	}
+}
+
+// Button check
+
+static void plot_button_check(void)
+{
+	maybe_load_kana_in_vram();
+	plot_string(str_get(STR_BUTTON_CHECK), 4, 4, 0);
+	char buffer[17];
+	for (int j = 0; j < 2; j++)
+	{
+		uint16_t buttons = md_io_pad_read(j);
+		uint16_t chk_bit = 0x8000;
+		for (int i = 0; i < 16; i++)
+		{
+			buffer[i] = buttons & (chk_bit) ? '1' : '0';
+			chk_bit = chk_bit >> 1;
+		}
+		buffer[16] = '\0';
+		plot_string(j == 0 ? "PAD1" : "PAD2", 4, 6 + j, 0);
+		plot_string(buffer, 12, 6 + j, 0);
 	}
 }
 
@@ -1443,7 +1465,7 @@ static void plot_vram_view(uint16_t offset, uint8_t pal)
 static void vram_view_logic(O_Pause *e)
 {
 	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
-	const MdButton buttons = io_pad_read(0);
+	const MdButton buttons = md_io_pad_read(0);
 
 	if (buttons & BTN_DOWN && !(e->buttons_prev & BTN_DOWN) &&
 	    e->debug.vram_view_offset <= 0x06F0)
@@ -1605,7 +1627,7 @@ static void main_func(Obj *o)
 		if (o->type == OBJ_GAMEOVER) return;
 	}
 
-	const MdButton buttons = io_pad_read(0);
+	const MdButton buttons = md_io_pad_read(0);
 
 	const int16_t first_frame = e->screen != e->screen_prev;
 	e->screen_prev = e->screen;
@@ -1823,6 +1845,13 @@ static void main_func(Obj *o)
 
 			vram_view_logic(e);
 			plot_vram_view(e->debug.vram_view_offset, e->debug.vram_view_pal);
+			break;
+		case PAUSE_SCREEN_BUTTON_CHECK:
+			if (first_frame)
+			{
+				clear_window_plane();
+			}
+			plot_button_check();
 			break;
 	}
 

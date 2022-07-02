@@ -114,6 +114,7 @@ $(OBJDIR)/%.o: $(COMMONSRCDIR)/%.c $(OBJECTS_RES) ext_deps
 	@mkdir -p $(dir $@)
 	@bash -c 'printf " \e[96m[ C:C ]\e[0m $< --> $@\n"'
 	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -S $< -o $@.asm
 
 $(OBJDIR)/%.o: $(COMMONSRCDIR)/%.s $(OBJECTS_RES) ext_deps
 	@mkdir -p $(dir $@)

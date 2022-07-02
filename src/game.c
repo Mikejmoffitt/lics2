@@ -34,9 +34,7 @@ typedef enum GameState
 	GAME_STATE_RUN,
 } GameState;
 
-static GameState s_game_state = GAME_STATE_INIT;
-
-static void run_frame(void)
+static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 {
 	int16_t want_display_en = 0;
 	ProgressSlot *prog = progress_get();
@@ -101,6 +99,7 @@ static void run_frame(void)
 
 			const int16_t debug_room_id = pause_get_debug_room_id();
 			const MapExitTrigger exit_trigger = map_get_exit_trigger();
+
 			if ((exit_trigger != MAP_EXIT_NONE) || debug_room_id >= 0)
 			{
 				O_Lyle *l = lyle_get();

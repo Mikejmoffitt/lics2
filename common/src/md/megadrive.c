@@ -12,9 +12,7 @@ void megadrive_init(void)
 	sys_init();
 	vdp_init();
 	dma_q_init();
-	io_gamepad_en(0);
-	io_gamepad_en(1);
-	io_gamepad_en(2);
+	md_io_init();
 	spr_init();
 	vdp_set_display_en(1);
 	sys_ei();

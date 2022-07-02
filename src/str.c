@@ -66,6 +66,8 @@ static const char *strings_en[STR_INVALID] =
 	"INCREASED 1 UNIT\n"
 	"\n"
 	"@HP RESTORED",
+	[STR_BUTTON_CHECK] =
+	"BUTTON CHECK",
 };
 
 static const char *strings_ja[STR_INVALID] =
@@ -124,6 +126,8 @@ static const char *strings_ja[STR_INVALID] =
 	"そうが　しました。"
 	"\n"
 	"@HPは　ほじょうしました。",
+	[STR_BUTTON_CHECK] =
+	"ボタン　チェック",
 };
 
 void str_set_locale(Locale locale)

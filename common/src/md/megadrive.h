@@ -22,7 +22,7 @@ static inline void megadrive_finish(void)
 	spr_finish();
 	pal_poll();
 	vdp_wait_vblank();
-	io_poll();
+	md_io_poll();
 	dma_q_process();
 }
 

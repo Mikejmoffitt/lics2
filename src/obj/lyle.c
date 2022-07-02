@@ -15,6 +15,9 @@
 #include "obj/map.h"
 #include "obj/pause.h"
 
+#define LYLE_BTN_JUMP (BTN_A | BTN_C)
+#define LYLE_BTN_CUBE (BTN_B)
+
 #include "progress.h"
 
 #include "res.h"
@@ -317,7 +320,7 @@ static inline void toss_cubes(O_Lyle *l)
 {
 	if (is_control_disabled(l)) return;
 	if (!l->holding_cube) return;
-	if ((buttons & BTN_B) && !(buttons_prev & BTN_B))
+	if ((buttons & LYLE_BTN_CUBE) && !(buttons_prev & LYLE_BTN_CUBE))
 	{
 		fix16_t c_dx = 0;
 		fix16_t c_dy = 0;
@@ -371,7 +374,7 @@ static inline void lift_cubes(O_Lyle *l)
 	if (l->action_cnt > 0 || is_control_disabled(l)) return;
 
 	if (l->on_cube && l->lift_cnt == 0 &&
-	    buttons & BTN_B && !(buttons_prev & BTN_B))
+	    buttons & LYLE_BTN_CUBE && !(buttons_prev & LYLE_BTN_CUBE))
 	{
 		l->lift_cnt = klift_time;
 		if (l->on_cube->type == CUBE_TYPE_ORANGE) l->lift_cnt *= 2;
@@ -395,7 +398,7 @@ static inline void lift_cubes(O_Lyle *l)
 		l->holding_cube = c->type;
 
 		// Repro of MMF1 version bug where you can jump while lifting.
-		if (buttons & BTN_C)
+		if (buttons & LYLE_BTN_JUMP)
 		{
 			sfx_play(SFX_JUMP, 17);
 			l->head.dy = (c->type == CUBE_TYPE_ORANGE) ? (kjump_dy / 2) : kjump_dy;
@@ -419,7 +422,7 @@ static inline void jump(O_Lyle *l)
 	if (l->lift_cnt || is_control_disabled(l)) return;
 
 	// C button pressed down.
-	if ((buttons & BTN_C) && !(buttons_prev & BTN_C))
+	if ((buttons & LYLE_BTN_JUMP) && !(buttons_prev & LYLE_BTN_JUMP))
 	{
 		if (l->grounded || l->on_cube)
 		{
@@ -626,7 +629,7 @@ static inline void cube_kick(O_Lyle *l, Cube *c)
 	if (c->status != CUBE_STATUS_IDLE || c->type == CUBE_TYPE_SPAWNER || c->type == CUBE_TYPE_ORANGE) return;
 	if (!(l->grounded || l->on_cube)) return;
 	if (l->action_cnt > 0) return;
-	if (!((buttons & BTN_B) && !(buttons_prev & BTN_B))) return;
+	if (!((buttons & LYLE_BTN_CUBE) && !(buttons_prev & LYLE_BTN_CUBE))) return;
 
 	if (l->head.y >= c->y + c->top &&
 	    l->head.y + l->head.top / 2 <= c->y)
@@ -767,7 +770,7 @@ static inline void gravity(O_Lyle *l)
 	{
 		l->head.dy += kgravity_dead;
 	}
-	else if ((buttons & BTN_C) && (l->hurt_cnt <= 0) && l->head.dy < 0)
+	else if ((buttons & LYLE_BTN_JUMP) && (l->hurt_cnt <= 0) && l->head.dy < 0)
 	{
 		l->head.dy += kgravity_weak;
 	}
@@ -838,7 +841,7 @@ static inline void cp(O_Lyle *l)
 	                            LYLE_CP_SPAWN_CHEAP : LYLE_CP_SPAWN_PRICE;
 	if (!l->holding_cube && l->cp >= cube_price)
 	{
-		if (buttons & BTN_B)
+		if (buttons & LYLE_BTN_CUBE)
 		{
 			l->phantom_cnt++;
 			if (l->phantom_cnt == kcube_fx + 1)
@@ -1157,7 +1160,7 @@ static void main_func(Obj *o)
 	if (!l->full_disable)
 	{
 		buttons_prev = buttons;
-		buttons = io_pad_read(0);
+		buttons = md_io_pad_read(0);
 
 		maybe_die(l);
 
