@@ -14,6 +14,9 @@ void megadrive_init(void)
 	dma_q_init();
 	md_io_init();
 	spr_init();
+	dma_q_fill_vram(0, 0, 32768, 2);
+	dma_q_fill_vram(1, 0, 32768, 2);
+	dma_q_process();
 	vdp_set_display_en(1);
 	sys_ei();
 }

@@ -53,8 +53,6 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 			s_game_state++;
 			want_display_en = 0;
 			vdp_set_window_top(0);
-			dma_q_fill_vram(0, 0, 32768, 2);
-			dma_q_fill_vram(1, 0, 32768, 2);
 			str_set_locale(sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
 			break;
 
