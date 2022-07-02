@@ -1,4 +1,4 @@
-/* md-toolchain header and C runtime startup
+/* md-toolchain header, interrupts, and C runtime startup
 Michael Moffitt 2021 */
 
 	.section	.text.keepboot
@@ -157,7 +157,6 @@ _v_table:
 	/* 13:   _____________ */
 	.ascii	"             "
 
-	.section	.text
 _start:
 start:
 	/* disable ints */

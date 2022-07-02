@@ -14,6 +14,7 @@
 #include "md/opn.h"   // YM2610 FM sound chip
 #include "md/psg.h"   // SN76489-compatible PSG sound chip
 #include "md/sram.h"  // Support for battery-backed SRAM
+#include "md/irq.h"   // Interrupt handler registration
 
 // Run after completing the logic in one game tick loop.
 static inline void megadrive_finish(void)

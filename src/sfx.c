@@ -2,7 +2,6 @@
 #include "md/megadrive.h"
 #include "system.h"
 #include "common.h"
-
 #include <stdlib.h>
 
 #define SFX_P(_pitch_, _vol_) {1, ((int)(_pitch_)) & 0x3FF, (_vol_) & 0x0F}
@@ -1053,25 +1052,7 @@ static const SfxSample *stream_by_id[] =
 };
 
 // Sound routines.
-int sfx_init(void)
-{
-	vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
-	vdp_set_hint_en(1);
-
-	int8_t i = ARRAYSIZE(channel_state);
-	while (i--)
-	{
-		SfxChannelState *s = &channel_state[i];
-		s->id = SFX_NULL;
-		s->stream = NULL;
-		s->channel = i;
-		s->priority = 0x7F;
-		psg_vol(s->channel, 0xF);
-	}
-	return 1;
-}
-
-void sfx_tick(void)
+static void sfx_tick(void)
 {
 	cycle_count++;
 	if (cycle_count >= kcycle_max) cycle_count = 0;
@@ -1113,6 +1094,27 @@ void sfx_tick(void)
 	SYS_BARRIER();
 	sys_ei();
 	SYS_BARRIER();
+}
+
+int sfx_init(void)
+{
+	vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
+	vdp_set_hint_en(1);
+
+	int8_t i = ARRAYSIZE(channel_state);
+	while (i--)
+	{
+		SfxChannelState *s = &channel_state[i];
+		s->id = SFX_NULL;
+		s->stream = NULL;
+		s->channel = i;
+		s->priority = 0x7F;
+		psg_vol(s->channel, 0xF);
+	}
+
+	md_irq_register(MD_IRQ_HBLANK, sfx_tick);
+
+	return 1;
 }
 
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel)

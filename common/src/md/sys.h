@@ -4,6 +4,7 @@ Michael Moffitt 2018 */
 #define SYS_H
 
 #include <stdint.h>
+#include "md/mmio.h"
 
 #define SYS_BARRIER() __asm__ __volatile__("": : :"memory")
 

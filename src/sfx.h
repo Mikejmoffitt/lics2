@@ -58,11 +58,8 @@ typedef struct SfxChannelState
 	int8_t priority;  // 0 = highest priority.
 } SfxChannelState;
 
-// This calls the main routine for the sound engine. It should be called at
-// 300Hz. It spreads its work across six calls to reduce load. This is also
-// what allows it to work across both NTSC and PAL without adjustment.
-void sfx_tick(void);
-
+// Initializes playback state, sets up horizontal interrupts for timing, and
+// registers sfx_tick() as an IRQ handling routine.
 int sfx_init(void);
 
 void sfx_play(SfxId id, int8_t priority);
