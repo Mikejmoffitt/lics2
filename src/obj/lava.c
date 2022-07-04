@@ -166,7 +166,7 @@ static void splat_func(Obj *o)
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 3, ksplat_anim_speed);
 	if (e->anim_frame >= 2)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 	render_splat(e);
@@ -175,11 +175,6 @@ static void splat_func(Obj *o)
 static inline void become_splat(Obj *o)
 {
 	O_Lava *e = (O_Lava *)o;
-//	o->dy = 0;
-//	e->anim_cnt = 0;
-//	e->anim_frame = 0;
-//	o->flags = 0;
-//	o->main_func = splat_func;
 	e->splat_cnt = ksplat_anim_speed * 3;
 	e->splat_anim_cnt = 0;
 	e->splat_anim_frame = 0;
@@ -188,18 +183,11 @@ static inline void become_splat(Obj *o)
 	{
 		e->size--;
 		o->y -= INTTOFIX32(16);
-		// TODO: Splat particle
 	}
 	else
 	{
-		o->status = OBJ_STATUS_NULL;
-		// TODO: Splat particle
+		obj_erase(o);
 	}
-//	if (e->size > 1)
-//	{
-//		O_Lava *new_lava = (O_Lava *)obj_spawn(FIX32TOINT(o->x) - 8, FIX32TOINT(o->y) - 32,
-//		                                       OBJ_LAVA, ((e->size - 1) << 12) | (FIX32TOINT(e->max_y) & 0x0FFF));
-//		new_lava->cow = e->cow;
 }
 
 static inline void check_collision_with_orange_cube(Obj *o)
@@ -242,7 +230,7 @@ static void main_func(Obj *o)
 	{
 		if (e->splat_cnt <= 0)
 		{
-			o->status = OBJ_STATUS_NULL;
+			obj_erase(o);
 		}
 		return;
 	}
@@ -293,7 +281,7 @@ void o_load_lava(Obj *o, uint16_t data)
 
 	const fix16_t height = INTTOFIX16(((data & 0x8000) ? -16 : -32));
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_HARMFUL,
+	obj_basic_init(o, "Lava", OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_HARMFUL,
 	               INTTOFIX16(-8), INTTOFIX16(8), height, 127);
 	o->cube_func = NULL;
 
@@ -319,7 +307,7 @@ void o_load_lava(Obj *o, uint16_t data)
 		}
 
 		// If ground wasn't found within accepted bounds, cancel spawn.
-		if (e->max_y == o->y) o->status = OBJ_STATUS_NULL;
+		if (e->max_y == o->y) obj_erase(o);
 
 		e->is_generator = 1;
 

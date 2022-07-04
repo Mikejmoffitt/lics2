@@ -246,7 +246,7 @@ static void main_func(Obj *o)
 			if (o->status != OBJ_STATUS_ACTIVE) continue;
 			if (o->type != OBJ_LAVA) continue;
 			O_Lava *l = (O_Lava *)o;
-			if (l->is_generator) o->status = OBJ_STATUS_NULL;
+			if (l->is_generator) obj_erase(o);
 		}
 	}
 
@@ -264,7 +264,7 @@ void o_load_cow(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Cow", OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-20), INTTOFIX16(20), INTTOFIX16(-24), 127);
 	o->top = INTTOFIX16(-16);
 	o->left = INTTOFIX16(-14);

@@ -64,7 +64,7 @@ void o_load_cp_meter(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-80), 127);
+	obj_basic_init(o, "CP Meter", OBJ_FLAG_ALWAYS_ACTIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-80), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 }

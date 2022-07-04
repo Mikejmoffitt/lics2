@@ -301,7 +301,7 @@ void o_load_projectile_manager(Obj *o, uint16_t data)
 
 	if (s_projectile_manager || s_vram_pos)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -310,7 +310,7 @@ void o_load_projectile_manager(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
+	obj_basic_init(o, "ShotMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
 	o->main_func = main_func;
 
 	projectile_manager_clear();

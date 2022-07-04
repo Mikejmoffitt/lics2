@@ -39,7 +39,7 @@ static void main_func(Obj *o)
 	O_Exploder *f = (O_Exploder *)o;
 	if (f->count <= 0)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -60,7 +60,7 @@ void o_load_exploder(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Exploder) <= sizeof(ObjSlot));
 
-	obj_basic_init(o, 0, 0, 0, 0, 127);
+	obj_basic_init(o, "Exploder", 0, 0, 0, 0, 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 

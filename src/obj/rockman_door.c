@@ -114,7 +114,7 @@ void o_load_rockman_door(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "RkmnDoor", OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-48), 127);
 	o->left = INTTOFIX16(-10);
 	o->right = INTTOFIX16(10);

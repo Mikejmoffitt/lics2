@@ -466,11 +466,11 @@ void o_load_boss1(Obj *o, uint16_t data)
 	const ProgressSlot *prog = progress_get();
 	if (prog->boss_defeated[0])
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Boss 1", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-32), 5);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

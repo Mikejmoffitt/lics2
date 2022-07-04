@@ -590,7 +590,7 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Vyle 2", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-32), INTTOFIX16(32), INTTOFIX16(-64), 5);
 	o->left = INTTOFIX16(-18);
 	o->right = INTTOFIX16(18);

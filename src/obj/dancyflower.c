@@ -106,13 +106,13 @@ void o_load_dancyflower(Obj *o, uint16_t data)
 	(void)data;
 	if (progress_get()->killed_dancyflower)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 	vram_load();
 	set_constants();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_BOUNCE_L,
+	obj_basic_init(o, "DncyFlwr", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_BOUNCE_L,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-47), 2);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

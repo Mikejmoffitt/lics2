@@ -23,7 +23,7 @@ void o_load_entrance(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Entrance) <= sizeof(ObjSlot));
 
-	obj_basic_init(o, OBJ_FLAG_SENSITIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-31), 127);
+	obj_basic_init(o, "Entrance", OBJ_FLAG_SENSITIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-31), 127);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;

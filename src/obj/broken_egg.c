@@ -40,13 +40,13 @@ void o_load_broken_egg(Obj *o, uint16_t data)
 
 	if (!progress_get()->egg_dropped)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "BroknEgg", 0,
 	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

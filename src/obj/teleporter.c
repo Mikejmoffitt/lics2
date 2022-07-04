@@ -178,7 +178,7 @@ void o_load_teleporter(Obj *o, uint16_t data)
 	vram_load();
 	set_constants();
 
-	obj_basic_init(o, OBJ_FLAG_SENSITIVE,
+	obj_basic_init(o, "Teleport", OBJ_FLAG_SENSITIVE,
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-1), 127);
 	o->x += INTTOFIX32(15);
 	o->main_func = main_func;
@@ -194,7 +194,7 @@ void o_load_teleporter(Obj *o, uint16_t data)
 		const ProgressSlot *prog = progress_get();
 		if (!(prog->teleporters_active & (1 << t->id)))
 		{
-			o->status = OBJ_STATUS_NULL;
+			obj_erase(o);
 		}
 	}
 }

@@ -93,7 +93,7 @@ static void main_func(Obj *o)
 	const int16_t x_center = FIX32TOINT(o->x);
 	if (o->dy > 0 && map_collision(x_center, y_px))
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
@@ -129,13 +129,13 @@ void o_load_small_egg(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_SmallEgg) <= sizeof(ObjSlot));
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE, INTTOFIX16(-8), INTTOFIX16(8),
+	obj_basic_init(o, "SmallEgg", OBJ_FLAG_TANGIBLE, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);
 
 	// Generator does not spawn once CP orb 6 has been collected.
 	if (data && (progress_get()->cp_orbs & (1 << 6)))
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 	o->left = INTTOFIX16(-4);

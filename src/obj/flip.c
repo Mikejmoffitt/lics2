@@ -119,7 +119,7 @@ void o_load_flip(Obj *o, uint16_t data)
 	vram_load();
 	set_constants();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Flip", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-11), INTTOFIX16(11), INTTOFIX16(-12), 2);
 	o->main_func = main_func;
 	o->cube_func = NULL;

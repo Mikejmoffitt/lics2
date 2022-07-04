@@ -61,7 +61,7 @@ void o_load_template(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Template", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-2), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;

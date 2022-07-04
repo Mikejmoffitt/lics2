@@ -178,7 +178,7 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 
 	if (particle_manager || s_vram_pos)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -187,7 +187,7 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
+	obj_basic_init(o, "PtclMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
 	o->main_func = main_func;
 
 	particle_manager_clear();

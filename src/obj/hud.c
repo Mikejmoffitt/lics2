@@ -100,7 +100,7 @@ void o_load_hud(Obj *o, uint16_t data)
 	(void)data;
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
+	obj_basic_init(o, "HUD", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 }

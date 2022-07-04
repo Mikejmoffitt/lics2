@@ -71,8 +71,8 @@ static void main_func(Obj *o)
 
 		if (o->y + o->top > map_get_bottom())
 		{
-			o->status = OBJ_STATUS_NULL;
 			progress_get()->egg_dropped = 1;
+			obj_erase(o);
 		}
 	}
 
@@ -103,7 +103,7 @@ void o_load_egg(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Egg", OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-32), 3);
 	o->left = INTTOFIX16(-10);
 	o->right = INTTOFIX16(10);

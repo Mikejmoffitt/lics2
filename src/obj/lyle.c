@@ -1206,9 +1206,10 @@ void o_load_lyle(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Lyle) <= sizeof(ObjSlot));
 	(void)data;
 
+	// There can be only one!
 	if (g_lyle)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -1218,7 +1219,7 @@ void o_load_lyle(Obj *o, uint16_t data)
 	set_constants();
 
 	// Lyle is not marked tangible because he does his own cube detection.
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Lyle", OBJ_FLAG_ALWAYS_ACTIVE,
 	                  LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 2);
 
 	o->main_func = main_func;

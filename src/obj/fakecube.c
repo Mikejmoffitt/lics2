@@ -97,7 +97,7 @@ void o_load_fakecube(Obj *o, uint16_t data)
 	(void)data;
 	set_constants();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "FakeCube", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

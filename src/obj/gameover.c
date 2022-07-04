@@ -288,7 +288,7 @@ void o_load_gameover(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "GameOver", 0,
 	               INTTOFIX16(-32), INTTOFIX16(32), INTTOFIX16(-64), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

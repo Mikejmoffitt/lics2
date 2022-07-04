@@ -2,7 +2,6 @@
 
 void o_load_cube(Obj *o, uint16_t data)
 {
-	o->status = OBJ_STATUS_NULL;
 	Cube *c = cube_manager_spawn(o->x, o->y,
 	                             (CubeType)data, CUBE_STATUS_IDLE, 0, 0);
 	if (!c) return;
@@ -14,4 +13,5 @@ void o_load_cube(Obj *o, uint16_t data)
 		c->x -= INTTOFIX32(8);
 		c->y -= INTTOFIX32(16);
 	}
+	obj_erase(o);
 }

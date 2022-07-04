@@ -101,7 +101,7 @@ static void main_func(Obj *o)
 				    egg->y > o->y - INTTOFIX32(20) &&
 				    egg->y < o->y - INTTOFIX32(14))
 				{
-					egg->status = OBJ_STATUS_NULL;
+					obj_erase(egg);
 					e->state = DOG_STATE_CHEWING;
 					e->eggs_eaten++;
 				}
@@ -155,20 +155,20 @@ static void main_func(Obj *o)
 				Obj *egg = &g_objects[i].obj;
 				if (egg->status == OBJ_STATUS_NULL) continue;
 				if (egg->type != OBJ_SMALL_EGG) continue;
-				egg->status = OBJ_STATUS_NULL;
+				obj_erase(egg);
 			}
 
 			if (e->state_elapsed >= kflicker_time)
 			{
-				o->status = OBJ_STATUS_NULL;
 				powerup_manager_spawn(o->x, o->y - INTTOFIX32(8),
 				                      POWERUP_TYPE_CP_ORB, 6);
 				Obj *egg = NULL;
 				// Delete eggs and egg generator
 				while ((egg = obj_find_by_type(OBJ_EGG)) != NULL)
 				{
-					egg->status = OBJ_STATUS_NULL;
+					obj_erase(egg);
 				}
+				obj_erase(o);
 			}
 			break;
 	}
@@ -186,14 +186,14 @@ void o_load_dog(Obj *o, uint16_t data)
 
 	if (progress_get()->cp_orbs & (1 << 6))
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "Dog", 0,
 	               INTTOFIX16(-24), INTTOFIX16(24), INTTOFIX16(-48), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

@@ -77,7 +77,7 @@ static void main_func(Obj *o)
 		exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
 		sfx_play(SFX_OBJ_BURST, 3);
 		sfx_play(SFX_OBJ_BURST_HI, 3);
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 
 		Cube *c = cube_manager_spawn(o->x, o->y, e->storage, CUBE_STATUS_IDLE, 0, 0);
 		cube_destroy(c);
@@ -93,7 +93,7 @@ void o_load_cork(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Cork) <= sizeof(ObjSlot));
 	(void)data;
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Cork", OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 1);
 	o->main_func = main_func;
 	o->cube_func = cube_func;
@@ -104,7 +104,7 @@ void o_load_cork(Obj *o, uint16_t data)
 		const int16_t orb_id = data & 0x000F;
 		if (prog->cp_orbs & (1 << orb_id))
 		{
-			o->status = OBJ_STATUS_NULL;
+			obj_erase(o);
 			return;
 		}
 	}
@@ -113,7 +113,7 @@ void o_load_cork(Obj *o, uint16_t data)
 		const int16_t orb_id = data & 0x000F;
 		if (prog->hp_orbs & (1 << orb_id))
 		{
-			o->status = OBJ_STATUS_NULL;
+			obj_erase(o);
 			return;
 		}
 	}

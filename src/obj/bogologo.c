@@ -66,7 +66,7 @@ static void main_func(Obj *o)
 	}
 	if (o->offscreen)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -80,7 +80,7 @@ static void main_func(Obj *o)
 		sfx_play(SFX_TELEPORT_2, 3);
 		const Obj *title = obj_find_by_type(OBJ_TITLE);
 		// We need the title object to live.
-		if (!title) o->status = OBJ_STATUS_NULL;
+		if (!title) obj_erase(o);
 		const Gfx *g = gfx_get(GFX_BOGOLOGO);
 		s_vram_pos = gfx_load(g, title_get_vram_pos());
 	}
@@ -103,7 +103,7 @@ void o_load_bogologo(Obj *o, uint16_t data)
 	(void)data;
 	set_constants();
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "BogoLogo", OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-64), INTTOFIX16(64), INTTOFIX16(-48), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;

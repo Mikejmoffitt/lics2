@@ -56,7 +56,7 @@ void o_load_wndwback(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "WndwBack", 0,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

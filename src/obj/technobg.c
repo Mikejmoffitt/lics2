@@ -145,7 +145,7 @@ void o_load_technobg(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_TechnoBg) <= sizeof(ObjSlot));
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "TechnoBg", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = data ? vert_func : hori_func;
 	o->cube_func = NULL;

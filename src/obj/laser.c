@@ -148,7 +148,7 @@ void o_load_laser(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "Laser", 0,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 1);
 	const int16_t x_center = FIX32TOINT(o->x);
 

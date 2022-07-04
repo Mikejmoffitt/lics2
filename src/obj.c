@@ -181,7 +181,7 @@ void obj_clear(void)
 	{
 		Obj *o = (Obj *)s;
 		s++;
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 	}
 
 	for (uint16_t i = 0; i < ARRAYSIZE(setup_funcs); i++)
@@ -215,6 +215,19 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 	return NULL;
 }
 
+void obj_erase(Obj *o)
+{
+	o->status = OBJ_STATUS_NULL;
+	o->name[0] = '<';
+	o->name[1] = '-';
+	o->name[2] = 'N';
+	o->name[3] = 'U';
+	o->name[4] = 'L';
+	o->name[5] = 'L';
+	o->name[6] = '-';
+	o->name[7] = '>';
+}
+
 // VRAM load positions are reset to zero when obj_clear is called.
 uint16_t obj_vram_alloc(uint16_t bytes)
 {
@@ -235,8 +248,14 @@ void obj_cube_impact(Obj *o, Cube *c)
 	else obj_standard_cube_response(o, c);
 }
 
-void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp)
+void obj_basic_init(Obj *o, const char *name, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp)
 {
+	uint16_t name_idx = 0;
+	while (*name && name_idx < 8)
+	{
+		o->name[name_idx] = *name++;
+		name_idx++;
+	}
 	o->left = left;
 	o->right = right;
 	o->top = top;

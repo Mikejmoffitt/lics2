@@ -32,7 +32,7 @@ void o_load_scrlock(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_ScrLock) <= sizeof(ObjSlot));
 	(void)data;
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "ScrlLock", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-4), INTTOFIX16(4), INTTOFIX16(-19), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

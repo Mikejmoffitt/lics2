@@ -50,7 +50,7 @@ void o_load_purpletree(Obj *o, uint16_t data)
 	e->tile = data;
 	vram_load();
 
-	obj_basic_init(o, 0, INTTOFIX16(-8), INTTOFIX16(8),
+	obj_basic_init(o, "PrplTree", 0, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

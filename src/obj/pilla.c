@@ -133,7 +133,7 @@ void o_load_pilla(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Pilla", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-14), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
@@ -141,6 +141,17 @@ void o_load_pilla(Obj *o, uint16_t data)
 	o->dx = kdx;
 
 	f->is_head = !!data;
+	if (!f->is_head)
+	{
+		o->name[5] = 'B';
+		o->name[6] = 'd';
+		o->name[7] = 'y';
+	}
+	else
+	{
+		o->name[5] = 'H';
+		o->name[6] = 'd';
+	}
 }
 
 void o_unload_pilla(void)

@@ -1033,14 +1033,14 @@ void o_load_boss2(Obj *o, uint16_t data)
 	const ProgressSlot *prog = progress_get();
 	if (prog->boss_defeated[1])
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_SENSITIVE,
+	obj_basic_init(o, "Boss 2", OBJ_FLAG_SENSITIVE,
 	               INTTOFIX16(-4), INTTOFIX16(4), INTTOFIX16(-8), 3);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

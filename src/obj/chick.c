@@ -229,14 +229,14 @@ void o_load_chick(Obj *o, uint16_t data)
 
 	if (!progress_get()->egg_dropped)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Chick", OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 20);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

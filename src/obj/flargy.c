@@ -158,7 +158,7 @@ void o_load_flargy(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Flargy", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-32), 3);
 	o->top = INTTOFIX16(-28);
 	o->main_func = main_func;

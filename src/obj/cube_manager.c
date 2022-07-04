@@ -56,7 +56,7 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 	// If VRAM is already loaded, then a cube manager already is present.
 	if (s_vram_pos)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 
@@ -74,7 +74,7 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 		c->status = CUBE_STATUS_NULL;
 	}
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
+	obj_basic_init(o, "CubeMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
 	o->main_func = main_func;
 	
 	kphantom_anim_counter_max = PALSCALE_DURATION(6);

@@ -1887,7 +1887,7 @@ void o_load_pause(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Pause) <= sizeof(ObjSlot));
 	if (s_pause)
 	{
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		return;
 	}
 	s_pause = (O_Pause *)o;
@@ -1895,7 +1895,7 @@ void o_load_pause(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Pause", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-2), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;

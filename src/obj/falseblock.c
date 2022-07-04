@@ -82,7 +82,7 @@ static void main_func(Obj *o)
 	{
 		const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
 		exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
-		o->status = OBJ_STATUS_NULL;
+		obj_erase(o);
 		// TODO: Sound (not sure which cue)
 		return;
 	}
@@ -103,7 +103,7 @@ void o_load_falseblock(Obj *o, uint16_t data)
 	SYSTEM_ASSERT(sizeof(O_Falseblock) <= sizeof(ObjSlot));
 	e->base_tile_id = data;
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "FalseBlk", OBJ_FLAG_ALWAYS_ACTIVE | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

@@ -196,7 +196,7 @@ void o_load_tossmuffin(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "TossMuff", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-24), 2);
 	o->top = INTTOFIX16(-20);
 	o->main_func = main_func;

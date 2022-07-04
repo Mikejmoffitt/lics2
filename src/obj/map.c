@@ -454,7 +454,7 @@ void o_load_map(Obj *o, uint16_t data)
 	map = (O_Map *)o;
 	g_map_data = NULL;
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
+	obj_basic_init(o, "Map", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 }

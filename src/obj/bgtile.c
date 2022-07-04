@@ -26,7 +26,7 @@ void o_load_bgtile(Obj *o, uint16_t data)
 	O_BgTile *e = (O_BgTile *)o;
 	SYSTEM_ASSERT(sizeof(O_BgTile) <= sizeof(ObjSlot));
 
-	obj_basic_init(o, 0, INTTOFIX16(-8), INTTOFIX16(8),
+	obj_basic_init(o, "BgTile", 0, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

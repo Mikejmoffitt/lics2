@@ -44,7 +44,7 @@ static void main_func(Obj *o)
 			const fix16_t kspawn_rate = INTTOFIX16(PALSCALE_1ST(1.0));
 			// TODO: Is it fizzle red, or blue?
 			exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
-			o->status = OBJ_STATUS_NULL;
+			obj_erase(o);
 			// TODO: Tsss sand sound (same as fissins2)
 		}
 	}
@@ -65,7 +65,7 @@ void o_load_hoop(Obj *o, uint16_t data)
 	set_constants();
 
 	// TODO: Should be OBJ_TANGIBLE if cubes can collide?
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "Hoop", 0,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;

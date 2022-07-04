@@ -58,7 +58,7 @@ void o_load_spooko(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, 0,
+	obj_basic_init(o, "Spooko", 0,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;

@@ -137,7 +137,7 @@ void o_load_jraff(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
+	obj_basic_init(o, "Jraff", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-7), INTTOFIX16(7), INTTOFIX16(-63), 2);
 	o->main_func = main_func;
 	o->cube_func = NULL;

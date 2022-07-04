@@ -453,7 +453,7 @@ static void main_func(Obj *o)
 
 			if (o->x >= INTTOFIX32(GAME_SCREEN_W_PIXELS) + o->right)
 			{
-				o->status = OBJ_STATUS_NULL;
+				obj_erase(o);
 			}
 
 			obj_standard_physics(o);
@@ -483,7 +483,7 @@ void o_load_vyle1(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Vyle 1", OBJ_FLAG_HARMFUL | OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-24), 20);
 	o->main_func = main_func;
 	o->cube_func = cube_func;

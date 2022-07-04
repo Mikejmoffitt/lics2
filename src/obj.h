@@ -27,9 +27,9 @@
 }
 
 #define OBJ_COUNT_MAX 72
-#define OBJ_BYTES 80
+#define OBJ_BYTES 128
 
-#define OBJ_ACTIVE_DISTANCE 32
+#define OBJ_ACTIVE_DISTANCE 16
 
 // Possible states for an object to be in.
 typedef enum ObjStatus
@@ -66,6 +66,7 @@ struct Obj
 {
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
+	char name[8];  // This is NOT null-terminated!
 
 	ObjType type;
 	ObjFlags flags;
@@ -97,6 +98,7 @@ int obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
+void obj_erase(Obj *o);
 
 void obj_vram_set_base(uint16_t addr);
 
@@ -110,7 +112,8 @@ uint16_t obj_get_vram_pos(void);
 void obj_cube_impact(Obj *o, Cube *c);
 
 // Utility or commonly reused functions =======================================
-void obj_basic_init(Obj *o, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
+// name is a null-terminated string. At most 8 characters will be copied.
+void obj_basic_init(Obj *o, const char *name, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
 static inline void obj_standard_physics(Obj *o)
 {
 	o->x += (fix32_t)o->dx;

@@ -660,7 +660,7 @@ void o_load_bg(Obj *o, uint16_t data)
 	f->last_x_scroll = -1;
 	f->last_y_scroll = -1;
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
+	obj_basic_init(o, "Backgrnd", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 

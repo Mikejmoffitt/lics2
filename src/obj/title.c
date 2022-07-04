@@ -782,7 +782,7 @@ static void main_func(Obj *o)
 					}
 					if (w->type == OBJ_WNDWBACK)
 					{
-						w->status = OBJ_STATUS_NULL;
+						obj_erase(w);
 					}
 				}
 			}
@@ -803,7 +803,7 @@ static void main_func(Obj *o)
 					if (w->status == OBJ_STATUS_NULL) continue;
 					if (w->type == OBJ_WNDWBACK)
 					{
-						w->status = OBJ_STATUS_NULL;
+						obj_erase(w);
 					}
 				}
 			}
@@ -815,7 +815,7 @@ static void main_func(Obj *o)
 				lyle_set_control_en(1);
 				lyle_get()->priority = 0;
 				music_play(1);  // Stage music
-				o->status = OBJ_STATUS_NULL;
+				obj_erase(o);
 				hud_set_visible(1);
 				metagrub_set_enable(1);
 				return;
@@ -839,7 +839,7 @@ void o_load_title(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, OBJ_FLAG_ALWAYS_ACTIVE,
+	obj_basic_init(o, "Title", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-56), INTTOFIX16(56), INTTOFIX16(-72), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
