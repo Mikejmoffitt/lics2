@@ -81,7 +81,7 @@ static inline void render(O_Buggo2 *f)
 		// Spinning animation.
 	}
 
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }

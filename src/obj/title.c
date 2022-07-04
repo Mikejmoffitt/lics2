@@ -115,64 +115,64 @@ static void render_title_logo(int16_t sp_x, int16_t sp_y)
 	int16_t vram = s_vram_pos;
 
 	// Title logo
-	spr_put(sp_x + (0 * 32), sp_y + (0 * 32),
+	md_spr_put(sp_x + (0 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (1 * 32), sp_y + (0 * 32),
+	md_spr_put(sp_x + (1 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (2 * 32), sp_y + (0 * 32),
+	md_spr_put(sp_x + (2 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (3 * 32), sp_y + (0 * 32),
+	md_spr_put(sp_x + (3 * 32), sp_y + (0 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(2, 4));
 	vram += 8;
 
-	spr_put(sp_x + (0 * 32), sp_y + (1 * 32),
+	md_spr_put(sp_x + (0 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (1 * 32), sp_y + (1 * 32),
+	md_spr_put(sp_x + (1 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (2 * 32), sp_y + (1 * 32),
+	md_spr_put(sp_x + (2 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 4));
 	vram += 16;
-	spr_put(sp_x + (3 * 32), sp_y + (1 * 32),
+	md_spr_put(sp_x + (3 * 32), sp_y + (1 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(2, 4));
 	vram += 7;
 
-	spr_put(sp_x + (0 * 32), sp_y + (2 * 32),
+	md_spr_put(sp_x + (0 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-	spr_put(sp_x + (1 * 32), sp_y + (2 * 32),
+	md_spr_put(sp_x + (1 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-	spr_put(sp_x + (2 * 32), sp_y + (2 * 32),
+	md_spr_put(sp_x + (2 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
 	vram += 4;
-	spr_put(sp_x + (3 * 32), sp_y + (2 * 32),
+	md_spr_put(sp_x + (3 * 32), sp_y + (2 * 32),
 	        SPR_ATTR(vram,
 	        0, 0, pal, 0),
 	        SPR_SIZE(1, 1));
@@ -183,26 +183,26 @@ static void render_credits(void)
 {
 	static const int16_t pal = ENEMY_PAL_LINE;
 	// The corner credits
-	spr_put(GAME_SCREEN_W_PIXELS - 68, 0,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68, 0,
 	        SPR_ATTR(s_vram_credits_pos, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 0,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68 + 24, 0,
 	        SPR_ATTR(s_vram_credits_pos + 3, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 0,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 0,
 	        SPR_ATTR(s_vram_credits_pos + 6, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
 
-	spr_put(GAME_SCREEN_W_PIXELS - 68, 7,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68, 7,
 	        SPR_ATTR(s_vram_credits_pos, 0, 0, pal, 0),
 	        SPR_SIZE(1, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 8, 7,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68 + 8, 7,
 	        SPR_ATTR(s_vram_credits_pos + 9, 0, 0, pal, 0),
 	        SPR_SIZE(4, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 40, 7,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68 + 40, 7,
 	        SPR_ATTR(s_vram_credits_pos + 13, 0, 0, pal, 0),
 	        SPR_SIZE(1, 1));
-	spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
+	md_spr_put(GAME_SCREEN_W_PIXELS - 68 + 48, 7,
 	        SPR_ATTR(s_vram_credits_pos + 6, 0, 0, pal, 0),
 	        SPR_SIZE(3, 1));
 }
@@ -216,10 +216,10 @@ static void render_menu(O_Title *e, int16_t sp_y)
 	                              ENEMY_PAL_LINE : BG_PAL_LINE;
 
 	const int16_t x = GAME_SCREEN_W_PIXELS/2;
-	spr_put(x - 72, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
-	spr_put(x - 40, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 4, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
-	spr_put(x + 8, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 8, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
-	spr_put(x + 40, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 12, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
+	md_spr_put(x - 72, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
+	md_spr_put(x - 40, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 4, 0, 0, newgame_pal, 1), SPR_SIZE(4, 1));
+	md_spr_put(x + 8, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 8, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
+	md_spr_put(x + 40, sp_y + 80, SPR_ATTR(s_vram_title_menu_pos + 12, 0, 0, continue_pal, 1), SPR_SIZE(4, 1));
 }
 
 static void render_title_full(O_Title *e)
@@ -243,14 +243,14 @@ static void render_kitty(O_Title *e, int16_t sp_x, int16_t sp_y)
 	{
 		OBJ_SIMPLE_ANIM(e->kitty_anim_cnt, e->kitty_anim_frame,
 		3, kkitty_sleep_anim_speed);
-		spr_put(sp_x + 80, sp_y + 168,
+		md_spr_put(sp_x + 80, sp_y + 168,
 		        SPR_ATTR(s_vram_keddums_pos + (6 * e->kitty_anim_frame),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 2));
 
 	}
 	else if (e->kitty_anim_state == 1)
 	{
-		spr_put(sp_x + 80, sp_y + 168,
+		md_spr_put(sp_x + 80, sp_y + 168,
 		        SPR_ATTR(s_vram_keddums_pos + (6 * 3),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 2));
 	}
@@ -264,7 +264,7 @@ static void render_cloakdude(O_Title *e, int16_t sp_x, int16_t sp_y)
 	{
 		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
 		2, kcloakdude_walk_anim_speed);
-		spr_put(sp_x, sp_y + 160,
+		md_spr_put(sp_x, sp_y + 160,
 		        SPR_ATTR(s_vram_cloakdude_pos + (9 * e->cloakdude_anim_frame),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 	}
@@ -272,7 +272,7 @@ static void render_cloakdude(O_Title *e, int16_t sp_x, int16_t sp_y)
 	{
 		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
 		2, kcloakdude_look_anim_speed);
-		spr_put(sp_x, sp_y + 160,
+		md_spr_put(sp_x, sp_y + 160,
 		        SPR_ATTR(s_vram_cloakdude_pos + (e->cloakdude_anim_frame ? 18 : 0),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 	}
@@ -280,7 +280,7 @@ static void render_cloakdude(O_Title *e, int16_t sp_x, int16_t sp_y)
 	{
 		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
 		2, kcloakdude_run1_anim_speed);
-		spr_put(sp_x, sp_y + 160,
+		md_spr_put(sp_x, sp_y + 160,
 		        SPR_ATTR(s_vram_cloakdude_pos + (9 * e->cloakdude_anim_frame),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 	}
@@ -288,7 +288,7 @@ static void render_cloakdude(O_Title *e, int16_t sp_x, int16_t sp_y)
 	{
 		OBJ_SIMPLE_ANIM(e->cloakdude_anim_cnt, e->cloakdude_anim_frame,
 		4, kcloakdude_run2_anim_speed);
-		spr_put(sp_x, sp_y + 160,
+		md_spr_put(sp_x, sp_y + 160,
 		        SPR_ATTR(s_vram_cloakdude_pos + 27 + (9 * e->cloakdude_anim_frame),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 	}
@@ -408,7 +408,7 @@ static void draw_house_door(int16_t frame)
 			break;
 	}
 
-	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
+	const uint16_t scra_base = md_vdp_get_plane_base(VDP_PLANE_A);
 	for (int16_t i = 0; i < size / 2; i++)
 	{
 		const uint16_t offset = src[i * 2];
@@ -453,7 +453,7 @@ static void draw_normal_house_tiles(void)
 	};
 #undef MAPADDR
 
-	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
+	const uint16_t scra_base = md_vdp_get_plane_base(VDP_PLANE_A);
 	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
 	{
 		const uint16_t offset = prio_tiles[i * 2];
@@ -501,7 +501,7 @@ static void draw_high_prio_house_tiles(void)
 	};
 #undef MAPADDR
 
-	const uint16_t scra_base = vdp_get_plane_base(VDP_PLANE_A);
+	const uint16_t scra_base = md_vdp_get_plane_base(VDP_PLANE_A);
 	for (uint16_t i = 0; i < ARRAYSIZE(prio_tiles) / 2; i++)
 	{
 		const uint16_t offset = prio_tiles[i * 2];
@@ -579,7 +579,7 @@ static void main_func(Obj *o)
 				e->v_scroll_y += (fix32_t)e->v_scroll_dy;
 				if (e->v_scroll_y >= kscroll_max / 2)
 				{
-					pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+					md_pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
 				}
 				if (e->v_scroll_y >= kscroll_max)
 				{
@@ -603,7 +603,7 @@ static void main_func(Obj *o)
 		case TITLE_STATE_CUTSCENE:
 			if (e->state_elapsed == 0)
 			{
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
 				// Cloakdude overwrites the bogologo in VRAM, as he is only seen one the screen scroll stops.
 				const Gfx *gfx_cloakdude = gfx_get(GFX_EX_CLOAKDUDE);
 				s_vram_cloakdude_pos = gfx_load(gfx_cloakdude, s_vram_pos);
@@ -671,7 +671,7 @@ static void main_func(Obj *o)
 		case TITLE_STATE_MENU:
 			if (e->state_elapsed == 0)
 			{
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
 				const Gfx *gfx_title = gfx_get(GFX_TITLE_SCR);
 				s_vram_pos = gfx_load(gfx_title, s_vram_pos);
 				const Gfx *gfx_credits = gfx_get(GFX_EX_CREDITS);
@@ -809,7 +809,7 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed >= klyle_seq[6])
 			{
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_title_bin) / 2);
 				draw_normal_house_tiles();
 				lyle_set_control_en(1);

@@ -145,26 +145,26 @@ static inline void draw_brick(Brick *b)
 	const uint16_t attr =  SPR_ATTR(s_vram_pos + (b->type == 1 ? 0 : 4), 0, 0, ENEMY_PAL_LINE, 0);
 	if (b->method == 0 && b->type != 0)
 	{
-		spr_put(b->x, b->y - map_get_y_scroll(), attr, SPR_SIZE(3, 1));
+		md_spr_put(b->x, b->y - map_get_y_scroll(), attr, SPR_SIZE(3, 1));
 	}
 	else if (b->method == 1 && b->type != b->previous_type)
 	{
 		b->previous_type = b->type;
-		vdp_set_autoinc(2);
-		uint16_t addr = vdp_get_plane_base(VDP_PLANE_A);
+		md_vdp_set_autoinc(2);
+		uint16_t addr = md_vdp_get_plane_base(VDP_PLANE_A);
 		addr += 2 * (b->x / 8);
 		addr += (GAME_PLANE_W_CELLS * 2) * (b->y / 8);
 		if (b->type != 0)
 		{
-			vdp_poke(addr, attr);
-			vdp_write(attr + 1);
-			vdp_write(attr + 2);
+			md_vdp_poke(addr, attr);
+			md_vdp_write(attr + 1);
+			md_vdp_write(attr + 2);
 		}
 		else
 		{
-			vdp_poke(addr, 0);
-			vdp_write(0);
-			vdp_write(0);
+			md_vdp_poke(addr, 0);
+			md_vdp_write(0);
+			md_vdp_write(0);
 		}
 	}
 }
@@ -388,7 +388,7 @@ static inline void ball_boss_collisions(O_Boss2 *e)
 
 static inline void ball_render(int16_t px, int16_t py)
 {
-	spr_put(px - 4, py - 4 - map_get_y_scroll(),
+	md_spr_put(px - 4, py - 4 - map_get_y_scroll(),
 	        SPR_ATTR(s_vram_pos + 3, 0, 0, ENEMY_PAL_LINE, 0),
 	        SPR_SIZE(1, 1));
 }
@@ -566,7 +566,7 @@ static void render(O_Boss2 *e)
 	{
 		const SprDef *def = &metaframes[(e->metaframe * 4) + i];
 		if (def->size == -1) continue;
-		spr_put(sp_x + def->x, sp_y + def->y, s_vram_pos + def->attr, def->size);
+		md_spr_put(sp_x + def->x, sp_y + def->y, s_vram_pos + def->attr, def->size);
 	}
 }
 
@@ -998,12 +998,12 @@ static void main_func(Obj *o)
 
 	if (e->brick_pal_cnt < kbrick_pal_speed)
 	{
-		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_boss2_1_bin,
+		md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_boss2_1_bin,
 		           sizeof(res_pal_enemy_boss2_1_bin) / 2);
 	}
 	else
 	{
-		pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_boss2_2_bin,
+		md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_boss2_2_bin,
 		           sizeof(res_pal_enemy_boss2_2_bin) / 2);
 	}
 

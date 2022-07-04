@@ -39,7 +39,7 @@ static void render(O_Wndwback *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 

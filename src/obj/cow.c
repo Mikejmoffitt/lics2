@@ -112,11 +112,11 @@ static void render(O_Cow *e)
 	}
 
 	// Caboose.
-	spr_put(sp_x + butt_x, sp_y, SPR_ATTR(s_vram_pos + butt_offset, flip, 0,
+	md_spr_put(sp_x + butt_x, sp_y, SPR_ATTR(s_vram_pos + butt_offset, flip, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 3));
 
 	// Head.
-	spr_put(sp_x + head_x, sp_y, SPR_ATTR(s_vram_pos + head_offset, flip, 0,
+	md_spr_put(sp_x + head_x, sp_y, SPR_ATTR(s_vram_pos + head_offset, flip, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 3));
 
 }
@@ -254,7 +254,7 @@ static void main_func(Obj *o)
 
 	render(e);
 
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_cow_bin,
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_cow_bin,
 	           sizeof(res_pal_enemy_cow_bin) / 2);
 }
 

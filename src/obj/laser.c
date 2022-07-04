@@ -57,7 +57,7 @@ static void render(O_Laser *e)
 	                        map_get_x_scroll(), map_get_y_scroll());
 	for (int16_t i = 0 ; i < e->height; i++)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset, e->anim_frame % 2, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset, e->anim_frame % 2, 0,
 		                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		sp_y -= 16;
 	}

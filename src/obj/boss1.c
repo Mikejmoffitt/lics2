@@ -144,8 +144,8 @@ static void render(O_Boss1 *e)
 
 	const uint16_t base_attr = SPR_ATTR(s_vram_pos, xflip, 0, ENEMY_PAL_LINE, 0);
 	static const uint16_t size = SPR_SIZE(3, 4);
-	spr_put(xflip ? (sp_x + 24) : sp_x, sp_y, base_attr + metaframes[e->metaframe * 2], size);
-	spr_put(!xflip ? (sp_x + 24) : sp_x, sp_y, base_attr + metaframes[1 + e->metaframe * 2], size);
+	md_spr_put(xflip ? (sp_x + 24) : sp_x, sp_y, base_attr + metaframes[e->metaframe * 2], size);
+	md_spr_put(!xflip ? (sp_x + 24) : sp_x, sp_y, base_attr + metaframes[1 + e->metaframe * 2], size);
 }
 
 static void drop_reset(O_Boss1 *e)

@@ -1,0 +1,3 @@
+[submodule "mdk"]
+	path = mdk
+	url = git@github.com:mikejmoffitt/mdk

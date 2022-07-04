@@ -71,7 +71,7 @@ static inline void render(Obj *o)
 		}
 		obj_render_setup(o, &sp_x, &sp_y, -10, -24,
 		                 map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 		                    (o->x < lyle_get()->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 1), SPR_SIZE(3, 3));
 
@@ -81,7 +81,7 @@ static inline void render(Obj *o)
 		tile_offset = 4 * e->anim_frame;
 		obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 		                 map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + tile_offset,
 		                    (o->x < lyle_get()->head.x) ? OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 1), SPR_SIZE(2, 2));
 	}

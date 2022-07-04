@@ -59,13 +59,13 @@ static void render(O_Dog *e)
 
 	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
 	                        map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (36 * e->metaframe), 0, 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (36 * e->metaframe), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 3));
-	spr_put(sp_x + 24, sp_y, SPR_ATTR(s_vram_pos + 9 + (36 * e->metaframe), 0, 0,
+	md_spr_put(sp_x + 24, sp_y, SPR_ATTR(s_vram_pos + 9 + (36 * e->metaframe), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 3));
-	spr_put(sp_x, sp_y + 24, SPR_ATTR(s_vram_pos + 18 + (36 * e->metaframe), 0, 0,
+	md_spr_put(sp_x, sp_y + 24, SPR_ATTR(s_vram_pos + 18 + (36 * e->metaframe), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 3));
-	spr_put(sp_x + 24, sp_y + 24, SPR_ATTR(s_vram_pos + 27 + (36 * e->metaframe), 0, 0,
+	md_spr_put(sp_x + 24, sp_y + 24, SPR_ATTR(s_vram_pos + 27 + (36 * e->metaframe), 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 3));
 }
 

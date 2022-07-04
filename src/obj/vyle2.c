@@ -206,7 +206,7 @@ static void render(O_Vyle2 *e)
 		                       frame->x;
 
 		// Take a sprite slot for this asset.
-		spr_put(sp_x + offs_x, sp_y + frame->y,
+		md_spr_put(sp_x + offs_x, sp_y + frame->y,
 		        attr + spr_tile, frame->size);
 
 		// Slot the graphics assets into VRAM.

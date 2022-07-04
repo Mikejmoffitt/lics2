@@ -167,7 +167,7 @@ static inline int16_t draw_vertical(O_Map *m)
 	uint16_t dma_len[2] = {0};
 
 	dma_src[0] = &map->current_map->map_data[map_src_x + map_src_y];
-	dma_dest[0] = vdp_get_plane_base(VDP_PLANE_A) +
+	dma_dest[0] = md_vdp_get_plane_base(VDP_PLANE_A) +
 	              (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 
 	// Handle crossing the horizontal seam.
@@ -179,7 +179,7 @@ static inline int16_t draw_vertical(O_Map *m)
 		// DMA 1 fills in the rest of the line.
 		dma_len[1] = GAME_SCREEN_W_CELLS - dma_len[0] + 1;
 		dma_src[1] = dma_src[0] + (dma_len[0]);
-		dma_dest[1] = vdp_get_plane_base(VDP_PLANE_A) +
+		dma_dest[1] = md_vdp_get_plane_base(VDP_PLANE_A) +
 		              (2 * (GAME_PLANE_W_CELLS * y_scroll_tile));
 	}
 	else
@@ -210,11 +210,11 @@ static inline int16_t draw_vertical(O_Map *m)
 		}
 
 		// Handle seam crossings.
-		while (dma_dest[0] >= vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset)
+		while (dma_dest[0] >= md_vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset)
 		{
 			dma_dest[0] -= v_seam_vram_offset;
 		}
-		while (dma_dest[1] >= vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset)
+		while (dma_dest[1] >= md_vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset)
 		{
 			dma_dest[1] -= v_seam_vram_offset;
 		}
@@ -222,8 +222,8 @@ static inline int16_t draw_vertical(O_Map *m)
 	while ((uint8_t *)dma_src[0] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[0] -= map->current_map_size;
 	while ((uint8_t *)dma_src[1] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[1] -= map->current_map_size;
 
-	dma_q_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
-	if (dma_len[1] > 0) dma_q_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
+	md_dma_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
+	if (dma_len[1] > 0) md_dma_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
 	return 1;
 }
 
@@ -234,7 +234,7 @@ static inline int16_t draw_horizontal(O_Map *m)
 	const int16_t scroll_idx_x = g_map_x_scroll / 8;
 	const int16_t scroll_idx_y = g_map_y_scroll / 8;
 
-	const uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_A);
+	const uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_A);
 
 	// VRAM address at which the vertical seam occurs
 	const uint16_t v_seam_vram_offset = 2 * GAME_PLANE_H_CELLS *
@@ -312,11 +312,11 @@ static inline int16_t draw_horizontal(O_Map *m)
 	// DMA 0 starts from the beginning of the horizontal DMA buffer. DMA 1, if
 	// the legnth is nonzero, starts from the end of DMA 0.
 	const int16_t stride = GAME_PLANE_W_CELLS * 2;
-	dma_q_transfer_vram(map_dma_h_dest[0], s_horizontal_dma_buffer,
+	md_dma_transfer_vram(map_dma_h_dest[0], s_horizontal_dma_buffer,
 	                    map_dma_h_len[0], stride);
 	if (map_dma_h_len[1] > 0)
 	{
-		dma_q_transfer_vram(map_dma_h_dest[1],
+		md_dma_transfer_vram(map_dma_h_dest[1],
 		                    &s_horizontal_dma_buffer[map_dma_h_len[0]],
 		                    map_dma_h_len[1], stride);
 	}
@@ -342,7 +342,7 @@ static inline void draw_full(void)
 	uint16_t dma_len[2] = {0};
 
 	dma_src[0] = &map->current_map->map_data[map_src_x + map_src_y];
-	dma_dest[0] = vdp_get_plane_base(VDP_PLANE_A) +
+	dma_dest[0] = md_vdp_get_plane_base(VDP_PLANE_A) +
 	             (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 	dma_len[0] = 0;
 
@@ -355,7 +355,7 @@ static inline void draw_full(void)
 		// DMA 1 fills in the rest of the line.
 		dma_len[1] = GAME_SCREEN_W_CELLS - dma_len[0] + 1;
 		dma_src[1] = dma_src[0] + (dma_len[0]);
-		dma_dest[1] = vdp_get_plane_base(VDP_PLANE_A) +
+		dma_dest[1] = md_vdp_get_plane_base(VDP_PLANE_A) +
 		              (2 * (GAME_PLANE_W_CELLS * y_scroll_tile));
 	}
 	else
@@ -363,7 +363,7 @@ static inline void draw_full(void)
 		dma_len[0] = GAME_SCREEN_W_CELLS + 1;
 	}
 
-	const uint16_t v_seam_vram_address = vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset;
+	const uint16_t v_seam_vram_address = md_vdp_get_plane_base(VDP_PLANE_A) + v_seam_vram_offset;
 
 	const uint16_t row_count = system_is_ntsc() ? 29 : 31;
 	for (uint16_t y = 0; y < row_count + 1; y++)
@@ -375,7 +375,7 @@ static inline void draw_full(void)
 			{
 				dma_src[i] -= map->current_map_size;
 			}
-			dma_q_transfer_vram(dma_dest[i], dma_src[i], dma_len[i], 2);
+			md_dma_transfer_vram(dma_dest[i], dma_src[i], dma_len[i], 2);
 			dma_src[i] += g_map_row_size;
 			dma_dest[i] += GAME_PLANE_W_CELLS * 2;
 			if (dma_dest[i] >= v_seam_vram_address) dma_dest[i] -= v_seam_vram_offset;
@@ -425,20 +425,20 @@ static void main_func(Obj *o)
 		draw_full();
 		m->fresh_room = 0;
 
-		dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
-		dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
+		md_dma_transfer_vram(md_vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+		md_dma_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 	}
 	else
 	{
 		if (draw_vertical(m))
 		{
 			prepare_vscroll();
-			dma_q_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
+			md_dma_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 		}
 		if (draw_horizontal(m))
 		{
 			prepare_hscroll();
-			dma_q_transfer_vram(vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+			md_dma_transfer_vram(md_vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
 		}
 	}
 
@@ -487,13 +487,13 @@ void map_load(uint8_t id, uint8_t entrance_num)
 
 	map_upload_tiles();
 	map_upload_palette();
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 	           sizeof(res_pal_enemy_bin) / 2);
 
 	// Set scroll mode based on room geometry.
-	if (map->current_map->w <= 1) vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
-	else vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
-	vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
+	if (map->current_map->w <= 1) md_vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
+	else md_vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
+	md_vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
 
 	// Build the object list.
 	uint16_t found_entrance = 0;
@@ -621,7 +621,7 @@ void map_upload_tiles(void)
 	{
 		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
 		SYSTEM_ASSERT(tsa->tile_data_size <= MAP_TILE_VRAM_LENGTH);
-		dma_q_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
+		md_dma_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
 	}
 }
 
@@ -632,7 +632,7 @@ void map_upload_palette(void)
 	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
 	{
 		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
-		pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
+		md_pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
 	}
 }
 

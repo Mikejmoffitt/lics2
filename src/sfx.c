@@ -1058,16 +1058,16 @@ static void sfx_tick(void)
 	if (cycle_count >= kcycle_max) cycle_count = 0;
 	else return;
 
-	SYS_BARRIER();
-	sys_di();
-	SYS_BARRIER();
+	MD_SYS_BARRIER();
+	md_sys_di();
+	MD_SYS_BARRIER();
 	int8_t i = ARRAYSIZE(channel_state);
 	while (i--)
 	{
 		SfxChannelState *s = &channel_state[i];
 		if (!s->stream)
 		{
-			psg_vol(s->channel, 0xF);
+			md_psg_vol(s->channel, 0xF);
 			continue;
 		}
 
@@ -1075,7 +1075,7 @@ static void sfx_tick(void)
 		if (!sample->valid)
 		{
 			s->stream = NULL;
-			psg_vol(s->channel, 0xF);
+			md_psg_vol(s->channel, 0xF);
 			continue;
 		}
 		else if (sample->pitch == 0xFFFF)
@@ -1088,18 +1088,18 @@ static void sfx_tick(void)
 			s->stream++;
 		}
 
-		psg_pitch(s->channel, sample->pitch);
-		psg_vol(s->channel, sample->vol);
+		md_psg_pitch(s->channel, sample->pitch);
+		md_psg_vol(s->channel, sample->vol);
 	}
-	SYS_BARRIER();
-	sys_ei();
-	SYS_BARRIER();
+	MD_SYS_BARRIER();
+	md_sys_ei();
+	MD_SYS_BARRIER();
 }
 
 int sfx_init(void)
 {
-	vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
-	vdp_set_hint_en(1);
+	md_vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
+	md_vdp_set_hint_en(1);
 
 	int8_t i = ARRAYSIZE(channel_state);
 	while (i--)
@@ -1109,7 +1109,7 @@ int sfx_init(void)
 		s->stream = NULL;
 		s->channel = i;
 		s->priority = 0x7F;
-		psg_vol(s->channel, 0xF);
+		md_psg_vol(s->channel, 0xF);
 	}
 
 	md_irq_register(MD_IRQ_HBLANK, sfx_tick);
@@ -1119,7 +1119,7 @@ int sfx_init(void)
 
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel)
 {
-	sys_di();
+	md_sys_di();
 	const SfxSample *stream = stream_by_id[id];
 	if (stream == NULL) return;
 	SfxChannelState *s = &channel_state[channel];
@@ -1129,12 +1129,12 @@ void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel)
 	s->stream_base = stream;
 	s->channel = channel;
 	s->priority = priority;
-	sys_ei();
+	md_sys_ei();
 }
 
 void sfx_play(SfxId id, int8_t priority)
 {
-	sys_di();
+	md_sys_di();
 	const SfxSample *stream = stream_by_id[id];
 	if (stream == NULL) return;
 	for (uint8_t i = 0; i < ARRAYSIZE(channel_state); i++)
@@ -1175,12 +1175,12 @@ void sfx_play(SfxId id, int8_t priority)
 	s->priority = priority;
 
 finish:
-	sys_ei();
+	md_sys_ei();
 }
 
 void sfx_stop(SfxId id)
 {
-	sys_di();
+	md_sys_di();
 	int8_t i = ARRAYSIZE(channel_state);
 	while (i--)
 	{
@@ -1188,25 +1188,25 @@ void sfx_stop(SfxId id)
 		if (s->stream && s->id == id)
 		{
 			s->stream = NULL;
-			psg_vol(s->channel, 0xF);
+			md_psg_vol(s->channel, 0xF);
 			break;
 		}
 	}
 
-	sys_ei();
+	md_sys_ei();
 }
 
 void sfx_stop_all(void)
 {
-	sys_di();
+	md_sys_di();
 	int8_t i = ARRAYSIZE(channel_state);
 	while (i--)
 	{
 		channel_state[i].stream = NULL;
-		psg_vol(i, 0xF);
+		md_psg_vol(i, 0xF);
 	}
 
-	sys_ei();
+	md_sys_ei();
 }
 #undef SFX_P
 #undef SFX_END

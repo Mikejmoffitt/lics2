@@ -49,9 +49,9 @@ static void render(O_Elevator *e)
 	                 map_get_x_scroll(), map_get_y_scroll());
 
 	const int16_t anim_offset = e->anim_frame ? 32 : 0;
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
-	spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + 16 + anim_offset, 0, 0,
+	md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + 16 + anim_offset, 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
 }
 
@@ -65,14 +65,14 @@ static void render_arrows(O_Elevator *e)
 	                 map_get_x_scroll(), map_get_y_scroll());
 
 	const int16_t anim_offset = e->anim_frame ? 68 : 64;
-	spr_put(sp_x - 24, sp_y + 2, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
+	md_spr_put(sp_x - 24, sp_y + 2, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
 	                         ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
-	spr_put(sp_x + 24, sp_y + 2, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
+	md_spr_put(sp_x + 24, sp_y + 2, SPR_ATTR(s_vram_pos + anim_offset, 0, 0,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 
-	spr_put(sp_x - 24, sp_y + 27, SPR_ATTR(s_vram_pos + anim_offset, 0, 1,
+	md_spr_put(sp_x - 24, sp_y + 27, SPR_ATTR(s_vram_pos + anim_offset, 0, 1,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
-	spr_put(sp_x + 24, sp_y + 27, SPR_ATTR(s_vram_pos + anim_offset, 0, 1,
+	md_spr_put(sp_x + 24, sp_y + 27, SPR_ATTR(s_vram_pos + anim_offset, 0, 1,
 	                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 
@@ -226,7 +226,7 @@ static void main_func(Obj *o)
 	if (!e->hidden) render(e);
 
 	// Upload the alternate Elevator enemy palette to the enemy pal line.
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_elevator_bin,
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_elevator_bin,
 	           sizeof(res_pal_enemy_elevator_bin) / 2);
 }
 

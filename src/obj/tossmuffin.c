@@ -58,17 +58,17 @@ static void render(O_Tossmuffin *e)
 
 	if (e->lift_cnt > 0)
 	{
-		spr_put(sp_x, sp_y + 1, SPR_ATTR(s_vram_pos + 4, xflip, 0,
+		md_spr_put(sp_x, sp_y + 1, SPR_ATTR(s_vram_pos + 4, xflip, 0,
 		                                 ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
-		spr_put(sp_x, sp_y + 16, SPR_ATTR(s_vram_pos + 14 + (e->anim_frame ? 2 : 0), xflip, 0,
+		md_spr_put(sp_x, sp_y + 16, SPR_ATTR(s_vram_pos + 14 + (e->anim_frame ? 2 : 0), xflip, 0,
 		                                 ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 	}
 	else if (e->toss_cnt > 0)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, xflip, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, xflip, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 		const int16_t torso_off_x = (e->head.direction == OBJ_DIRECTION_RIGHT) ? 0 : -8;
-		spr_put(sp_x + torso_off_x, sp_y + 16, SPR_ATTR(s_vram_pos + 18 , xflip, 0,
+		md_spr_put(sp_x + torso_off_x, sp_y + 16, SPR_ATTR(s_vram_pos + 18 , xflip, 0,
 		                                                ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
 	}
 	else
@@ -78,9 +78,9 @@ static void render(O_Tossmuffin *e)
 
 		const int16_t off_y = ((e->anim_frame % 2) ? 0 : -1);
 
-		spr_put(sp_x, sp_y + off_y, SPR_ATTR(s_vram_pos, xflip, 0,
+		md_spr_put(sp_x, sp_y + off_y, SPR_ATTR(s_vram_pos, xflip, 0,
 		                                     ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
-		spr_put(sp_x, sp_y + off_y + 16, SPR_ATTR(s_vram_pos + frame_index, xflip, 0,
+		md_spr_put(sp_x, sp_y + off_y + 16, SPR_ATTR(s_vram_pos + frame_index, xflip, 0,
 		                                     ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 	}
 }

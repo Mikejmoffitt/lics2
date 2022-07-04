@@ -56,7 +56,7 @@ static void render(O_Ball *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + frames[e->anim_frame].tile, 0, 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + frames[e->anim_frame].tile, 0, 0,
 	                             frames[e->anim_frame].pal, 0), SPR_SIZE(2, 2));
 }
 
@@ -86,7 +86,7 @@ static void main_func(Obj *o)
 
 	render(e);
 
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_ball_bin,
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_ball_bin,
 	           sizeof(res_pal_enemy_ball_bin) / 2);
 }
 

@@ -16,9 +16,9 @@ static void main_func(Obj *o)
 
 	uint16_t x_index = 31 - (((map_get_x_scroll() + 1) / 2) % 32);
 
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0x20 * 32), g->data + (4 * 32 * x_index), (4 * 32) / 2, 2);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0x30 * 32), g->data + 4096 + (4 * 32 * x_index), (4 * 32) / 2, 2);
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0x40 * 32), g->data + 8192 + (4 * 32 * x_index), (4 * 32) / 2, 2);
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + (0x20 * 32), g->data + (4 * 32 * x_index), (4 * 32) / 2, 2);
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + (0x30 * 32), g->data + 4096 + (4 * 32 * x_index), (4 * 32) / 2, 2);
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + (0x40 * 32), g->data + 8192 + (4 * 32 * x_index), (4 * 32) / 2, 2);
 }
 
 void o_load_columns(Obj *o, uint16_t data)

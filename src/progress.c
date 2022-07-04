@@ -40,9 +40,9 @@ int progress_init(void)
 	// Test that SRAM is working correctly. The first byte is reserved for
 	// this check.
 	s_sram_is_working = 0xBEEF;
-	sram_write(0, &s_sram_is_working, sizeof(s_sram_is_working));
+	md_sram_write(0, &s_sram_is_working, sizeof(s_sram_is_working));
 	s_sram_is_working = 0x5555;
-	sram_read(0, &s_sram_is_working, sizeof(s_sram_is_working));
+	md_sram_read(0, &s_sram_is_working, sizeof(s_sram_is_working));
 
 	s_sram_is_working = (s_sram_is_working == 0xBEEF);
 
@@ -50,7 +50,7 @@ int progress_init(void)
 	{
 		// Load and validate all save slots. Slots that do not contain the
 		// right magic numbers will be cleared.
-		sram_read(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
+		md_sram_read(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
 		for (uint16_t i = 0; i < ARRAYSIZE(s_progress_slots); i++)
 		{
 			if (s_progress_slots[i].magic_0 != PROGRESS_MAGIC_0 ||
@@ -88,7 +88,7 @@ void progress_select_slot(uint16_t slot)
 void progress_save(void)
 {
 	if (!s_sram_is_working) return;
-	sram_write(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
+	md_sram_write(PROGRESS_SRAM_POS, s_progress_slots, sizeof(s_progress_slots));
 }
 
 void progress_erase(void)

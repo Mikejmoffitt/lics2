@@ -18,7 +18,7 @@ static void main_func(Obj *o)
 	const int16_t x_int = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.222222222221)));
 	uint16_t x_index = x_int % 24;
 
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + (0x60 * 32), g->data + (7 * 3 * 32 * x_index), (32 * 7 * 3) / 2, 2);
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + (0x60 * 32), g->data + (7 * 3 * 32 * x_index), (32 * 7 * 3) / 2, 2);
 }
 
 void o_load_grasses(Obj *o, uint16_t data)

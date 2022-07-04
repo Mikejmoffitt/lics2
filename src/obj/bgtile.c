@@ -17,8 +17,8 @@ static void main_func(Obj *o)
 	const int16_t sp_x = e->px - map_get_x_scroll();
 	const int16_t sp_y = e->py - map_get_y_scroll();
 
-	spr_put(sp_x, sp_y, e->attr, SPR_SIZE(2, 1));
-	spr_put(sp_x, sp_y + 8, e->attr + 0x10, SPR_SIZE(2, 1));
+	md_spr_put(sp_x, sp_y, e->attr, SPR_SIZE(2, 1));
+	md_spr_put(sp_x, sp_y + 8, e->attr + 0x10, SPR_SIZE(2, 1));
 }
 
 void o_load_bgtile(Obj *o, uint16_t data)

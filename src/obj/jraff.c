@@ -46,7 +46,7 @@ static inline void render(O_Jraff *f)
 	obj_render_setup(o, &sp_x, &sp_y, -12, -63,
 	                 map_get_x_scroll(), map_get_y_scroll());
 
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 36 + (12 * f->anim_frame),
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 36 + (12 * f->anim_frame),
 	        o->direction == OBJ_DIRECTION_LEFT,
 	        0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 
@@ -54,19 +54,19 @@ static inline void render(O_Jraff *f)
 	sp_y += 32;
 	if (f->anim_frame == 1)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos,
 		        o->direction == OBJ_DIRECTION_LEFT,
 		        0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 	}
 	else if (f->anim_frame == 3)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 12,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 12,
 		        o->direction == OBJ_DIRECTION_LEFT,
 		        0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 	}
 	else
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24,
 		        o->direction == OBJ_DIRECTION_LEFT,
 		        0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 	}

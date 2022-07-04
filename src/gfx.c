@@ -126,7 +126,7 @@ uint16_t gfx_load_ex(const Gfx *g, uint16_t start, uint16_t size, uint16_t load_
 //	// DMA operates in terms of words rather than bytes
 	const uint16_t transfer_words = size / 2;
 	const uint8_t *gdata = (const uint8_t *)g->data;
-	dma_q_transfer_vram(load_pos, &gdata[start], transfer_words, 2);
+	md_dma_transfer_vram(load_pos, &gdata[start], transfer_words, 2);
 	return load_pos / 32;
 }
 

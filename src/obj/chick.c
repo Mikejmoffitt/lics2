@@ -67,7 +67,7 @@ static void render(O_Chick *e)
 	
 		obj_render_setup(o, &sp_x, &sp_y, offset_x, offset_y,
 		                 map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (4 * e->metaframe), o->direction == OBJ_DIRECTION_LEFT, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (4 * e->metaframe), o->direction == OBJ_DIRECTION_LEFT, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 	else
@@ -76,7 +76,7 @@ static void render(O_Chick *e)
 		
 		obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
 		                        map_get_x_scroll(), map_get_y_scroll());
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 32 + (e->metaframe == 8 ? 0 : 6), o->direction == OBJ_DIRECTION_LEFT, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 32 + (e->metaframe == 8 ? 0 : 6), o->direction == OBJ_DIRECTION_LEFT, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 	}
 }

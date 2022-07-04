@@ -26,12 +26,12 @@ static void update_tiles(O_LavaAnim *e)
 	const uint8_t *src = g->data + e->info.src_data_offset +
 	                     (e->anim_frame ? (e->info.src_anim_offset) : 0);
 
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset,
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset,
 	                    src, e->info.line_transfer_words, 2);
 
 	src += (e->info.line_transfer_words * 2);
 
-	dma_q_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset + (0x10 * 32),
+	md_dma_transfer_vram(MAP_TILE_VRAM_POSITION + e->info.dest_vram_offset + (0x10 * 32),
 	                    src, e->info.line_transfer_words, 2);
 }
 
@@ -45,7 +45,7 @@ static void main_func(Obj *o)
 
 	if (e->info.pal)
 	{
-		pal_upload(MAP_TILE_CRAM_POSITION, e->info.pal, e->info.pal_size);
+		md_pal_upload(MAP_TILE_CRAM_POSITION, e->info.pal, e->info.pal_size);
 	}
 
 	if (e->anim_frame != anim_frame_prev)
@@ -102,7 +102,7 @@ void o_load_lavaanim(Obj *o, uint16_t data)
 
 	if (e->info.pal)
 	{
-		pal_upload(MAP_TILE_CRAM_POSITION, e->info.pal, e->info.pal_size);
+		md_pal_upload(MAP_TILE_CRAM_POSITION, e->info.pal, e->info.pal_size);
 	}
 	update_tiles(e);
 }

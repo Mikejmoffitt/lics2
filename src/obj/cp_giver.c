@@ -98,14 +98,14 @@ static void render(O_CpGiver *e)
 
 	obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
 	                        map_get_x_scroll(), yscroll);
-	spr_put(sp_x + giver_frames[e->metaframe].xoff,
+	md_spr_put(sp_x + giver_frames[e->metaframe].xoff,
 	        sp_y + giver_frames[e->metaframe].yoff,
 	        SPR_ATTR(s_vram_pos + giver_frames[e->metaframe].tile, 0, 0, ENEMY_PAL_LINE, 0),
 	        SPR_SIZE(2, 2));
 
 	if (e->orb_y >= o->y)
 	{
-		spr_put(sp_x,
+		md_spr_put(sp_x,
 		        FIX32TOINT(e->orb_y) + offset_y - yscroll,
 		        SPR_ATTR(s_vram_pos + 12 + (4 * e->orb_anim_frame), 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(2, 2));
@@ -113,7 +113,7 @@ static void render(O_CpGiver *e)
 
 	if (e->powerup_y >= o->y)
 	{
-		spr_put(sp_x,
+		md_spr_put(sp_x,
 		        FIX32TOINT(e->powerup_y) + offset_y - yscroll,
 		        SPR_ATTR(s_vram_pos + 20, 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(2, 2));

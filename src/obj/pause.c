@@ -40,10 +40,10 @@ static void maybe_load_kana_in_vram(void)
 // String printing utility. Not very fast, but it's alright for this.
 static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 {
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
-	vdp_set_autoinc(2);
-	vdp_set_addr(plane_base);
+	md_vdp_set_autoinc(2);
+	md_vdp_set_addr(plane_base);
 	while (*str)
 	{
 		uint8_t *s_u = (uint8_t *)str;
@@ -52,9 +52,9 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 		if (a == '\n' || a == '\r')
 		{
 			y++;
-			plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+			plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 			             2 * ((y * GAME_PLANE_W_CELLS) + x);
-			vdp_set_addr(plane_base);
+			md_vdp_set_addr(plane_base);
 		}
 		// All hiragana, katakana, kanbun, etc. start at $3000.
 		else if (s_u[0] == 0xE3)
@@ -65,7 +65,7 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 			if (high_nybble != 0) continue;
 			const uint8_t char_pos = (s_u[2] & 0x3F) | ((s_u[1] & 0x3) << 6);
 
-			vdp_write(VDP_ATTR(s_vram_kana_pos + char_pos, 0, 0, pal, 0));
+			md_vdp_write(VDP_ATTR(s_vram_kana_pos + char_pos, 0, 0, pal, 0));
 			plane_base += 2;
 		}
 		// TODO: Consider ES, FR
@@ -76,15 +76,15 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 
 			if (a >= 'a' && a <= 'z')
 			{
-				vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
+				md_vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a & ~(0x20)), 0, 0, pal, 0));
 			}
 			else if (a == ' ')
 			{
-				vdp_write(VDP_ATTR(s_vram_pos + 0x30, 0, 0, pal, 0));
+				md_vdp_write(VDP_ATTR(s_vram_pos + 0x30, 0, 0, pal, 0));
 			}
 			else
 			{
-				vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a), 0, 0, pal, 0));
+				md_vdp_write(VDP_ATTR(s_vram_pos + 0x80 - 0x20 + (a), 0, 0, pal, 0));
 			}
 			plane_base += 2;
 		}
@@ -94,19 +94,19 @@ static void plot_string(const char *str, int16_t x, int16_t y, int16_t pal)
 // Map drawing routines -------------------------------------------------------
 static inline void clear_window_plane(void)
 {
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 	const uint16_t plane_size = GAME_PLANE_W_CELLS * 30;
 	const uint16_t fill_tile = VDP_ATTR(s_vram_pos + 0x30, 0, 0, MAP_PAL_LINE, 0);
-	dma_q_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size, 2);
-	dma_q_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size, 2);
-	dma_q_process();
-	vdp_poke(plane_base, fill_tile);  // TODO: Is DMA fill really buggy?
+	md_dma_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size, 2);
+	md_dma_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size, 2);
+	md_dma_process();
+	md_vdp_poke(plane_base, fill_tile);  // TODO: Is DMA fill really buggy?
 
 }
 
 static inline void plot_map_side_borders(void)
 {
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * (((kmap_top - 1) * GAME_PLANE_W_CELLS) +
 	                      kmap_left - 1);
 	const uint16_t right_offset = 2 * (PROGRESS_MAP_W + 1);
@@ -114,11 +114,11 @@ static inline void plot_map_side_borders(void)
 	for (int16_t y = 0; y < PROGRESS_MAP_H + 2; y++)
 	{
 		// Left side.
-		vdp_poke(plane_base, VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
-		vdp_poke(plane_base - 2,
+		md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
+		md_vdp_poke(plane_base - 2,
 		         VDP_ATTR(s_vram_pos + 0x31, 0, 0, MAP_PAL_LINE, 0));
 		// Right side.
-		vdp_poke(plane_base + right_offset,
+		md_vdp_poke(plane_base + right_offset,
 		         VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
 		plane_base += 2 * GAME_PLANE_W_CELLS;
 	}
@@ -126,25 +126,25 @@ static inline void plot_map_side_borders(void)
 
 static inline void plot_map_top_bottom_borders(void)
 {
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * (((kmap_top - 2) * GAME_PLANE_W_CELLS) +
 	                      kmap_left - 1);
 	const uint16_t bottom_offset = 2 * (GAME_PLANE_W_CELLS * (PROGRESS_MAP_H + 2));
 	const uint16_t padding_offset = 2 * (GAME_PLANE_W_CELLS);
 	// Corner.
-	vdp_poke(plane_base - 2, VDP_ATTR(s_vram_pos + 0x32,
+	md_vdp_poke(plane_base - 2, VDP_ATTR(s_vram_pos + 0x32,
 	                                  0, 0, MAP_PAL_LINE, 0));
 
 	for (int16_t x = 0; x < PROGRESS_MAP_W + 2; x++)
 	{
 		// Top side.
-		vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x33,
+		md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x33,
 		                              0, 0, MAP_PAL_LINE, 0));
 		// Top padding.
-		vdp_poke(plane_base + padding_offset, VDP_ATTR(s_vram_pos,
+		md_vdp_poke(plane_base + padding_offset, VDP_ATTR(s_vram_pos,
 		                                               0, 0, MAP_PAL_LINE, 0));
 		// Bottom side.
-		vdp_poke(plane_base + bottom_offset,
+		md_vdp_poke(plane_base + bottom_offset,
 		         VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
 		plane_base += 2;
 	}
@@ -153,26 +153,26 @@ static inline void plot_map_top_bottom_borders(void)
 static inline void plot_map(void)
 {
 	const ProgressSlot *progress = progress_get();
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 	const uint16_t tile_base = VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0);
 	uint16_t pausemap_offset = 0;
 
-	vdp_set_autoinc(2);
+	md_vdp_set_autoinc(2);
 
 	plane_base += 2 * ((kmap_top * GAME_PLANE_W_CELLS) + kmap_left);
 	for (int16_t y = 0; y < PROGRESS_MAP_H; y++)
 	{
-		vdp_set_addr(plane_base);
+		md_vdp_set_addr(plane_base);
 		for (int16_t x = 0; x < PROGRESS_MAP_W; x++)
 		{
 			if (map_get_world_y_tile() > PROGRESS_MAP_H ||
 			    !(progress->abilities & ABILITY_MAP) || !progress->map_explored[y][x])
 			{
-				vdp_write(tile_base);
+				md_vdp_write(tile_base);
 			}
 			else
 			{
-				vdp_write(tile_base + res_pausemap_bin[pausemap_offset]);
+				md_vdp_write(tile_base + res_pausemap_bin[pausemap_offset]);
 			}
 			pausemap_offset++;
 		}
@@ -187,17 +187,17 @@ static inline void plot_map_cube_sector_extension(void)
 	                              (PROGRESS_MAP_W - kcube_sector_cells) / 2;
 	static const uint16_t ktop = kmap_top + PROGRESS_MAP_H + 1;
 
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 
 	plane_base += 2 * ((ktop * GAME_PLANE_W_CELLS) + kleft);
 	for (int16_t y = 0; y < 2; y++)
 	{
 		// Left side border
-		vdp_poke(plane_base - 2, VDP_ATTR(s_vram_pos + 0x31, 0, 0, MAP_PAL_LINE, 0));
+		md_vdp_poke(plane_base - 2, VDP_ATTR(s_vram_pos + 0x31, 0, 0, MAP_PAL_LINE, 0));
 		// Cells on bottom
 		for (int16_t x = 0; x < kcube_sector_cells; x++)
 		{
-			vdp_poke(plane_base, VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
+			md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos, 0, 0, MAP_PAL_LINE, 0));
 			plane_base += 2;
 		}
 		plane_base += 2 * (GAME_PLANE_W_CELLS - kcube_sector_cells);
@@ -214,16 +214,16 @@ static void plot_map_to_window_plane(void)
 
 static inline void plot_item_display_border(uint16_t x, uint16_t y)
 {
-	uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 	x /= 8;
 	y /= 8;
 	plane_base += 2 * ((y * GAME_PLANE_W_CELLS) + x);
 
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 0, ENEMY_PAL_LINE, 0));
-	vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += GAME_PLANE_W_CELLS * 2;
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 1, ENEMY_PAL_LINE, 0));
-	vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 1, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 1, 1, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base + 2, VDP_ATTR(s_vram_pos + 0x85, 0, 1, ENEMY_PAL_LINE, 0));
 }
 
 static void plot_item_display_borders(void)
@@ -239,9 +239,9 @@ static void draw_cp_orb_count(void)
 {
 	const ProgressSlot *progress = progress_get();
 	const int16_t cp_orbs = progress->collected_cp_orbs;
-	spr_put(272, 204, VDP_ATTR(s_vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
-	spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
-	spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	md_spr_put(272, 204, VDP_ATTR(s_vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+	md_spr_put(288, 204, VDP_ATTR(s_vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	md_spr_put(295, 204, VDP_ATTR(s_vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
 }
 
 static void draw_item_icons(void)
@@ -250,34 +250,34 @@ static void draw_item_icons(void)
 	
 	if (progress->abilities & ABILITY_LIFT)
 	{
-		spr_put(100, 196, VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+		md_spr_put(100, 196, VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 	
 	if (progress->abilities & ABILITY_JUMP)
 	{
-		spr_put(124, 196, VDP_ATTR(s_vram_pos + 0x72, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
+		md_spr_put(124, 196, VDP_ATTR(s_vram_pos + 0x72, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 
 	if (progress->abilities & ABILITY_PHANTOM)
 	{
-		spr_put(152, 192, VDP_ATTR(s_vram_pos + 0x77, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+		md_spr_put(152, 192, VDP_ATTR(s_vram_pos + 0x77, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
 		int16_t phantom_level = 0;
 		if (progress->abilities & ABILITY_FAST_PHANTOM) phantom_level++;
 		if (progress->abilities & ABILITY_CHEAP_PHANTOM) phantom_level++;
 		if (progress->abilities & ABILITY_2X_DAMAGE_PHANTOM) phantom_level++;
 
-		spr_put(152, 208, VDP_ATTR(s_vram_pos + 0x54, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
-		spr_put(160, 208, VDP_ATTR(s_vram_pos + 0x55 + phantom_level, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+		md_spr_put(152, 208, VDP_ATTR(s_vram_pos + 0x54, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+		md_spr_put(160, 208, VDP_ATTR(s_vram_pos + 0x55 + phantom_level, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 
 	if (progress->abilities & ABILITY_KICK)
 	{
-		spr_put(184, 192, VDP_ATTR(s_vram_pos + 0x73, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+		md_spr_put(184, 192, VDP_ATTR(s_vram_pos + 0x73, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 
 	if (progress->abilities & ABILITY_ORANGE)
 	{
-		spr_put(212, 196, VDP_ATTR(s_vram_pos + 0x71, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
+		md_spr_put(212, 196, VDP_ATTR(s_vram_pos + 0x71, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 }
 
@@ -286,9 +286,9 @@ static inline void draw_map_pause_text(void)
 	static const int16_t draw_x = (GAME_SCREEN_W_PIXELS / 2) - 28;
 	static const int16_t draw_y = 8;
 
-	spr_put(draw_x, draw_y,
+	md_spr_put(draw_x, draw_y,
 	        SPR_ATTR(s_vram_pos + 0x60, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 2));
-	spr_put(draw_x + 32, draw_y,
+	md_spr_put(draw_x + 32, draw_y,
 	        SPR_ATTR(s_vram_pos + 0x68, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 2));
 }
 
@@ -308,14 +308,14 @@ static inline void draw_cube_sector_text(void)
 	
 	for (uint16_t i = 0; i < ARRAYSIZE(cube_mapping); i++)
 	{
-		spr_put(x, y, tile_base + cube_mapping[i], SPR_SIZE(1, 1));
+		md_spr_put(x, y, tile_base + cube_mapping[i], SPR_SIZE(1, 1));
 		x += 8;
 	}
 	x += 3;
 	
 	for (uint16_t i = 0; i < ARRAYSIZE(sector_mapping); i++)
 	{
-		spr_put(x, y, tile_base + sector_mapping[i], SPR_SIZE(1, 1));
+		md_spr_put(x, y, tile_base + sector_mapping[i], SPR_SIZE(1, 1));
 		x += 8;
 	}
 }
@@ -333,7 +333,7 @@ static inline void draw_map_location(O_Pause *e)
 		const int16_t draw_x = 8 * kmap_left + (x_index * 8) + 2;
 		const int16_t draw_y = 8 * kmap_top + (y_index * 8) + 2;
 
-		spr_put(draw_x, draw_y,
+		md_spr_put(draw_x, draw_y,
 		        SPR_ATTR(s_vram_pos + 0x2F, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 	else
@@ -341,9 +341,9 @@ static inline void draw_map_location(O_Pause *e)
 		static const int16_t knomap_w = 54;
 		const int16_t draw_x = (8 * kmap_left + (4 * PROGRESS_MAP_W) - (knomap_w / 2));
 		const int16_t draw_y = (8 * kmap_top) + (4 * PROGRESS_MAP_H) + 4;
-		spr_put(draw_x, draw_y,
+		md_spr_put(draw_x, draw_y,
 		        SPR_ATTR(s_vram_pos + 0x5A, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 1));
-		spr_put(draw_x + 27, draw_y,
+		md_spr_put(draw_x + 27, draw_y,
 		        SPR_ATTR(s_vram_pos + 0x5C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(4, 1));
 	}
 }
@@ -489,7 +489,7 @@ static void draw_char_mapping(int16_t base_x, int16_t base_y,
 {
 	for (int16_t i = 0; i < size; i++)
 	{
-		spr_put(base_x + mapping[i].x, base_y + mapping[i].y,
+		md_spr_put(base_x + mapping[i].x, base_y + mapping[i].y,
 		        SPR_ATTR(s_vram_pos + 0x80 - 0x20 + mapping[i].val, 0, 0,
 		                 ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
@@ -509,65 +509,65 @@ static void draw_you_got(PauseScreen screen)
 	{
 		case PAUSE_SCREEN_LYLE_WEAK:
 			draw_char_mapping(base_x, base_y, kmapping_this_is_a_cube, ARRAYSIZE(kmapping_this_is_a_cube));
-			spr_put(88, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// Uses same layout, but does not show "you got".
 			show_you_got = 0;
 			break;
 		case PAUSE_SCREEN_GET_MAP:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_map, ARRAYSIZE(kmapping_map));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_LIFT:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x1C, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_lift,
 			                  ARRAYSIZE(kmapping_cube_lift));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_JUMP:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x20, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_jump,
 			                  ARRAYSIZE(kmapping_cube_jump));
 			break;
 		case PAUSE_SCREEN_GET_CUBE_KICK:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x28, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_cube_kick,
 			                  ARRAYSIZE(kmapping_cube_kick));
 			break;
 		case PAUSE_SCREEN_GET_ORANGE_CUBE:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_big_cube_lift,
 			                  ARRAYSIZE(kmapping_big_cube_lift));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_1,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_1));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_DOUBLE_DAMAGE:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_2,
 			                  ARRAYSIZE(kmapping_2));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_HALF_TIME:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_3,
 			                  ARRAYSIZE(kmapping_3));
 			break;
 		case PAUSE_SCREEN_GET_PHANTOM_CHEAP:
-			spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x24, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_phantom_cube_magic_x,
 			                  ARRAYSIZE(kmapping_phantom_cube_magic_x));
 			draw_char_mapping(base_x, base_y, kmapping_4,
@@ -581,15 +581,15 @@ static void draw_you_got(PauseScreen screen)
 
 	if (!show_you_got) return;
 	// "YOU GOT:" header.
-	spr_put(base_x + 13, base_y + 9, SPR_ATTR(s_vram_pos + 0x7B, 0, 0,
+	md_spr_put(base_x + 13, base_y + 9, SPR_ATTR(s_vram_pos + 0x7B, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
-	spr_put(base_x + 40, base_y + 9, SPR_ATTR(s_vram_pos + 0x7E, 0, 0,
+	md_spr_put(base_x + 40, base_y + 9, SPR_ATTR(s_vram_pos + 0x7E, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
-	spr_put(base_x + 48, base_y + 9, SPR_ATTR(s_vram_pos + 0x7C, 0, 0,
+	md_spr_put(base_x + 48, base_y + 9, SPR_ATTR(s_vram_pos + 0x7C, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
-	spr_put(base_x + 56, base_y + 9, SPR_ATTR(s_vram_pos + 0x7F, 0, 0,
+	md_spr_put(base_x + 56, base_y + 9, SPR_ATTR(s_vram_pos + 0x7F, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
-	spr_put(base_x + 64, base_y + 9, SPR_ATTR(s_vram_pos + 0x8F, 0, 0,
+	md_spr_put(base_x + 64, base_y + 9, SPR_ATTR(s_vram_pos + 0x8F, 0, 0,
 	                       ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 
 }
@@ -598,12 +598,12 @@ static void plot_get_sides(uint16_t plane_base)
 {
 	for (int16_t y = 0; y < 22; y++)
 	{
-		vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
-		vdp_poke(plane_base + 2*22, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+		md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+		md_vdp_poke(plane_base + 2*22, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
 		plane_base += GAME_PLANE_W_CELLS * 2;
 	}
 	// Corner piece.
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x84, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x84, 0, 0, ENEMY_PAL_LINE, 0));
 }
 
 static void plot_get_top_and_bottom(uint16_t plane_base)
@@ -611,15 +611,15 @@ static void plot_get_top_and_bottom(uint16_t plane_base)
 	plane_base += 2;
 	for (int16_t x = 0; x < 21; x++)
 	{
-		vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
-		vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 5 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
-		vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 22 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
+		md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
+		md_vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 5 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
+		md_vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 22 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
 		plane_base += 2;
 	}
 	// Corner.
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
-	vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 5 * 2), VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
-	vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 22 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 5 * 2), VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base + (GAME_PLANE_W_CELLS * 22 * 2), VDP_ATTR(s_vram_pos + 0x83, 0, 0, ENEMY_PAL_LINE, 0));
 }
 
 static void plot_get_side_grid(uint16_t plane_base)
@@ -639,7 +639,7 @@ static void plot_get_side_grid(uint16_t plane_base)
 	{
 		for (int16_t j = 0; j < 6; j++)
 		{
-			vdp_poke(plane_base, VDP_ATTR(s_vram_pos + grid_mapping[map_index],
+			md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + grid_mapping[map_index],
 			                              0, 0, ENEMY_PAL_LINE, 0));
 			plane_base += 2;
 			map_index += 1;
@@ -651,15 +651,15 @@ static void plot_get_side_grid(uint16_t plane_base)
 static void plot_get_right_grid_addition(uint16_t plane_base)
 {
 	plane_base += (2 * 16);
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x85, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += 2 * (GAME_PLANE_W_CELLS);
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += 2 * (GAME_PLANE_W_CELLS);
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += 2 * (GAME_PLANE_W_CELLS);
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += 2 * (GAME_PLANE_W_CELLS);
-	vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
+	md_vdp_poke(plane_base, VDP_ATTR(s_vram_pos + 0x80, 0, 0, ENEMY_PAL_LINE, 0));
 	plane_base += 2 * (GAME_PLANE_W_CELLS);
 }
 
@@ -725,7 +725,7 @@ static void plot_get_dialogue_backing(PauseScreen screen)
 {
 	static const int base_x = 8;
 	const int base_y = (system_is_ntsc() ? 3 : 4);
-	const uint16_t plane_base = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	const uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                            (2 * (base_x + (GAME_PLANE_W_CELLS * base_y)));
 	plot_get_sides(plane_base);
 	plot_get_top_and_bottom(plane_base);
@@ -878,7 +878,7 @@ static void debug_menu_logic(O_Pause *e, MdButton buttons)
 static void draw_debug_main_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.main_cursor * 2)) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.main_cursor * 2)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -920,7 +920,7 @@ static void plot_room_select_list(O_Pause *e)
 static void draw_room_select_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.room_cursor % 16)) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.room_cursor % 16)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -1022,7 +1022,7 @@ static void plot_sound_test_ui(O_Pause *e)
 static void draw_sound_test_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.sound_cursor % 16) * 2) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.sound_cursor % 16) * 2) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -1102,14 +1102,14 @@ static void plot_progress_edit_title(void)
 
 static inline void plot_hex16(uint16_t data, int16_t x, int16_t y, int16_t pal)
 {
-	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_addr = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
 	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
-	vdp_set_autoinc(2);
-	vdp_set_addr(plane_addr);
+	md_vdp_set_autoinc(2);
+	md_vdp_set_addr(plane_addr);
 
-	vdp_write(tile_base + '0');
-	vdp_write(tile_base + 'X');
+	md_vdp_write(tile_base + '0');
+	md_vdp_write(tile_base + 'X');
 
 	static const char digits[] =
 	{
@@ -1124,35 +1124,35 @@ static inline void plot_hex16(uint16_t data, int16_t x, int16_t y, int16_t pal)
 	static const int16_t shift_bits = data_bits - digit_bits;
 	for (uint16_t i = 0; i < data_bits / digit_bits; i++)
 	{
-		vdp_write(tile_base + (digits[(data & 0xF000) >> shift_bits]));
+		md_vdp_write(tile_base + (digits[(data & 0xF000) >> shift_bits]));
 		data = data << digit_bits;
 	}
 }
 
 static inline void plot_bitfield16(uint16_t data, int16_t x, int16_t y, int16_t pal)
 {
-	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_addr = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
-	vdp_set_autoinc(2);
-	vdp_set_addr(plane_addr);
+	md_vdp_set_autoinc(2);
+	md_vdp_set_addr(plane_addr);
 
 	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
 	static const uint16_t mask = 1 << ((sizeof(data) * 8) - 1);
 
 	for (uint16_t i = 0; i < sizeof(data) * 8; i++)
 	{
-		vdp_write(tile_base + ((data & mask) ? '1' : '0'));
+		md_vdp_write(tile_base + ((data & mask) ? '1' : '0'));
 		data = data << 1;
 	}
 }
 
 static inline void plot_bool(int16_t data, int16_t x, int16_t y, int16_t pal)
 {
-	uint16_t plane_addr = vdp_get_plane_base(VDP_PLANE_WINDOW) +
+	uint16_t plane_addr = md_vdp_get_plane_base(VDP_PLANE_WINDOW) +
 	                      2 * ((y * GAME_PLANE_W_CELLS) + x);
 	const uint16_t tile_base = VDP_ATTR(s_vram_pos + 0x60, 0, 0, pal, 0);
-	vdp_set_addr(plane_addr);
-	vdp_write(tile_base + (data ? '1' : '0'));
+	md_vdp_set_addr(plane_addr);
+	md_vdp_write(tile_base + (data ? '1' : '0'));
 }
 
 typedef enum ProgressEditType
@@ -1306,19 +1306,19 @@ static void draw_progress_edit_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0)
 	{
-		spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 	if (e->cursor_flash_cnt % 2) return;
 
 	if (e->debug.progress_cursor_bit == 127)
 	{
-		spr_put((kdebug_left + 32) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		md_spr_put((kdebug_left + 32) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
 	}
 	else if (e->debug.progress_cursor_bit >= 0)
 	{
-		spr_put((kdebug_left + 19 + (16 - e->debug.progress_cursor_bit)) * 8,
+		md_spr_put((kdebug_left + 19 + (16 - e->debug.progress_cursor_bit)) * 8,
 		        (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
@@ -1336,21 +1336,21 @@ static void draw_press_button(int16_t x, int16_t y, int16_t frame)
 
 	const uint16_t base_attr = VDP_ATTR(s_vram_pos, 0, 0, ENEMY_PAL_LINE, 0);
 
-	spr_put(x, y, base_attr + pr_offs, SPR_SIZE(2, 1));
+	md_spr_put(x, y, base_attr + pr_offs, SPR_SIZE(2, 1));
 	x += 16;
-	spr_put(x, y, base_attr + es_offs, SPR_SIZE(2, 1));
+	md_spr_put(x, y, base_attr + es_offs, SPR_SIZE(2, 1));
 	x += 16;
-	spr_put(x, y, base_attr + s_offs, SPR_SIZE(1, 1));
+	md_spr_put(x, y, base_attr + s_offs, SPR_SIZE(1, 1));
 	x += 11;
-	spr_put(x, y, base_attr + bu_offs, SPR_SIZE(2, 1));
+	md_spr_put(x, y, base_attr + bu_offs, SPR_SIZE(2, 1));
 	x += 16;
-	spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
+	md_spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
 	x += 8;
-	spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
+	md_spr_put(x, y, base_attr + t_offs, SPR_SIZE(1, 1));
 	x += 8;
-	spr_put(x, y, base_attr + o_offs, SPR_SIZE(1, 1));
+	md_spr_put(x, y, base_attr + o_offs, SPR_SIZE(1, 1));
 	x += 8;
-	spr_put(x, y, base_attr + n_offs, SPR_SIZE(1, 1));
+	md_spr_put(x, y, base_attr + n_offs, SPR_SIZE(1, 1));
 }
 
 // vram view
@@ -1380,15 +1380,15 @@ static void plot_vram_view(uint16_t offset, uint8_t pal)
 	SYSTEM_ASSERT(kvram_view_column_count % 4 == 0);
 
 	/*
-	const uint16_t base = vdp_get_plane_base(VDP_PLANE_WINDOW);
+	const uint16_t base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 	for (int16_t row = 0; row < krow_count; row++)
 	{
 		const uint16_t addr = base + 2 * (((y + row) * GAME_PLANE_W_CELLS) + x);
-		vdp_set_autoinc(2);
-		vdp_set_addr(addr);
+		md_vdp_set_autoinc(2);
+		md_vdp_set_addr(addr);
 		for (int16_t col = 0; col < kvram_view_column_count; col++)
 		{
-			vdp_write(attr);
+			md_vdp_write(attr);
 			attr++;
 		}
 	}
@@ -1399,7 +1399,7 @@ static void plot_vram_view(uint16_t offset, uint8_t pal)
 		uint16_t spr_x = x * 8;
 		for (int16_t col = 0; col < kvram_view_column_count; col += 4)
 		{
-			spr_put(spr_x, spr_y, attr, SPR_SIZE(4, 1));
+			md_spr_put(spr_x, spr_y, attr, SPR_SIZE(4, 1));
 			spr_x += 32;
 			attr += 4;
 		}
@@ -1522,24 +1522,24 @@ static void draw_pause_menu(O_Pause *e)
 	{
 		case 0:
 		case 1:
-			spr_put(continue_x, continue_y, VDP_ATTR(s_vram_pos + continue_offs,
+			md_spr_put(continue_x, continue_y, VDP_ATTR(s_vram_pos + continue_offs,
 			                                         0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
-			spr_put(continue_x + 32, continue_y, VDP_ATTR(s_vram_pos + continue_offs + 4,
+			md_spr_put(continue_x + 32, continue_y, VDP_ATTR(s_vram_pos + continue_offs + 4,
 			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
-			spr_put(quit_x, quit_y, VDP_ATTR(s_vram_pos + quit_offs,
+			md_spr_put(quit_x, quit_y, VDP_ATTR(s_vram_pos + quit_offs,
 			                                         0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
-			spr_put(quit_x + 32, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 4,
+			md_spr_put(quit_x + 32, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 4,
 			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
-			spr_put(quit_x + 64, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 8,
+			md_spr_put(quit_x + 64, quit_y, VDP_ATTR(s_vram_pos + quit_offs + 8,
 			                                              0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 			break;
 		case 2:
 		case 3:
-			spr_put(sure_x, sure_y, VDP_ATTR(s_vram_pos + 0xC0, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
-			spr_put(sure_x + 32, sure_y, VDP_ATTR(s_vram_pos + 0xC0 + 4, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
-			spr_put(yes_x, yes_y, VDP_ATTR(s_vram_pos + yes_offs,
+			md_spr_put(sure_x, sure_y, VDP_ATTR(s_vram_pos + 0xC0, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
+			md_spr_put(sure_x + 32, sure_y, VDP_ATTR(s_vram_pos + 0xC0 + 4, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
+			md_spr_put(yes_x, yes_y, VDP_ATTR(s_vram_pos + yes_offs,
 			                               0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 1));
-			spr_put(no_x, no_y, VDP_ATTR(s_vram_pos + no_offs,
+			md_spr_put(no_x, no_y, VDP_ATTR(s_vram_pos + no_offs,
 			                             0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 			break;
 	}
@@ -1655,9 +1655,9 @@ static void main_func(Obj *o)
 				screen_reset(e);
 				plot_map_to_window_plane();
 				plot_item_display_borders();
-				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
+				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
 				           sizeof(res_pal_pause_bin) / 2);
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 				e->pause_choice = 0;
 				e->pause_select_cnt = 0;
@@ -1690,9 +1690,9 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
-				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
+				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
 			}
 			OBJ_SIMPLE_ANIM(e->menu_flash_cnt, e->menu_flash_frame,
 			                2, kmenu_flash_delay);
@@ -1728,7 +1728,7 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(e->screen);
@@ -1759,7 +1759,7 @@ static void main_func(Obj *o)
 			{
 				screen_reset(e);
 				plot_get_dialogue_backing(e->screen);
-				pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(e->screen);
@@ -1778,7 +1778,7 @@ static void main_func(Obj *o)
 			{
 				e->debug.main_cursor = 0;
 				clear_window_plane();
-				pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
+				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
 				           sizeof(res_pal_debug_bin) / 2);
 				plot_debug_menu();
 			}

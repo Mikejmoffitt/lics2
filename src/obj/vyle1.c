@@ -161,7 +161,7 @@ static void render(O_Vyle1 *e)
 	const SprDef *def = &frames[e->metaframe];
 	const int16_t flipped = (o->direction == OBJ_DIRECTION_RIGHT);
 	const uint16_t attr_flip = SPR_ATTR(0, flipped, 0, 0, 0);
-	spr_put(sp_x + def->x, sp_y + def->y,
+	md_spr_put(sp_x + def->x, sp_y + def->y,
 	        (s_vram_pos + (def->attr | attr_flip)), def->size);
 }
 

@@ -39,12 +39,12 @@ static inline void draw_segment(O_RockmanDoor *e, int16_t sp_x, int16_t sp_y)
 	if (e->tile)
 	{
 		const uint16_t attr = SPR_ATTR(e->tile, 0, 0, MAP_PAL_LINE, 0);
-		spr_put(sp_x, sp_y, attr, SPR_SIZE(2, 1));
-		spr_put(sp_x, sp_y + 8, attr + 0x10, SPR_SIZE(2, 1));
+		md_spr_put(sp_x, sp_y, attr, SPR_SIZE(2, 1));
+		md_spr_put(sp_x, sp_y + 8, attr + 0x10, SPR_SIZE(2, 1));
 	}
 	else
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 		                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 }

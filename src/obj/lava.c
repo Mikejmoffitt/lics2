@@ -47,12 +47,12 @@ static inline void render_splat(O_Lava *e)
 	sp_y = e->splat_py - map_get_y_scroll();
 	if (e->splat_anim_frame == 0)
 	{
-		spr_put(sp_x + 8, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+		md_spr_put(sp_x + 8, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 		                                 ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 	else
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->splat_anim_frame == 2 ? 16 : 8), 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->splat_anim_frame == 2 ? 16 : 8), 0, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 }
@@ -71,73 +71,73 @@ static inline void render(O_Lava *e)
 		case 1:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -16,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case 2:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -32,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 			break;
 		case 3:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -48,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case 4:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -64,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 			break;
 		case 5:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -80,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
+			md_spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case 6:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -96,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 			break;
 		case 7:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -112,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 96, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
+			md_spr_put(sp_x, sp_y + 96, SPR_ATTR(s_vram_pos + (e->anim_frame ? 4 : 0), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 			break;
 		case 8:
 			obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, -128,
 			                        map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 64, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
-			spr_put(sp_x, sp_y + 96, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
+			md_spr_put(sp_x, sp_y + 96, SPR_ATTR(s_vram_pos + (e->anim_frame ? 32 : 24), 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 			break;
 	}

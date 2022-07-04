@@ -73,11 +73,11 @@ static inline void render(O_Gaxter2 *f)
 		const int16_t ball_y = sp_y + 13;
 		const int8_t is_flickering = (f->shot_flicker_cnt >= (kshot_flicker_speed / 2)) ? 1 : 0;
 		const uint16_t tile_offset = 24 + (is_flickering ? 1 : 0);
-		spr_put(ball_x, ball_y, SPR_ATTR(s_vram_pos + tile_offset, 0, 0,
+		md_spr_put(ball_x, ball_y, SPR_ATTR(s_vram_pos + tile_offset, 0, 0,
 		        LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 
 	}
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 12 + (f->anim_frame * 4),
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 12 + (f->anim_frame * 4),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }

@@ -52,8 +52,8 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 			persistent_state_init();
 			s_game_state++;
 			want_display_en = 0;
-			vdp_set_window_top(0);
-			str_set_locale(sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
+			md_vdp_set_window_top(0);
+			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
 			break;
 
 		case GAME_STATE_NEW_ROOM:
@@ -87,11 +87,11 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 			s_room_elapsed = 0;
 			progress_save();
 			s_game_state++;
-			vdp_set_window_top(0);
+			md_vdp_set_window_top(0);
 			break;
 
 		case GAME_STATE_RUN:
-			vdp_set_window_top(pause_want_window() ? 31 : 0);
+			md_vdp_set_window_top(pause_want_window() ? 31 : 0);
 			music_handle_pending();
 			obj_exec();
 
@@ -152,7 +152,7 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 	}
 
 	megadrive_finish();
-	vdp_set_display_en(want_display_en);
+	md_vdp_set_display_en(want_display_en);
 }
 
 // Main dispatch ==============================================================

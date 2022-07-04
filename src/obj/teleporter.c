@@ -58,14 +58,14 @@ static inline void render(O_Teleporter *t)
 	// The "L" insignias flashing, if applicable.
 	if (!((t->disabled || t->anim_frame >= 2)))
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 16, 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 16, 0, 0,
 		                    BG_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 
 	// The base. Not drawn for ID >= 0x08.
 	if (t->id < 0x08)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24, 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24, 0, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 	}
 
@@ -74,7 +74,7 @@ static inline void render(O_Teleporter *t)
 	const uint16_t aura_tile = s_vram_pos + ((t->anim_frame == 2) ? 8 : 0);
 	obj_render_setup(o, &sp_x, &sp_y, -16, -1,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(aura_tile, 0, 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(aura_tile, 0, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(4, 2));
 }
 

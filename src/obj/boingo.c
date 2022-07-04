@@ -82,21 +82,21 @@ static inline void render(O_Boingo *b)
 			// The cube.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
 			const uint16_t tile = s_vram_pos + (b->anim_frame ? 30 : 28);
-			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 		}
 		else if (b->boingo_type == BOINGO_TYPE_CUBE)
 		{
 			obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		}
 		else
@@ -105,7 +105,7 @@ static inline void render(O_Boingo *b)
 			                      (b->boingo_type == BOINGO_TYPE_ANGRY ? 32 : 0);
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 3));
 		}
 	}
@@ -116,13 +116,13 @@ static inline void render(O_Boingo *b)
 			// Cube
 			obj_render_setup(o, &sp_x, &sp_y, -8, -18,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y + b->anim_frame, SPR_ATTR(s_vram_pos + 56, 0, 0,
+			md_spr_put(sp_x, sp_y + b->anim_frame, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// The legs.
 			obj_render_setup(o, &sp_x, &sp_y, -8, -2,
 			                 map_get_x_scroll(), map_get_y_scroll());
 			const uint16_t tile = s_vram_pos + (b->anim_frame ? 26 : 24);
-			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 
 		}
@@ -130,7 +130,7 @@ static inline void render(O_Boingo *b)
 		{
 			obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 56, 0, 0,
 			                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 		}
 		else
@@ -139,7 +139,7 @@ static inline void render(O_Boingo *b)
 			                      (b->boingo_type == BOINGO_TYPE_ANGRY ? 32 : 0);
 			obj_render_setup(o, &sp_x, &sp_y, -12, -13,
 			                 map_get_x_scroll(), map_get_y_scroll());
-			spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
+			md_spr_put(sp_x, sp_y, SPR_ATTR(tile, 0, 0,
 			                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 		}
 	}

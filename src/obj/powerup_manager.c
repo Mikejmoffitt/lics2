@@ -90,11 +90,11 @@ static inline void powerup_render(Powerup *p)
 		else if ((p->anim_frame / 2) == 2) ty += 1;
 		if (p->anim_frame % 2)
 		{
-			pal_upload(ENEMY_CRAM_POSITION, res_pal_items1_bin, sizeof(res_pal_items1_bin) / 2);
+			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_items1_bin, sizeof(res_pal_items1_bin) / 2);
 		}
 		else
 		{
-			pal_upload(ENEMY_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
+			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_items2_bin, sizeof(res_pal_items2_bin) / 2);
 		}
 	}
 	else if (p->type == POWERUP_TYPE_HP)
@@ -160,7 +160,7 @@ static inline void powerup_render(Powerup *p)
 
 	if (tx < -32 || tx > 336 || ty < -32 || ty > 256) return;
 
-	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
+	md_spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
 }
 
 void powerup_bounce(Powerup *p)

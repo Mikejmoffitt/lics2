@@ -75,12 +75,12 @@ static void render(O_Fissins2 *e)
 
 	if (e->airborn)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame * 4), o->direction == OBJ_DIRECTION_LEFT, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame * 4), o->direction == OBJ_DIRECTION_LEFT, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 	else
 	{
-		spr_put(sp_x, sp_y + 16, SPR_ATTR(s_vram_pos + 8 + (e->anim_frame * 4), 0, 0,
+		md_spr_put(sp_x, sp_y + 16, SPR_ATTR(s_vram_pos + 8 + (e->anim_frame * 4), 0, 0,
 		                                  MAP_PAL_LINE, 1), SPR_SIZE(2, 2));
 	}
 }

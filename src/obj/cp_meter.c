@@ -44,7 +44,7 @@ static void render(O_CpMeter *e)
 	const int16_t orbs = progress->registered_cp_orbs;
 	for (int16_t i = 0; i < orbs; i++)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 1));
 		sp_y -= 8;
 	}

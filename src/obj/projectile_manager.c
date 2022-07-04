@@ -118,7 +118,7 @@ static inline void projectile_render(Projectile *p)
 			break;
 	}
 
-	spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, xflip, 0, pal, 0), size);
+	md_spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, xflip, 0, pal, 0), size);
 }
 
 static inline int16_t basic_collision(Projectile *p)

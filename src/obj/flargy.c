@@ -62,7 +62,7 @@ static void render(O_Flargy *e)
 		const int16_t frame_index = frame_table[e->anim_frame];
 
 		// Flargy with his walking animation.
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + frame_index, xflip, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + frame_index, xflip, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 	}
 	else
@@ -80,11 +80,11 @@ static void render(O_Flargy *e)
 		if (xflip) fist_x_offset = -fist_x_offset;
 
 		// Draw Flargy with arm outstretched.
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24, xflip, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + 24, xflip, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 
 		// Get the big fist in there.
-		spr_put(sp_x + fist_x_offset, sp_y + 12, SPR_ATTR(s_vram_pos + 32, xflip, 0,
+		md_spr_put(sp_x + fist_x_offset, sp_y + 12, SPR_ATTR(s_vram_pos + 32, xflip, 0,
 		                                                  ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 	}
 }

@@ -35,17 +35,17 @@ static void draw_to_bg(O_FakeCube *e)
 	{
 		const uint16_t attr = VDP_ATTR(g_cube_vram_pos,
 		                               0, 0, BG_PAL_LINE, 0);
-		vdp_poke(e->tile_vram_addr, attr);
-		vdp_poke(e->tile_vram_addr + 2, attr + 2);
-		vdp_poke(e->tile_vram_addr + (2 * GAME_PLANE_W_CELLS), attr + 1);
-		vdp_poke(e->tile_vram_addr + 2 + (2 * GAME_PLANE_W_CELLS), attr + 3);
+		md_vdp_poke(e->tile_vram_addr, attr);
+		md_vdp_poke(e->tile_vram_addr + 2, attr + 2);
+		md_vdp_poke(e->tile_vram_addr + (2 * GAME_PLANE_W_CELLS), attr + 1);
+		md_vdp_poke(e->tile_vram_addr + 2 + (2 * GAME_PLANE_W_CELLS), attr + 3);
 	}
 	else
 	{
-		vdp_poke(e->tile_vram_addr, 0);
-		vdp_poke(e->tile_vram_addr + 2, 0);
-		vdp_poke(e->tile_vram_addr + (2 * GAME_PLANE_W_CELLS), 0);
-		vdp_poke(e->tile_vram_addr + 2 + (2 * GAME_PLANE_W_CELLS), 0);
+		md_vdp_poke(e->tile_vram_addr, 0);
+		md_vdp_poke(e->tile_vram_addr + 2, 0);
+		md_vdp_poke(e->tile_vram_addr + (2 * GAME_PLANE_W_CELLS), 0);
+		md_vdp_poke(e->tile_vram_addr + 2 + (2 * GAME_PLANE_W_CELLS), 0);
 	}
 }
 
@@ -107,7 +107,7 @@ void o_load_fakecube(Obj *o, uint16_t data)
 	const int16_t tile_x = FIX32TOINT(o->x + o->left) / 8;
 	const int16_t tile_y = FIX32TOINT(o->y + o->top) / 8;
 	O_FakeCube *e = (O_FakeCube *)o;
-	e->tile_vram_addr = vdp_get_plane_base(VDP_PLANE_A) +
+	e->tile_vram_addr = md_vdp_get_plane_base(VDP_PLANE_A) +
 	                    2 * ((tile_y * GAME_PLANE_W_CELLS) +
 	                    tile_x);
 	e->id = data & 0x7F;

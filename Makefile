@@ -1,32 +1,21 @@
-# Configuration
-OUTPUT_FILE := lyle
-OUTPUT_EXT := gen
-OUTPUT_VERSION := wip
+# Project meta configuration
+PROJECT_NAME := lyle
+MDKROOT := mdk/mdk
 
-CPUTYPE := 68000
+# Project directories.
 SRCDIR := src
-COMMONSRCDIR := common/src
 RESDIR := res
 OBJDIR := obj
-UTILDIR := util
-CFLAGS := -I$(SRCDIR) -I$(OBJDIR) -I$(COMMONSRCDIR)
-CFLAGS += -Wall -Wextra -O3 -std=c11 -Wno-unused-function
-CFLAGS += -fshort-enums
 
-HOSTCFLAGS := -Os -std=c11
-LDSCRIPT := common/md.ld
+# Sources.
 SOURCES_C := $(shell find $(SRCDIR)/ -type f -name '*.c')
 SOURCES_ASM := $(shell find $(SRCDIR)/ -type f -name '*.s')
-COMMONSOURCES_C := $(shell find $(COMMONSRCDIR)/ -type f -name '*.c')
-COMMONSOURCES_ASM := $(shell find $(COMMONSRCDIR)/ -type f -name '*.s')
 RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*')
 
 EXTERNAL_DEPS = obj_dispatch.inc
 EXTERNAL_ARTIFACTS = obj_dispatch.inc
 
-include common/md-rules.mk
-
-LDFLAGS += -Map lyle.map
+include $(MDKROOT)/md-rules.mk
 
 .PHONY: music obj_dispatch.inc
 

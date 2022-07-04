@@ -61,13 +61,13 @@ static void render(O_GameOver *e)
 
 		obj_render_setup_simple(o, &sp_x, &sp_y, offset_x, offset_y,
 		                        map_get_x_scroll(), yscroll);
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0,
 		                             ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
-		spr_put(sp_x + 32, sp_y, SPR_ATTR(s_vram_pos + 16, 0, 0,
+		md_spr_put(sp_x + 32, sp_y, SPR_ATTR(s_vram_pos + 16, 0, 0,
 		                                  ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
-		spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + 32, 0, 0,
+		md_spr_put(sp_x, sp_y + 32, SPR_ATTR(s_vram_pos + 32, 0, 0,
 		                                  ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
-		spr_put(sp_x + 32, sp_y + 32, SPR_ATTR(s_vram_pos + 48, 0, 0,
+		md_spr_put(sp_x + 32, sp_y + 32, SPR_ATTR(s_vram_pos + 48, 0, 0,
 		                                       ENEMY_PAL_LINE, 0), SPR_SIZE(4, 4));
 	}
 
@@ -76,15 +76,15 @@ static void render(O_GameOver *e)
 		const int16_t tile_offs_c = (e->choose_cnt == 0 &&
 		                             e->menu_choice == 0 &&
 		                             e->lyle_anim_frame == 1) ? 0x48 : 0x40;
-		spr_put(80, 216 - yscroll, SPR_ATTR(s_vram_pos + tile_offs_c, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
-		spr_put(112, 216 - yscroll, SPR_ATTR(s_vram_pos + 4 + tile_offs_c, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
+		md_spr_put(80, 216 - yscroll, SPR_ATTR(s_vram_pos + tile_offs_c, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
+		md_spr_put(112, 216 - yscroll, SPR_ATTR(s_vram_pos + 4 + tile_offs_c, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
 
 		const int16_t tile_offs_s = (e->choose_cnt == 0 &&
 		                             e->menu_choice == 1 &&
 		                             e->lyle_anim_frame == 1) ? 0x59 : 0x50;
-		spr_put(168, 216 - yscroll, SPR_ATTR(s_vram_pos + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
-		spr_put(200, 216 - yscroll, SPR_ATTR(s_vram_pos + 4 + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
-		spr_put(232, 216 - yscroll, SPR_ATTR(s_vram_pos + 8 + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(1, 1));
+		md_spr_put(168, 216 - yscroll, SPR_ATTR(s_vram_pos + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
+		md_spr_put(200, 216 - yscroll, SPR_ATTR(s_vram_pos + 4 + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(4, 1));
+		md_spr_put(232, 216 - yscroll, SPR_ATTR(s_vram_pos + 8 + tile_offs_s, 0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(1, 1));
 	}
 }
 
@@ -273,7 +273,7 @@ static void main_func(Obj *o)
 	if (e->state != state_prev) e->state_elapsed = 0;
 	else e->state_elapsed++;
 
-	pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_gameover_bin,
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_gameover_bin,
 	           sizeof(res_pal_enemy_gameover_bin) / 2);
 
 	e->buttons_prev = buttons;

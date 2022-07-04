@@ -79,11 +79,11 @@ static void render(O_Plant *e)
 			                       (sp_x - 12 + (((e->anim_frame + 1) / 2) % 2));
 			const int16_t head_y = sp_y - 48 + (((e->anim_frame) / 2) % 2);
 			const int16_t head_tile = s_vram_pos + 56;
-			spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
+			md_spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
 			        SPR_SIZE(3, 3));
 			const int16_t base_x = sp_x - 8;
 			const int16_t base_tile = s_vram_pos + ((e->anim_frame % 2) ? 8 : 0);
-			spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
+			md_spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
 			        SPR_SIZE(2, 4));
 			break;
 		}
@@ -94,11 +94,11 @@ static void render(O_Plant *e)
 			                       (sp_x - ((e->anim_frame % 2) ? 8 : 9));
 			const int16_t head_y = sp_y - 47;
 			const int16_t head_tile = s_vram_pos + 56;
-			spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
+			md_spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
 			        SPR_SIZE(3, 3));
 			const int16_t base_x = sp_x - 12;
 			const int16_t base_tile = s_vram_pos + ((e->anim_frame % 2) ? 24 : 36);
-			spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
+			md_spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
 			        SPR_SIZE(3, 4));
 			break;
 		}
@@ -109,11 +109,11 @@ static void render(O_Plant *e)
 			                       (sp_x - 17 - cooldown_head_x_offs[e->anim_frame]);
 			const int16_t head_y = sp_y - 50;
 			const int16_t head_tile = s_vram_pos + 48;
-			spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
+			md_spr_put(head_x, head_y, SPR_ATTR(head_tile, flip, 0, pal, 0),
 			        SPR_SIZE(2, 4));
 			const int16_t base_x = sp_x - 8;
 			const int16_t base_tile = s_vram_pos + 16;
-			spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
+			md_spr_put(base_x, base_y, SPR_ATTR(base_tile, flip, 0, pal, 0),
 			        SPR_SIZE(2, 4));
 			break;
 		}

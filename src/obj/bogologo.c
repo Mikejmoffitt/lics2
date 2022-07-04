@@ -45,11 +45,11 @@ static void render(O_Bogologo *e)
 
 	for (int16_t x = 0; x < 4; x++)
 	{
-		spr_put(sp_x + (x * 32), sp_y,
+		md_spr_put(sp_x + (x * 32), sp_y,
 		        SPR_ATTR(s_vram_pos + (x * 12),
 		                 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(4, 3));
-		spr_put(sp_x + (x * 32), sp_y + 24,
+		md_spr_put(sp_x + (x * 32), sp_y + 24,
 		        SPR_ATTR(s_vram_pos + 48 + (x * 12),
 		                 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(4, 3));
@@ -91,7 +91,7 @@ static void main_func(Obj *o)
 		return;
 	}
 
-	pal_upload(ENEMY_CRAM_POSITION,
+	md_pal_upload(ENEMY_CRAM_POSITION,
 	           res_pal_bogologo_bin + (e->anim_frame ? 32 : 0),
 	           sizeof(res_pal_bogologo_bin) / 4);
 	render(e);

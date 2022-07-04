@@ -158,10 +158,10 @@ void music_handle_pending(void)
 	echo_play_bgm(bgm_list[s_current_track].data);
 	echo_play_sfx(psg_lock_esf);
 
-	SYS_BARRIER();
-	sys_z80_bus_req();
-	opn_write(0, 0x26, bgm_list[s_current_track].tempo);
-	sys_z80_bus_release();
+	MD_SYS_BARRIER();
+	md_sys_z80_bus_req();
+	md_opn_write(0, 0x26, bgm_list[s_current_track].tempo);
+	md_sys_z80_bus_release();
 
 }
 

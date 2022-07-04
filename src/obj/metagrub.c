@@ -67,7 +67,7 @@ static inline void metagrub_draw(Obj *o)
 	obj_render_setup(o, &sp_x, &sp_y, x_offset, y_offset,
 	                 map_get_x_scroll(), map_get_y_scroll());
 
-	spr_put(sp_x, sp_y, SPR_ATTR(tile, dir, 0, pal, 0), size);
+	md_spr_put(sp_x, sp_y, SPR_ATTR(tile, dir, 0, pal, 0), size);
 }
 
 static void metagrub_main(Obj *o)

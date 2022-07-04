@@ -91,19 +91,19 @@ static void hori_func(Obj *o)
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x08;
 	const uint8_t *source = e->source + source_data_offset_tbl[x_index];
 	const int16_t data_size = (8 * 32);
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 }
 
 // The vertical scroller transfers a 6 x 8 region of tiles into FG memory.
@@ -117,28 +117,28 @@ static void vert_func(Obj *o)
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x0A;
 	const uint8_t *source = e->source + source_data_offset_tbl[y_index];
 	const int16_t data_size = (6 * 32);
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
 	source += data_size;
-	dma_q_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
+	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 }
 
 void o_load_technobg(Obj *o, uint16_t data)

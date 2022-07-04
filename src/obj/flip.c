@@ -51,7 +51,7 @@ static inline void render(O_Flip *f)
 	int16_t sp_x, sp_y;
 	obj_render_setup(o, &sp_x, &sp_y, -11, -12,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame ? 6 : 0),
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (f->anim_frame ? 6 : 0),
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 }

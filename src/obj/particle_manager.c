@@ -102,19 +102,19 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			animate(p, kanim_speed);
 			attr = SPR_ATTR(s_vram_pos + sparkle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 1);
-			spr_put(px, py, attr, SPR_SIZE(2, 2));
+			md_spr_put(px, py, attr, SPR_SIZE(2, 2));
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 			animate(p, kanim_speed);
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame],
 			        0, 0, BG_PAL_LINE, 1);
-			spr_put(px, py, attr, SPR_SIZE(2, 2));
+			md_spr_put(px, py, attr, SPR_SIZE(2, 2));
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
 			animate(p, kanim_speed);
 			attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame] + 16,
 			        0, 0, LYLE_PAL_LINE, 1);
-			spr_put(px, py, attr, SPR_SIZE(2, 2));
+			md_spr_put(px, py, attr, SPR_SIZE(2, 2));
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
 			animate(p, kanim_speed_explosion);
@@ -124,7 +124,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 				py -= 12;
 				attr = SPR_ATTR(s_vram_pos + 52,
 				        0, 0, LYLE_PAL_LINE, 1);
-				spr_put(px, py, attr, SPR_SIZE(3, 3));
+				md_spr_put(px, py, attr, SPR_SIZE(3, 3));
 			}
 			else if (p->anim_frame == 1 || p->anim_frame == 4)
 			{
@@ -132,7 +132,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 				py -= 8;
 				attr = SPR_ATTR(s_vram_pos + 48,
 				        0, 0, LYLE_PAL_LINE, 1);
-				spr_put(px, py, attr, SPR_SIZE(2, 2));
+				md_spr_put(px, py, attr, SPR_SIZE(2, 2));
 			}
 			else
 			{
@@ -140,14 +140,14 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 				py -= 16;
 				attr = SPR_ATTR(s_vram_pos + 61,
 				        0, 0, LYLE_PAL_LINE, 1);
-				spr_put(px, py, attr, SPR_SIZE(4, 4));
+				md_spr_put(px, py, attr, SPR_SIZE(4, 4));
 			}
 			break;
 		case PARTICLE_TYPE_SAND:
 			animate(p, kanim_speed_sand);
 			attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
 			        0, 0, LYLE_PAL_LINE, 1);
-			spr_put(px, py, attr, SPR_SIZE(1, 1));
+			md_spr_put(px, py, attr, SPR_SIZE(1, 1));
 			break;
 	}
 

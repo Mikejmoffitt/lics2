@@ -67,7 +67,7 @@ static void render(O_Fissins1 *e)
 
 	obj_render_setup(o, &sp_x, &sp_y, -8, -16,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame * 4), 0, o->dy > 0,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + (e->anim_frame * 4), 0, o->dy > 0,
 	                             LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
 

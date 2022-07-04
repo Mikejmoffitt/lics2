@@ -1088,7 +1088,7 @@ static inline void draw(O_Lyle *l)
 	if (sp_x < -32 || sp_x > GAME_SCREEN_W_PIXELS) return;
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
-	spr_put(sp_x, sp_y,
+	md_spr_put(sp_x, sp_y,
 	        SPR_ATTR(s_vram_pos,
 	                 l->head.direction == OBJ_DIRECTION_LEFT, yflip,
 	                 LYLE_PAL_LINE, l->priority),
@@ -1229,7 +1229,7 @@ void o_load_lyle(Obj *o, uint16_t data)
 
 void lyle_upload_palette(void)
 {
-	pal_upload(LYLE_CRAM_POSITION, res_pal_lyle_bin, sizeof(res_pal_lyle_bin) / 2);
+	md_pal_upload(LYLE_CRAM_POSITION, res_pal_lyle_bin, sizeof(res_pal_lyle_bin) / 2);
 }
 
 void o_unload_lyle(void)

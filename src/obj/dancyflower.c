@@ -59,13 +59,13 @@ static inline void render(O_Dancyflower *f)
 	// Bottom sprite, for the body.
 	obj_render_setup(o, &sp_x, &sp_y, -8, -32,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + bottom_tile_offset,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + bottom_tile_offset,
 	                    0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 	// Top sprite, for the head. It bobs up and down with head_y_offset.
 	sp_x -= 4;
 	sp_y -= 16;
 	sp_y += head_y_offset;
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(3, 2));
 }
 
 // Special cube function exists just to mark the "has been destroyed" flag,

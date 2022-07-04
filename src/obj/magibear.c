@@ -66,21 +66,21 @@ static inline void render(O_Magibear *m)
 
 	if (o->direction == OBJ_DIRECTION_RIGHT)
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_butt[m->anim_frame],
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_butt[m->anim_frame],
 		                    o->direction == OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 		sp_x += 16;
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_head[m->anim_frame],
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_head[m->anim_frame],
 		                    o->direction == OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 	}
 	else
 	{
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_head[m->anim_frame],
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_head[m->anim_frame],
 		                    o->direction == OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(3, 4));
 		sp_x += 24;
-		spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_butt[m->anim_frame],
+		md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + anim_off_butt[m->anim_frame],
 		                    o->direction == OBJ_DIRECTION_LEFT, 0,
 		                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 4));
 	}

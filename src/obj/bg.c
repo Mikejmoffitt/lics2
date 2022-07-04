@@ -197,7 +197,7 @@ static void bg_blue_bumps_func(O_Bg *f)
 
 	const uint8_t scroll_off = ((uint8_t)(y_scroll) / 4) % 16;
 
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (12 * 32), g->data + (16 * 32) + (128 * scroll_off), 32 * 4 / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (12 * 32), g->data + (16 * 32) + (128 * scroll_off), 32 * 4 / 2, 2);
 }
 
 static void bg_bubbles_func(O_Bg *f)
@@ -232,7 +232,7 @@ static void bg_orange_balls_func(O_Bg *f)
 	set_v_scroll_plane(y_scroll);
 	set_h_scroll_plane(x_front_scroll);
 
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, g->data + (6 * 6 * 32 * x_counter_index), (6 * 6 * 32) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, g->data + (6 * 6 * 32 * x_counter_index), (6 * 6 * 32) / 2, 2);
 }
 
 static void undersand_purple_columns(int16_t x_scroll)
@@ -320,7 +320,7 @@ static void bg_undersand_columns_func(O_Bg *f)
 	undersand_green_columns();
 
 	set_h_scroll_plane(-x_scroll/2);
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
 }
 
 static void bg_columns_2_func(O_Bg *f)
@@ -332,7 +332,7 @@ static void bg_columns_2_func(O_Bg *f)
 	undersand_purple_columns(x_scroll);
 
 	set_h_scroll_plane(-x_scroll/2);
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
 }
 
 static void bg_crazy_city_func(O_Bg *f)
@@ -431,7 +431,7 @@ static void bg_brown_grass_and_green_func(O_Bg *f)
 		s_h_scroll_buffer[i] = x_front_scroll_raw;
 	}
 
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 32), g->data + (6 * 3 * 32 * x_counter_index), (32 * 6 * 3) / 2, 2);
 }
 
 // Simple far purple scrolling 48x48 tile BG, as a companio to the FG tile
@@ -544,19 +544,19 @@ static void bg_gauntlet_func(O_Bg *f)
 
 	const int16_t dma1_index = (modulo + x_1_3 - x_1_2) % modulo;
 	const Gfx *g1 = gfx_get(GFX_BG_23_EX);
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 6 * 32),
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (3 * 6 * 32),
 	                    g1->data + (6 * 3 * 32) + (dma1_index * (32 * 6 * 5)),
 	                    (32 * 6 * 2) / 2, 2);
 
 	const int16_t dma2_index = (modulo + x_1_2 - x_1_1_5) % modulo;
 	const Gfx *g2 = gfx_get(GFX_BG_23_EX);
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION + (2 * 6 * 32),
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (2 * 6 * 32),
 	                    g2->data + (6 * 2 * 32) + (dma2_index * (32 * 6 * 5)),
 	                    (32 * 6 * 1) / 2, 2);
 
 	const int16_t dma3_index = (modulo + x_1_1_5 - x_1_1_2) % modulo;
 	const Gfx *g3 = gfx_get(GFX_BG_23_EX);
-	dma_q_transfer_vram(BG_TILE_VRAM_POSITION,
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION,
 	                    g3->data + (dma3_index * (32 * 6 * 5)),
 	                    (32 * 6 * 2) / 2, 2);
 }
@@ -642,8 +642,8 @@ static void main_func(Obj *o)
 	f->last_y_scroll = f->x_scroll;
 	f->last_y_scroll = f->y_scroll;
 
-	dma_q_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
-	dma_q_transfer_vram(vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
+	md_dma_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
+	md_dma_transfer_vram(md_vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
 	system_profile(PALRGB(0, 0, 0));
 }
 
@@ -680,34 +680,34 @@ void o_load_bg(Obj *o, uint16_t data)
 	}
 	else
 	{
-		dma_q_fill_vram(BG_TILE_VRAM_POSITION, 0, BG_TILE_VRAM_LENGTH, 1);
+		md_dma_fill_vram(BG_TILE_VRAM_POSITION, 0, BG_TILE_VRAM_LENGTH, 1);
 	}
 
 	const uint16_t bg_plane_words = GAME_PLANE_H_CELLS * GAME_PLANE_W_CELLS;
 
 	if (b->mapping)
 	{
-		uint16_t s_vram_pos = vdp_get_plane_base(VDP_PLANE_B);
+		uint16_t s_vram_pos = md_vdp_get_plane_base(VDP_PLANE_B);
 		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_words);
 		// TODO: MD framework util function to get plane byte size.
 		uint16_t remaining_words = bg_plane_words;
 		while (remaining_words > 0)
 		{
-			dma_q_transfer_vram(s_vram_pos, b->mapping, b->mapping_size / 2, 2);
+			md_dma_transfer_vram(s_vram_pos, b->mapping, b->mapping_size / 2, 2);
 			s_vram_pos += b->mapping_size;
 			remaining_words -= b->mapping_size / 2;
 		}
 	}
 	else
 	{
-		dma_q_fill_vram(vdp_get_plane_base(VDP_PLANE_B), 0, bg_plane_words, 1);
+		md_dma_fill_vram(md_vdp_get_plane_base(VDP_PLANE_B), 0, bg_plane_words, 1);
 	}
 
 	// Set scroll.
 	set_h_scroll_plane(0);
 	set_v_scroll_plane(0);
-	dma_q_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
-	dma_q_transfer_vram(vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 4);
+	md_dma_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
+	md_dma_transfer_vram(md_vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 4);
 }
 
 void o_unload_bg(void)
@@ -721,16 +721,16 @@ void bg_upload_palette(void)
 	const BgDescriptor *b = s_bg->descriptor;
 
 	// Load palette.
-	pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
+	md_pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
 	           sizeof(res_pal_bg_common_bin) / 2);
 	// Load graphics tiles.
 
 	if (b->palette)
 	{
-		pal_upload(BG_CRAM_POSITION, b->palette, 8);
+		md_pal_upload(BG_CRAM_POSITION, b->palette, 8);
 	}
 	else
 	{
-		pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
+		md_pal_upload(BG_CRAM_POSITION, res_pal_bg_bg0_bin, 8);
 	}
 }

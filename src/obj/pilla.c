@@ -51,7 +51,7 @@ static inline void render(O_Pilla *f)
 
 	obj_render_setup(o, &sp_x, &sp_y, -8, -15,
 	                 map_get_x_scroll(), map_get_y_scroll());
-	spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset,
+	md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos + offset,
 	                    o->direction == OBJ_DIRECTION_LEFT, 0,
 	                    ENEMY_PAL_LINE, 0), SPR_SIZE(2, 2));
 }
