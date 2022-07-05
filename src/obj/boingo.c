@@ -7,7 +7,7 @@
 #include "md/megadrive.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "common.h"
+
 #include "sfx.h"
 #include "obj/particle_manager.h"
 #include "progress.h"

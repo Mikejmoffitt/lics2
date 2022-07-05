@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "common.h"
+
 #include "sfx.h"
 #include "obj/title.h"
 

@@ -1,7 +1,7 @@
 #include "progress.h"
 #include "md/megadrive.h"
 #include "system.h"
-#include "common.h"
+
 #include "obj/lyle.h"
 
 // SRAM address $0000 is used as scratch memory so we can test if SRAM is

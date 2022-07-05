@@ -6,7 +6,7 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "obj/map.h"
-#include "common.h"
+
 
 #include "game.h"
 #include "res.h"

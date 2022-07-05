@@ -3,8 +3,6 @@
 
 // Fixed point trigonometry.
 
-#include "common.h"
-
 #include "util/fixed.h"
 #include "trig_tab.h"
 

@@ -1,5 +1,6 @@
 #include "trig.h"
 #include "util/fixed.h"
+#include "md/megadrive.h"
 
 static uint8_t atan_int(fix32_t ratio)
 {

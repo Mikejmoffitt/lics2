@@ -1,5 +1,5 @@
 #include "obj.h"
-#include "common.h"
+
 #include "system.h"
 #include <stdlib.h>
 #include "cube.h"

@@ -6,7 +6,7 @@
 #include "system.h"
 #include "md/megadrive.h"
 #include "game.h"
-#include "common.h"
+
 #include "obj/entrance.h"
 #include "obj/lyle.h"
 

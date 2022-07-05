@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "common.h"
+
 #include "progress.h"
 #include "obj/lyle.h"
 #include "game.h"

@@ -8,7 +8,7 @@
 
 #include "palscale.h"
 #include "util/fixed.h"
-#include "common.h"
+
 
 #include "obj/map.h"
 

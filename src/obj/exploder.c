@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "common.h"
+
 
 void exploder_spawn(fix32_t x, fix32_t y, fix16_t dx, fix16_t dy,
                     ParticleType type, uint16_t count, fix16_t rate)

@@ -10,7 +10,7 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/projectile_manager.h"
-#include "common.h"
+
 
 static uint16_t s_vram_pos;
 

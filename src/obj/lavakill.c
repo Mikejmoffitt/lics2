@@ -3,7 +3,7 @@
 #include "obj.h"
 #include "system.h"
 #include "md/megadrive.h"
-#include "common.h"
+
 #include "obj/lyle.h"
 
 static void main_func(Obj *o)

@@ -1,7 +1,7 @@
 #include "sfx.h"
 #include "md/megadrive.h"
 #include "system.h"
-#include "common.h"
+
 #include <stdlib.h>
 
 #define SFX_P(_pitch_, _vol_) {1, ((int)(_pitch_)) & 0x3FF, (_vol_) & 0x0F}

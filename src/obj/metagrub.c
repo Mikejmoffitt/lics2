@@ -3,7 +3,7 @@
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/title.h"
-#include "common.h"
+
 #include "gfx.h"
 #include "md/megadrive.h"
 

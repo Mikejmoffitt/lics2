@@ -2,7 +2,7 @@
 #include "obj.h"
 #include "util/fixed.h"
 #include "palscale.h"
-#include "common.h"
+
 #include "system.h"
 #include "obj/cube_manager.h"
 #include "obj/particle_manager.h"

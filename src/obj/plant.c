@@ -9,7 +9,7 @@
 #include "obj/map.h"
 #include "obj/projectile_manager.h"
 #include "obj/lyle.h"
-#include "common.h"
+
 
 static uint16_t s_vram_pos;
 

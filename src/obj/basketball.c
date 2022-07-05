@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "common.h"
+
 #include "obj/hoop.h"
 #include "obj/lyle.h"
 #include "obj/exploder.h"

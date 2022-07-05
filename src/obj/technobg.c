@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "common.h"
+
 
 // Offsets into the source tile data have been precalculated to avoid an
 // expensive 32-bit multiply on the poor 68000.

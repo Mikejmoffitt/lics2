@@ -5,7 +5,6 @@
 #include "obj.h"
 
 #include <stdlib.h>
-#include "common.h"
 #include "md/megadrive.h"
 #include "game.h"
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "obj.h"
 #include "system.h"
-#include "common.h"
+
 
 static void main_func(Obj *o)
 {

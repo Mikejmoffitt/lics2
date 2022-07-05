@@ -1,7 +1,7 @@
 #include "game.h"
 #include "system.h"
 #include "obj.h"
-#include "common.h"
+
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "music.h"
