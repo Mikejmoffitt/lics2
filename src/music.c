@@ -6,6 +6,8 @@
 
 #include "res.h"
 
+#ifndef MDK_TARGET_C2
+
 static uint8_t s_current_track;
 static uint8_t s_pending_track;
 static uint8_t s_pending_track_delay_frames;
@@ -178,3 +180,27 @@ void music_stop(void)
 {
 	music_play(0);
 }
+
+#else
+
+// System C2 dummy functions, for now.
+int music_init(void)
+{
+	return 1;
+}
+void music_handle_pending(void)
+{
+
+}
+
+void music_play(uint8_t track)
+{
+	(void)track;
+}
+
+void music_stop(void)
+{
+
+}
+
+#endif  // MDK_TARGET_C2

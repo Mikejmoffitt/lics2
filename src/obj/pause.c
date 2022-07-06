@@ -17,6 +17,7 @@
 #include "music.h"
 #include "obj/powerup_manager.h"
 #include "str.h"
+#include "input.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
@@ -770,7 +771,7 @@ static void vram_load(void)
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
-static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
+static void maybe_dismiss(O_Pause *e, LyleBtn buttons, int16_t min_delay)
 {
 	if (e->dismissal_delay_cnt < min_delay)
 	{
@@ -778,7 +779,7 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 		return;
 	}
 
-	static const uint16_t kbutton_mask = (BTN_START | BTN_A | BTN_C);
+	static const uint16_t kbutton_mask = (LYLE_BTN_START | LYLE_BTN_JUMP);
 
 	if (e->select_delay_cnt == 0 && (buttons & kbutton_mask) && !(e->buttons_prev & kbutton_mask))
 	{
@@ -788,9 +789,9 @@ static void maybe_dismiss(O_Pause *e, MdButton buttons, int16_t min_delay)
 	}
 }
 
-static void maybe_map(O_Pause *e, MdButton buttons)
+static void maybe_map(O_Pause *e, LyleBtn buttons)
 {
-	if ((buttons & BTN_START) && !(e->buttons_prev & BTN_START))
+	if ((buttons & LYLE_BTN_START) && !(e->buttons_prev & LYLE_BTN_START))
 	{
 		e->screen = PAUSE_SCREEN_MAP;
 	}
@@ -805,9 +806,9 @@ static void screen_reset(O_Pause *e)
 	e->window = 1;
 }
 
-static void maybe_switch_to_debug(O_Pause *e, MdButton buttons)
+static void maybe_switch_to_debug(O_Pause *e, LyleBtn buttons)
 {
-	if (buttons & (BTN_B))
+	if (buttons & (LYLE_BTN_CUBE))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
 	}
@@ -848,16 +849,16 @@ static void plot_debug_menu(void)
 	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
-static void debug_menu_logic(O_Pause *e, MdButton buttons)
+static void debug_menu_logic(O_Pause *e, LyleBtn buttons)
 {
-	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
 		e->screen = debug_options[e->debug.main_cursor].screen;
 		return;
 	}
 
-	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
 		e->debug.main_cursor--;
 		if (e->debug.main_cursor < 0)
@@ -865,7 +866,7 @@ static void debug_menu_logic(O_Pause *e, MdButton buttons)
 			e->debug.main_cursor = ARRAYSIZE(debug_options) - 1;
 		}
 	}
-	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
 		e->debug.main_cursor++;
 		if (e->debug.main_cursor >= (int16_t)ARRAYSIZE(debug_options))
@@ -924,9 +925,9 @@ static void draw_room_select_cursor(O_Pause *e)
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
-static void debug_room_select_logic(O_Pause *e, MdButton buttons)
+static void debug_room_select_logic(O_Pause *e, LyleBtn buttons)
 {
-	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
 		e->debug.room_cursor--;
 		if (e->debug.room_cursor < 0)
@@ -934,7 +935,7 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 			e->debug.room_cursor = map_file_count() - 1;
 		}
 	}
-	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
 		e->debug.room_cursor++;
 		if (e->debug.room_cursor >= map_file_count())
@@ -942,7 +943,7 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 			e->debug.room_cursor = 0;
 		}
 	}
-	else if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+	else if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 	{
 		e->debug.room_cursor = ((e->debug.room_cursor / 16) - 1) * 16;
 		while (e->debug.room_cursor < 0)
@@ -950,7 +951,7 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 			e->debug.room_cursor += map_file_count();
 		}
 	}
-	else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+	else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 	{
 		e->debug.room_cursor = ((e->debug.room_cursor / 16) + 1) * 16;
 		while (e->debug.room_cursor >= map_file_count())
@@ -959,13 +960,13 @@ static void debug_room_select_logic(O_Pause *e, MdButton buttons)
 		}
 	}
 
-	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
 		e->debug.chosen_room_id = e->debug.room_cursor;
 	}
-	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	else if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
 	}
@@ -977,6 +978,7 @@ static void plot_button_check(void)
 {
 	maybe_load_kana_in_vram();
 	plot_string(str_get(STR_BUTTON_CHECK), 4, 4, 0);
+#ifndef MDK_TARGET_C2
 	char buffer[17];
 	for (int j = 0; j < 2; j++)
 	{
@@ -991,6 +993,9 @@ static void plot_button_check(void)
 		plot_string(j == 0 ? "PAD1" : "PAD2", 4, 6 + j, 0);
 		plot_string(buffer, 12, 6 + j, 0);
 	}
+#else
+	// TODO:
+#endif
 }
 
 // Sound test
@@ -1026,9 +1031,9 @@ static void draw_sound_test_cursor(O_Pause *e)
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
-static void sound_test_logic(O_Pause *e, MdButton buttons)
+static void sound_test_logic(O_Pause *e, LyleBtn buttons)
 {
-	if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
 		e->debug.sound_cursor--;
 		if (e->debug.sound_cursor < 0)
@@ -1036,7 +1041,7 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 			e->debug.sound_cursor = 2;
 		}
 	}
-	else if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
 		e->debug.sound_cursor++;
 		if (e->debug.sound_cursor >= 3)
@@ -1045,7 +1050,7 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 		}
 	}
 
-	else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+	else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 	{
 		if (e->debug.sound_cursor == 0)
 		{
@@ -1056,7 +1061,7 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 			e->debug.sfx_id++;
 		}
 	}
-	else if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+	else if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 	{
 		if (e->debug.sound_cursor == 0)
 		{
@@ -1067,7 +1072,7 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 			e->debug.sfx_id--;
 		}
 	}
-	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
 		if (e->debug.sound_cursor == 0)
@@ -1084,7 +1089,7 @@ static void sound_test_logic(O_Pause *e, MdButton buttons)
 			sfx_stop_all();
 		}
 	}
-	else if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	else if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
 	}
@@ -1169,7 +1174,7 @@ typedef struct ProgressEditSlot
 	ProgressEditType type;
 } ProgressEditSlot;
 
-static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
+static void progress_edit_logic_and_plot(O_Pause *e, LyleBtn buttons)
 {
 	ProgressSlot *prog = progress_get();
 
@@ -1214,15 +1219,15 @@ static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
 		y++;
 	}
 
-	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
+	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 	ProgressEditSlot *s = &slots[e->debug.progress_cursor_main];
 	if (e->debug.progress_cursor_bit < 0)
 	{
-		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
 			e->debug.progress_cursor_main++;
 		}
-		if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 		{
 			e->debug.progress_cursor_main--;
 		}
@@ -1236,7 +1241,7 @@ static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
 			e->debug.progress_cursor_main = ARRAYSIZE(slots) - 1;
 		}
 
-		if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+		if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 		{
 			e->screen = PAUSE_SCREEN_DEBUG;
 		}
@@ -1254,16 +1259,16 @@ static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
 	}
 	else if (e->debug.progress_cursor_bit == 127)
 	{
-		if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+		if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 		{
 			e->debug.progress_cursor_bit = -1;
 		}
-		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
 			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 0;
 			else (*s->data)--;
 		}
-		else if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		else if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 		{
 			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 1;
 			else (*s->data)++;
@@ -1271,11 +1276,11 @@ static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
 	}
 	else
 	{
-		if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+		if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 		{
 			e->debug.progress_cursor_bit++;
 		}
-		else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+		else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 		{
 			e->debug.progress_cursor_bit--;
 		}
@@ -1287,15 +1292,15 @@ static void progress_edit_logic_and_plot(O_Pause *e, MdButton buttons)
 		{
 			e->debug.progress_cursor_bit = 0;
 		}
-		if ((buttons & (BTN_B | btn_chk)) && !(e->buttons_prev & (BTN_B | btn_chk)))
+		if ((buttons & (LYLE_BTN_CUBE | btn_chk)) && !(e->buttons_prev & (LYLE_BTN_CUBE | btn_chk)))
 		{
 			e->debug.progress_cursor_bit = -1;
 		}
-		if ((buttons & BTN_DOWN) && !(e->buttons_prev & BTN_DOWN))
+		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
 			*s->data &= ~(1 << e->debug.progress_cursor_bit);
 		}
-		else if ((buttons & BTN_UP) && !(e->buttons_prev & BTN_UP))
+		else if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 		{
 			*s->data |= (1 << e->debug.progress_cursor_bit);
 		}
@@ -1464,26 +1469,26 @@ static void plot_vram_view(uint16_t offset, uint8_t pal)
 
 static void vram_view_logic(O_Pause *e)
 {
-	static const MdButton btn_chk = (BTN_C | BTN_A | BTN_START);
-	const MdButton buttons = md_io_pad_read(0);
+	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
+	const LyleBtn buttons = input_read();
 
-	if (buttons & BTN_DOWN && !(e->buttons_prev & BTN_DOWN) &&
+	if (buttons & LYLE_BTN_DOWN && !(e->buttons_prev & LYLE_BTN_DOWN) &&
 	    e->debug.vram_view_offset <= 0x06F0)
 	{
 		e->debug.vram_view_offset += 0x0010;
 	}
-	if (buttons & BTN_UP && !(e->buttons_prev & BTN_UP) &&
+	if (buttons & LYLE_BTN_UP && !(e->buttons_prev & LYLE_BTN_UP) &&
 	    e->debug.vram_view_offset >= 0x0010)
 	{
 		e->debug.vram_view_offset -= 0x0010;
 	}
 
-	if (buttons & BTN_RIGHT && !(e->buttons_prev & BTN_RIGHT) &&
+	if (buttons & LYLE_BTN_RIGHT && !(e->buttons_prev & LYLE_BTN_RIGHT) &&
 	    e->debug.vram_view_offset <= 0x600)
 	{
 		e->debug.vram_view_offset += 0x0100;
 	}
-	if (buttons & BTN_LEFT && !(e->buttons_prev & BTN_LEFT) &&
+	if (buttons & LYLE_BTN_LEFT && !(e->buttons_prev & LYLE_BTN_LEFT) &&
 	    e->debug.vram_view_offset >= 0x0100)
 	{
 		e->debug.vram_view_offset -= 0x0100;
@@ -1494,7 +1499,7 @@ static void vram_view_logic(O_Pause *e)
 		e->debug.vram_view_pal++;
 	}
 	e->debug.vram_view_pal &= 0x03;
-	if ((buttons & BTN_B) && !(e->buttons_prev & BTN_B))
+	if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
 	}
@@ -1545,10 +1550,10 @@ static void draw_pause_menu(O_Pause *e)
 	}
 }
 
-static void pause_menu_logic(O_Pause *e, MdButton buttons)
+static void pause_menu_logic(O_Pause *e, LyleBtn buttons)
 {
-	const int16_t right_trigger = (buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT);
-	const int16_t left_trigger = (buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT);
+	const int16_t right_trigger = (buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT);
+	const int16_t left_trigger = (buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT);
 
 	if (e->pause_select_cnt == 0)
 	{
@@ -1582,7 +1587,7 @@ static void pause_menu_logic(O_Pause *e, MdButton buttons)
 				sfx_play(SFX_BEEP, 1);
 			}
 		}
-		if ((buttons & (BTN_A | BTN_C | BTN_START) && !(e->buttons_prev & (BTN_A | BTN_C | BTN_START))))
+		if ((buttons & (LYLE_BTN_JUMP | LYLE_BTN_START) && !(e->buttons_prev & (LYLE_BTN_JUMP | LYLE_BTN_START))))
 		{
 			e->pause_select_cnt = kselect_delay_frames;
 			sfx_play(SFX_SELECT_1, 0);
@@ -1627,7 +1632,7 @@ static void main_func(Obj *o)
 		if (o->type == OBJ_GAMEOVER) return;
 	}
 
-	const MdButton buttons = md_io_pad_read(0);
+	const LyleBtn buttons = input_read();
 
 	const int16_t first_frame = e->screen != e->screen_prev;
 	e->screen_prev = e->screen;

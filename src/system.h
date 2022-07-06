@@ -37,6 +37,9 @@ void system_print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num);
 
 
 // TODO: Put in some sort of actual assert.
+#define SYSTEM_ASSERT(x) (void)(x)
+
+/*
 #define SYSTEM_ASSERT(expression) \
 {\
 	if (!(expression))\
@@ -44,5 +47,7 @@ void system_print_hex(VdpPlane p, int16_t x, int16_t y, uint8_t num);
 		system_print_error(#expression, __FILE__, LINE_STRING);\
 	}\
 }\
+*/
+
 
 #endif  // SYSTEM

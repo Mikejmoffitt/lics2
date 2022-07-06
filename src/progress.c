@@ -37,6 +37,14 @@ static void reset_slot(int8_t slot)
 
 int progress_init(void)
 {
+#ifdef MDK_TARGET_C2
+	s_sram_is_working = 0;
+	for (uint16_t i = 0; i < ARRAYSIZE(s_progress_slots); i++)
+	{
+		reset_slot(i);
+	}
+	return 1;
+#endif
 	// Test that SRAM is working correctly. The first byte is reserved for
 	// this check.
 	s_sram_is_working = 0xBEEF;

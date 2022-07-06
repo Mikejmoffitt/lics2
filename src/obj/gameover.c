@@ -13,6 +13,7 @@
 #include "sfx.h"
 #include "progress.h"
 #include "music.h"
+#include "input.h"
 
 static uint16_t s_vram_pos;
 
@@ -95,7 +96,7 @@ static void main_func(Obj *o)
 
 	const GameOverState state_prev = e->state;
 
-	const MdButton buttons = md_io_pad_read(0);
+	const LyleBtn buttons = input_read();
 
 	switch (e->state)
 	{
@@ -236,21 +237,21 @@ static void main_func(Obj *o)
 
 			if (e->choose_cnt == 0)
 			{
-				if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT))
+				if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 				{
 					e->menu_choice = 0;
 					sfx_stop(SFX_BEEP);
 					sfx_play(SFX_BEEP, 1);
 				}
-				else if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT))
+				else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 				{
 					e->menu_choice = 1;
 					sfx_stop(SFX_BEEP);
 					sfx_play(SFX_BEEP, 1);
 				}
 				
-				if ((buttons & (BTN_A | BTN_C | BTN_START)) &&
-				    !(e->buttons_prev & (BTN_A | BTN_C | BTN_START)))
+				if ((buttons & (LYLE_BTN_JUMP | LYLE_BTN_START)) &&
+				    !(e->buttons_prev & (LYLE_BTN_JUMP | LYLE_BTN_START)))
 				{
 					e->choose_cnt = 1;
 					sfx_play(SFX_SELECT_1, 0);

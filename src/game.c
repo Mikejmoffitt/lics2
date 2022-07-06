@@ -8,6 +8,7 @@
 #include "sfx.h"
 #include "progress.h"
 #include "persistent_state.h"
+#include "input.h"
 
 #include "util/text.h"
 #include "palscale.h"
@@ -34,7 +35,9 @@ typedef enum GameState
 	GAME_STATE_RUN,
 } GameState;
 
-static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
+static GameState s_game_state = GAME_STATE_INIT;
+
+static void run_frame(void)
 {
 	int16_t want_display_en = 0;
 	ProgressSlot *prog = progress_get();
@@ -54,6 +57,7 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
 			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
+//			md_vdp_set_reg_bit(0x0C, 0x08);
 			break;
 
 		case GAME_STATE_NEW_ROOM:
@@ -152,6 +156,7 @@ static GameState s_game_state = GAME_STATE_INIT;static void run_frame(void)
 	}
 
 	megadrive_finish();
+	input_poll();
 	md_vdp_set_display_en(want_display_en);
 }
 

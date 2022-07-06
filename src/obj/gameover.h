@@ -2,7 +2,7 @@
 #define OBJ_GAMEOVER_H
 
 #include "obj.h"
-#include "md/megadrive.h"
+#include "input.h"
 
 typedef enum GameOverState
 {
@@ -35,7 +35,7 @@ typedef struct O_GameOver
 	int16_t menu_choice;
 	int16_t choose_cnt;
 
-	MdButton buttons_prev;
+	LyleBtn buttons_prev;
 } O_GameOver;
 
 void o_load_gameover(Obj *o, uint16_t data);

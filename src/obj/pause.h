@@ -2,6 +2,7 @@
 #define OBJ_PAUSE_H
 
 #include "obj.h"
+#include "input.h"
 
 typedef enum PauseScreen
 {
@@ -60,7 +61,7 @@ typedef enum PauseScreen
 typedef struct O_Pause
 {
 	Obj head;
-	MdButton buttons_prev;
+	LyleBtn buttons_prev;
 	PauseScreen screen;
 	PauseScreen screen_prev;
 

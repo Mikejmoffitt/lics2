@@ -2,6 +2,7 @@
 #define OBJ_TITLE_H
 
 #include "obj.h"
+#include "input.h"
 
 typedef enum TitleState
 {
@@ -15,7 +16,7 @@ typedef enum TitleState
 typedef struct O_Title
 {
 	Obj head;
-	MdButton buttons_prev;
+	LyleBtn buttons_prev;
 
 	TitleState state;
 	TitleState state_prev;

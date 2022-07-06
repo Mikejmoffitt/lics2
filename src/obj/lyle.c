@@ -6,6 +6,7 @@
 #include "gfx.h"
 #include "sfx.h"
 #include "music.h"
+#include "input.h"
 
 #include "game.h"
 #include "palscale.h"
@@ -15,9 +16,6 @@
 #include "obj/map.h"
 #include "obj/pause.h"
 
-#define LYLE_BTN_JUMP (BTN_A | BTN_C)
-#define LYLE_BTN_CUBE (BTN_B)
-
 #include "progress.h"
 
 #include "res.h"
@@ -25,8 +23,8 @@
 // Access for Lyle singleton.
 O_Lyle *g_lyle;
 
-static MdButton buttons;
-static MdButton buttons_prev;
+static LyleBtn buttons;
+static LyleBtn buttons_prev;
 
 // Integer constants that are too small to meaningfully scale.
 #define LYLE_ACTION_THROW_TIME 2
@@ -248,19 +246,19 @@ static inline void x_acceleration(O_Lyle *l)
 	}
 
 	// deceleration
-	if (!(buttons & (BTN_RIGHT | BTN_LEFT)))
+	if (!(buttons & (LYLE_BTN_RIGHT | LYLE_BTN_LEFT)))
 	{
 		decelerate_with_ddx(l, kx_accel);
 	}
 
 	// going left and right
-	if (buttons & BTN_RIGHT)
+	if (buttons & LYLE_BTN_RIGHT)
 	{
 		l->head.dx += kx_accel;
 		l->head.direction = OBJ_DIRECTION_RIGHT;
 		walking_sound(l);
 	}
-	else if (buttons & BTN_LEFT)
+	else if (buttons & LYLE_BTN_LEFT)
 	{
 		l->head.dx -= kx_accel;
 		l->head.direction = OBJ_DIRECTION_LEFT;
@@ -269,7 +267,7 @@ static inline void x_acceleration(O_Lyle *l)
 
 	// snap dx to 0 if it is near
 	if (l->head.dx > -kdx_snap &&
-	    l->head.dx < kdx_snap && !(buttons & (BTN_RIGHT | BTN_LEFT)))
+	    l->head.dx < kdx_snap && !(buttons & (LYLE_BTN_RIGHT | LYLE_BTN_LEFT)))
 	{
 		l->head.dx = 0;
 	}
@@ -325,17 +323,17 @@ static inline void toss_cubes(O_Lyle *l)
 		fix16_t c_dx = 0;
 		fix16_t c_dy = 0;
 		// Holding down; short toss
-		if ((buttons & BTN_DOWN) && (l->grounded || l->on_cube))
+		if ((buttons & LYLE_BTN_DOWN) && (l->grounded || l->on_cube))
 		{
 			c_dx = ktoss_cube_dx_short;
 			c_dy = ktoss_cube_dy_short;
 		}
-		else if (buttons & BTN_UP)
+		else if (buttons & LYLE_BTN_UP)
 		{
 			c_dx = 0;
 			c_dy = ktoss_cube_dy_up;
 		}
-		else if (buttons & (BTN_RIGHT | BTN_LEFT))
+		else if (buttons & (LYLE_BTN_RIGHT | LYLE_BTN_LEFT))
 		{
 			c_dx = ktoss_cube_dx_strong;
 			c_dy = ktoss_cube_dy_strong;
@@ -952,7 +950,7 @@ static void calc_anim_frame(O_Lyle *l)
 	}
 	else if (l->grounded || l->on_cube)  // Grounded
 	{
-		if (!(buttons & (BTN_LEFT | BTN_RIGHT))) // standing
+		if (!(buttons & (LYLE_BTN_LEFT | LYLE_BTN_RIGHT))) // standing
 		{
 			l->anim_frame = 0x00;
 		}
@@ -1160,7 +1158,7 @@ static void main_func(Obj *o)
 	if (!l->full_disable)
 	{
 		buttons_prev = buttons;
-		buttons = md_io_pad_read(0);
+		buttons = input_read();
 
 		maybe_die(l);
 

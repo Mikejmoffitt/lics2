@@ -17,6 +17,7 @@
 #include "obj/metagrub.h"
 #include "obj/hud.h"
 #include "sfx.h"
+#include "input.h"
 
 static const fix32_t kfloor_pos = INTTOFIX32(688);
 static const fix32_t kinitial_scroll = INTTOFIX32(360);
@@ -517,8 +518,8 @@ static void maybe_skip_to_menu(O_Title *e)
 	{
 		return;
 	}
-	const MdButton buttons = md_io_pad_read(0);
-	if ((buttons & (BTN_START | BTN_A | BTN_C)) && !(e->buttons_prev & (BTN_A | BTN_C | BTN_START)))
+	const LyleBtn buttons = input_read();
+	if ((buttons & (LYLE_BTN_START | LYLE_BTN_JUMP)) && !(e->buttons_prev & (LYLE_BTN_JUMP | LYLE_BTN_START)))
 	{
 		e->v_scroll_y = kfloor_pos;
 		e->state_elapsed = 0;
@@ -530,7 +531,7 @@ static void main_func(Obj *o)
 {
 	O_Title *e = (O_Title *)o;
 
-	const MdButton buttons = md_io_pad_read(0);
+	const LyleBtn buttons = input_read();
 
 	e->state_prev = e->state;
 	switch (e->state)
@@ -692,7 +693,7 @@ static void main_func(Obj *o)
 				e->menu_flash_cnt = 0;
 			}
 
-			if ((buttons & BTN_LEFT) && !(e->buttons_prev & BTN_LEFT) &&
+			if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT) &&
 				e->menu_choice != 0)
 			{
 				e->menu_choice = 0;
@@ -700,7 +701,7 @@ static void main_func(Obj *o)
 				sfx_play(SFX_BEEP, 1);
 			}
 
-			if ((buttons & BTN_RIGHT) && !(e->buttons_prev & BTN_RIGHT) &&
+			if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT) &&
 				e->menu_choice != 1)
 			{
 				e->menu_choice = 1;
@@ -708,7 +709,7 @@ static void main_func(Obj *o)
 				sfx_play(SFX_BEEP, 1);
 			}
 
-			if ((buttons & (BTN_START | BTN_A | BTN_C)) && !(e->buttons_prev & (BTN_START | BTN_A | BTN_C)))
+			if ((buttons & (LYLE_BTN_START | LYLE_BTN_JUMP)) && !(e->buttons_prev & (LYLE_BTN_START | LYLE_BTN_JUMP)))
 			{
 				if (e->menu_choice == 0)
 				{
