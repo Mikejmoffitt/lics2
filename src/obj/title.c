@@ -673,18 +673,21 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
-				const Gfx *gfx_title = gfx_get(GFX_TITLE_SCR);
-				s_vram_pos = gfx_load(gfx_title, s_vram_pos);
-				const Gfx *gfx_credits = gfx_get(GFX_EX_CREDITS);
-				const Gfx *gfx_title_menu = gfx_get(GFX_EX_TITLE_MENU);
-				s_vram_credits_pos = gfx_load(gfx_credits, s_vram_shared_pos);
-				s_vram_title_menu_pos = gfx_load(gfx_title_menu, s_vram_shared_pos + gfx_credits->size);
 				draw_high_prio_house_tiles();
 				draw_house_door(0);
 				e->menu_choice = 1;  // Continue.
 				music_play(14);  // Alone in the Dark
 				lyle_set_pos(o->x - INTTOFIX32(32), INTTOFIX32(679));
 				wndwback_set_visible(1);
+			}
+			else if (e->state_elapsed == 1)
+			{
+				const Gfx *gfx_title = gfx_get(GFX_TITLE_SCR);
+				s_vram_pos = gfx_load(gfx_title, s_vram_pos);
+				const Gfx *gfx_credits = gfx_get(GFX_EX_CREDITS);
+				const Gfx *gfx_title_menu = gfx_get(GFX_EX_TITLE_MENU);
+				s_vram_credits_pos = gfx_load(gfx_credits, s_vram_shared_pos);
+				s_vram_title_menu_pos = gfx_load(gfx_title_menu, s_vram_shared_pos + gfx_credits->size);
 			}
 
 			e->menu_flash_cnt++;
@@ -721,8 +724,11 @@ static void main_func(Obj *o)
 				sfx_play(SFX_SELECT_1, 0);
 				sfx_play(SFX_SELECT_2, 0);
 			}
-
-			render_title_full(e);
+			
+			if (e->state_elapsed >= 1)
+			{
+				render_title_full(e);
+			}
 
 			break;
 		case TITLE_STATE_BEGIN:
