@@ -510,8 +510,8 @@ static void draw_you_got(PauseScreen screen)
 	{
 		case PAUSE_SCREEN_LYLE_WEAK:
 			draw_char_mapping(base_x, base_y, kmapping_this_is_a_cube, ARRAYSIZE(kmapping_this_is_a_cube));
-			md_spr_put(88, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
-			md_spr_put(216, base_y + 12, VDP_ATTR(s_vram_pos + 0xBC, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// Uses same layout, but does not show "you got".
 			show_you_got = 0;
 			break;
