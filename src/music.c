@@ -10,8 +10,6 @@
 
 static uint8_t s_current_track;
 static uint8_t s_pending_track;
-static uint8_t s_pending_track_delay_frames;
-#define TRACK_DELAY 1
 
 static const void * const instrument_list[] =
 {
@@ -142,11 +140,6 @@ static const uint8_t psg_lock_esf[] =
 
 void music_handle_pending(void)
 {
-	if (s_pending_track_delay_frames > 0)
-	{
-		s_pending_track_delay_frames--;
-		return;
-	}
 	if (s_current_track == s_pending_track) return;
 	
 	s_current_track = s_pending_track;
@@ -172,7 +165,6 @@ void music_handle_pending(void)
 void music_play(uint8_t track)
 {
 	if (track == s_current_track) return;
-	s_pending_track_delay_frames = TRACK_DELAY;
 	echo_stop_bgm();
 	echo_stop_sfx();
 	s_pending_track = track;
