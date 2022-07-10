@@ -57,7 +57,6 @@ static void run_frame(void)
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
 			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
-//			md_vdp_set_reg_bit(0x0C, 0x08);
 			break;
 
 		case GAME_STATE_NEW_ROOM:
@@ -154,6 +153,15 @@ static void run_frame(void)
 			s_room_elapsed++;
 			break;
 	}
+
+#ifdef MDK_TARGET_C2
+// Hack to copy BG palettes into sprite area for C2.
+	for (uint16_t i = 0; i < 64; i++)
+	{
+		g_palette[256 + i] = g_palette[i];
+	}
+	md_pal_mark_dirty(256, 256 + 63);
+#endif
 
 	megadrive_finish();
 	input_poll();

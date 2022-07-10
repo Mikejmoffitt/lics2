@@ -2,22 +2,22 @@
 #include "md/megadrive.h"
 #include "vram_map.h"
 
-int16_t g_system_is_ntsc;
-int16_t g_system_debug_enabled;
+int8_t g_system_is_ntsc;
+int8_t g_system_debug_enabled;
 
 static uint32_t s_rand_value;
 
-int system_init(void)
+void system_init(void)
 {
 	megadrive_init();
+	g_system_is_ntsc = (md_vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
 	md_vdp_set_plane_size(VDP_PLANESIZE_64x64);
 	md_vdp_set_plane_base(VDP_PLANE_A, PLANE_A_NT_VRAM_POSITION);
 	md_vdp_set_plane_base(VDP_PLANE_B, PLANE_B_NT_VRAM_POSITION);
 	md_vdp_set_plane_base(VDP_PLANE_WINDOW, WINDOW_NT_VRAM_POSITION);
 	md_vdp_set_sprite_base(SPRITE_LIST_VRAM_POSITION);
 	md_vdp_set_hscroll_base(HSCROLL_VRAM_POSITION);
-	g_system_is_ntsc = (md_vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
-	md_vdp_set_raster_height(system_is_ntsc() ? 224 : 240);
+	md_vdp_set_vmode(g_system_is_ntsc ? VDP_VMODE_V28 : VDP_VMODE_V30);
 
 	// Some environmental sanity.
 	SYSTEM_ASSERT(sizeof(int32_t) == 4);
@@ -25,16 +25,7 @@ int system_init(void)
 	SYSTEM_ASSERT(sizeof(int8_t) == 1);
 	SYSTEM_ASSERT(sizeof(int32_t) > sizeof(int16_t));
 
-	int32_t a = 70000;
-	int16_t b = 32;
-
-	SYSTEM_ASSERT(a + b == 70032);
-	a += b;
-	SYSTEM_ASSERT(a == 70032);
-
-	system_srand(0x12345678);
-
-	return 1;
+	system_srand(0x68000);
 }
 
 static void rand_step(void)

@@ -11,7 +11,7 @@
 static uint8_t s_current_track;
 static uint8_t s_pending_track;
 static uint8_t s_pending_track_delay_frames;
-#define TRACK_DELAY 5
+#define TRACK_DELAY 1
 
 static const void * const instrument_list[] =
 {
@@ -157,14 +157,16 @@ void music_handle_pending(void)
 		return;
 	}
 
+	// Use an ESF direct event to set the OPM's timer B for the tempo.
+	uint8_t direct_cmd_buffer[4];
+	direct_cmd_buffer[0] = 0xF8;  // FM register bank 0
+	direct_cmd_buffer[1] = 0x26;  // Timer B register
+	direct_cmd_buffer[2] = bgm_list[s_current_track].tempo;
+	direct_cmd_buffer[3] = 0xFF;  // Terminator
+	echo_play_direct(direct_cmd_buffer);
+
 	echo_play_bgm(bgm_list[s_current_track].data);
 	echo_play_sfx(psg_lock_esf);
-
-	MD_SYS_BARRIER();
-	md_sys_z80_bus_req();
-	md_opn_write(0, 0x26, bgm_list[s_current_track].tempo);
-	md_sys_z80_bus_release();
-
 }
 
 void music_play(uint8_t track)

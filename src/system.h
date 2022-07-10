@@ -7,7 +7,7 @@
 #include "res.h"
 #include "gfx.h"
 
-int system_init(void);
+void system_init(void);
 void system_srand(uint32_t seed);
 uint32_t system_rand(void);
 void system_set_debug_enabled(int16_t en);
@@ -17,14 +17,14 @@ void system_print_error(const char *expression,
                         const char *file,
                         const char *line_string);
 
-extern int16_t g_system_is_ntsc;
-static inline int16_t system_is_ntsc(void)
+extern int8_t g_system_is_ntsc;
+static inline int8_t system_is_ntsc(void)
 {
 	return g_system_is_ntsc;
 }
 
-extern int16_t g_system_debug_enabled;
-static inline int16_t system_is_debug_enabled(void)
+extern int8_t g_system_debug_enabled;
+static inline int8_t system_is_debug_enabled(void)
 {
 	return g_system_debug_enabled;
 }
