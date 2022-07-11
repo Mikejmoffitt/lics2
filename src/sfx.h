@@ -60,7 +60,7 @@ typedef struct SfxChannelState
 
 // Initializes playback state, sets up horizontal interrupts for timing, and
 // registers sfx_tick() as an IRQ handling routine.
-int sfx_init(void);
+void sfx_init(void);
 
 void sfx_play(SfxId id, int8_t priority);
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel);

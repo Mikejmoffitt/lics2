@@ -1058,9 +1058,6 @@ static void sfx_tick(void)
 	if (cycle_count >= kcycle_max) cycle_count = 0;
 	else return;
 
-	MD_SYS_BARRIER();
-	md_sys_di();
-	MD_SYS_BARRIER();
 	int8_t i = ARRAYSIZE(channel_state);
 	while (i--)
 	{
@@ -1091,12 +1088,9 @@ static void sfx_tick(void)
 		md_psg_pitch(s->channel, sample->pitch);
 		md_psg_vol(s->channel, sample->vol);
 	}
-	MD_SYS_BARRIER();
-	md_sys_ei();
-	MD_SYS_BARRIER();
 }
 
-int sfx_init(void)
+void sfx_init(void)
 {
 	md_vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
 	md_vdp_set_hint_en(1);
@@ -1113,8 +1107,6 @@ int sfx_init(void)
 	}
 
 	md_irq_register(MD_IRQ_HBLANK, sfx_tick);
-
-	return 1;
 }
 
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel)
