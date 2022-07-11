@@ -539,8 +539,8 @@ static void draw_you_got(PauseScreen screen)
 			                  ARRAYSIZE(kmapping_cube_kick));
 			break;
 		case PAUSE_SCREEN_GET_ORANGE_CUBE:
-			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
-			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x14, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x2C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x2C, 0, 0, pal, 0), SPR_SIZE(2, 2));
 			draw_char_mapping(base_x, base_y, kmapping_big_cube_lift,
 			                  ARRAYSIZE(kmapping_big_cube_lift));
 			break;
