@@ -59,8 +59,13 @@ typedef struct SfxChannelState
 } SfxChannelState;
 
 // Initializes playback state, sets up horizontal interrupts for timing, and
-// registers sfx_tick() as an IRQ handling routine.
+// registers a timer interrupt callback (or, rather, an H-blank IRQ).
 void sfx_init(void);
+
+// Services the sound engine. This should be called whenever idle, and ideally
+// frequently. If it is not called often enough, sound effect pacing may become
+// choppy.
+void sfx_poll(void);
 
 void sfx_play(SfxId id, int8_t priority);
 void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel);

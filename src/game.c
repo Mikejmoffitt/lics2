@@ -56,6 +56,7 @@ static void run_frame(void)
 			s_game_state++;
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
+			md_vdp_register_vblank_wait_callback(sfx_poll);
 			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
 			break;
 

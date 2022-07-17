@@ -574,6 +574,9 @@ static void draw_you_got(PauseScreen screen)
 			draw_char_mapping(base_x, base_y, kmapping_4,
 			                  ARRAYSIZE(kmapping_4));
 			break;
+		case PAUSE_SCREEN_GAME_WIP:
+			show_you_got = 0;
+			break;
 		default:
 			// TODO: HP Orb, CP Orb
 			// CP orb uses Lyle's pal line, while HP uses the BG common one.
@@ -710,6 +713,7 @@ static void plot_get_dialogue_text(PauseScreen screen)
 		[PAUSE_SCREEN_CP_ORB_13] = STR_GET_CP_ORB,
 		[PAUSE_SCREEN_CP_ORB_14] = STR_GET_CP_ORB,
 		[PAUSE_SCREEN_CP_ORB_15] = STR_GET_CP_ORB,
+		[PAUSE_SCREEN_GAME_WIP] = STR_GAME_WIP,
 	};
 
 	const char *str = str_get(string_ids[screen]);
@@ -1691,6 +1695,7 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_GET_PHANTOM_HALF_TIME:
 		case PAUSE_SCREEN_GET_PHANTOM_CHEAP:
 		case PAUSE_SCREEN_LYLE_WEAK:
+		case PAUSE_SCREEN_GAME_WIP:
 			if (first_frame)
 			{
 				screen_reset(e);

@@ -16,6 +16,7 @@
 #include "obj/wndwback.h"
 #include "obj/metagrub.h"
 #include "obj/hud.h"
+#include "obj/pause.h"
 #include "sfx.h"
 #include "input.h"
 
@@ -825,6 +826,7 @@ static void main_func(Obj *o)
 				obj_erase(o);
 				hud_set_visible(1);
 				metagrub_set_enable(1);
+				pause_set_screen(PAUSE_SCREEN_GAME_WIP);
 				return;
 			}
 			render_title_full(e);

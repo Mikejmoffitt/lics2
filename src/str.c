@@ -68,6 +68,20 @@ static const char *strings_en[STR_INVALID] =
 	"@HP RESTORED",
 	[STR_BUTTON_CHECK] =
 	"BUTTON CHECK",
+	[STR_GAME_WIP] =
+	"Ver " __DATE__
+	"\n"
+	"HEY! THIS GAME IS\n"
+	"NOT FINISHED YET.\n"
+	"\n"
+	"BE GENTLE!\n"
+	"THINGS MIGHT BE\n"
+	"MISSING. IT IS OK!\n"
+	"\n"
+	" THE PROGRAMMER\n"
+	"   HAS A NAP!\n"
+	"\n"
+	"-MIKE",
 };
 
 static const char *strings_ja[STR_INVALID] =
@@ -93,7 +107,7 @@ static const char *strings_ja[STR_INVALID] =
 	"うえに　なげます。\n"
 	"@DOWN & B　ボタンを　おすと\n"
 	"ちかくに　なげます。\n"
-	"@まえ　ほうこう & B　ボタンを　おすと\n"
+	"@まえ　ほうこう & B　ボタンをおすと\n"
 	"つよく　なげます。\n"
 	"\n"
 	"@とんでる　キューブが　あぶないですから\n"
@@ -128,6 +142,20 @@ static const char *strings_ja[STR_INVALID] =
 	"@HPは　ほじょうしました。",
 	[STR_BUTTON_CHECK] =
 	"ボタン　チェック",
+	[STR_GAME_WIP] =
+	"Ver " __DATE__
+	"\n"
+	"このゲームは　まだ　ふかんぜん\n"
+	"ですよー。\n"
+	"\n"
+	"プログラマのために　きをつけて\n"
+	"ください。\n"
+	"\n"
+	"どうじに　たのしんでください。\n"
+	"\n"
+	"プログラマさんはねてる\n"
+	"\n"
+	"マイク"
 };
 
 void str_set_locale(Locale locale)
