@@ -53,6 +53,7 @@ static void sfx_tick(void)
 // Disables interrupts during to ensure timer callback does not cause trouble.
 static uint16_t maybe_consume_ticks(void)
 {
+	if (s_ticks < SFX_TICKS_PER_ITERATION) return 0;
 	md_sys_di();
 	uint16_t ret = 0;
 	if (s_ticks >= SFX_TICKS_PER_ITERATION)
@@ -75,6 +76,7 @@ void sfx_poll(void)
 void h_irq_callback(void)
 {
 	s_ticks++;
+	sfx_poll();
 }
 
 void sfx_init(void)
