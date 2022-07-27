@@ -166,6 +166,7 @@ static void run_frame(void)
 
 	megadrive_finish();
 	input_poll();
+
 	md_vdp_set_display_en(want_display_en);
 }
 
