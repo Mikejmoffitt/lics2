@@ -127,7 +127,8 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_small_egg(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_SmallEgg) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_SmallEgg) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "SmallEgg", OBJ_FLAG_TANGIBLE, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);

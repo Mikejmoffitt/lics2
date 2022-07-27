@@ -183,8 +183,9 @@ static void main_func(Obj *o)
 
 void o_load_gaxter2(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Gaxter2) <= sizeof(ObjSlot));
 	O_Gaxter2 *f = (O_Gaxter2 *)o;
+	_Static_assert(sizeof(*f) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	vram_load();
 	set_constants();

@@ -238,7 +238,10 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_elevator(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Elevator) <= sizeof(ObjSlot));
+	O_Elevator *e = (O_Elevator *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 	(void)data;
 	set_constants();
 	vram_load();
@@ -247,7 +250,6 @@ void o_load_elevator(Obj *o, uint16_t data)
 	               INTTOFIX16(-16), INTTOFIX16(16), INTTOFIX16(-56), 127);
 	o->main_func = main_func;
 	o->cube_func = cube_func;
-	O_Elevator *e = (O_Elevator *)o;
 	e->original_y = o->y;
 }
 

@@ -24,7 +24,8 @@ static void main_func(Obj *o)
 void o_load_bgtile(Obj *o, uint16_t data)
 {
 	O_BgTile *e = (O_BgTile *)o;
-	SYSTEM_ASSERT(sizeof(O_BgTile) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "BgTile", 0, INTTOFIX16(-8), INTTOFIX16(8),
 	               INTTOFIX16(-16), 127);

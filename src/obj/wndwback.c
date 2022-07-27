@@ -51,8 +51,9 @@ static void main_func(Obj *o)
 
 void o_load_wndwback(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Wndwback) <= sizeof(ObjSlot));
 	(void)data;
+	_Static_assert(sizeof(O_Wndwback) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	set_constants();
 	vram_load();
 

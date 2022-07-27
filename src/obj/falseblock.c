@@ -100,7 +100,9 @@ static void cube_func(Obj *o, Cube *c)
 void o_load_falseblock(Obj *o, uint16_t data)
 {
 	O_Falseblock *e = (O_Falseblock *)o;
-	SYSTEM_ASSERT(sizeof(O_Falseblock) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 	e->base_tile_id = data;
 
 	obj_basic_init(o, "FalseBlk", OBJ_FLAG_ALWAYS_ACTIVE | OBJ_FLAG_TANGIBLE,

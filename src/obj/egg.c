@@ -91,7 +91,8 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_egg(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Egg) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Egg) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 
 	if (progress_get()->egg_dropped)

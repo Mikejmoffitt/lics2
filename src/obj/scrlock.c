@@ -29,7 +29,8 @@ static void main_func(Obj *o)
 
 void o_load_scrlock(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_ScrLock) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_ScrLock) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 
 	obj_basic_init(o, "ScrlLock", OBJ_FLAG_ALWAYS_ACTIVE,

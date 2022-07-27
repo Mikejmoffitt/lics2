@@ -649,7 +649,8 @@ static void main_func(Obj *o)
 
 void o_load_bg(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Bg) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Bg) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 
 	// Only allow one BG object to be loaded.

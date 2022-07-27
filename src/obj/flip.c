@@ -113,8 +113,9 @@ static void main_func(Obj *o)
 
 void o_load_flip(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Flip) <= sizeof(ObjSlot));
 	O_Flip *f = (O_Flip *)o;
+	_Static_assert(sizeof(*f) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	vram_load();
 	set_constants();

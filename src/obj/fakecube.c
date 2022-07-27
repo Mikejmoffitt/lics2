@@ -93,7 +93,9 @@ static void main_func(Obj *o)
 
 void o_load_fakecube(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_FakeCube) <= sizeof(ObjSlot));
+	O_FakeCube *e = (O_FakeCube *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 
@@ -106,7 +108,6 @@ void o_load_fakecube(Obj *o, uint16_t data)
 	// boss arena is static.
 	const int16_t tile_x = FIX32TOINT(o->x + o->left) / 8;
 	const int16_t tile_y = FIX32TOINT(o->y + o->top) / 8;
-	O_FakeCube *e = (O_FakeCube *)o;
 	e->tile_vram_addr = md_vdp_get_plane_base(VDP_PLANE_A) +
 	                    2 * ((tile_y * GAME_PLANE_W_CELLS) +
 	                    tile_x);

@@ -1894,7 +1894,9 @@ static inline void set_constants(void)
 
 void o_load_pause(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Pause) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*s_pause) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 	if (s_pause)
 	{
 		obj_erase(o);

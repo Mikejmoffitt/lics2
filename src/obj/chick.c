@@ -224,8 +224,9 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_chick(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Chick) <= sizeof(ObjSlot));
 	(void)data;
+	_Static_assert(sizeof(O_Chick) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	if (!progress_get()->egg_dropped)
 	{

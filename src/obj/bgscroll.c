@@ -21,8 +21,9 @@ static void main_func(Obj *o)
 
 void o_load_bgscroll(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_BgScroll) <= sizeof(ObjSlot));
 	O_BgScroll *e = (O_BgScroll *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	e->scroll_y = data;
 

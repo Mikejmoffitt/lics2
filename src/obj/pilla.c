@@ -128,8 +128,9 @@ static void main_func(Obj *o)
 
 void o_load_pilla(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Pilla) <= sizeof(ObjSlot));
 	O_Pilla *f = (O_Pilla *)o;
+	_Static_assert(sizeof(*f) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	set_constants();
 	vram_load();
 

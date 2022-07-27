@@ -176,7 +176,9 @@ static void main_func(Obj *o)
 
 void o_load_magibear(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Magibear) <= sizeof(ObjSlot));
+	O_Magibear *m = (O_Magibear *)o;
+	_Static_assert(sizeof(*m) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -185,7 +187,6 @@ void o_load_magibear(Obj *o, uint16_t data)
 	               INTTOFIX16(-16), INTTOFIX16(16), INTTOFIX16(-27), 3);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-	O_Magibear *m = (O_Magibear *)o;
 	m->shot_cnt = kshot_delay;
 }
 

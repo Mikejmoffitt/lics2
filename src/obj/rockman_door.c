@@ -109,8 +109,10 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_rockman_door(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_RockmanDoor) <= sizeof(ObjSlot));
 	(void)data;
+	O_RockmanDoor *e = (O_RockmanDoor *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	set_constants();
 	vram_load();
 
@@ -122,7 +124,6 @@ void o_load_rockman_door(Obj *o, uint16_t data)
 	o->cube_func = cube_func;
 	o->direction = (data & 0x0001) ? OBJ_DIRECTION_LEFT : OBJ_DIRECTION_RIGHT;
 
-	O_RockmanDoor *e = (O_RockmanDoor *)o;
 	e->tile = data >> 8;
 }
 

@@ -260,7 +260,9 @@ static void main_func(Obj *o)
 
 void o_load_cow(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Cow) <= sizeof(ObjSlot));
+	O_Cow *e = (O_Cow *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	set_constants();
 	vram_load();
 
@@ -272,7 +274,6 @@ void o_load_cow(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = cube_func;
 
-	O_Cow *e = (O_Cow *)o;
 	e->max_y = o->y;
 	e->orb_id = data;
 }

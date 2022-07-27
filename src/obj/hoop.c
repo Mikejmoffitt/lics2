@@ -59,7 +59,8 @@ static void main_func(Obj *o)
 
 void o_load_hoop(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Hoop) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Hoop) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	vram_load();
 	set_constants();

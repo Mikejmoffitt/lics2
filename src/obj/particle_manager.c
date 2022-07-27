@@ -12,7 +12,8 @@
 
 #include "obj/map.h"
 
-static O_ParticleManager *particle_manager;
+static O_ParticleManager *s_particle_manager;
+static Particle s_particles[16];
 
 static uint16_t s_vram_pos;
 
@@ -23,8 +24,6 @@ static int16_t ksand_life;
 static int16_t kanim_speed;
 static int16_t kanim_speed_explosion;
 static int16_t kanim_speed_sand;
-
-static Particle particles[16];
 
 static void set_constants(void)
 {
@@ -160,12 +159,12 @@ delete_particle:
 static void main_func(Obj *o)
 {
 	(void)o;
-	uint16_t i = ARRAYSIZE(particles);
+	uint16_t i = ARRAYSIZE(s_particles);
 	const int16_t map_x = map_get_x_scroll();
 	const int16_t map_y = map_get_y_scroll();
 	while (i--)
 	{
-		Particle *p = &particles[i];
+		Particle *p = &s_particles[i];
 		if (p->type == PARTICLE_TYPE_NULL) continue;
 		particle_run(p, map_x, map_y);
 	}
@@ -174,15 +173,15 @@ static void main_func(Obj *o)
 void o_load_particle_manager(Obj *o, uint16_t data)
 {
 	(void)data;
-	SYSTEM_ASSERT(sizeof(O_ParticleManager) <= sizeof(ObjSlot));
+	SYSTEM_ASSERT(sizeof(*s_particle_manager) <= sizeof(ObjSlot));
 
-	if (particle_manager || s_vram_pos)
+	if (s_particle_manager || s_vram_pos)
 	{
 		obj_erase(o);
 		return;
 	}
 
-	particle_manager = (O_ParticleManager *)o;
+	s_particle_manager = (O_ParticleManager *)o;
 
 	set_constants();
 	vram_load();
@@ -196,16 +195,16 @@ void o_load_particle_manager(Obj *o, uint16_t data)
 void o_unload_particle_manager(void)
 {
 	s_vram_pos = 0;
-	particle_manager = 0;
+	s_particle_manager = 0;
 }
 
 void particle_manager_clear(void)
 {
-	if (!particle_manager) return;
-	uint16_t i = ARRAYSIZE(particles);
+	if (!s_particle_manager) return;
+	uint16_t i = ARRAYSIZE(s_particles);
 	while (i--)
 	{
-		particles[i].type = PARTICLE_TYPE_NULL;
+		s_particles[i].type = PARTICLE_TYPE_NULL;
 	}
 }
 
@@ -223,15 +222,15 @@ Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 	};
 
 	Particle *ret = NULL;
-	if (!particle_manager) return NULL;
+	if (!s_particle_manager) return NULL;
 	if (type == PARTICLE_TYPE_NULL) return NULL;
-	uint16_t i = ARRAYSIZE(particles);
-	uint16_t seek_idx = particle_manager->spawn_start_index;
+	uint16_t i = ARRAYSIZE(s_particles);
+	uint16_t seek_idx = s_particle_manager->spawn_start_index;
 	while (i--)
 	{
-		Particle *p = &particles[seek_idx];
+		Particle *p = &s_particles[seek_idx];
 		seek_idx++;
-		if (seek_idx >= ARRAYSIZE(particles)) seek_idx = 0;
+		if (seek_idx >= ARRAYSIZE(s_particles)) seek_idx = 0;
 		if (p->type != PARTICLE_TYPE_NULL) continue;
 
 		p->type = type;
@@ -286,6 +285,6 @@ Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 		ret = p;
 		break;
 	}
-	particle_manager->spawn_start_index = seek_idx;
+	s_particle_manager->spawn_start_index = seek_idx;
 	return ret;
 }

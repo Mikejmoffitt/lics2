@@ -274,7 +274,8 @@ static void initial_main_func(Obj *o)
 void o_load_lava(Obj *o, uint16_t data)
 {
 	O_Lava *e = (O_Lava *)o;
-	SYSTEM_ASSERT(sizeof(O_Lava) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();

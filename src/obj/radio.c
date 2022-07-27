@@ -95,8 +95,10 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_radio(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Radio) <= sizeof(ObjSlot));
 	(void)data;
+	O_Radio *e = (O_Radio *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "Radio", OBJ_FLAG_TANGIBLE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 2);
@@ -123,7 +125,6 @@ void o_load_radio(Obj *o, uint16_t data)
 		}
 	}
 
-	O_Radio *e = (O_Radio *)o;
 	e->storage = data;
 
 	vram_load();

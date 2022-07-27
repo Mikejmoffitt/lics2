@@ -293,6 +293,8 @@ void o_load_boingo(Obj *o, uint16_t data)
 {
 	SYSTEM_ASSERT(sizeof(O_Boingo) <= sizeof(ObjSlot));
 	O_Boingo *b = (O_Boingo *)o;
+	_Static_assert(sizeof(*b) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	vram_load();
 	set_constants();
 

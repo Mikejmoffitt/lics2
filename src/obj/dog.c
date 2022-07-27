@@ -181,7 +181,8 @@ static void main_func(Obj *o)
 
 void o_load_dog(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Dog) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Dog) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 
 	if (progress_get()->cp_orbs & (1 << 6))

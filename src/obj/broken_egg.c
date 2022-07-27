@@ -36,7 +36,9 @@ static void main_func(Obj *o)
 
 void o_load_broken_egg(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_BrokenEgg) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_BrokenEgg) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 
 	if (!progress_get()->egg_dropped)
 	{

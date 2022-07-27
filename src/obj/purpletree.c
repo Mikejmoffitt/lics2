@@ -45,8 +45,9 @@ static void main_func(Obj *o)
 
 void o_load_purpletree(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_PurpleTree) <= sizeof(ObjSlot));
 	O_PurpleTree *e = (O_PurpleTree *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	e->tile = data;
 	vram_load();
 

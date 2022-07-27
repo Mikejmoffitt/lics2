@@ -187,7 +187,9 @@ static void main_func(Obj *o)
 
 void o_load_hedgedog(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Hedgedog) <= sizeof(ObjSlot));
+	O_Hedgedog *e = (O_Hedgedog *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -199,7 +201,6 @@ void o_load_hedgedog(Obj *o, uint16_t data)
 
 	o->direction = OBJ_DIRECTION_LEFT;
 
-	O_Hedgedog *e = (O_Hedgedog *)o;
 	e->original_y = o->y;
 }
 

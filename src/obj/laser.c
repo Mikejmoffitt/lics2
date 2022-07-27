@@ -143,7 +143,9 @@ static void main_func(Obj *o)
 
 void o_load_laser(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Laser) <= sizeof(ObjSlot));
+	O_Laser *e = (O_Laser *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -153,7 +155,6 @@ void o_load_laser(Obj *o, uint16_t data)
 	const int16_t x_center = FIX32TOINT(o->x);
 
 	// Search to see how tall this laser is.
-	O_Laser *e = (O_Laser *)o;
 	for (int16_t i = 0; i < 16; i++)
 	{
 		e->height++;

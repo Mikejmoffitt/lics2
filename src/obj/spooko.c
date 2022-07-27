@@ -53,8 +53,10 @@ static void main_func(Obj *o)
 
 void o_load_spooko(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Spooko) <= sizeof(ObjSlot));
 	(void)data;
+	O_Spooko *e = (O_Spooko *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	set_constants();
 	vram_load();
 
@@ -63,7 +65,6 @@ void o_load_spooko(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_Spooko *e = (O_Spooko *)o;
 
 	e->data = data;
 }

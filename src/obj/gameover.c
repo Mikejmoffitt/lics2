@@ -284,7 +284,9 @@ static void main_func(Obj *o)
 
 void o_load_gameover(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_GameOver) <= sizeof(ObjSlot));
+	O_GameOver *e = (O_GameOver *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -294,7 +296,6 @@ void o_load_gameover(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_GameOver *e = (O_GameOver *)o;
 	e->max_y = o->y;
 	e->lyle_y = INTTOFIX32(-28);
 	o->y = INTTOFIX32(-48);

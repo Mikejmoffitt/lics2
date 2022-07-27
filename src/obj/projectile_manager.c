@@ -297,7 +297,8 @@ static void main_func(Obj *o)
 void o_load_projectile_manager(Obj *o, uint16_t data)
 {
 	(void)data;
-	SYSTEM_ASSERT(sizeof(O_ProjectileManager) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_ProjectileManager) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	if (s_projectile_manager || s_vram_pos)
 	{

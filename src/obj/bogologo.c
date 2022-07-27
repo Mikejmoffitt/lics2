@@ -99,7 +99,8 @@ static void main_func(Obj *o)
 
 void o_load_bogologo(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Bogologo) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Bogologo) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 

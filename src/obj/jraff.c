@@ -132,7 +132,8 @@ static void main_func(Obj *o)
 
 void o_load_jraff(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Jraff) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Jraff) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();

@@ -21,14 +21,15 @@ static void main_func(Obj *o)
 
 void o_load_entrance(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Entrance) <= sizeof(ObjSlot));
+	O_Entrance *e = (O_Entrance *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "Entrance", OBJ_FLAG_SENSITIVE, INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-31), 127);
 
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_Entrance *e = (O_Entrance *)o;
 	e->entrance_num = data & 0x000F;
 	e->to_room_id = (data & 0xFF00) >> 8;
 	e->to_entrance_num = (data & 0x00F0) >> 4;

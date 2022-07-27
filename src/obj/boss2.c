@@ -193,7 +193,6 @@ static void bricks_init(O_Boss2 *e, int16_t phase)
 	switch (phase)
 	{
 		default:
-			SYSTEM_ASSERT(!"Unhandled brick phase");
 			e->brick_list = brick_mapping_1;
 			e->brick_list_size = 0;
 			break;
@@ -1027,7 +1026,9 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_boss2(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Boss2) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Boss2) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 	(void)data;
 
 	const ProgressSlot *prog = progress_get();

@@ -19,12 +19,6 @@ void system_init(void)
 	md_vdp_set_hscroll_base(HSCROLL_VRAM_POSITION);
 	md_vdp_set_vmode(g_system_is_ntsc ? VDP_VMODE_V28 : VDP_VMODE_V30);
 
-	// Some environmental sanity.
-	SYSTEM_ASSERT(sizeof(int32_t) == 4);
-	SYSTEM_ASSERT(sizeof(int16_t) == 2);
-	SYSTEM_ASSERT(sizeof(int8_t) == 1);
-	SYSTEM_ASSERT(sizeof(int32_t) > sizeof(int16_t));
-
 	system_srand(0x68000);
 }
 
@@ -77,8 +71,8 @@ void system_print_error(const char *expression,
                         const char *line_string)
 {
 	text_init(res_font_bin, sizeof(res_font_bin), 0x8000, 0, 3);
-	text_puts(VDP_PLANE_WINDOW, 0, 0, "ASSERT FAILED!   ");
-	text_puts(VDP_PLANE_WINDOW, 0, 1, "--------------   ");
+	text_puts(VDP_PLANE_WINDOW, 0, 0, "RUNTIME ASSERT FAILED!");
+	text_puts(VDP_PLANE_WINDOW, 0, 1, "----------------------");
 	text_puts(VDP_PLANE_WINDOW, 0, 3, expression);
 	text_puts(VDP_PLANE_WINDOW, 0, 5, file);
 	text_puts(VDP_PLANE_WINDOW, 0, 6, line_string);

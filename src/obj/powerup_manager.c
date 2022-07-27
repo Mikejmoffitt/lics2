@@ -333,7 +333,8 @@ static void main_func(Obj *o)
 void o_load_powerup_manager(Obj *o, uint16_t data)
 {
 	(void)data;
-	SYSTEM_ASSERT(sizeof(O_PowerupManager) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*s_powerup_manager) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	if (s_powerup_manager || s_vram_pos)
 	{

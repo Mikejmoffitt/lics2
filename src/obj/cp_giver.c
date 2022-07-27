@@ -320,7 +320,9 @@ static void main_func(Obj *o)
 
 void o_load_cp_giver(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_CpGiver) <= sizeof(ObjSlot));
+	O_CpGiver *e = (O_CpGiver *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -330,7 +332,6 @@ void o_load_cp_giver(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_CpGiver *e = (O_CpGiver *)o;
 	e->orb_y = INTTOFIX32(-1024);
 	e->powerup_y = INTTOFIX32(-1024);
 }

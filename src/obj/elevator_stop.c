@@ -11,10 +11,10 @@ static void main_func(Obj *o)
 
 void o_load_elevator_stop(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_ElevatorStop) <= sizeof(ObjSlot));
 	(void)data;
-
 	O_ElevatorStop *e = (O_ElevatorStop *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "EleStop", 0,
 	               INTTOFIX16(-16), INTTOFIX16(16), INTTOFIX16(-8), 127);

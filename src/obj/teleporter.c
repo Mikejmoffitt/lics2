@@ -172,8 +172,9 @@ static void main_func(Obj *o)
 
 void o_load_teleporter(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Teleporter) <= sizeof(ObjSlot));
 	O_Teleporter *t = (O_Teleporter *)o;
+	_Static_assert(sizeof(*t) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	vram_load();
 	set_constants();

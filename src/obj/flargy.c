@@ -153,7 +153,9 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_flargy(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Flargy) <= sizeof(ObjSlot));
+	O_Flargy *e = (O_Flargy *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -164,7 +166,6 @@ void o_load_flargy(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = cube_func;
 
-	O_Flargy *e = (O_Flargy *)o;
 	e->min_x = o->x - INTTOFIX32(19);
 	e->max_x = o->x;
 }

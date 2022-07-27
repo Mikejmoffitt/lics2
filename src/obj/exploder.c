@@ -58,12 +58,13 @@ static void main_func(Obj *o)
 
 void o_load_exploder(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Exploder) <= sizeof(ObjSlot));
+	O_Exploder *f = (O_Exploder *)o;
+	_Static_assert(sizeof(*f) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "Exploder", 0, 0, 0, 0, 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
-	O_Exploder *f = (O_Exploder *)o;
 	f->count = data;
 }

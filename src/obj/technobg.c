@@ -11,7 +11,7 @@
 
 // Offsets into the source tile data have been precalculated to avoid an
 // expensive 32-bit multiply on the poor 68000.
-static const int source_data_offset_tbl[] =
+static const int kscr_data_offset_table[] =
 {
 	8 * 6 * 32 * 0,
 	8 * 6 * 32 * 1,
@@ -89,7 +89,7 @@ static void hori_func(Obj *o)
 	e->last_index = x_index;
 
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x08;
-	const uint8_t *source = e->source + source_data_offset_tbl[x_index];
+	const uint8_t *source = e->source + kscr_data_offset_table[x_index];
 	const int16_t data_size = (8 * 32);
 	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
@@ -115,7 +115,7 @@ static void vert_func(Obj *o)
 	e->last_index = y_index;
 
 	uint16_t dest_vram = MAP_TILE_VRAM_POSITION + 0x0A;
-	const uint8_t *source = e->source + source_data_offset_tbl[y_index];
+	const uint8_t *source = e->source + kscr_data_offset_table[y_index];
 	const int16_t data_size = (6 * 32);
 	md_dma_transfer_vram(dest_vram * 32, source, data_size / 2, 2);
 	dest_vram += 0x10;
@@ -143,13 +143,14 @@ static void vert_func(Obj *o)
 
 void o_load_technobg(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_TechnoBg) <= sizeof(ObjSlot));
+	O_TechnoBg *e = (O_TechnoBg *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	obj_basic_init(o, "TechnoBg", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 127);
 	o->main_func = data ? vert_func : hori_func;
 	o->cube_func = NULL;
 
-	O_TechnoBg *e = (O_TechnoBg *)o;
 	e->source = data ? gfx_get(GFX_EX_TECHNOBGV)->data : gfx_get(GFX_EX_TECHNOBGH)->data;
 }

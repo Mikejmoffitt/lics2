@@ -51,7 +51,8 @@ static void main_func(Obj *o)
 void o_load_cube_manager(Obj *o, uint16_t data)
 {
 	(void)data;
-	SYSTEM_ASSERT(sizeof(O_CubeManager) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_CubeManager) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	// If VRAM is already loaded, then a cube manager already is present.
 	if (s_vram_pos)

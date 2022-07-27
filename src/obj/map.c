@@ -12,13 +12,13 @@
 
 #include "res.h"
 
-const uint16_t *g_map_data;  // Cast from map->current_map->map_data
-uint16_t g_map_row_size;  // Set to 40 * map->current_map->w
+const uint16_t *g_map_data;  // Cast from s_map->current_map->map_data
+uint16_t g_map_row_size;  // Set to 40 * s_map->current_map->w
 
 int16_t g_map_x_scroll;
 int16_t g_map_y_scroll;
 
-static O_Map *map;
+static O_Map *s_map;
 static uint16_t s_horizontal_dma_buffer[64];
 static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
 static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
@@ -166,7 +166,7 @@ static inline int16_t draw_vertical(O_Map *m)
 	uint16_t dma_dest[2] = {0};
 	uint16_t dma_len[2] = {0};
 
-	dma_src[0] = &map->current_map->map_data[map_src_x + map_src_y];
+	dma_src[0] = &s_map->current_map->map_data[map_src_x + map_src_y];
 	dma_dest[0] = md_vdp_get_plane_base(VDP_PLANE_A) +
 	              (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 
@@ -219,8 +219,8 @@ static inline int16_t draw_vertical(O_Map *m)
 			dma_dest[1] -= v_seam_vram_offset;
 		}
 	}
-	while ((uint8_t *)dma_src[0] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[0] -= map->current_map_size;
-	while ((uint8_t *)dma_src[1] >= (uint8_t *)(map->current_map) + map->current_map_size) dma_src[1] -= map->current_map_size;
+	while ((uint8_t *)dma_src[0] >= (uint8_t *)(s_map->current_map) + s_map->current_map_size) dma_src[0] -= s_map->current_map_size;
+	while ((uint8_t *)dma_src[1] >= (uint8_t *)(s_map->current_map) + s_map->current_map_size) dma_src[1] -= s_map->current_map_size;
 
 	md_dma_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) md_dma_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
@@ -264,7 +264,7 @@ static inline int16_t draw_horizontal(O_Map *m)
 	                    (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 
 	// Dsource
-	const uint16_t *dma_src = &map->current_map->map_data[map_src_x +
+	const uint16_t *dma_src = &s_map->current_map->map_data[map_src_x +
 	                                                      map_src_y];
 
 	if (right_side)
@@ -291,9 +291,9 @@ static inline int16_t draw_horizontal(O_Map *m)
 
 	for (uint16_t i = 0; i < row_count; i++)
 	{
-		while ((uint8_t *)(dma_src) >= (uint8_t *)(map->current_map) + map->current_map_size)
+		while ((uint8_t *)(dma_src) >= (uint8_t *)(s_map->current_map) + s_map->current_map_size)
 		{
-			dma_src -= map->current_map_size;
+			dma_src -= s_map->current_map_size;
 		}
 		s_horizontal_dma_buffer[i] = *dma_src;
 		dma_src += g_map_row_size;
@@ -341,7 +341,7 @@ static inline void draw_full(void)
 	uint16_t dma_dest[2] = {0};
 	uint16_t dma_len[2] = {0};
 
-	dma_src[0] = &map->current_map->map_data[map_src_x + map_src_y];
+	dma_src[0] = &s_map->current_map->map_data[map_src_x + map_src_y];
 	dma_dest[0] = md_vdp_get_plane_base(VDP_PLANE_A) +
 	             (2 * (x_scroll_tile + (GAME_PLANE_W_CELLS * y_scroll_tile)));
 	dma_len[0] = 0;
@@ -371,9 +371,9 @@ static inline void draw_full(void)
 		for (uint16_t i = 0; i < ARRAYSIZE(dma_src); i++)
 		{
 			if (dma_len[i] == 0) continue;
-			if ((uint8_t *)(dma_src[i]) >= (uint8_t *)(map->current_map) + map->current_map_size)
+			if ((uint8_t *)(dma_src[i]) >= (uint8_t *)(s_map->current_map) + s_map->current_map_size)
 			{
-				dma_src[i] -= map->current_map_size;
+				dma_src[i] -= s_map->current_map_size;
 			}
 			md_dma_transfer_vram(dma_dest[i], dma_src[i], dma_len[i], 2);
 			dma_src[i] += g_map_row_size;
@@ -448,10 +448,11 @@ static void main_func(Obj *o)
 
 void o_load_map(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Map) <= sizeof(ObjSlot));
+	s_map = (O_Map *)o;
+	_Static_assert(sizeof(*s_map) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 
-	map = (O_Map *)o;
 	g_map_data = NULL;
 
 	obj_basic_init(o, "Map", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
@@ -469,18 +470,18 @@ void o_load_map(Obj *o, uint16_t data)
 // * Queues DMA for the tileset
 void map_load(uint8_t id, uint8_t entrance_num)
 {
-	SYSTEM_ASSERT(map != NULL);
-	map->current_map = map_by_id[id].data;
-	map->current_map_size = map_by_id[id].size;
-	g_map_data = map->current_map->map_data;
-	g_map_row_size = map->current_map->w * GAME_SCREEN_W_CELLS;
-	map->right_px = map->current_map->w * GAME_SCREEN_W_PIXELS;
-	map->bottom_px = map->current_map->h * GAME_SCREEN_H_PIXELS;
-	map->right = INTTOFIX32(map->right_px);
-	map->bottom = INTTOFIX32(map->bottom_px);
-	SYSTEM_ASSERT(map->right >= INTTOFIX32(320));
-	SYSTEM_ASSERT(map->bottom >= INTTOFIX32(240));
-	map->fresh_room = 1;
+	SYSTEM_ASSERT(s_map != NULL);
+	s_map->current_map = map_by_id[id].data;
+	s_map->current_map_size = map_by_id[id].size;
+	g_map_data = s_map->current_map->map_data;
+	g_map_row_size = s_map->current_map->w * GAME_SCREEN_W_CELLS;
+	s_map->right_px = s_map->current_map->w * GAME_SCREEN_W_PIXELS;
+	s_map->bottom_px = s_map->current_map->h * GAME_SCREEN_H_PIXELS;
+	s_map->right = INTTOFIX32(s_map->right_px);
+	s_map->bottom = INTTOFIX32(s_map->bottom_px);
+	SYSTEM_ASSERT(s_map->right >= INTTOFIX32(320));
+	SYSTEM_ASSERT(s_map->bottom >= INTTOFIX32(240));
+	s_map->fresh_room = 1;
 
 	g_map_x_scroll = 0;
 	g_map_y_scroll = 0;
@@ -488,18 +489,18 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	map_upload_tiles();
 	map_upload_palette();
 	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
-	           sizeof(res_pal_enemy_bin) / 2);
+	              sizeof(res_pal_enemy_bin) / 2);
 
 	// Set scroll mode based on room geometry.
-	if (map->current_map->w <= 1) md_vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
+	if (s_map->current_map->w <= 1) md_vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
 	else md_vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
 	md_vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
 
 	// Build the object list.
 	uint16_t found_entrance = 0;
-	for (uint8_t i = 0; i < ARRAYSIZE(map->current_map->objects); i++)
+	for (uint8_t i = 0; i < ARRAYSIZE(s_map->current_map->objects); i++)
 	{
-		const MapObj *b = &map->current_map->objects[i];
+		const MapObj *b = &s_map->current_map->objects[i];
 		const Obj *o = obj_spawn(b->x, b->y, (ObjType)b->type, b->data);
 		if (!o) continue;
 
@@ -518,34 +519,34 @@ void map_load(uint8_t id, uint8_t entrance_num)
 
 void map_redraw_room(void)
 {
-	map->fresh_room = 1;
+	s_map->fresh_room = 1;
 }
 
 fix32_t map_get_right(void)
 {
-	return map->right;
+	return s_map->right;
 }
 
 fix32_t map_get_bottom(void)
 {
-	return map->bottom;
+	return s_map->bottom;
 }
 
 int16_t map_get_right_px(void)
 {
-	return map->right_px;
+	return s_map->right_px;
 }
 
 int16_t map_get_bottom_px(void)
 {
-	return map->bottom_px;
+	return s_map->bottom_px;
 }
 
 void map_set_x_scroll(int16_t x)
 {
-	if (map->current_map->w <= 1) x = 0;
+	if (s_map->current_map->w <= 1) x = 0;
 	if (x < 0) x = 0;
-	const int16_t right_bound = (map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
+	const int16_t right_bound = (s_map->current_map->w - 1) * GAME_SCREEN_W_PIXELS;
 	if (x > right_bound) x = right_bound;
 	g_map_x_scroll = x;
 }
@@ -553,7 +554,9 @@ void map_set_x_scroll(int16_t x)
 void map_set_y_scroll(int16_t y)
 {
 	const int16_t top_bound = 0;
-	const int16_t bottom_bound = ((map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) + (system_is_ntsc() ? 16 : 0);
+	const int16_t bottom_bound =
+	    ((s_map->current_map->h - 1) * GAME_SCREEN_H_PIXELS) +
+	    (system_is_ntsc() ? 16 : 0);
 	if (y < top_bound) y = top_bound;
 	if (y > bottom_bound) y = bottom_bound;
 	g_map_y_scroll = y;
@@ -561,65 +564,65 @@ void map_set_y_scroll(int16_t y)
 
 void map_set_next_room(uint8_t id, uint8_t entrance)
 {
-	map->next_room_id = id;
-	map->next_room_entrance = entrance;
+	s_map->next_room_id = id;
+	s_map->next_room_entrance = entrance;
 }
 
 uint8_t map_get_next_room_id(void)
 {
-	return map->next_room_id;
+	return s_map->next_room_id;
 }
 
 uint8_t map_get_next_room_entrance(void)
 {
-	return map->next_room_entrance;
+	return s_map->next_room_entrance;
 }
 
 uint8_t map_get_music_track(void)
 {
-	if (!map) return 0;
-	if (!map->current_map) return 0;
-	return map->current_map->music;
+	if (!s_map) return 0;
+	if (!s_map->current_map) return 0;
+	return s_map->current_map->music;
 }
 
 uint8_t map_get_background(void)
 {
-	if (!map) return 0;
-	if (!map->current_map) return 0;
-	return map->current_map->background;
+	if (!s_map) return 0;
+	if (!s_map->current_map) return 0;
+	return s_map->current_map->background;
 }
 
 void map_set_exit_trigger(MapExitTrigger t)
 {
-	if (!map) return;
-	map->exit_trigger = t;
+	if (!s_map) return;
+	s_map->exit_trigger = t;
 }
 
 MapExitTrigger map_get_exit_trigger(void)
 {
-	if (!map) return MAP_EXIT_NONE;
-	return map->exit_trigger;
+	if (!s_map) return MAP_EXIT_NONE;
+	return s_map->exit_trigger;
 }
 
 int16_t map_get_world_x_tile(void)
 {
-	if (!map) return 0;
-	return map->current_map->map_x;
+	if (!s_map) return 0;
+	return s_map->current_map->map_x;
 }
 
 int16_t map_get_world_y_tile(void)
 {
-	if (!map) return 0;
-	return map->current_map->map_y;
+	if (!s_map) return 0;
+	return s_map->current_map->map_y;
 }
 
 void map_upload_tiles(void)
 {
-	if (!map) return;
-	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
-	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
+	if (!s_map) return;
+	SYSTEM_ASSERT(s_map->current_map->tileset < ARRAYSIZE(tileset_by_id));
+	if (s_map->current_map->tileset < ARRAYSIZE(tileset_by_id))
 	{
-		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
+		const TilesetAssets *tsa = &tileset_by_id[s_map->current_map->tileset];
 		SYSTEM_ASSERT(tsa->tile_data_size <= MAP_TILE_VRAM_LENGTH);
 		md_dma_transfer_vram(MAP_TILE_VRAM_POSITION, tsa->tile_data, tsa->tile_data_size / 2, 2);
 	}
@@ -627,11 +630,11 @@ void map_upload_tiles(void)
 
 void map_upload_palette(void)
 {
-	if (!map) return;
-	SYSTEM_ASSERT(map->current_map->tileset < ARRAYSIZE(tileset_by_id));
-	if (map->current_map->tileset < ARRAYSIZE(tileset_by_id))
+	if (!s_map) return;
+	SYSTEM_ASSERT(s_map->current_map->tileset < ARRAYSIZE(tileset_by_id));
+	if (s_map->current_map->tileset < ARRAYSIZE(tileset_by_id))
 	{
-		const TilesetAssets *tsa = &tileset_by_id[map->current_map->tileset];
+		const TilesetAssets *tsa = &tileset_by_id[s_map->current_map->tileset];
 		md_pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
 	}
 }

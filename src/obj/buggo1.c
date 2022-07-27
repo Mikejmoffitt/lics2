@@ -163,8 +163,10 @@ static void main_func(Obj *o)
 
 void o_load_buggo1(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Buggo1) <= sizeof(ObjSlot));
 	O_Buggo1 *f = (O_Buggo1 *)o;
+	_Static_assert(sizeof(*f) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
+
 	(void)data;
 	vram_load();
 	set_constants();

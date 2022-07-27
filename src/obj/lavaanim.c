@@ -56,7 +56,9 @@ static void main_func(Obj *o)
 
 void o_load_lavaanim(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_LavaAnim) <= sizeof(ObjSlot));
+	O_LavaAnim *e = (O_LavaAnim *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	
 	set_constants();
 
@@ -96,7 +98,6 @@ void o_load_lavaanim(Obj *o, uint16_t data)
 		},
 	};
 
-	O_LavaAnim *e = (O_LavaAnim *)o;
 	SYSTEM_ASSERT(data < ARRAYSIZE(anim_infos));
 	e->info = anim_infos[data];
 

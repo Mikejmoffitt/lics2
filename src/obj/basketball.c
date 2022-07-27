@@ -216,7 +216,8 @@ static void main_func(Obj *o)
 
 void o_load_basketball(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Basketball) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(*o) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();

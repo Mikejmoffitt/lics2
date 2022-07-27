@@ -44,7 +44,6 @@ static inline void set_constants(void)
 
 	kidle_duration = (PALSCALE_DURATION(120));
 	kcharge_duration = (PALSCALE_DURATION(36));
-	SYSTEM_ASSERT(kidle_duration > 0);
 
 	// TODO: This number was just made up. Measure the original game.
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
@@ -177,7 +176,8 @@ static void main_func(Obj *o)
 
 void o_load_plant(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Plant) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Plant) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();

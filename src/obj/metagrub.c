@@ -122,6 +122,7 @@ static void metagrub_main(Obj *o)
 void o_load_metagrub(Obj *o, uint16_t data)
 {
 	(void)data;
+	SYSTEM_ASSERT(sizeof(O_Metagrub) <= sizeof(ObjSlot));
 	vram_load();
 
 	obj_basic_init(o, "MetaGrub", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,

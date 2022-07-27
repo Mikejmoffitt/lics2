@@ -11,8 +11,8 @@
 // out.
 #define PROGRESS_SRAM_POS 0x0002
 
-#define PROGRESS_MAGIC_0 0x00068000
-#define PROGRESS_MAGIC_1 0x8008135
+#define PROGRESS_MAGIC_0 0x68000
+#define PROGRESS_MAGIC_1 68000
 
 static ProgressSlot s_progress_slots[1];
 
@@ -22,10 +22,11 @@ static uint16_t s_sram_is_working;
 
 static void reset_slot(int8_t slot)
 {
-	SYSTEM_ASSERT(sizeof(s_progress_slots[0]) % sizeof(uint16_t) == 0);
+	_Static_assert(sizeof(s_progress_slots[0]) % sizeof(uint16_t) == 0,
+	               "Progress slot size % sizeof(uint32_t) != 0");
 
-	volatile uint16_t *raw_mem_uint32 = (volatile uint16_t *)&s_progress_slots[slot];
-	for (uint16_t j = 0; j < sizeof(s_progress_slots[0]) / sizeof(uint16_t); j++)
+	volatile uint32_t *raw_mem_uint32 = (volatile uint32_t *)&s_progress_slots[slot];
+	for (uint16_t j = 0; j < sizeof(s_progress_slots[0]) / sizeof(*raw_mem_uint32); j++)
 	{
 		raw_mem_uint32[j] = 0;
 	}
@@ -101,12 +102,10 @@ void progress_save(void)
 
 void progress_erase(void)
 {
-	SYSTEM_ASSERT(s_current_slot <= ARRAYSIZE(s_progress_slots));
 	reset_slot(s_current_slot);
 }
 
 ProgressSlot *progress_get(void)
 {
-	SYSTEM_ASSERT(s_current_slot <= ARRAYSIZE(s_progress_slots));
 	return &s_progress_slots[s_current_slot];
 }

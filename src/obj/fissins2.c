@@ -184,7 +184,9 @@ static void main_func(Obj *o)
 
 void o_load_fissins2(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Fissins2) <= sizeof(ObjSlot));
+	O_Fissins2 *e = (O_Fissins2 *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -193,7 +195,6 @@ void o_load_fissins2(Obj *o, uint16_t data)
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-15), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-	O_Fissins2 *e = (O_Fissins2 *)o;
 
 	e->base_y = o->y;  // Variable G in MMF2 source.
 }

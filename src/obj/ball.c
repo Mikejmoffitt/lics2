@@ -98,7 +98,8 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_ball(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Ball) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Ball) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 
 	const ProgressSlot *prog = progress_get();
 	if ((data & 0xFFF0) == 0x0840)  // CP orb

@@ -478,7 +478,9 @@ static void cube_func(Obj *o, Cube *c)
 
 void o_load_vyle1(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Vyle1) <= sizeof(ObjSlot));
+	O_Vyle1 *e = (O_Vyle1 *)o;
+	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
@@ -488,7 +490,6 @@ void o_load_vyle1(Obj *o, uint16_t data)
 	o->main_func = main_func;
 	o->cube_func = cube_func;
 
-	O_Vyle1 *e = (O_Vyle1 *)o;
 	e->original_y = o->y;
 }
 

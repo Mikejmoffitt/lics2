@@ -102,7 +102,8 @@ static void main_func(Obj *o)
 
 void o_load_dancyflower(Obj *o, uint16_t data)
 {
-	SYSTEM_ASSERT(sizeof(O_Dancyflower) <= sizeof(ObjSlot));
+	_Static_assert(sizeof(O_Dancyflower) <= sizeof(ObjSlot),
+	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	if (progress_get()->killed_dancyflower)
 	{
