@@ -71,17 +71,18 @@ static const char *strings_en[STR_INVALID] =
 	[STR_GAME_WIP] =
 	"Ver " __DATE__
 	"\n"
-	"HEY! THIS GAME IS\n"
-	"NOT FINISHED YET.\n"
+	"THIS GAME IS\n"
+	"NOT FINISHED YET\n"
 	"\n"
-	"BE GENTLE!\n"
+	"JUST RELAX\n"
 	"THINGS MIGHT BE\n"
-	"MISSING. IT IS OK!\n"
+	"MISSING\n"
+	"IT IS OK\n"
 	"\n"
 	" THE PROGRAMMER\n"
-	"   HAS A NAP!\n"
+	"   HAS A NAP\n"
 	"\n"
-	"-MIKE",
+	"@MIKE",
 };
 
 static const char *strings_ja[STR_INVALID] =
