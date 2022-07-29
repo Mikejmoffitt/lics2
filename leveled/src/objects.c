@@ -72,6 +72,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_PSYCHOWAVE]    = {"PsychoWv", 48, 48},
 
 	[OBJ_KEDDUMS]       = {"Keddums ", 24, 16},
+	[OBJ_TVSCREEN]      = {"TvScreen", 24, 16},
 
 	[OBJ_GAMEOVER]      = {"GameOver", 64, 64},
 	[OBJ_TECHNOBG]      = {"TechnoBG", 16, 16},

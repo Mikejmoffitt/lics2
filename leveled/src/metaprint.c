@@ -279,16 +279,16 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			sprintf(desc,"Jumps up/down from one spot");
 			break;
 		case OBJ_BOSS1:
-			sprintf(desc,"Boss 1 room indicator");
+			sprintf(desc,"First boss");
 			break;
 		case OBJ_BOSS2:
-			sprintf(desc,"Boss 2 room indicator");
+			sprintf(desc,"Second boss");
 			break;
-		case OBJ_BOSSF1:
-			sprintf(desc,"Final boss 1 room indicator");
+		case OBJ_VYLE1:
+			sprintf(desc,"Vyle (part 1)");
 			break;
-		case OBJ_BOSSF2:
-			sprintf(desc,"Final boss 2 room indicator");
+		case OBJ_VYLE2:
+			sprintf(desc,"Vyle (part 2)");
 			break;
 		case OBJ_EGG:
 			sprintf(desc,"Egg that will drop down when hit");
@@ -307,6 +307,9 @@ static void plane_meta_object_text(unsigned int x, unsigned int y)
 			break;
 		case OBJ_FAKECUBE:
 			sprintf(desc,"Fake ceiling cube for boss 1.");
+			break;
+		case OBJ_TVSCREEN:
+			sprintf(desc, "TV screen above teleporters.");
 			break;
 	}
 

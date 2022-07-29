@@ -61,6 +61,7 @@ typedef enum ObjType
 	OBJ_ROCKMAN_DOOR  = 54,  // Door that seals off a boss arena.
 	OBJ_PSYCHOWAVE    = 55,  // Kitty powered psychowave.
 	OBJ_KEDDUMS       = 56,  // Lyle's cat in the psychowave.
+	OBJ_TVSCREEN      = 57,  // Used in the teleporter room.
 
 	OBJ_GAMEOVER     = 118,  // Game over cube / sequence.
 	OBJ_TECHNOBG     = 119,  // Tile DMA for technozone foreground.
