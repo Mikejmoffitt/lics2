@@ -70,12 +70,12 @@ static inline void set_v_scroll_plane(int16_t value)
 static const BgDescriptor backgrounds[] =
 {
 	[0] = {GFX_NULL, res_pal_bg_bg0_bin, NULL, 0},
-	[1] = {GFX_BG_1, res_pal_bg_bg1_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin)},
+	[1] = {GFX_BG_1, res_pal_bg_bg6_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin)},
 	[2] = {GFX_BG_2, res_pal_bg_bg2_bin, res_bgmap_bg2_bin, sizeof(res_bgmap_bg2_bin)},
 	[3] = {GFX_BG_3, res_pal_bg_bg3_bin, res_bgmap_bg3_bin, sizeof(res_bgmap_bg3_bin)},
 	[4] = {GFX_BG_4, res_pal_bg_bg4_bin, res_bgmap_bg4_bin, sizeof(res_bgmap_bg4_bin)},
 	[5] = {GFX_BG_5, res_pal_bg_bg5_bin, res_bgmap_bg5_bin, sizeof(res_bgmap_bg5_bin)},
-	[6] = {GFX_BG_6, res_pal_bg_bg1_bin, res_bgmap_bg6_bin, sizeof(res_bgmap_bg6_bin)},  // Mapping modification of 1.
+	[6] = {GFX_BG_6, res_pal_bg_bg6_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin)},  // Mapping modification of 1.
 	[7] = {GFX_BG_7, res_pal_bg_bg7_bin, res_bgmap_bg7_bin, sizeof(res_bgmap_bg7_bin)},
 	[8] = {GFX_BG_8, res_pal_bg_bg16_bin, res_bgmap_bg8_bin, sizeof(res_bgmap_bg8_bin)},
 	[9] = {GFX_BG_9, res_pal_bg_bg9_bin, res_bgmap_bg9_bin, sizeof(res_bgmap_bg9_bin)},
@@ -100,43 +100,42 @@ static const BgDescriptor backgrounds[] =
 
 static void bg_city_func(O_Bg *f)
 {
-	const int16_t x_scroll = f->x_scroll;
+	// Y Position follows camera directly for the sake of the title screen.
 	int16_t y_scroll = f->y_scroll;
-	const int16_t x_offset = -38;
-	const fix32_t x_fixed = INTTOFIX32(-x_scroll + x_offset);
-	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	if (map_get_bottom() == INTTOFIX32(240)) y_scroll -= 32;
-	set_v_scroll_plane(y_scroll + 24);
-	set_h_scroll_plane(-x_scroll / 2);
+	const int16_t is_tall_screen = map_get_bottom() > INTTOFIX32(240);
+	if (!is_tall_screen) y_scroll -= 32;
+	set_v_scroll_plane(y_scroll + 32);
+
+	// Scroll from the camera.
+	const int16_t x_scroll = f->x_scroll;
+
+	// The furthest background.
+	const int16_t main_scroll = -x_scroll / 2;
+	set_h_scroll_plane(main_scroll);
 
 	// Hack to force plane scroll when the scroll position is far above, for
 	// the sake of the title screen.
-	if (y_scroll <= 495 - (system_is_ntsc() ? 0 : 16)) return;
+	if (is_tall_screen && y_scroll <= 495 - (system_is_ntsc() ? 0 : 16)) return;
 
-	const int16_t start_row = 20 + (system_is_ntsc() ? 0 : 2);
+	const int16_t x_adjusted = -x_scroll - 38;
+	const fix32_t x_fixed = INTTOFIX32(x_adjusted);
+	const int16_t x_fg_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667)));
 
+	const uint16_t start_row = 22 + (system_is_ntsc() ? 0 : 2);
 	for (uint16_t i = start_row; i < start_row + 5; i++)
 	{
-		s_h_scroll_buffer[i] = close_x;
+		s_h_scroll_buffer[i] = x_fg_scroll;
 	}
-}
 
-static void bg_city_red_func(O_Bg *f)
-{
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
-	const int16_t x_offset = -38;
-	const fix32_t x_fixed = INTTOFIX32(-x_scroll + x_offset);
-	const int16_t close_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(y_scroll - 8);
-	set_h_scroll_plane(-x_scroll / 2);
+	// The DMA scroll needs to match with the line scroll ground.
+	const Gfx *g = gfx_get(GFX_EX_CITYBG);
 
-	const int16_t start_row = 21 + (system_is_ntsc() ? 0 : 1);
+	const int16_t x_dma_scroll = -main_scroll + x_fg_scroll; // INTTOFIX32(0.66666666667)));
 
-	for (uint16_t i = start_row; i < start_row + 5; i++)
-	{
-		s_h_scroll_buffer[i] = close_x;
-	}
+	const uint16_t x_counter_index = (32768 - x_dma_scroll) % 32;
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (8 * 10 * 32),
+	                     g->data + (16 * 32 * x_counter_index),
+	                     (8 * 2 * 32) / 2, 2);
 }
 
 static void bg_finalboss_func(O_Bg *f)
@@ -603,7 +602,7 @@ static void (*bg_funcs[])(O_Bg *f) =
 	[3] = bg_blue_bumps_func,
 	[4] = bg_bubbles_func,
 	[5] = bg_plane_func,
-	[6] = bg_city_red_func,
+	[6] = bg_city_func,
 	[7] = bg_orange_balls_func,
 	[8] = bg_brown_grass_solo_func,
 	[9] = bg_undersand_columns_func,

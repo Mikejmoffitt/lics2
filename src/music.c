@@ -97,6 +97,10 @@ static const void * const instrument_list[] =
 	[0x51] = res_mus_eif_51_title_saw_att_eif,
 	[0x52] = res_mus_eif_52_sine_decay_2_eif,
 	[0x53] = res_mus_eif_53_synth5_with_decay_eif,
+	[0x54] = res_mus_eif_54_loudsaw_eif,
+	[0x55] = res_mus_eif_55_slowsq_eif,
+	[0x56] = res_mus_eif_56_saw2_detune_eif,
+	[0x57] = res_mus_eif_57_saw_slowswell_eif,
 	NULL
 };
 

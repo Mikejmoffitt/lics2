@@ -826,7 +826,6 @@ static void main_func(Obj *o)
 				obj_erase(o);
 				hud_set_visible(1);
 				metagrub_set_enable(1);
-				pause_set_screen(PAUSE_SCREEN_GAME_WIP);
 				return;
 			}
 			render_title_full(e);

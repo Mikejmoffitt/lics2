@@ -155,6 +155,16 @@ static void run_frame(void)
 			break;
 	}
 
+	if (md_io_pad_read(0) & BTN_Z)
+	{
+		md_vdp_set_debug_reg(1, 0x0030);
+	}
+
+	if (md_io_pad_read(0) & BTN_X)
+	{
+		md_vdp_set_debug_reg(1, 0x0000);
+	}
+
 #ifdef MDK_TARGET_C2
 // Hack to copy BG palettes into sprite area for C2.
 	for (uint16_t i = 0; i < 64; i++)
@@ -166,7 +176,6 @@ static void run_frame(void)
 
 	megadrive_finish();
 	input_poll();
-
 	md_vdp_set_display_en(want_display_en);
 }
 
@@ -174,6 +183,7 @@ static void run_frame(void)
 void game_main(void)
 {
 	s_game_state = GAME_STATE_INIT;
+
 	while (1)
 	{
 		run_frame();

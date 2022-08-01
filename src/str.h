@@ -24,7 +24,6 @@ typedef enum StringId
 	STR_GET_HP_ORB,
 	STR_GET_CP_ORB,
 	STR_BUTTON_CHECK,
-	STR_GAME_WIP,
 	STR_INVALID
 } StringId;
 

@@ -46,12 +46,12 @@ typedef struct SetupFuncs
 static const PowerupType powerup_drop_order[32] =
 {
 	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,
-	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,
-	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,
+	POWERUP_TYPE_HP,	POWERUP_TYPE_HP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_CP,
+	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP_2X,	POWERUP_TYPE_NONE,
 	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,
 	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,	POWERUP_TYPE_CP,	POWERUP_TYPE_HP,
-	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,
-	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,
+	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,	POWERUP_TYPE_HP,
+	POWERUP_TYPE_CP_2X,	POWERUP_TYPE_NONE,	POWERUP_TYPE_HP,	POWERUP_TYPE_CP,
 	POWERUP_TYPE_NONE,	POWERUP_TYPE_CP,	POWERUP_TYPE_NONE,	POWERUP_TYPE_NONE,
 };
 
@@ -90,14 +90,29 @@ static void obj_explode(Obj *o)
 	sfx_play(SFX_OBJ_BURST, 3);
 	sfx_play(SFX_OBJ_BURST_HI, 3);
 
-	powerup_manager_spawn(o->x, o->y, powerup_drop_order[s_powerup_drop_index], 0);
-	o->status = OBJ_STATUS_NULL;
+	ProgressSlot *progress = progress_get();
 
+	PowerupType powerup_to_drop = powerup_drop_order[s_powerup_drop_index];
+	if (!(progress->abilities & ABILITY_PHANTOM))
+	{
+		if (powerup_to_drop == POWERUP_TYPE_CP)
+		{
+			powerup_to_drop = POWERUP_TYPE_HP;
+		}
+		else if (powerup_to_drop == POWERUP_TYPE_CP_2X)
+		{
+			powerup_to_drop = POWERUP_TYPE_HP_2X;
+		}
+	}
 	s_powerup_drop_index++;
 	if (s_powerup_drop_index >= ARRAYSIZE(powerup_drop_order))
 	{
 		s_powerup_drop_index = 0;
 	}
+
+	powerup_manager_spawn(o->x, o->y, powerup_to_drop, 0);
+	o->status = OBJ_STATUS_NULL;
+
 }
 
 static inline uint16_t obj_hurt_process(Obj *o)

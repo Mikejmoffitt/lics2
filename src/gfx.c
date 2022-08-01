@@ -80,6 +80,7 @@ static const Gfx gfx[] =
 	[GFX_EX_COLUMNS] = GFX(ex_columns),
 	[GFX_EX_TECHNOBGH] = GFX(ex_technobgh),
 	[GFX_EX_TECHNOBGV] = GFX(ex_technobgv),
+	[GFX_EX_CITYBG] = GFX(ex_citybg),
 	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
 	[GFX_EX_KANA_FONT] = GFX(ex_kana_font),
 
