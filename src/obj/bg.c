@@ -141,30 +141,32 @@ static void bg_city_func(O_Bg *f)
 	set_v_scroll_plane(y_scroll + 32);
 
 	// Scroll from the camera.
-	const int16_t x_scroll = f->x_scroll;
+	const int16_t x_scroll = f->x_scroll + 46;
 
 	// The furthest background.
 	const int16_t main_scroll = -x_scroll / 2;
 	set_h_scroll_plane(main_scroll);
 
-	// Hack to force plane scroll when the scroll position is far above, for
-	// the sake of the title screen.
-	if (is_tall_screen && y_scroll <= 495 - (system_is_ntsc() ? 0 : 16)) return;
 
-	const int16_t x_adjusted = -x_scroll - 38;
+	const int16_t x_adjusted = -x_scroll - 40;
 	const fix32_t x_fixed = INTTOFIX32(x_adjusted);
 	const int16_t x_fg_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667)));
 
 	const uint16_t start_row = 22 + (system_is_ntsc() ? 0 : 2);
-	for (uint16_t i = start_row; i < start_row + 5; i++)
+	// Hack to force plane scroll when the scroll position is far above, for
+	// the sake of the title screen.
+	if (!(is_tall_screen && y_scroll <= 495 - (system_is_ntsc() ? 0 : 16)))
 	{
-		s_h_scroll_buffer[i] = x_fg_scroll;
+		for (uint16_t i = start_row; i < start_row + 5; i++)
+		{
+			s_h_scroll_buffer[i] = x_fg_scroll;
+		}
 	}
 
 	// The DMA scroll needs to match with the line scroll ground.
 	const Gfx *g = gfx_get(GFX_EX_CITYBG);
 
-	const int16_t x_dma_scroll = -main_scroll + x_fg_scroll; // INTTOFIX32(0.66666666667)));
+	const int16_t x_dma_scroll = -main_scroll + x_fg_scroll;
 
 	const uint16_t x_counter_index = (32768 - x_dma_scroll) % 32;
 	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (8 * 10 * 32),
