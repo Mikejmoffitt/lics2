@@ -98,6 +98,40 @@ static const BgDescriptor backgrounds[] =
 	[26] = {GFX_BG_26, res_pal_bg_bg26_bin, res_bgmap_bg26_bin, sizeof(res_bgmap_bg26_bin)},
 };
 
+static void bg_rooftop_func(O_Bg *f)
+{
+	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
+
+	// Scrolling clouds.
+	static fix16_t s_x_offs[2];
+	s_x_offs[0] += INTTOFIX16(PALSCALE_1ST(0.833333333));
+	if (s_x_offs[0] >= INTTOFIX16(48)) s_x_offs[0] -= INTTOFIX16(48);
+	s_x_offs[1] += INTTOFIX16(PALSCALE_1ST(0.277777773));
+	if (s_x_offs[1] >= INTTOFIX16(32)) s_x_offs[1] -= INTTOFIX16(32);
+
+	const fix32_t x_fixed = INTTOFIX32(f->x_scroll);
+	int16_t x_front_scroll = FIX16TOINT(s_x_offs[0]) + FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667)));
+	int16_t x_back_scroll = FIX16TOINT(s_x_offs[1]) + FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.5)));
+	x_front_scroll = x_front_scroll % 48;
+	x_back_scroll = x_back_scroll % 32;
+
+	const int16_t row_offs = (system_is_ntsc() ? -1 : 0);
+	for (uint16_t i = 0; i < 4; i++)
+	{
+		const int16_t upper_idx = row_offs + i;
+		const int16_t lower_idx = row_offs + 26 + i;
+		if (upper_idx >= 0) s_h_scroll_buffer[upper_idx] = -x_front_scroll;
+		if (lower_idx < ARRAYSIZE(s_h_scroll_buffer)) s_h_scroll_buffer[lower_idx] = -x_front_scroll;
+	}
+	for (uint16_t i = 0; i < 2; i++)
+	{
+		const int16_t upper_idx = row_offs + 4 + i;
+		const int16_t lower_idx = row_offs + 24 + i;
+		if (upper_idx >= 0) s_h_scroll_buffer[upper_idx] = -x_back_scroll;
+		if (lower_idx < ARRAYSIZE(s_h_scroll_buffer)) s_h_scroll_buffer[lower_idx] = -x_back_scroll;
+	}
+}
+
 static void bg_city_func(O_Bg *f)
 {
 	// Y Position follows camera directly for the sake of the title screen.
@@ -611,7 +645,7 @@ static void (*bg_funcs[])(O_Bg *f) =
 	[12] = bg_crazy_city_low_func,
 	[13] = bg_elevator_func,
 	[14] = bg_elevator_func,
-
+	[15] = bg_rooftop_func,
 	[16] = bg_brown_grass_and_green_func,
 	[17] = bg_plane_func_offset,
 	[18] = bg_longsand_func,
