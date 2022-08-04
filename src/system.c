@@ -82,7 +82,7 @@ void system_print_error(const char *expression,
 	md_pal_set(0, PALRGB(0, 0, 0));
 	md_pal_set(63, PALRGB(7, 7, 7));
 	md_vdp_set_display_en(1);
-	while (!(md_io_pad_read(0) & BTN_START)) megadrive_finish();
+	while (!(g_md_pad[0] & BTN_START)) megadrive_finish();
 	__asm("jmp (0x000004).l");
 }
 

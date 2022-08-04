@@ -982,7 +982,7 @@ static void plot_button_check(void)
 	char buffer[17];
 	for (int j = 0; j < 2; j++)
 	{
-		uint16_t buttons = md_io_pad_read(j);
+		uint16_t buttons = g_md_pad[j];
 		uint16_t chk_bit = 0x8000;
 		for (int i = 0; i < 16; i++)
 		{

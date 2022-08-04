@@ -24,7 +24,7 @@ void input_poll(void)
 	const MdIoCSystemInput sys = md_ioc_get_system_input();
 	if (sys & SYSC_SYSTEM_START1) s_button_cache |= LYLE_BTN_START;
 #else
-	const uint16_t buttons = md_io_pad_read(0);
+	const uint16_t buttons = g_md_pad[0];
 	if (buttons & BTN_UP) s_button_cache |= LYLE_BTN_UP;
 	if (buttons & BTN_DOWN) s_button_cache |= LYLE_BTN_DOWN;
 	if (buttons & BTN_LEFT) s_button_cache |= LYLE_BTN_LEFT;

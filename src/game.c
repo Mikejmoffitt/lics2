@@ -155,16 +155,6 @@ static void run_frame(void)
 			break;
 	}
 
-	if (md_io_pad_read(0) & BTN_Z)
-	{
-		md_vdp_set_debug_reg(1, 0x0030);
-	}
-
-	if (md_io_pad_read(0) & BTN_X)
-	{
-		md_vdp_set_debug_reg(1, 0x0000);
-	}
-
 #ifdef MDK_TARGET_C2
 // Hack to copy BG palettes into sprite area for C2.
 	for (uint16_t i = 0; i < 64; i++)

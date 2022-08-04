@@ -70,7 +70,7 @@ static inline void set_v_scroll_plane(int16_t value)
 static const BgDescriptor backgrounds[] =
 {
 	[0] = {GFX_NULL, res_pal_bg_bg0_bin, NULL, 0},
-	[1] = {GFX_BG_1, res_pal_bg_bg6_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin)},
+	[1] = {GFX_BG_1, res_pal_bg_bg1_bin, res_bgmap_bg1_bin, sizeof(res_bgmap_bg1_bin)},
 	[2] = {GFX_BG_2, res_pal_bg_bg2_bin, res_bgmap_bg2_bin, sizeof(res_bgmap_bg2_bin)},
 	[3] = {GFX_BG_3, res_pal_bg_bg3_bin, res_bgmap_bg3_bin, sizeof(res_bgmap_bg3_bin)},
 	[4] = {GFX_BG_4, res_pal_bg_bg4_bin, res_bgmap_bg4_bin, sizeof(res_bgmap_bg4_bin)},
