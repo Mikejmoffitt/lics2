@@ -7,7 +7,7 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "obj/map.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "projectile.h"
 #include "sfx.h"
 

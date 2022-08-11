@@ -1,7 +1,7 @@
 #include "persistent_state.h"
 #include "progress.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 
 PersistentState g_persistent_state;
 

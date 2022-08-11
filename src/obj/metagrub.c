@@ -1,7 +1,7 @@
 #include "obj/metagrub.h"
 #include "system.h"
 #include "obj/map.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "obj/title.h"
 
 #include "gfx.h"

@@ -2,7 +2,7 @@
 #include "md/megadrive.h"
 #include "system.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 
 // SRAM address $0000 is used as scratch memory so we can test if SRAM is
 // working properly. Then, each progress slot has a few magic numbers as

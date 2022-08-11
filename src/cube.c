@@ -10,7 +10,7 @@
 #include "obj/map.h"
 #include "game.h"
 #include "sfx.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 #include "md/megadrive.h"
 

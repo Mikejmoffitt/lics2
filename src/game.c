@@ -18,7 +18,7 @@
 #include "hud.h"
 #include "powerup.h"
 #include "obj/map.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "particle.h"
 #include "projectile.h"
 #include "obj/pause.h"
@@ -83,9 +83,9 @@ static void run_frame(void)
 			powerup_load();
 			projectile_load();
 			particle_load();
+			lyle_load();
 			// TODO: Remove these singleton objects.
 			// The order of objects is important.
-			obj_spawn(32, 32, OBJ_LYLE, 0);
 			obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
 			obj_spawn(0, 0, OBJ_MAP, 0);
 			map_load(persistent_state->next_room_id,
@@ -110,6 +110,7 @@ static void run_frame(void)
 			powerup_poll();
 			projectile_poll();
 			particle_poll();
+			lyle_poll();
 			// Game actor/object system
 			obj_exec();
 

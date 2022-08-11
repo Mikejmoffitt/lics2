@@ -26,7 +26,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 72
+#define OBJ_COUNT_MAX 64
 #define OBJ_BYTES 128
 
 #define OBJ_ACTIVE_DISTANCE 16
@@ -64,9 +64,9 @@ typedef enum ObjDirection
 typedef struct Obj Obj;
 struct Obj
 {
+	char name[8];  // This is NOT null-terminated!
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
-	char name[8];  // This is NOT null-terminated!
 
 	ObjType type;
 	ObjFlags flags;

@@ -10,7 +10,7 @@
 #include "particle.h"
 
 #include "obj/map.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 #include "trig.h"
 
@@ -32,6 +32,8 @@ static int16_t s_particle_cnt;
 static int16_t s_flicker_cnt;
 static int8_t s_flicker_2f_anim;
 static int8_t s_flicker_4f_anim;
+
+static uint16_t s_hibernate;
 
 static uint16_t s_vram_pos;
 
@@ -265,6 +267,7 @@ static inline void projectile_run(Projectile *p)
 
 void projectile_poll(void)
 {
+	if (s_hibernate) return;
 	// Animation counters
 	s_particle_cnt++;
 	if (s_particle_cnt >= kparticle_rate) s_particle_cnt = 0;
@@ -348,4 +351,9 @@ Projectile *projectile_shoot_at(fix32_t x, fix32_t y,
 	const fix32_t delta_y = (ty - y);
 	const fix32_t delta_x = tx - x;
 	return projectile_shoot_angle(x, y, type, trig_atan(delta_y, delta_x), speed);
+}
+
+void projectile_set_hibernate(uint16_t en)
+{
+	s_hibernate = en;
 }

@@ -48,4 +48,6 @@ Powerup *powerup_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
 void powerup_bounce(Powerup *p);
 uint16_t powerup_get_vram_pos(void);
 
+void powerup_set_hibernate(uint16_t en);
+
 #endif  // POWERUP_H

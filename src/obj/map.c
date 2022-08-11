@@ -8,7 +8,7 @@
 #include "game.h"
 
 #include "obj/entrance.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 #include "res.h"
 

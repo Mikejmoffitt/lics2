@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "game.h"
 #include "hud.h"
 #include "music.h"

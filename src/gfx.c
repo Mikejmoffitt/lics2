@@ -7,7 +7,6 @@
 
 static const Gfx gfx[] =
 {
-	[GFX_LYLE] = GFX(obj_128_lyle),
 	[GFX_CUBES] = GFX(obj_129_cubes),
 	[GFX_PAUSE] = GFX(obj_137_pause),
 	[GFX_TEMPLATE] = GFX(obj_255_template),
@@ -69,6 +68,7 @@ static const Gfx gfx[] =
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
 
+	[GFX_SYS_LYLE] = GFX(sys_lyle),
 	[GFX_SYS_HUD] = GFX(sys_hud),
 	[GFX_SYS_POWERUP] = GFX(sys_powerup),
 	[GFX_SYS_PROJECTILE] = GFX(sys_projectile),

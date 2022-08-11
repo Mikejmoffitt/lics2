@@ -15,7 +15,7 @@
 #include "obj/cube_manager.h"
 #include "music.h"
 #include "sfx.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static uint16_t s_vram_pos;
 

@@ -17,6 +17,7 @@
 #define LYLE_RIGHT INTTOFIX16(4)
 #define LYLE_TOP INTTOFIX16(-19)
 
+// Lyle is not in the object list, but is an object for easier interaction.
 typedef struct O_Lyle
 {
 	Obj head;
@@ -54,25 +55,13 @@ typedef struct O_Lyle
 	int8_t dead;
 } O_Lyle;
 
-extern O_Lyle *g_lyle;
+// TODO: Params for persistent state
+void lyle_load(void);
+void lyle_poll(void);
 
-void o_load_lyle(Obj *o, uint16_t data);
-void o_unload_lyle(void);
+O_Lyle *lyle_get(void);
 
-// Public functions
-
-static inline O_Lyle *lyle_get(void) { return g_lyle; }
-
-// Slightly optimized collision function that hardcodes Lyle's dimensions.
-static inline int16_t lyle_touching_obj(Obj *o)
-{
-	if (g_lyle->head.x + LYLE_RIGHT < o->x + o->left) return 0;
-	if (g_lyle->head.x + LYLE_LEFT > o->x + o->right) return 0;
-	if (g_lyle->head.y < o->y + o->top) return 0;
-	if (g_lyle->head.y + LYLE_TOP > o->y) return 0;
-	return 1;
-}
-
+uint16_t lyle_touching_obj(Obj *o);
 
 void lyle_get_bounced(void);
 void lyle_get_hurt(int16_t bypass_invuln);
@@ -94,5 +83,7 @@ void lyle_set_master_en(int16_t en);
 void lyle_set_anim_frame(int8_t frame);
 
 void lyle_upload_palette(void);
+
+void lyle_set_hibernate(uint16_t en);
 
 #endif  // OBJ_LYLE_H

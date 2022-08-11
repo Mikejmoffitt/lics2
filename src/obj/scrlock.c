@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "game.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static void main_func(Obj *o)
 {

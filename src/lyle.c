@@ -1,4 +1,4 @@
-#include "obj/lyle.h"
+#include "lyle.h"
 
 #include <stdlib.h>
 #include "obj.h"
@@ -21,8 +21,9 @@
 #include "res.h"
 
 // Access for Lyle singleton.
-O_Lyle *g_lyle;
+static O_Lyle s_lyle;
 
+// TODO: rename s_buttons, or eliminate and use input.h properly
 static LyleBtn buttons;
 static LyleBtn buttons_prev;
 
@@ -149,13 +150,6 @@ static void set_constants(void)
 }
 
 static uint16_t s_vram_pos;
-
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	s_vram_pos = obj_vram_alloc(3 * 3 * 32) / 32;
-}
 
 static inline uint16_t is_control_disabled(O_Lyle *l)
 {
@@ -1076,7 +1070,7 @@ static inline void draw(O_Lyle *l)
 		yoff += 2;
 	}
 
-	const Gfx *g = gfx_get(GFX_LYLE);
+	const Gfx *g = gfx_get(GFX_SYS_LYLE);
 	gfx_load_ex(g, tile_offset * 32, transfer_bytes, s_vram_pos * 32);
 
 	int16_t sp_x = FIX32TOINT(l->head.x) + xoff - map_get_x_scroll();
@@ -1152,17 +1146,18 @@ static void maybe_die(O_Lyle *l)
 	}
 }
 
-static void main_func(Obj *o)
+void lyle_poll(void)
 {
-	O_Lyle *l = (O_Lyle *)o;
-	if (!l->full_disable)
+	if (s_lyle.head.status & OBJ_STATUS_HIBERNATE) return;
+	if (!s_lyle.full_disable)
 	{
+		O_Lyle *l = &s_lyle;
 		buttons_prev = buttons;
 		buttons = input_read();
 
 		maybe_die(l);
 
-		if (o->hp > 0)
+		if (s_lyle.head.hp > 0)
 		{
 			handle_teleportation_counters(l);
 			x_acceleration(l);
@@ -1195,34 +1190,25 @@ static void main_func(Obj *o)
 		}
 	}
 
-	draw(l);
-	update_exploration(l);
+	draw(&s_lyle);
+	update_exploration(&s_lyle);
 }
 
-void o_load_lyle(Obj *o, uint16_t data)
+void lyle_load(void)
 {
-	_Static_assert(sizeof(*g_lyle) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-	(void)data;
-
-	// There can be only one!
-	if (g_lyle)
+	// TODO: Why don't we have fucken memset
+	uint16_t *lyle_as_uint16 = (uint16_t *)&s_lyle;
+	for (uint16_t i = 0; i < sizeof(s_lyle) / sizeof(uint16_t); i++)
 	{
-		obj_erase(o);
-		return;
+		lyle_as_uint16[i] = 0;
 	}
+	s_vram_pos = obj_vram_alloc(3 * 3 * 32) / 32;
 
-	g_lyle = (O_Lyle *)o;
-
-	vram_load();
 	set_constants();
 
 	// Lyle is not marked tangible because he does his own cube detection.
-	obj_basic_init(o, "Lyle", OBJ_FLAG_ALWAYS_ACTIVE,
-	                  LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 2);
-
-	o->main_func = main_func;
-	o->cube_func = NULL;
+	obj_basic_init(&s_lyle.head, "Lyle", OBJ_FLAG_ALWAYS_ACTIVE,
+	               LYLE_LEFT, LYLE_RIGHT, LYLE_TOP, 2);
 
 	lyle_upload_palette();
 }
@@ -1232,45 +1218,34 @@ void lyle_upload_palette(void)
 	md_pal_upload(LYLE_CRAM_POSITION, res_pal_lyle_bin, sizeof(res_pal_lyle_bin) / 2);
 }
 
-void o_unload_lyle(void)
-{
-	if (!s_vram_pos) return;
-
-	g_lyle = NULL;
-
-	s_vram_pos = 0;
-}
-
 // Public functions that act on the Lyle singleton
 void lyle_get_bounced(void)
 {
-	if (!g_lyle) return;
-	g_lyle->head.dy = kjump_dy;
-	g_lyle->head.dx = (g_lyle->head.direction == OBJ_DIRECTION_RIGHT) ?
+	s_lyle.head.dy = kjump_dy;
+	s_lyle.head.dx = (s_lyle.head.direction == OBJ_DIRECTION_RIGHT) ?
 	                khurt_dx : -khurt_dx;
 }
 
 void lyle_get_hurt(int16_t bypass_invuln)
 {
-	if (!g_lyle) return;
-	if (g_lyle->tele_out_cnt > 0) return;
-	if (g_lyle->hurt_cnt != 0) return;
-	if (g_lyle->invuln_cnt != 0 && !bypass_invuln) return;
+	if (s_lyle.tele_out_cnt > 0) return;
+	if (s_lyle.hurt_cnt != 0) return;
+	if (s_lyle.invuln_cnt != 0 && !bypass_invuln) return;
 	lyle_get_bounced();
-	g_lyle->hurt_cnt = khurt_time;
-	g_lyle->invuln_cnt = kinvuln_time;
-	g_lyle->phantom_cnt = 0;
+	s_lyle.hurt_cnt = khurt_time;
+	s_lyle.invuln_cnt = kinvuln_time;
+	s_lyle.phantom_cnt = 0;
 
-	if (g_lyle->head.hp > 0) g_lyle->head.hp--;
+	if (s_lyle.head.hp > 0) s_lyle.head.hp--;
 
 	// Cubes that are held get dropped
-	if (g_lyle->holding_cube != CUBE_TYPE_NULL)
+	if (s_lyle.holding_cube != CUBE_TYPE_NULL)
 	{
-		cube_manager_spawn(g_lyle->head.x, g_lyle->head.y - INTTOFIX32(12),
-		                   g_lyle->holding_cube, CUBE_STATUS_AIR,
-		                   g_lyle->head.direction == OBJ_DIRECTION_RIGHT ?
+		cube_manager_spawn(s_lyle.head.x, s_lyle.head.y - INTTOFIX32(12),
+		                   s_lyle.holding_cube, CUBE_STATUS_AIR,
+		                   s_lyle.head.direction == OBJ_DIRECTION_RIGHT ?
 		                   kdrop_cube_dx : -kdrop_cube_dx, kdrop_cube_dy);
-		g_lyle->holding_cube = CUBE_TYPE_NULL;
+		s_lyle.holding_cube = CUBE_TYPE_NULL;
 	}
 
 	sfx_stop(SFX_CUBE_SPAWN);
@@ -1279,73 +1254,81 @@ void lyle_get_hurt(int16_t bypass_invuln)
 
 fix32_t lyle_get_x(void)
 {
-	if (!g_lyle) return 0;
-	return g_lyle->head.x;
+	return s_lyle.head.x;
 }
 
 fix32_t lyle_get_y(void)
 {
-	if (!g_lyle) return 0;
-	return g_lyle->head.y;
+	return s_lyle.head.y;
 }
 
 int16_t lyle_get_hp(void)
 {
-	if (!g_lyle) return 0;
-	return g_lyle->head.hp;
+	return s_lyle.head.hp;
 }
 
 void lyle_set_hp(int16_t hp)
 {
-	if (!g_lyle) return;
-	g_lyle->head.hp = hp;
+	s_lyle.head.hp = hp;
 }
 
 int16_t lyle_get_cp(void)
 {
-	if (!g_lyle) return 0;
-	return g_lyle->cp;
+	return s_lyle.cp;
 }
 
 void lyle_set_pos(fix32_t x, fix32_t y)
 {
-	if (!g_lyle) return;
-	g_lyle->head.x = x;
-	g_lyle->head.y = y;
+	s_lyle.head.x = x;
+	s_lyle.head.y = y;
 }
 
 void lyle_set_direction(ObjDirection d)
 {
-	if (!g_lyle) return;
-	g_lyle->head.direction = d;
+	s_lyle.head.direction = d;
 }
 
 void lyle_set_scroll_h_en(int16_t en)
 {
-	if (!g_lyle) return;
-	g_lyle->scroll_disable_h = !en;
+	s_lyle.scroll_disable_h = !en;
 }
 
 void lyle_set_scroll_v_en(int16_t en)
 {
-	if (!g_lyle) return;
-	g_lyle->scroll_disable_v = !en;
+	s_lyle.scroll_disable_v = !en;
 }
 
 void lyle_set_control_en(int16_t en)
 {
-	if (!g_lyle) return;
-	g_lyle->ext_disable = !en;
+	s_lyle.ext_disable = !en;
 }
 
 void lyle_set_master_en(int16_t en)
 {
-	if (!g_lyle) return;
-	g_lyle->full_disable = !en;
+	s_lyle.full_disable = !en;
 }
 
 void lyle_set_anim_frame(int8_t frame)
 {
-	if (!g_lyle) return;
-	g_lyle->anim_frame = frame;
+	s_lyle.anim_frame = frame;
+}
+
+uint16_t lyle_touching_obj(Obj *o)
+{
+	if (s_lyle.head.x + LYLE_RIGHT < o->x + o->left) return 0;
+	if (s_lyle.head.x + LYLE_LEFT > o->x + o->right) return 0;
+	if (s_lyle.head.y < o->y + o->top) return 0;
+	if (s_lyle.head.y + LYLE_TOP > o->y) return 0;
+	return 1;
+}
+
+O_Lyle *lyle_get(void)
+{
+	return &s_lyle;
+}
+
+void lyle_set_hibernate(uint16_t en)
+{
+	if (en) s_lyle.head.status |= OBJ_STATUS_HIBERNATE;
+	else s_lyle.head.status &= ~(OBJ_STATUS_HIBERNATE);
 }

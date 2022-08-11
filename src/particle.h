@@ -33,4 +33,6 @@ void particle_poll(void);
 void particle_clear(void);
 Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type);
 
+void particle_set_hibernate(uint16_t en);
+
 #endif  // PARTICLE_H

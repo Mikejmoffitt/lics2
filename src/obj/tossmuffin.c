@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "obj/cube_manager.h"
 #include "sfx.h"
 

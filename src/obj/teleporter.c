@@ -6,7 +6,7 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "palscale.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "obj/map.h"
 #include "particle.h"
 #include "game.h"

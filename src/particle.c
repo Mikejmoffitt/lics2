@@ -26,6 +26,8 @@ static int16_t kanim_speed_sand;
 
 static int16_t s_spawn_start_index;
 
+static uint16_t s_hibernate;
+
 static void set_constants(void)
 {
 	static int16_t s_constants_set;
@@ -151,6 +153,7 @@ delete_particle:
 
 void particle_poll(void)
 {
+	if (s_hibernate) return;
 	uint16_t i = ARRAYSIZE(s_particles);
 	const int16_t map_x = map_get_x_scroll();
 	const int16_t map_y = map_get_y_scroll();
@@ -259,4 +262,9 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 	}
 	s_spawn_start_index = seek_idx;
 	return ret;
+}
+
+void particle_set_hibernate(uint16_t en)
+{
+	s_hibernate = en;
 }

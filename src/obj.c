@@ -9,10 +9,11 @@
 #include "md/megadrive.h"
 #include "palscale.h"
 #include "powerup.h"
+#include "lyle.h"
 
 #define OBJ_OFFSCREEN_MARGIN 64
 
-ObjSlot g_objects[OBJ_COUNT_MAX];
+ObjSlot g_objects[OBJ_COUNT_MAX] __attribute__ ((aligned(OBJ_BYTES)));
 static uint16_t obj_vram_pos;
 static uint16_t s_powerup_drop_index;
 

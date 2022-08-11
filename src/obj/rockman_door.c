@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static int16_t kthresh[3];
 

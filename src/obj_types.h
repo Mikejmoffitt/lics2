@@ -77,13 +77,10 @@ typedef enum ObjType
 	// Objects 128 and above are special objects added by the engine, rather
 	// than being found in map data. They are singletons, and are not
 	// instantiated from map data.
-	OBJ_LYLE = 128,
 	OBJ_CUBE_MANAGER = 129,
 	OBJ_MAP = 130,
 	OBJ_BG = 131,
 
-	OBJ_PARTICLE_MANAGER = 133,
-	OBJ_PROJECTILE_MANAGER = 134,
 	OBJ_EXPLODER = 135,
 	
 	OBJ_PAUSE = 137,

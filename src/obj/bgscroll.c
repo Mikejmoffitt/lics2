@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static void main_func(Obj *o)
 {

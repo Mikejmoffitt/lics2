@@ -11,8 +11,10 @@
 
 #include "powerup.h"
 #include "progress.h"
+#include "projectile.h"
+#include "particle.h"
 #include "game.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "sfx.h"
 #include "map_file.h"
 #include "music.h"
@@ -746,6 +748,10 @@ static void wake_objects(void)
 		if (w->status != OBJ_STATUS_HIBERNATE) continue;
 		w->status = OBJ_STATUS_ACTIVE;
 	}
+	lyle_set_hibernate(0);
+	powerup_set_hibernate(0);
+	projectile_set_hibernate(0);
+	particle_set_hibernate(0);
 }
 
 static void hibernate_objects()
@@ -759,6 +765,10 @@ static void hibernate_objects()
 		if (w->type == OBJ_PAUSE) continue;
 		w->status = OBJ_STATUS_HIBERNATE;
 	}
+	lyle_set_hibernate(1);
+	powerup_set_hibernate(1);
+	projectile_set_hibernate(1);
+	particle_set_hibernate(1);
 }
 
 static void vram_load(void)

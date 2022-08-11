@@ -9,7 +9,7 @@
 #include "particle.h"
 
 #include "obj/map.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "obj/pause.h"
 
 #define POWERUP_MARGIN INTTOFIX32(3)
@@ -23,6 +23,8 @@ static fix16_t kbounce_dy;
 static fix16_t kceiling_dy;
 
 static uint16_t s_vram_pos;
+
+static uint16_t s_hibernate;
 
 uint16_t powerup_get_vram_pos(void)
 {
@@ -306,6 +308,7 @@ static inline void powerup_run(Powerup *p)
 
 void powerup_poll(void)
 {
+	if (s_hibernate) return;
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
@@ -391,4 +394,9 @@ Powerup *powerup_spawn(fix32_t x, fix32_t y,
 		return p;
 	}
 	return NULL;
+}
+
+void powerup_set_hibernate(uint16_t en)
+{
+	s_hibernate = en;
 }

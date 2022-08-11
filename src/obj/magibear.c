@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "sfx.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "projectile.h"
 
 static uint16_t s_vram_pos;

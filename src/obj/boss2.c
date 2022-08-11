@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "progress.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "game.h"
 #include "sfx.h"
 #include "trig.h"

@@ -4,7 +4,7 @@
 #include "system.h"
 #include "md/megadrive.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static void main_func(Obj *o)
 {

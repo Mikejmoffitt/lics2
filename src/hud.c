@@ -3,7 +3,7 @@
 #include "system.h"
 #include "gfx.h"
 
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "progress.h"
 
 // On-screen height of CP meter. Should be a multiple of 8.

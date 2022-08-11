@@ -37,4 +37,6 @@ Projectile *projectile_shoot_at(fix32_t x, fix32_t y,
                                 ProjectileType type,
                                 fix32_t tx, fix32_t ty, fix16_t speed);
 
+void projectile_set_hibernate(uint16_t en);
+
 #endif  // PROJECTILE_H

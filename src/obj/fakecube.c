@@ -10,7 +10,7 @@
 
 #include "game.h"
 #include "obj/cube_manager.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 
 static uint16_t kspawn_seq[2];
 static int16_t kspawn_anim_speed;

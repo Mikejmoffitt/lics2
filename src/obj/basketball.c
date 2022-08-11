@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/hoop.h"
-#include "obj/lyle.h"
+#include "lyle.h"
 #include "obj/exploder.h"
 
 static uint16_t s_vram_pos;
