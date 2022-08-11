@@ -1,4 +1,5 @@
 #include "obj/item.h"
+#include "powerup_manager.h"
 
 void o_load_item(Obj *o, uint16_t data)
 {

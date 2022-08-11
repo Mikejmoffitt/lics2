@@ -15,11 +15,12 @@
 #include "res.h"
 #include "str.h"
 
+#include "hud.h"
+#include "powerup_manager.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
 #include "obj/particle_manager.h"
 #include "obj/projectile_manager.h"
-#include "obj/powerup_manager.h"
 #include "obj/pause.h"
 
 #include <stdlib.h>
@@ -62,10 +63,9 @@ static void run_frame(void)
 
 		case GAME_STATE_NEW_ROOM:
 			obj_clear();
-
+			hud_load();
+			powerup_manager_load();
 			// The order of objects is important.
-			obj_spawn(0, 0, OBJ_HUD, 0);
-			obj_spawn(0, 0, OBJ_POWERUP_MANAGER, 0);
 			obj_spawn(0, 0, OBJ_PROJECTILE_MANAGER, 0);
 			obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 			obj_spawn(32, 32, OBJ_LYLE, 0);
@@ -97,6 +97,8 @@ static void run_frame(void)
 		case GAME_STATE_RUN:
 			md_vdp_set_window_top(pause_want_window() ? 31 : 0);
 			music_handle_pending();
+			hud_render();
+			powerup_manager_poll();
 			obj_exec();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();

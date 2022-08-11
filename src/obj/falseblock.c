@@ -10,7 +10,7 @@
 
 #include "obj/lyle.h"
 #include "obj/exploder.h"
-#include "obj/powerup_manager.h"
+#include "powerup_manager.h"
 
 static void render(O_Falseblock *e)
 {

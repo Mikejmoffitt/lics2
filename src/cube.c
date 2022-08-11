@@ -6,7 +6,7 @@
 #include "system.h"
 #include "obj/cube_manager.h"
 #include "obj/particle_manager.h"
-#include "obj/powerup_manager.h"
+#include "powerup_manager.h"
 #include "obj/map.h"
 #include "game.h"
 #include "sfx.h"

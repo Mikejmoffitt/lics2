@@ -8,6 +8,7 @@
 #include "progress.h"
 #include "md/megadrive.h"
 #include "palscale.h"
+#include "powerup_manager.h"
 
 #define OBJ_OFFSCREEN_MARGIN 64
 

@@ -10,7 +10,7 @@
 
 #include "progress.h"
 #include "obj/lyle.h"
-#include "obj/powerup_manager.h"
+#include "powerup_manager.h"
 #include "sfx.h"
 
 static uint16_t s_vram_pos;

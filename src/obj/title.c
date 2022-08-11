@@ -10,12 +10,12 @@
 
 #include "obj/lyle.h"
 #include "game.h"
+#include "hud.h"
 #include "music.h"
 #include "progress.h"
 #include "persistent_state.h"
 #include "obj/wndwback.h"
 #include "obj/metagrub.h"
-#include "obj/hud.h"
 #include "obj/pause.h"
 #include "sfx.h"
 #include "input.h"
@@ -563,14 +563,6 @@ static void main_func(Obj *o)
 				s_vram_keddums_pos = gfx_load(gfx_keddums, s_vram_shared_pos);
 			}
 
-			// Hibernate HUD and metagrub objects.
-			for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
-			{
-				Obj *w = &g_objects[i].obj;
-				if (w->status == OBJ_STATUS_NULL) continue;
-				if (w->type != OBJ_HUD || w->type != OBJ_METAGRUB) continue;
-				w->status = OBJ_STATUS_HIBERNATE;
-			}
 			if (e->state_elapsed >= kscroll_delay_duration) // was v_scroll_complete
 			{
 				draw_high_prio_house_tiles();

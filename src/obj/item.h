@@ -4,7 +4,6 @@
 
 #include "obj.h"
 #include <stdint.h>
-#include "obj/powerup_manager.h"
 
 void o_load_item(Obj *o, uint16_t data);
 

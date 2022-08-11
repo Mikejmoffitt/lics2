@@ -1,14 +1,11 @@
-#include "obj/powerup_manager.h"
+#include "powerup_manager.h"
 
-#include <stdlib.h>
-#include "obj.h"
-#include "system.h"
+#include <stdint.h>
 #include "gfx.h"
 #include "sfx.h"
 #include "progress.h"
 
 #include "palscale.h"
-#include "util/fixed.h"
 #include "obj/particle_manager.h"
 
 #include "obj/map.h"
@@ -17,9 +14,7 @@
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
-Powerup g_powerups[10];
-
-static O_PowerupManager *s_powerup_manager;
+Powerup g_powerups[POWERUP_LIST_SIZE];
 
 static int16_t kanim_speed;
 static fix16_t kgravity;
@@ -46,14 +41,6 @@ static void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(4);
 
 	s_constants_set = 1;
-}
-
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	const Gfx *g = gfx_get(GFX_POWERUP_MANAGER);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static inline void powerup_render(Powerup *p)
@@ -317,10 +304,8 @@ static inline void powerup_run(Powerup *p)
 	}
 }
 
-static void main_func(Obj *o)
+void powerup_manager_poll(void)
 {
-	(void)o;
-
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
@@ -330,38 +315,17 @@ static void main_func(Obj *o)
 	}
 }
 
-void o_load_powerup_manager(Obj *o, uint16_t data)
+void powerup_manager_load(void)
 {
-	(void)data;
-	_Static_assert(sizeof(*s_powerup_manager) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-
-	if (s_powerup_manager || s_vram_pos)
-	{
-		obj_erase(o);
-		return;
-	}
-
-	s_powerup_manager = (O_PowerupManager *)o;
-
 	set_constants();
-	vram_load();
-
-	obj_basic_init(o, "PwupMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
-	o->main_func = main_func;
+	const Gfx *g = gfx_get(GFX_POWERUP_MANAGER);
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
 	powerup_manager_clear();
 }
 
-void o_unload_powerup_manager(void)
-{
-	s_vram_pos = 0;
-	s_powerup_manager = NULL;
-}
-
 void powerup_manager_clear(void)
 {
-	if (!s_powerup_manager) return;
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
@@ -372,7 +336,6 @@ void powerup_manager_clear(void)
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
                                PowerupType type, int8_t orb_id)
 {
-	if (!s_powerup_manager) return NULL;
 	const ProgressSlot *prog = progress_get();
 	switch (type)
 	{

@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/egg.h"
-#include "obj/powerup_manager.h"
+#include "powerup_manager.h"
 #include "progress.h"
 #include "sfx.h"
 

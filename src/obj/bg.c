@@ -119,14 +119,14 @@ static void bg_rooftop_func(O_Bg *f)
 	for (uint16_t i = 0; i < 4; i++)
 	{
 		const int16_t upper_idx = row_offs + i;
-		const int16_t lower_idx = row_offs + 26 + i;
+		const uint16_t lower_idx = row_offs + 26 + i;
 		if (upper_idx >= 0) s_h_scroll_buffer[upper_idx] = -x_front_scroll;
 		if (lower_idx < ARRAYSIZE(s_h_scroll_buffer)) s_h_scroll_buffer[lower_idx] = -x_front_scroll;
 	}
 	for (uint16_t i = 0; i < 2; i++)
 	{
 		const int16_t upper_idx = row_offs + 4 + i;
-		const int16_t lower_idx = row_offs + 24 + i;
+		const uint16_t lower_idx = row_offs + 24 + i;
 		if (upper_idx >= 0) s_h_scroll_buffer[upper_idx] = -x_back_scroll;
 		if (lower_idx < ARRAYSIZE(s_h_scroll_buffer)) s_h_scroll_buffer[lower_idx] = -x_back_scroll;
 	}

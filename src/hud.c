@@ -1,12 +1,7 @@
-#include "obj/hud.h"
+#include "hud.h"
 #include <stdlib.h>
-#include "obj.h"
 #include "system.h"
 #include "gfx.h"
-#include "md/megadrive.h"
-#include "cube.h"
-#include "palscale.h"
-#include "obj/map.h"
 
 #include "obj/lyle.h"
 #include "progress.h"
@@ -18,20 +13,9 @@
 #define HUD_CP_MAX 29
 
 static uint16_t s_vram_pos;
+static uint16_t s_visible;
 
-static int16_t s_visible;
-
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	const Gfx *g = gfx_get(GFX_HUD);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
-}
-
-// Store static constants here.
-
-static inline void draw_hp(void)
+static void draw_hp(void)
 {
 	const ProgressSlot *progress = progress_get();
 	static const int16_t hud_x = 5;
@@ -59,7 +43,7 @@ static inline void draw_hp(void)
 	}
 }
 
-static inline void draw_cp(void)
+static void draw_cp(void)
 {
 	static const int16_t hud_x = 5;
 	const int16_t y_offset = md_vdp_get_raster_height() == 240 ? 0 : -2;
@@ -84,34 +68,21 @@ static inline void draw_cp(void)
 	}
 }
 
-static void main_func(Obj *o)
+void hud_render(void)
 {
-	(void)o;
-
 	if (!s_visible) return;
-	const ProgressSlot *progress = progress_get();
 	draw_hp();
+	const ProgressSlot *progress = progress_get();
 	if (progress->abilities & ABILITY_PHANTOM) draw_cp();
 }
 
-void o_load_hud(Obj *o, uint16_t data)
+void hud_load(void)
 {
-	_Static_assert(sizeof(O_Hud) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-	(void)data;
-	vram_load();
-
-	obj_basic_init(o, "HUD", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
-	o->main_func = main_func;
-	o->cube_func = NULL;
+	const Gfx *g = gfx_get(GFX_HUD);
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
-void o_unload_hud(void)
-{
-	s_vram_pos = 0;
-}
-
-void hud_set_visible(int16_t visible)
+void hud_set_visible(uint16_t visible)
 {
 	s_visible = visible;
 }

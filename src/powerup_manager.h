@@ -1,12 +1,10 @@
-#ifndef OBJ_POWERUP_MANAGER_H
-#define OBJ_POWERUP_MANAGER_H
+#ifndef POWERUP_MANAGER_H
+#define POWERUP_MANAGER_H
 
-// If you can pick it up, it lives here.
+#include <stdint.h>
+#include "util/fixed.h"
 
-#include "obj.h"
-
-#include <stdlib.h>
-#include "md/megadrive.h"
+#define POWERUP_LIST_SIZE 8
 
 typedef enum PowerupType
 {
@@ -32,31 +30,22 @@ typedef struct Powerup
 {
 	int8_t active;
 	int8_t orb_id;
-	int16_t anim_cnt;
-	int16_t anim_frame;
+	uint16_t anim_cnt;
+	uint16_t anim_frame;
 	PowerupType type;
 	fix32_t x, y;
 	fix16_t dx, dy;
 } Powerup;
 
-typedef struct O_PowerupManager
-{
-	Obj head;
-	int16_t particle_cnt;
-	int16_t flicker_cnt;
-	int8_t flicker_2f_anim;
-	int8_t flicker_4f_anim;
-} O_PowerupManager;
+extern Powerup g_powerups[POWERUP_LIST_SIZE];
 
-extern Powerup g_powerups[10];
-
-void o_load_powerup_manager(Obj *o, uint16_t data);
-void o_unload_powerup_manager(void);
+void powerup_manager_load(void);
+// TODO: Maybe split poll and render
+void powerup_manager_poll(void);
 
 void powerup_manager_clear(void);
 Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
 void powerup_bounce(Powerup *p);
-
 uint16_t powerup_manager_get_vram_pos(void);
 
-#endif  // OBJ_POWERUP_MANAGER_H
+#endif  // POWERUP_MANAGER_H

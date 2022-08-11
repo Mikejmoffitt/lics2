@@ -9,13 +9,13 @@
 #include "obj/map.h"
 #include "obj/bg.h"
 
+#include "powerup_manager.h"
 #include "progress.h"
 #include "game.h"
 #include "obj/lyle.h"
 #include "sfx.h"
 #include "map_file.h"
 #include "music.h"
-#include "obj/powerup_manager.h"
 #include "str.h"
 #include "input.h"
 
@@ -756,7 +756,6 @@ static void hibernate_objects()
 	{
 		Obj *w = &g_objects[i].obj;
 		if (w->status == OBJ_STATUS_NULL) continue;
-		if (w->type == OBJ_HUD) continue;
 		if (w->type == OBJ_MAP) continue;
 		if (w->type == OBJ_PAUSE) continue;
 		w->status = OBJ_STATUS_HIBERNATE;
