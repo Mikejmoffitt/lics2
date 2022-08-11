@@ -10,7 +10,7 @@
 
 #include "res.h"
 #include "progress.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "sfx.h"
 #include "obj/exploder.h"
 #include "obj/cube_manager.h"

@@ -1,4 +1,4 @@
-#include "obj/particle_manager.h"
+#include "particle.h"
 
 #include <stdlib.h>
 #include "obj.h"
@@ -12,7 +12,6 @@
 
 #include "obj/map.h"
 
-static O_ParticleManager *s_particle_manager;
 static Particle s_particles[16];
 
 static uint16_t s_vram_pos;
@@ -24,6 +23,8 @@ static int16_t ksand_life;
 static int16_t kanim_speed;
 static int16_t kanim_speed_explosion;
 static int16_t kanim_speed_sand;
+
+static int16_t s_spawn_start_index;
 
 static void set_constants(void)
 {
@@ -38,14 +39,6 @@ static void set_constants(void)
 	kanim_speed_sand = PALSCALE_DURATION(3.3);
 	ksand_life = kanim_speed_sand * 5;
 	s_constants_set = 1;
-}
-
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	const Gfx *g = gfx_get(GFX_EX_PARTICLES);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 static const uint16_t sparkle_anim[] =
@@ -156,9 +149,8 @@ delete_particle:
 	p->type = PARTICLE_TYPE_NULL;
 }
 
-static void main_func(Obj *o)
+void particle_poll(void)
 {
-	(void)o;
 	uint16_t i = ARRAYSIZE(s_particles);
 	const int16_t map_x = map_get_x_scroll();
 	const int16_t map_y = map_get_y_scroll();
@@ -170,37 +162,18 @@ static void main_func(Obj *o)
 	}
 }
 
-void o_load_particle_manager(Obj *o, uint16_t data)
+void particle_load(void)
 {
-	(void)data;
-	SYSTEM_ASSERT(sizeof(*s_particle_manager) <= sizeof(ObjSlot));
-
-	if (s_particle_manager || s_vram_pos)
-	{
-		obj_erase(o);
-		return;
-	}
-
-	s_particle_manager = (O_ParticleManager *)o;
-
 	set_constants();
-	vram_load();
+	const Gfx *g = gfx_get(GFX_SYS_PARTICLE);
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
-	obj_basic_init(o, "PtclMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
-	o->main_func = main_func;
-
-	particle_manager_clear();
+	particle_clear();
 }
 
-void o_unload_particle_manager(void)
-{
-	s_vram_pos = 0;
-	s_particle_manager = 0;
-}
 
-void particle_manager_clear(void)
+void particle_clear(void)
 {
-	if (!s_particle_manager) return;
 	uint16_t i = ARRAYSIZE(s_particles);
 	while (i--)
 	{
@@ -208,7 +181,7 @@ void particle_manager_clear(void)
 	}
 }
 
-Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
+Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 {
 	// Particles are offset by their width/height divided by two, so as to avoid
 	// applying offsets at runtime while rendering.
@@ -222,10 +195,9 @@ Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 	};
 
 	Particle *ret = NULL;
-	if (!s_particle_manager) return NULL;
 	if (type == PARTICLE_TYPE_NULL) return NULL;
 	uint16_t i = ARRAYSIZE(s_particles);
-	uint16_t seek_idx = s_particle_manager->spawn_start_index;
+	uint16_t seek_idx = s_spawn_start_index;
 	while (i--)
 	{
 		Particle *p = &s_particles[seek_idx];
@@ -285,6 +257,6 @@ Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type)
 		ret = p;
 		break;
 	}
-	s_particle_manager->spawn_start_index = seek_idx;
+	s_spawn_start_index = seek_idx;
 	return ret;
 }

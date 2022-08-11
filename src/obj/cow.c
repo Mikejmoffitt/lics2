@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "res.h"
 #include "sfx.h"
 #include "progress.h"
@@ -216,7 +216,7 @@ static void main_func(Obj *o)
 			{
 				const O_Lyle *l = lyle_get();
 				e->shot_cnt = 0;
-				projectile_manager_shoot_at(o->x, o->y - INTTOFIX32(9), PROJECTILE_TYPE_BALL2,
+				projectile_shoot_at(o->x, o->y - INTTOFIX32(9), PROJECTILE_TYPE_BALL2,
 				                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
 			}
 			

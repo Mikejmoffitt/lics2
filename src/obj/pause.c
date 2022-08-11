@@ -9,7 +9,7 @@
 #include "obj/map.h"
 #include "obj/bg.h"
 
-#include "powerup_manager.h"
+#include "powerup.h"
 #include "progress.h"
 #include "game.h"
 #include "obj/lyle.h"
@@ -98,11 +98,10 @@ static inline void clear_window_plane(void)
 	uint16_t plane_base = md_vdp_get_plane_base(VDP_PLANE_WINDOW);
 	const uint16_t plane_size = GAME_PLANE_W_CELLS * 30;
 	const uint16_t fill_tile = VDP_ATTR(s_vram_pos + 0x30, 0, 0, MAP_PAL_LINE, 0);
-	md_dma_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size, 2);
-	md_dma_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size, 2);
+	md_dma_fill_vram(plane_base + 1, ((fill_tile) & 0xFF00) >> 8, plane_size - 1, 2);
+	md_dma_fill_vram(plane_base, (fill_tile) & 0xFF, plane_size - 1, 2);
 	md_dma_process();
 	md_vdp_poke(plane_base, fill_tile);  // TODO: Is DMA fill really buggy?
-
 }
 
 static inline void plot_map_side_borders(void)
@@ -502,7 +501,7 @@ static void draw_you_got(PauseScreen screen)
 	const int16_t base_y = 32 - (system_is_ntsc() ? 8 : 0);
 	int16_t show_you_got = 1;
 
-	const uint16_t powerup_vram_pos = powerup_manager_get_vram_pos();
+	const uint16_t powerup_vram_pos = powerup_get_vram_pos();
 
 	static const uint16_t pal = MAP_PAL_LINE;
 

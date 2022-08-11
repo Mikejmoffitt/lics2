@@ -8,7 +8,7 @@
 #include "md/megadrive.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "sfx.h"
 
 #include "cube.h"
@@ -138,7 +138,7 @@ static void main_func(Obj *o)
 	else if (f->shot_clock > kbuggo1_shot_fire)
 	{
 		f->shot_clock = 0;
-		projectile_manager_shoot(o->x, o->y - INTTOFIX32(4), PROJECTILE_TYPE_SPIKE,
+		projectile_shoot(o->x, o->y - INTTOFIX32(4), PROJECTILE_TYPE_SPIKE,
 		                         0, kbuggo1_shot_dy);
 		sfx_play(SFX_GAXTER_SHOT, 15);
 	}

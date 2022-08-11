@@ -9,7 +9,7 @@
 #include "palscale.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 
 
 static uint16_t s_vram_pos;
@@ -125,7 +125,7 @@ static void run_timer(Obj *o)
 	if (e->timer == ksequence[2])
 	{
 		// TODO: Figure out actual shot speed.
-		projectile_manager_shoot_at(o->x, o->y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
+		projectile_shoot_at(o->x, o->y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
 		                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
 		// TODO: Shot sfx
 	}

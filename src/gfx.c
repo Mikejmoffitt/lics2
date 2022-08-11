@@ -68,11 +68,12 @@ static const Gfx gfx[] =
 
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
-	[GFX_HUD] = GFX(obj_132_hud),
-	[GFX_POWERUP_MANAGER] = GFX(obj_136_powerup_manager),
 
-	[GFX_EX_PROJECTILES] = GFX(ex_projectiles),
-	[GFX_EX_PARTICLES] = GFX(ex_particles),
+	[GFX_SYS_HUD] = GFX(sys_hud),
+	[GFX_SYS_POWERUP] = GFX(sys_powerup),
+	[GFX_SYS_PROJECTILE] = GFX(sys_projectile),
+	[GFX_SYS_PARTICLE] = GFX(sys_particle),
+
 	[GFX_EX_CREDITS] = GFX(ex_credits),
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),

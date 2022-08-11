@@ -10,7 +10,7 @@
 
 #include "sfx.h"
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 
 static uint16_t s_vram_pos;
 
@@ -99,13 +99,13 @@ static void normal_state_logic(O_Magibear *m)
 		
 		if (o->direction == OBJ_DIRECTION_LEFT)
 		{
-			projectile_manager_shoot(o->x + (o->left/2), o->y - INTTOFIX32(6),
+			projectile_shoot(o->x + (o->left/2), o->y - INTTOFIX32(6),
 			                         PROJECTILE_TYPE_DEATHORB,
 			                         -kshot_speed, 0);
 		}
 		else
 		{
-			projectile_manager_shoot(o->x + (o->right/2), o->y - INTTOFIX32(6),
+			projectile_shoot(o->x + (o->right/2), o->y - INTTOFIX32(6),
 			                         PROJECTILE_TYPE_DEATHORB,
 			                         kshot_speed, 0);
 		}

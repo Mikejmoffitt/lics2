@@ -8,7 +8,7 @@
 #include "progress.h"
 #include "md/megadrive.h"
 #include "palscale.h"
-#include "powerup_manager.h"
+#include "powerup.h"
 
 #define OBJ_OFFSCREEN_MARGIN 64
 
@@ -111,7 +111,7 @@ static void obj_explode(Obj *o)
 		s_powerup_drop_index = 0;
 	}
 
-	powerup_manager_spawn(o->x, o->y, powerup_to_drop, 0);
+	powerup_spawn(o->x, o->y, powerup_to_drop, 0);
 	o->status = OBJ_STATUS_NULL;
 
 }

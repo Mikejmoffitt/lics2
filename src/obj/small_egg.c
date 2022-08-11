@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/lyle.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "progress.h"
 
 static uint16_t s_vram_pos;
@@ -94,11 +94,11 @@ static void main_func(Obj *o)
 	if (o->dy > 0 && map_collision(x_center, y_px))
 	{
 		obj_erase(o);
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 	}
 
 

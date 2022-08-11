@@ -5,7 +5,7 @@
 
 #include "obj.h"
 #include "md/megadrive.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 
 typedef struct O_Exploder
 {

@@ -16,11 +16,11 @@
 #include "str.h"
 
 #include "hud.h"
-#include "powerup_manager.h"
+#include "powerup.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "obj/particle_manager.h"
-#include "obj/projectile_manager.h"
+#include "particle.h"
+#include "projectile.h"
 #include "obj/pause.h"
 
 #include <stdlib.h>
@@ -38,6 +38,20 @@ typedef enum GameState
 
 static GameState s_game_state = GAME_STATE_INIT;
 
+static void load_lyle_persistent_state(void)
+{
+	const PersistentState *persistent_state = persistent_state_get();
+	O_Lyle *l = lyle_get();
+	l->head.dx = persistent_state->lyle_entry_dx;
+	l->head.dy = persistent_state->lyle_entry_dy;
+	l->phantom_cnt = persistent_state->lyle_phantom_cnt;
+	l->cp = persistent_state->lyle_cp;
+	l->head.hp = persistent_state->lyle_hp;
+	l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
+	                                     OBJ_DIRECTION_RIGHT;
+	l->tele_in_cnt = persistent_state->lyle_tele_in_cnt;
+}
+
 static void run_frame(void)
 {
 	int16_t want_display_en = 0;
@@ -54,20 +68,23 @@ static void run_frame(void)
 			sfx_init();
 			progress_init();
 			persistent_state_init();
-			s_game_state++;
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
 			md_vdp_register_vblank_wait_callback(sfx_poll);
 			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
+			s_game_state++;
 			break;
 
 		case GAME_STATE_NEW_ROOM:
+			// Clear object list, and reset bump VRAM allocator.
 			obj_clear();
+			// Static singletons load or allocate VRAM first.
 			hud_load();
-			powerup_manager_load();
+			powerup_load();
+			projectile_load();
+			particle_load();
+			// TODO: Remove these singleton objects.
 			// The order of objects is important.
-			obj_spawn(0, 0, OBJ_PROJECTILE_MANAGER, 0);
-			obj_spawn(0, 0, OBJ_PARTICLE_MANAGER, 0);
 			obj_spawn(32, 32, OBJ_LYLE, 0);
 			obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
 			obj_spawn(0, 0, OBJ_MAP, 0);
@@ -76,29 +93,24 @@ static void run_frame(void)
 			obj_spawn(0, 0, OBJ_BG, 0);
 			obj_spawn(0, 0, OBJ_PAUSE, 0);
 
-			{
-				O_Lyle *l = lyle_get();
-				l->head.dx = persistent_state->lyle_entry_dx;
-				l->head.dy = persistent_state->lyle_entry_dy;
-				l->phantom_cnt = persistent_state->lyle_phantom_cnt;
-				l->cp = persistent_state->lyle_cp;
-				l->head.hp = persistent_state->lyle_hp;
-				l->head.direction = l->head.dx < 0 ? OBJ_DIRECTION_LEFT :
-				                                     OBJ_DIRECTION_RIGHT;
-				l->tele_in_cnt = persistent_state->lyle_tele_in_cnt;
-			}
+			// TODO: Move this functionality into lyle.h
+			load_lyle_persistent_state();
 			music_play(map_get_music_track());
 			s_room_elapsed = 0;
 			progress_save();
-			s_game_state++;
 			md_vdp_set_window_top(0);
+			s_game_state++;
 			break;
 
 		case GAME_STATE_RUN:
 			md_vdp_set_window_top(pause_want_window() ? 31 : 0);
+			// Static singleton objects / managers
 			music_handle_pending();
 			hud_render();
-			powerup_manager_poll();
+			powerup_poll();
+			projectile_poll();
+			particle_poll();
+			// Game actor/object system
 			obj_exec();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();

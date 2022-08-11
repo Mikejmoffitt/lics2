@@ -1,5 +1,5 @@
-#ifndef OBJ_PARTICLE_MANAGER_H
-#define OBJ_PARTICLE_MANAGER_H
+#ifndef PARTICLE_H
+#define PARTICLE_H
 
 #include "obj.h"
 
@@ -27,16 +27,10 @@ typedef struct Particle
 	int16_t anim_frame;
 } Particle;
 
-typedef struct O_ParticleManager
-{
-	Obj head;
-	int16_t spawn_start_index;
-} O_ParticleManager;
+void particle_load(void);
+void particle_poll(void);
 
-void o_load_particle_manager(Obj *o, uint16_t data);
-void o_unload_particle_manager(void);
+void particle_clear(void);
+Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type);
 
-void particle_manager_clear(void);
-Particle *particle_manager_spawn(fix32_t x, fix32_t y, ParticleType type);
-
-#endif  // OBJ_PARTICLE_MANAGER_H
+#endif  // PARTICLE_H

@@ -13,8 +13,8 @@
 #include "game.h"
 #include "sfx.h"
 #include "trig.h"
-#include "obj/particle_manager.h"
-#include "obj/projectile_manager.h"
+#include "particle.h"
+#include "projectile.h"
 #include "obj/cube_manager.h"
 #include "res.h"
 #include "music.h"
@@ -299,9 +299,9 @@ static inline void ball_wall_collisions(O_Boss2 *e, int16_t px, int16_t py, fix1
 	if (py >= max_py)
 	{
 		e->ball_state = BALL_STATE_NONE;
-		projectile_manager_shoot(e->ball_x, e->ball_y,
+		projectile_shoot(e->ball_x, e->ball_y,
 		                         PROJECTILE_TYPE_DEATHORB2, kshot_dx, kshot_dy);
-		projectile_manager_shoot(e->ball_x, e->ball_y,
+		projectile_shoot(e->ball_x, e->ball_y,
 		                         PROJECTILE_TYPE_DEATHORB2, -kshot_dx, kshot_dy);
 	}
 }
@@ -773,15 +773,15 @@ static void main_func(Obj *o)
 				if (e->spread_shot_cnt >= kspread_shot_separation)
 				{
 					e->spread_shot_cnt = 0;
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               192,
 					                               kspread_shot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               216,
 					                               kspread_shot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               168,
 					                               kspread_shot_speed);
@@ -931,7 +931,7 @@ static void main_func(Obj *o)
 					if (e->explode_cnt >= kexplosion_separation)
 					{
 						e->explode_cnt = 0;
-						particle_manager_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
+						particle_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
 						sfx_play(SFX_EXPLODE, 0);
 					}
 					else

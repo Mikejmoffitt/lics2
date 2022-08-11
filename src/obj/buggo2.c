@@ -8,7 +8,7 @@
 #include "md/megadrive.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "sfx.h"
 
 #include "cube.h"
@@ -160,9 +160,9 @@ static void main_func(Obj *o)
 	{
 		f->shot_clock = 0;
 		f->spin_cnt = kbuggo2_spark_time / 2;
-		projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
+		projectile_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
 		                         kbuggo2_spark_dx, 0);
-		projectile_manager_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
+		projectile_shoot(o->x, o->y - INTTOFIX32(1), PROJECTILE_TYPE_SPARK,
 		                         -kbuggo2_spark_dx, 0);
 		sfx_play(SFX_GAXTER_SHOT, 15);
 

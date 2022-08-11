@@ -12,7 +12,7 @@
 #include "palscale.h"
 #include "cube.h"
 #include "obj/cube_manager.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "obj/map.h"
 #include "obj/pause.h"
 
@@ -874,7 +874,7 @@ static inline void cp(O_Lyle *l)
 	{
 		// TODO: Adjust particle spawn rate not based on elapsed, but a time
 		// scalable constant.
-		particle_manager_spawn(l->head.x, l->head.y - INTTOFIX32(32),
+		particle_spawn(l->head.x, l->head.y - INTTOFIX32(32),
 		                       PARTICLE_TYPE_SPARKLE);
 	}
 }

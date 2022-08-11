@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "trig.h"
 
 static uint16_t s_vram_pos;
@@ -132,30 +132,30 @@ static void main_func(Obj *o)
 				e->phase++;
 				if (o->x < l->head.x)
 				{
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(-22.5),
 					                               kshot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(-45.0),
 					                               kshot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(-67.5),
 					                               kshot_speed);
 				}
 				else
 				{
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(180 + 22.5),
 					                               kshot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(180 + 45.0),
 					                               kshot_speed);
-					projectile_manager_shoot_angle(o->x, o->y,
+					projectile_shoot_angle(o->x, o->y,
 					                               PROJECTILE_TYPE_BALL2,
 					                               DEGTOUINT8(180 + 67.5),
 					                               kshot_speed);

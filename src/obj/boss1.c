@@ -10,8 +10,8 @@
 
 #include "obj/fakecube.h"
 #include "progress.h"
-#include "obj/particle_manager.h"
-#include "obj/projectile_manager.h"
+#include "particle.h"
+#include "projectile.h"
 #include "obj/cube_manager.h"
 #include "music.h"
 #include "sfx.h"
@@ -378,7 +378,7 @@ static void main_func(Obj *o)
 				const fix32_t shot_x = o->x + INTTOFIX32((o->direction == OBJ_DIRECTION_RIGHT ? 13 : -13));
 				const fix32_t shot_y = o->y - INTTOFIX32(16);
 				const fix16_t shot_dx = (o->direction == OBJ_DIRECTION_RIGHT) ? kshot_dx : -kshot_dx;
-				projectile_manager_shoot(shot_x, shot_y, PROJECTILE_TYPE_DEATHORB2, shot_dx, kshot_dy);
+				projectile_shoot(shot_x, shot_y, PROJECTILE_TYPE_DEATHORB2, shot_dx, kshot_dy);
 				// TODO: roar sound
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
@@ -402,7 +402,7 @@ static void main_func(Obj *o)
 			if (e->explode_cnt >= kexplosion_separation)
 			{
 				e->explode_cnt = 0;
-				particle_manager_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
+				particle_spawn(o->x, o->y + (o->top / 2), PARTICLE_TYPE_EXPLOSION);
 				sfx_play(SFX_EXPLODE, 0);
 			}
 			if (e->state_elapsed < kexploding_duration) break;

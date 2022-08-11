@@ -1,5 +1,5 @@
-#ifndef POWERUP_MANAGER_H
-#define POWERUP_MANAGER_H
+#ifndef POWERUP_H
+#define POWERUP_H
 
 #include <stdint.h>
 #include "util/fixed.h"
@@ -39,13 +39,13 @@ typedef struct Powerup
 
 extern Powerup g_powerups[POWERUP_LIST_SIZE];
 
-void powerup_manager_load(void);
+void powerup_load(void);
 // TODO: Maybe split poll and render
-void powerup_manager_poll(void);
+void powerup_poll(void);
 
-void powerup_manager_clear(void);
-Powerup *powerup_manager_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
+void powerup_clear(void);
+Powerup *powerup_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
 void powerup_bounce(Powerup *p);
-uint16_t powerup_manager_get_vram_pos(void);
+uint16_t powerup_get_vram_pos(void);
 
-#endif  // POWERUP_MANAGER_H
+#endif  // POWERUP_H

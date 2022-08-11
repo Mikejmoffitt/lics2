@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "game.h"
 #include "obj/rockman_door.h"
 #include "sfx.h"
@@ -381,7 +381,7 @@ static void main_func(Obj *o)
 				e->shot_anim_active = 1;
 				e->anim_frame = 0;
 				e->anim_cnt = 0;
-				projectile_manager_shoot_at(o->x, o->y - INTTOFIX32(9), PROJECTILE_TYPE_BALL2,
+				projectile_shoot_at(o->x, o->y - INTTOFIX32(9), PROJECTILE_TYPE_BALL2,
 				                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
 			}
 

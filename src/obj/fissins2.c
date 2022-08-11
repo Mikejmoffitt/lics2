@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/lyle.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "game.h"
 
 /*
@@ -143,11 +143,11 @@ static void main_func(Obj *o)
 			e->airborn = 1;
 			o->dy = kjump_dy_table[system_rand() % ARRAYSIZE(kjump_dy_table)];
 			e->anim_frame = 0;
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		}
 		else
 		{
@@ -166,11 +166,11 @@ static void main_func(Obj *o)
 			o->flags &= ~(OBJ_FLAG_TANGIBLE);
 			o->flags &= ~(OBJ_FLAG_HARMFUL);
 			e->cooldown = kcooldown;
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
-			particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
+			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		}
 		else
 		{

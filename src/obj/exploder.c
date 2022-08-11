@@ -46,7 +46,7 @@ static void main_func(Obj *o)
 	f->accumulator += f->rate;
 	while (f->accumulator > INTTOFIX16(1.0))
 	{
-		particle_manager_spawn(o->x, o->y, f->type);
+		particle_spawn(o->x, o->y, f->type);
 		f->accumulator -= INTTOFIX16(1.0);
 		f->count--;
 	}

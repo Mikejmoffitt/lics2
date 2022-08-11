@@ -9,7 +9,7 @@
 #include "obj/map.h"
 
 #include "obj/egg.h"
-#include "powerup_manager.h"
+#include "powerup.h"
 #include "progress.h"
 #include "sfx.h"
 
@@ -160,7 +160,7 @@ static void main_func(Obj *o)
 
 			if (e->state_elapsed >= kflicker_time)
 			{
-				powerup_manager_spawn(o->x, o->y - INTTOFIX32(8),
+				powerup_spawn(o->x, o->y - INTTOFIX32(8),
 				                      POWERUP_TYPE_CP_ORB, 6);
 				Obj *egg = NULL;
 				// Delete eggs and egg generator

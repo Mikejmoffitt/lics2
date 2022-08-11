@@ -9,7 +9,7 @@
 #include "obj/lyle.h"
 
 #include "sfx.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "progress.h"
 
 #include "cube.h"
@@ -196,12 +196,12 @@ static void main_func(Obj *o)
 	{
 		b->boingo_type = BOINGO_TYPE_NORMAL;
 		b->transition_to_normal = 0;
-		particle_manager_spawn(o->x, o->y, PARTICLE_TYPE_FIZZLERED);
-		particle_manager_spawn(o->x + o->right, o->y, PARTICLE_TYPE_FIZZLERED);
-		particle_manager_spawn(o->x + o->left, o->y, PARTICLE_TYPE_FIZZLERED);
-		particle_manager_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
-		particle_manager_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
-		particle_manager_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x + o->right, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x + o->left, o->y, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x + o->right, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
+		particle_spawn(o->x + o->left, o->y + o->top, PARTICLE_TYPE_FIZZLERED);
 		sfx_play(SFX_OBJ_BURST, 3);
 	}
 

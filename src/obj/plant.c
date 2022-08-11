@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "obj/map.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "obj/lyle.h"
 
 
@@ -151,7 +151,7 @@ static void main_func(Obj *o)
 				e->state_elapsed = 0;
 				e->state++;
 				const fix32_t x_offset = (o->direction == OBJ_DIRECTION_RIGHT) ? INTTOFIX32(10) : INTTOFIX32(-10);
-				projectile_manager_shoot_at(o->x + x_offset, o->y - INTTOFIX32(32), PROJECTILE_TYPE_BALL2,
+				projectile_shoot_at(o->x + x_offset, o->y - INTTOFIX32(32), PROJECTILE_TYPE_BALL2,
 				                            lyle_x, lyle_y - INTTOFIX32(10), kshot_speed);
 				// TODO: Shot speed
 				// TODO: Shot sound

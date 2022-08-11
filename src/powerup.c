@@ -1,4 +1,4 @@
-#include "powerup_manager.h"
+#include "powerup.h"
 
 #include <stdint.h>
 #include "gfx.h"
@@ -6,7 +6,7 @@
 #include "progress.h"
 
 #include "palscale.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 
 #include "obj/map.h"
 #include "obj/lyle.h"
@@ -24,7 +24,7 @@ static fix16_t kceiling_dy;
 
 static uint16_t s_vram_pos;
 
-uint16_t powerup_manager_get_vram_pos(void)
+uint16_t powerup_get_vram_pos(void)
 {
 	return s_vram_pos;
 }
@@ -179,25 +179,25 @@ static inline void powerup_get(Powerup *p)
 		default:
 			break;
 		case POWERUP_TYPE_HP_2X:
-			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			                       PARTICLE_TYPE_SPARKLE);
+			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			               PARTICLE_TYPE_SPARKLE);
 			lh->hp += 1;
 			// Fall-through intended.
 		case POWERUP_TYPE_HP:
-			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			                       PARTICLE_TYPE_SPARKLE);
+			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			               PARTICLE_TYPE_SPARKLE);
 			sfx_play(SFX_POWERUP_GET, 10);
 			lh->hp += 1;
 			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
 			break;
 		case POWERUP_TYPE_CP_2X:
-			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			                       PARTICLE_TYPE_SPARKLE);
+			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			               PARTICLE_TYPE_SPARKLE);
 			l->cp += 4;
 			// Fall-through intended.
 		case POWERUP_TYPE_CP:
-			particle_manager_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			                       PARTICLE_TYPE_SPARKLE);
+			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
+			               PARTICLE_TYPE_SPARKLE);
 			sfx_play(SFX_POWERUP_GET, 10);
 			l->cp += 4;
 			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
@@ -304,7 +304,7 @@ static inline void powerup_run(Powerup *p)
 	}
 }
 
-void powerup_manager_poll(void)
+void powerup_poll(void)
 {
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
@@ -315,16 +315,16 @@ void powerup_manager_poll(void)
 	}
 }
 
-void powerup_manager_load(void)
+void powerup_load(void)
 {
 	set_constants();
-	const Gfx *g = gfx_get(GFX_POWERUP_MANAGER);
+	const Gfx *g = gfx_get(GFX_SYS_POWERUP);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
-	powerup_manager_clear();
+	powerup_clear();
 }
 
-void powerup_manager_clear(void)
+void powerup_clear(void)
 {
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
@@ -333,8 +333,8 @@ void powerup_manager_clear(void)
 	}
 }
 
-Powerup *powerup_manager_spawn(fix32_t x, fix32_t y,
-                               PowerupType type, int8_t orb_id)
+Powerup *powerup_spawn(fix32_t x, fix32_t y,
+                       PowerupType type, int8_t orb_id)
 {
 	const ProgressSlot *prog = progress_get();
 	switch (type)

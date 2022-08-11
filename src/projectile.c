@@ -1,4 +1,4 @@
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 
 #include <stdlib.h>
 #include "obj.h"
@@ -7,7 +7,7 @@
 
 #include "palscale.h"
 #include "util/fixed.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 
 #include "obj/map.h"
 #include "obj/lyle.h"
@@ -16,7 +16,6 @@
 
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 
-static O_ProjectileManager *s_projectile_manager;
 static Projectile s_projectiles[10];
 
 static int16_t kparticle_rate;
@@ -28,6 +27,11 @@ static fix16_t kdeathorb2_dy_table[4];
 static fix16_t kdeathorb_flip_dy;
 static fix16_t kdeathorb_ddy;
 static fix16_t kdeathorb2_ddy;
+
+static int16_t s_particle_cnt;
+static int16_t s_flicker_cnt;
+static int8_t s_flicker_2f_anim;
+static int8_t s_flicker_4f_anim;
 
 static uint16_t s_vram_pos;
 
@@ -52,14 +56,6 @@ static void set_constants(void)
 	s_constants_set = 1;
 }
 
-static void vram_load(void)
-{
-	if (s_vram_pos) return;
-
-	const Gfx *g = gfx_get(GFX_EX_PROJECTILES);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
-}
-
 static inline void projectile_render(Projectile *p)
 {
 	uint8_t size;
@@ -74,7 +70,7 @@ static inline void projectile_render(Projectile *p)
 	// Death orb flickers as it approaches end-of-life.
 	if (p->type == PROJECTILE_TYPE_DEATHORB &&
 	    p->frames_alive > kdeathorb_flash_time &&
-	    s_projectile_manager->flicker_4f_anim > 1)
+	    s_flicker_4f_anim > 1)
 	{
 		return;
 	}
@@ -87,7 +83,7 @@ static inline void projectile_render(Projectile *p)
 		case PROJECTILE_TYPE_BALL2:
 			size = SPR_SIZE(1, 1);
 			pal = LYLE_PAL_LINE;
-			tile_offset = s_projectile_manager->flicker_2f_anim ? 1 : 0;
+			tile_offset = s_flicker_2f_anim ? 1 : 0;
 			break;
 		case PROJECTILE_TYPE_SPIKE:
 			size = SPR_SIZE(1, 1);
@@ -98,15 +94,15 @@ static inline void projectile_render(Projectile *p)
 			ty -= 3;
 			size = SPR_SIZE(1, 1);
 			pal = LYLE_PAL_LINE;
-			tile_offset = s_projectile_manager->flicker_2f_anim ? 4 : 3;
+			tile_offset = s_flicker_2f_anim ? 4 : 3;
 			break;
 		case PROJECTILE_TYPE_DEATHORB:
 			ty -= 4;
 			tx -= 4;
 			size = SPR_SIZE(2, 2);
-			pal = s_projectile_manager->flicker_2f_anim ?
+			pal = s_flicker_2f_anim ?
 			      LYLE_PAL_LINE : ENEMY_PAL_LINE;
-			tile_offset = s_projectile_manager->flicker_2f_anim ? 5 : 9;
+			tile_offset = s_flicker_2f_anim ? 5 : 9;
 			break;
 		case PROJECTILE_TYPE_DEATHORB2:
 			ty -= 4;
@@ -114,7 +110,7 @@ static inline void projectile_render(Projectile *p)
 			size = SPR_SIZE(2, 2);
 			pal = LYLE_PAL_LINE;
 			if (p->dx < 0) xflip = 1;
-			tile_offset = 13 + (4 * s_projectile_manager->flicker_4f_anim);
+			tile_offset = 13 + (4 * s_flicker_4f_anim);
 			break;
 	}
 
@@ -258,74 +254,50 @@ static inline void projectile_run(Projectile *p)
 
 	// Particle effects
 	if (p->type != PROJECTILE_TYPE_SPARK &&
-	    s_projectile_manager->particle_cnt == 0)
+	    s_particle_cnt == 0)
 	{
-		particle_manager_spawn(p->x, p->y, PARTICLE_TYPE_SPARKLE);
+		particle_spawn(p->x, p->y, PARTICLE_TYPE_SPARKLE);
 	}
 
 	// Render
 	projectile_render(p);
 }
 
-static void main_func(Obj *o)
+void projectile_poll(void)
 {
-	system_profile(PALRGB(7, 0, 7));
-	O_ProjectileManager *p = (O_ProjectileManager *)o;
-
-	p->particle_cnt++;
-	if (p->particle_cnt >= kparticle_rate) p->particle_cnt = 0;
-	p->flicker_cnt++;
-	if (p->flicker_cnt >= kflicker_2f_anim_speed)
+	// Animation counters
+	s_particle_cnt++;
+	if (s_particle_cnt >= kparticle_rate) s_particle_cnt = 0;
+	s_flicker_cnt++;
+	if (s_flicker_cnt >= kflicker_2f_anim_speed)
 	{
-		p->flicker_cnt = 0;
-		p->flicker_2f_anim ^= 1;
-		p->flicker_4f_anim++;
-		if (p->flicker_4f_anim > 3) p->flicker_4f_anim = 0;
+		s_flicker_cnt = 0;
+		s_flicker_2f_anim ^= 1;
+		s_flicker_4f_anim++;
+		if (s_flicker_4f_anim > 3) s_flicker_4f_anim = 0;
 	}
 
+	// Run logic for each projectile in the list
 	uint16_t i = ARRAYSIZE(s_projectiles);
 	while (i--)
 	{
-		system_profile(PALRGB(3, i % 2 ? 0 : 4, 3));
 		Projectile *p = &s_projectiles[i];
 		if (p->type == PROJECTILE_TYPE_NULL) continue;
 		projectile_run(p);
 	}
-	system_profile(PALRGB(0, 0, 0));
 }
 
-void o_load_projectile_manager(Obj *o, uint16_t data)
+void projectile_load(void)
 {
-	(void)data;
-	_Static_assert(sizeof(O_ProjectileManager) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-
-	if (s_projectile_manager || s_vram_pos)
-	{
-		obj_erase(o);
-		return;
-	}
-
-	s_projectile_manager = (O_ProjectileManager *)o;
-
 	set_constants();
-	vram_load();
+	const Gfx *g = gfx_get(GFX_SYS_PROJECTILE);
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
-	obj_basic_init(o, "ShotMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
-	o->main_func = main_func;
-
-	projectile_manager_clear();
+	projectile_clear();
 }
 
-void o_unload_projectile_manager(void)
+void projectile_clear(void)
 {
-	s_vram_pos = 0;
-	s_projectile_manager = NULL;
-}
-
-void projectile_manager_clear(void)
-{
-	if (!s_projectile_manager) return;
 	uint16_t i = ARRAYSIZE(s_projectiles);
 	while (i--)
 	{
@@ -335,7 +307,6 @@ void projectile_manager_clear(void)
 
 static Projectile *find_slot(void)
 {
-	if (!s_projectile_manager) return NULL;
 	for (uint16_t i = 0; i < ARRAYSIZE(s_projectiles); i++)
 	{
 		Projectile *p = &s_projectiles[i];
@@ -344,8 +315,8 @@ static Projectile *find_slot(void)
 	return NULL;
 }
 
-Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
-                                     fix16_t dx, fix16_t dy)
+Projectile *projectile_shoot(fix32_t x, fix32_t y, ProjectileType type,
+                             fix16_t dx, fix16_t dy)
 {
 	if (type == PROJECTILE_TYPE_NULL) return NULL;
 	Projectile *p = find_slot();
@@ -362,19 +333,19 @@ Projectile *projectile_manager_shoot(fix32_t x, fix32_t y, ProjectileType type,
 	return p;
 }
 
-Projectile *projectile_manager_shoot_angle(fix32_t x, fix32_t y, ProjectileType type,
-                                           uint8_t angle, fix16_t speed)
+Projectile *projectile_shoot_angle(fix32_t x, fix32_t y, ProjectileType type,
+                                   uint8_t angle, fix16_t speed)
 {
 	const fix16_t dy = -FIX16MUL(speed, trig_sin(angle));
 	const fix16_t dx = FIX16MUL(speed, trig_cos(angle));
-	return projectile_manager_shoot(x, y, type, dx, dy);
+	return projectile_shoot(x, y, type, dx, dy);
 }
 
-Projectile *projectile_manager_shoot_at(fix32_t x, fix32_t y,
-                                        ProjectileType type,
-                                        fix32_t tx, fix32_t ty, fix16_t speed)
+Projectile *projectile_shoot_at(fix32_t x, fix32_t y,
+                                ProjectileType type,
+                                fix32_t tx, fix32_t ty, fix16_t speed)
 {
 	const fix32_t delta_y = (ty - y);
 	const fix32_t delta_x = tx - x;
-	return projectile_manager_shoot_angle(x, y, type, trig_atan(delta_y, delta_x), speed);
+	return projectile_shoot_angle(x, y, type, trig_atan(delta_y, delta_x), speed);
 }

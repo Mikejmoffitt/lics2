@@ -10,7 +10,7 @@
 
 #include "progress.h"
 #include "obj/lyle.h"
-#include "powerup_manager.h"
+#include "powerup.h"
 #include "sfx.h"
 
 static uint16_t s_vram_pos;
@@ -155,7 +155,7 @@ static void main_func(Obj *o)
 				e->belched = 1;
 				
 				sfx_play(SFX_MAGIBEAR_SHOT, 14);
-				Powerup *pow = powerup_manager_spawn(o->x + INTTOFIX32(3), o->y - INTTOFIX32(8),
+				Powerup *pow = powerup_spawn(o->x + INTTOFIX32(3), o->y - INTTOFIX32(8),
 				                                     POWERUP_TYPE_CP_ORB, 3);
 				pow->dx = korb_dx;
 				pow->dy = korb_dy;

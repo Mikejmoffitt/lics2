@@ -7,7 +7,7 @@
 #include "md/megadrive.h"
 #include "obj/map.h"
 #include "obj/lyle.h"
-#include "obj/projectile_manager.h"
+#include "projectile.h"
 #include "sfx.h"
 
 #include "cube.h"
@@ -138,13 +138,13 @@ static void main_func(Obj *o)
 		const fix32_t shot_y = o->y + INTTOFIX32(8);
 		if (o->direction == OBJ_DIRECTION_LEFT)
 		{
-			projectile_manager_shoot(o->x + (o->left / 2), shot_y,
+			projectile_shoot(o->x + (o->left / 2), shot_y,
 			                         PROJECTILE_TYPE_BALL,
 			                         -kshot_speed, kshot_speed);
 		}
 		else
 		{
-			projectile_manager_shoot(o->x + (o->right / 2), shot_y,
+			projectile_shoot(o->x + (o->right / 2), shot_y,
 			                         PROJECTILE_TYPE_BALL,
 			                         kshot_speed, kshot_speed);
 		}

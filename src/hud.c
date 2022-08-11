@@ -78,7 +78,7 @@ void hud_render(void)
 
 void hud_load(void)
 {
-	const Gfx *g = gfx_get(GFX_HUD);
+	const Gfx *g = gfx_get(GFX_SYS_HUD);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 

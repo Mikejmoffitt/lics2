@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "obj/lyle.h"
 #include "obj/map.h"
-#include "obj/particle_manager.h"
+#include "particle.h"
 #include "game.h"
 #include "sfx.h"
 #include "progress.h"
@@ -107,7 +107,7 @@ static void main_func(Obj *o)
 
 		if (g_elapsed % 2)
 		{
-			particle_manager_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
+			particle_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
 			                       o->y + INTTOFIX32(-16 + (system_rand() % 32)),
 			                       PARTICLE_TYPE_SPARKLE);
 		}
@@ -132,7 +132,7 @@ static void main_func(Obj *o)
 			}
 			if (g_elapsed % 2)
 			{
-				particle_manager_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
+				particle_spawn(o->x + INTTOFIX32(-8 + (system_rand() % 16)),
 				                       o->y + INTTOFIX32(-16 + (system_rand() % 32)),
 				                       PARTICLE_TYPE_SPARKLE);
 			}

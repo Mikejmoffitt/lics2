@@ -5,8 +5,8 @@
 
 #include "system.h"
 #include "obj/cube_manager.h"
-#include "obj/particle_manager.h"
-#include "powerup_manager.h"
+#include "particle.h"
+#include "powerup.h"
 #include "obj/map.h"
 #include "game.h"
 #include "sfx.h"
@@ -92,16 +92,16 @@ void cube_destroy(Cube *c)
 		switch (c->type)
 		{
 			case CUBE_TYPE_YELLOW_HPUP:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP, 0);
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_HP, 0);
 				break;
 			case CUBE_TYPE_YELLOW_HPUP2:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP_2X, 0);
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_HP_2X, 0);
 				break;
 			case CUBE_TYPE_YELLOW_CPUP:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP, 0);
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_CP, 0);
 				break;
 			case CUBE_TYPE_YELLOW_CPUP2:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP_2X, 0);
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_CP_2X, 0);
 				break;
 			case CUBE_TYPE_YELLOW_CPORB0:
 			case CUBE_TYPE_YELLOW_CPORB1:
@@ -119,7 +119,7 @@ void cube_destroy(Cube *c)
 			case CUBE_TYPE_YELLOW_CPORB13:
 			case CUBE_TYPE_YELLOW_CPORB14:
 			case CUBE_TYPE_YELLOW_CPORB15:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_CP_ORB, (c->type & 0x000F));
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_CP_ORB, (c->type & 0x000F));
 				break;
 			case CUBE_TYPE_YELLOW_HPORB0:
 			case CUBE_TYPE_YELLOW_HPORB1:
@@ -137,7 +137,7 @@ void cube_destroy(Cube *c)
 			case CUBE_TYPE_YELLOW_HPORB13:
 			case CUBE_TYPE_YELLOW_HPORB14:
 			case CUBE_TYPE_YELLOW_HPORB15:
-				powerup_manager_spawn(c->x, c->y, POWERUP_TYPE_HP_ORB, (c->type & 0x000F));
+				powerup_spawn(c->x, c->y, POWERUP_TYPE_HP_ORB, (c->type & 0x000F));
 				break;
 			default:
 				break;
@@ -587,12 +587,12 @@ void cube_run(Cube *c)
 	// Spawn particles.
 	if (c->status == CUBE_STATUS_FIZZLE)
 	{
-		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_FIZZLE);
+		particle_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_FIZZLE);
 		return;
 	}
 	else if (c->status == CUBE_STATUS_EXPLODE)
 	{
-		particle_manager_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_EXPLOSION);
+		particle_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_EXPLOSION);
 		return;
 	}
 	system_profile(PALRGB(3, 0, 7));
