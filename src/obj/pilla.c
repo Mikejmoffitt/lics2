@@ -98,7 +98,7 @@ static void main_func(Obj *o)
 		o->direction = OBJ_DIRECTION_RIGHT;
 	}
 
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 
 	// Vertical movement.
 	if (!map_collision(left + 2, bottom + 1) && !map_collision(right - 2, bottom + 1))

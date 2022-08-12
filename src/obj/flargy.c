@@ -118,7 +118,7 @@ static void main_func(Obj *o)
 	{
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_speed);
 		o->dx = (o->direction == OBJ_DIRECTION_RIGHT) ? kwalk_dx : -kwalk_dx;
-		obj_standard_physics(o);
+		obj_accurate_physics(o);
 	}
 
 	render(e);

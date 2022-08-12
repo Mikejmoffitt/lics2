@@ -251,7 +251,7 @@ static void main_func(Obj *o)
 				e->state = VYLE1_STATE_ACTIVE;
 			}
 
-			obj_standard_physics(o);
+			obj_mixed_physics_h(o);
 
 			break;
 

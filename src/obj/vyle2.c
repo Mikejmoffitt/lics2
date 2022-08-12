@@ -285,7 +285,7 @@ static void main_func(Obj *o)
 
 			// Once lyle has walked far enough, proceed.
 			if (l->head.x >= INTTOFIX32(92)) e->state = VYLE2_STATE_CAMERA_PAN_TO_MACHINE;
-			obj_standard_physics(&l->head);
+			obj_accurate_physics(&l->head);
 
 			break;
 		case VYLE2_STATE_CAMERA_PAN_TO_MACHINE:
@@ -347,7 +347,7 @@ static void main_func(Obj *o)
 				e->metaframe = vyle_walk_cycle[e->anim_frame];
 			}
 
-			obj_standard_physics(&l->head);
+			obj_accurate_physics(&l->head);
 
 			{
 				int16_t px = FIX32TOINT(l->head.x);
@@ -551,7 +551,7 @@ static void main_func(Obj *o)
 				e->state = VYLE2_STATE_START_DELAY;
 			}
 
-			obj_standard_physics(&l->head);
+			obj_accurate_physics(&l->head);
 			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
 		case VYLE2_STATE_START_DELAY:
@@ -578,7 +578,7 @@ static void main_func(Obj *o)
 
 	if (state_prev != e->state) e->state_elapsed = 0;
 	else e->state_elapsed++;
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 
 	render(e);
 }

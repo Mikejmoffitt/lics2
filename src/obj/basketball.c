@@ -209,8 +209,6 @@ static void main_func(Obj *o)
 	o->dy += kgravity;
 	obj_standard_physics(o);
 
-
-
 	render(e);
 }
 

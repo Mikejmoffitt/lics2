@@ -82,7 +82,7 @@ static void main_func(Obj *o)
 		return;
 	}
 
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 
 	// Left/right movement, and collision.
 	const int16_t left = FIX32TOINT(o->x) - 10;

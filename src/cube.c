@@ -11,6 +11,7 @@
 #include "game.h"
 #include "sfx.h"
 #include "lyle.h"
+#include "physics.h"
 
 #include "md/megadrive.h"
 
@@ -375,7 +376,7 @@ static inline void cube_movement(Cube *c)
 {
 	if (c->status == CUBE_STATUS_AIR)
 	{
-		c->y += c->dy;
+		c->y += physics_trunc_fix16(c->dy);
 		c->dy += kgravity;
 	}
 	c->x += c->dx;

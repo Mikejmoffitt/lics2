@@ -101,7 +101,7 @@ static void main_func(Obj *o)
 		if (o->dy < -kdy_cutoff) f->moving_up = 1;
 	}
 
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 
 	// Animation.
 	OBJ_SIMPLE_ANIM(f->anim_cnt, f->anim_frame, 2, kanim_delay);

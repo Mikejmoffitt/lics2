@@ -6,6 +6,7 @@
 #include "system.h"
 #include "util/fixed.h"
 #include "obj_types.h"
+#include "physics.h"
 #include "game.h"
 
 #include "cube.h"
@@ -114,9 +115,32 @@ void obj_cube_impact(Obj *o, Cube *c);
 // Utility or commonly reused functions =======================================
 // name is a null-terminated string. At most 8 characters will be copied.
 void obj_basic_init(Obj *o, const char *name, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp);
+
+// A recreation of the strange physics seen in the MMF original.
 static inline void obj_standard_physics(Obj *o)
 {
+	o->x += physics_trunc_fix16(o->dx);
+	o->y += physics_trunc_fix16(o->dy);
+}
+
+// Accurate precise physics, used really only by Lyle.
+static inline void obj_accurate_physics(Obj *o)
+{
 	o->x += (fix32_t)o->dx;
+	o->y += (fix32_t)o->dy;
+}
+
+// Accurate H movement, MMF behavior V movement.
+static inline void obj_mixed_physics_h(Obj *o)
+{
+	o->x += (fix32_t)o->dx;
+	o->y += physics_trunc_fix16(o->dy);
+}
+
+// Accurate V movement, MMF behavior H movement.
+static inline void obj_mixed_physics_v(Obj *o)
+{
+	o->x += physics_trunc_fix16(o->dx);
 	o->y += (fix32_t)o->dy;
 }
 

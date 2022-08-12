@@ -1166,7 +1166,7 @@ void lyle_poll(void)
 			cp(l);
 			jump(l);
 
-			obj_standard_physics(&l->head);
+			obj_accurate_physics(&l->head);
 			bg_vertical_collision(l);
 			bg_horizontal_collision(l);
 			head_pushout(l);
@@ -1182,7 +1182,7 @@ void lyle_poll(void)
 		}
 		else
 		{
-			obj_standard_physics(&l->head);
+			obj_accurate_physics(&l->head);
 			cp(l);
 			gravity(l);
 			dead_exit_check(l);

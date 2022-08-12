@@ -218,7 +218,7 @@ static void main_func(Obj *o)
 	{
 		if (b->jumping)
 		{
-			obj_standard_physics(o);
+			obj_mixed_physics_h(o);
 			o->dy += kgravity;
 			bg_collisions(b);
 		}

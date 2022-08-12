@@ -143,7 +143,7 @@ static void main_func(Obj *o)
 		sfx_play(SFX_GAXTER_SHOT, 15);
 	}
 
-	if (f->shot_clock < kbuggo1_shot_test) obj_standard_physics(o);
+	if (f->shot_clock < kbuggo1_shot_test) obj_accurate_physics(o);
 
 	// Animate.
 	f->anim_cnt++;

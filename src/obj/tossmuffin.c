@@ -161,7 +161,7 @@ static void main_func(Obj *o)
 	{
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_speed);
 		e->head.dx = (e->head.direction == OBJ_DIRECTION_RIGHT) ? kwalk_dx : -kwalk_dx;
-		obj_standard_physics(o);
+		obj_mixed_physics_h(o);
 		// Simple BG collision to restrict sideways movement
 		const int16_t left = FIX32TOINT(o->x + o->left);
 		const int16_t right = FIX32TOINT(o->x + o->right);

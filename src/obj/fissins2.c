@@ -178,7 +178,7 @@ static void main_func(Obj *o)
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_delay);
 		}
 	}
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 	render(e);
 }
 

@@ -168,7 +168,7 @@ static void main_func(Obj *o)
 
 	}
 
-	if (f->spin_cnt == 0) obj_standard_physics(o);
+	if (f->spin_cnt == 0) obj_accurate_physics(o);
 
 	// Animate.
 	f->anim_cnt++;

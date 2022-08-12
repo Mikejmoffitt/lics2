@@ -156,7 +156,7 @@ static void main_func(Obj *o)
 		f->shot_clock++;
 	}
 
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 
 	// Animation.
 	if (f->anim_cnt == kanim_len)

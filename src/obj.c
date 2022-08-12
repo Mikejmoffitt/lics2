@@ -22,6 +22,9 @@ static int8_t khurt_stun_time;
 static fix16_t kcube_bounce_offset_dy;
 static fix16_t kcube_bounce_base_dx;
 
+fix16_t g_fix_trunc_table_pos[10];
+fix16_t g_fix_trunc_table_neg[10];
+
 static void set_constants(void)
 {
 	if (constants_set) return;
@@ -29,6 +32,13 @@ static void set_constants(void)
 	khurt_stun_time = PALSCALE_DURATION(24);
 	kcube_bounce_offset_dy = INTTOFIX16(PALSCALE_1ST(0));  // Was 0.8333333
 	kcube_bounce_base_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333));
+
+	for (uint16_t i = 0; i < ARRAYSIZE(g_fix_trunc_table_pos); i++)
+	{
+		g_fix_trunc_table_pos[i] = INTTOFIX16(PALSCALE_1ST(i));
+		g_fix_trunc_table_neg[i] = -g_fix_trunc_table_pos[i];
+	}
+
 	constants_set = 1;
 }
 

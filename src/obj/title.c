@@ -570,7 +570,7 @@ static void main_func(Obj *o)
 
 				// Gravity physics, and bouncing at the bottom.
 				e->v_scroll_dy += kscroll_gravity;
-				e->v_scroll_y += (fix32_t)e->v_scroll_dy;
+				e->v_scroll_y += physics_trunc_fix16(e->v_scroll_dy);
 				if (e->v_scroll_y >= kscroll_max / 2)
 				{
 					md_pal_upload(ENEMY_CRAM_POSITION, res_pal_title_bin, sizeof(res_pal_title_bin) / 2);
