@@ -17,6 +17,7 @@
 
 #include "hud.h"
 #include "powerup.h"
+#include "physics.h"
 #include "obj/map.h"
 #include "lyle.h"
 #include "particle.h"
@@ -68,6 +69,7 @@ static void run_frame(void)
 			sfx_init();
 			progress_init();
 			persistent_state_init();
+			physics_init();
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
 			md_vdp_register_vblank_wait_callback(sfx_poll);

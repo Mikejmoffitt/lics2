@@ -33,12 +33,6 @@ static void set_constants(void)
 	kcube_bounce_offset_dy = INTTOFIX16(PALSCALE_1ST(0));  // Was 0.8333333
 	kcube_bounce_base_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333));
 
-	for (uint16_t i = 0; i < ARRAYSIZE(g_fix_trunc_table_pos); i++)
-	{
-		g_fix_trunc_table_pos[i] = INTTOFIX16(PALSCALE_1ST(i));
-		g_fix_trunc_table_neg[i] = -g_fix_trunc_table_pos[i];
-	}
-
 	constants_set = 1;
 }
 
