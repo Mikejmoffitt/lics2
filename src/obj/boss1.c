@@ -264,7 +264,7 @@ static void main_func(Obj *o)
 				o->dx = kfalldown_dx;
 				o->dy = kfalldown_dy;
 			}
-			obj_standard_physics(o);
+			obj_accurate_physics(o);
 			o->dy += kfalldown_gravity;
 			if (o->y >= ground_y)
 			{
@@ -309,7 +309,7 @@ static void main_func(Obj *o)
 		case BOSS1_STATE_CHARGE:  // Runs forwards until a wall is hit.
 			o->dx = (o->direction == OBJ_DIRECTION_RIGHT) ?
 			         kcharge_dx : -kcharge_dx;
-			obj_standard_physics(o);
+			obj_accurate_physics(o);
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kcharge_anim_speed);
 			{
 				const int16_t metaframes[4] = {3, 4, 0, 5};
