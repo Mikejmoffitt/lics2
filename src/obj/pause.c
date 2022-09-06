@@ -816,9 +816,41 @@ static void screen_reset(O_Pause *e)
 
 static void maybe_switch_to_debug(O_Pause *e, LyleBtn buttons)
 {
-	if (buttons & (LYLE_BTN_CUBE))
+	static const LyleBtn kcheat_sequence[] =
+	{
+		LYLE_BTN_LEFT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_RIGHT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_RIGHT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_RIGHT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_LEFT,
+		LYLE_BTN_RIGHT
+	};
+
+	if (e->debug.input_cheat_idx >= ARRAYSIZE(kcheat_sequence))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
+		e->debug.input_cheat_idx = 0;
+		return;
+	}
+
+	const LyleBtn next_btn = kcheat_sequence[e->debug.input_cheat_idx];
+	const LyleBtn edge = buttons & ~e->buttons_prev;
+
+	if (!edge) return;
+
+	if (edge == next_btn)
+	{
+		e->debug.input_cheat_idx++;
+	}
+	else
+	{
+		e->debug.input_cheat_idx = 0;
 	}
 }
 

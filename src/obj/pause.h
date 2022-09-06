@@ -92,6 +92,8 @@ typedef struct O_Pause
 
 		uint16_t vram_view_offset;
 		uint8_t vram_view_pal;
+
+		uint16_t input_cheat_idx;
 	} debug;
 
 	int16_t paused;
