@@ -662,7 +662,7 @@ static void main_func(Obj *o)
 					e->state = BOSS2_STATE_INTRO_GROWTH_1;
 				}
 
-				obj_standard_physics(o);
+				obj_accurate_physics(o);
 				horizontal_hover(e);
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2,
 				                kintro_flying_up_anim_speed);
@@ -750,7 +750,7 @@ static void main_func(Obj *o)
 					e->anim_cnt = 0;
 				}
 
-				obj_standard_physics(o);
+				obj_accurate_physics(o);
 				if (o->direction == OBJ_DIRECTION_RIGHT &&
 				    o->x > map_get_right() - side_margin)
 				{
@@ -868,7 +868,7 @@ static void main_func(Obj *o)
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame,
 				                4, kroam_anim_speed);
 				e->metaframe = e->anim_frame + 8;
-				obj_standard_physics(o);
+				obj_accurate_physics(o);
 				break;
 
 			case BOSS2_STATE_EXPLODING:
@@ -918,7 +918,7 @@ static void main_func(Obj *o)
 					e->metaframe = metaframes[e->anim_frame];
 				}
 
-				obj_standard_physics(o);
+				obj_accurate_physics(o);
 
 				if (e->hit_pending)
 				{
@@ -963,7 +963,7 @@ static void main_func(Obj *o)
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame,
 				                4, kroam_anim_speed);
 				e->metaframe = e->anim_frame + 8;
-				obj_standard_physics(o);
+				obj_accurate_physics(o);
 
 				if (o->y <= growth_activation_y)
 				{
