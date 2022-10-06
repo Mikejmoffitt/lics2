@@ -10,12 +10,11 @@ OBJDIR := obj
 # Sources.
 SOURCES_C := $(shell find $(SRCDIR)/ -type f -name '*.c')
 SOURCES_ASM := $(shell find $(SRCDIR)/ -type f -name '*.s')
-RESOURCES_LIST := $(shell find $(RESDIR)/ -type f -name '*')
 
 # MDK_WANT_ASM_OUT := 1
 # TARGET_SYSTEM := MDK_TARGET_C2
 
-EXTERNAL_DEPS = obj_dispatch.inc
+EXTERNAL_DEPS = dispatch
 EXTERNAL_ARTIFACTS = obj_dispatch.inc
 
 include $(MDKROOT)/md-rules.mk
