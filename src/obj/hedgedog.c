@@ -10,7 +10,7 @@
 
 #include "lyle.h"
 #include "projectile.h"
-#include "trig.h"
+#include "util/trig.h"
 
 static uint16_t s_vram_pos;
 

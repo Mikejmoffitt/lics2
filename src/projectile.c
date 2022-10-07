@@ -12,7 +12,7 @@
 #include "obj/map.h"
 #include "lyle.h"
 
-#include "trig.h"
+#include "util/trig.h"
 
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 

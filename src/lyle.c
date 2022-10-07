@@ -1,5 +1,6 @@
 #include "lyle.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include "obj.h"
 #include "system.h"
@@ -1196,12 +1197,7 @@ void lyle_poll(void)
 
 void lyle_load(void)
 {
-	// TODO: Why don't we have fucken memset
-	uint16_t *lyle_as_uint16 = (uint16_t *)&s_lyle;
-	for (uint16_t i = 0; i < sizeof(s_lyle) / sizeof(uint16_t); i++)
-	{
-		lyle_as_uint16[i] = 0;
-	}
+	memset(&s_lyle, 0, sizeof(s_lyle));
 	s_vram_pos = obj_vram_alloc(3 * 3 * 32) / 32;
 
 	set_constants();

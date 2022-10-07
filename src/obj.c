@@ -1,6 +1,7 @@
 #include "obj.h"
 
 #include "system.h"
+#include <string.h>
 #include <stdlib.h>
 #include "cube.h"
 #include "gfx.h"
@@ -222,11 +223,7 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 		Obj *o = &g_objects[i].obj;
 		if (o->status != OBJ_STATUS_NULL) continue;
 
-		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
-		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
-		{
-			raw_mem_uint32[j] = 0;
-		}
+		memset(&g_objects[i].raw_mem, 0, sizeof(&g_objects[i].raw_mem));
 		o->status = OBJ_STATUS_ACTIVE;
 		o->type = type;
 		o->x = INTTOFIX32(x);

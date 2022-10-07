@@ -12,7 +12,7 @@
 #include "lyle.h"
 #include "game.h"
 #include "sfx.h"
-#include "trig.h"
+#include "util/trig.h"
 #include "particle.h"
 #include "projectile.h"
 #include "obj/cube_manager.h"
@@ -877,14 +877,14 @@ static void main_func(Obj *o)
 					e->explode_cnt = 0;
 					
 				}
-				// Fall-through intended.
+				__attribute__((fallthrough));
 			case BOSS2_STATE_DIVING_HIT:
 				e->hit_pending = 0;
 				if (o->y >= ground_y && o->hp < 127)
 				{
 					e->state = BOSS2_STATE_RETREAT;
 				}
-				// Fall-through intended.
+				__attribute__((fallthrough));
 			case BOSS2_STATE_DIVING:
 				if (o->dy > 0)
 				{

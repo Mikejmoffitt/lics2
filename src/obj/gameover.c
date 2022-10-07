@@ -230,7 +230,7 @@ static void main_func(Obj *o)
 				o->dy = 0;
 				e->state = GAMEOVER_CUBE_MENU;
 			}
-			// Fall-through intentional.
+			__attribute__((fallthrough));
 		case GAMEOVER_CUBE_MENU:
 			OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame, 2, klyle_dazed_anim_speed);
 			l->anim_frame = e->lyle_anim_frame ? 0x15 : 0x14;

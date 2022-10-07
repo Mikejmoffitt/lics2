@@ -184,7 +184,7 @@ static inline void powerup_get(Powerup *p)
 			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
 			               PARTICLE_TYPE_SPARKLE);
 			lh->hp += 1;
-			// Fall-through intended.
+			__attribute__((fallthrough));
 		case POWERUP_TYPE_HP:
 			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
 			               PARTICLE_TYPE_SPARKLE);
@@ -196,7 +196,7 @@ static inline void powerup_get(Powerup *p)
 			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
 			               PARTICLE_TYPE_SPARKLE);
 			l->cp += 4;
-			// Fall-through intended.
+			__attribute__((fallthrough));
 		case POWERUP_TYPE_CP:
 			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
 			               PARTICLE_TYPE_SPARKLE);
