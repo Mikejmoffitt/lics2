@@ -235,7 +235,7 @@ static void main_func(Obj *o)
 	const ProgressSlot *prog = progress_get();
 	if (((e->orb_id & 0xFFF0) == 0x840 &&
 	     (prog->cp_orbs & (1 << (e->orb_id & 0xF)))) ||
-	    ((e->orb_id & 0xFF00) == 0x880 &&
+	    ((e->orb_id & 0xFFF0) == 0x880 &&
 	     (prog->hp_orbs & (1 << (e->orb_id & 0xF)))))
 	{
 		ObjSlot *s = &g_objects[0];
