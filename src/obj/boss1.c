@@ -271,7 +271,7 @@ static void main_func(Obj *o)
 				o->y = ground_y;
 				o->dy = 0;
 				e->state = BOSS1_STATE_SHAKE_DELAY;
-				e->drop.shaking = 1;
+				e->drop.shaking = true;
 				e->metaframe = 0;
 				// TODO: play loud crash sound
 			}
@@ -283,7 +283,7 @@ static void main_func(Obj *o)
 				e->state = BOSS1_STATE_PRESHOT;
 				e->shots_remaining = 1 + (system_rand() % 4);
 				music_play(10);
-				e->drop.shaking = 0;
+				e->drop.shaking = false;
 			}
 			break;
 
@@ -333,7 +333,7 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 6;
-				e->drop.shaking = 1;
+				e->drop.shaking = true;
 			}
 			else if (e->state_elapsed == krecoil_frame_change)
 			{
@@ -365,7 +365,7 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 0;
-				e->drop.shaking = 0;
+				e->drop.shaking = false;
 			}
 			if (e->state_elapsed < kpreshot_duration) break;
 

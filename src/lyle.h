@@ -5,6 +5,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define LYLE_START_HP 5
 #define LYLE_MAX_HP 15
@@ -41,18 +42,18 @@ typedef struct O_Lyle
 	int8_t metaframe;
 
 	int8_t action_cnt;
-	int8_t grounded;
+	bool grounded;
 
-	int8_t ext_disable;
+	bool ext_disable;
 	int8_t cube_jump_disable_cnt;
 
 	int8_t cp;
-	int8_t scroll_disable_h;
-	int8_t scroll_disable_v;
-	int8_t priority;
+	bool scroll_disable_h;
+	bool scroll_disable_v;
+	bool priority;
 
-	int8_t full_disable;
-	int8_t dead;
+	bool full_disable;
+	bool dead;
 } O_Lyle;
 
 // TODO: Params for persistent state
@@ -61,7 +62,7 @@ void lyle_poll(void);
 
 O_Lyle *lyle_get(void);
 
-uint16_t lyle_touching_obj(Obj *o);
+bool lyle_touching_obj(Obj *o);
 
 void lyle_get_bounced(void);
 void lyle_get_hurt(int16_t bypass_invuln);

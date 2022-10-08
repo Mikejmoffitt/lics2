@@ -3,16 +3,7 @@
 
 #include "obj.h"
 
-typedef struct Brick
-{
-	int16_t x;
-	int16_t y;
-	int8_t type;  // 0 = inactive, 1 = blue, 2 = green (2 hits);
-	int8_t method;  // 0 = use sprite; 1 = use BG
-	int8_t previous_type;
-} Brick;
-
-typedef enum Boss2State
+typedef enum __attribute__((packed)) Boss2State
 {
 	BOSS2_STATE_INTRO_IDLE,  // Just sits still.
 	BOSS2_STATE_INTRO_FLYING_UP,  // Flies upwards to the top of the screen.
@@ -29,7 +20,7 @@ typedef enum Boss2State
 	BOSS2_STATE_EXPLODED,
 } Boss2State;
 
-typedef enum BallState
+typedef enum __attribute__((packed)) BallState
 {
 	BALL_STATE_NONE,
 	BALL_STATE_PENDING,
@@ -40,34 +31,30 @@ typedef enum BallState
 typedef struct O_Boss2
 {
 	Obj head;
-
-	Boss2State state;
 	int16_t state_elapsed;
 
-	int16_t anim_cnt;
-	int16_t anim_frame;
-	int16_t metaframe;
-
-	int16_t hover_phase;  // Flag 0 in MMF2
-	fix16_t hover_d;  // Value G in MMF2
-
-	int16_t spread_shot_cnt;  // Incremented when roaming.
-
+	Boss2State state;
 	BallState ball_state;
+
 	fix32_t ball_x;
 	fix32_t ball_y;
 	fix16_t ball_speed;
 	uint8_t ball_angle;
 
-	int8_t hit_pending;
+	uint8_t anim_cnt;
+	uint8_t anim_frame;
+	uint8_t metaframe;
 
-	int16_t brick_draw_cnt;
-	uint16_t brick_draw_index;
-	const Brick *brick_list;
-	uint16_t brick_list_size;
-	int16_t brick_pal_cnt;
+	bool hit_pending;
+	bool hover_phase;  // Flag 0 in MMF2
+	fix16_t hover_d;  // Value G in MMF2
 
-	int16_t explode_cnt;
+	int16_t spread_shot_cnt;  // Incremented when roaming.
+
+	uint8_t brick_draw_cnt;
+	uint8_t brick_draw_index;
+	uint8_t brick_pal_cnt;
+	uint8_t explode_cnt;
 } O_Boss2;
 
 void o_load_boss2(Obj *o, uint16_t data);

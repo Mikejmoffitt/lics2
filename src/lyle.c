@@ -177,12 +177,12 @@ static inline void eval_grounded(O_Lyle *l)
 {
 	if (l->ext_disable)
 	{
-		l->grounded = 1;
+		l->grounded = true;
 		return;
 	}
 	if (l->head.dy < 0)
 	{
-		l->grounded = 0;
+		l->grounded = false;
 		return;
 	}
 
@@ -1141,9 +1141,9 @@ static void maybe_die(O_Lyle *l)
 		l->head.dy = kdead_dy;
 
 		l->holding_cube = CUBE_TYPE_NULL;
-		l->priority = 1;
+		l->priority = true;
 
-		l->dead = 1;
+		l->dead = true;
 	}
 }
 
@@ -1284,22 +1284,22 @@ void lyle_set_direction(ObjDirection d)
 	s_lyle.head.direction = d;
 }
 
-void lyle_set_scroll_h_en(int16_t en)
+void lyle_set_scroll_h_en(bool en)
 {
 	s_lyle.scroll_disable_h = !en;
 }
 
-void lyle_set_scroll_v_en(int16_t en)
+void lyle_set_scroll_v_en(bool en)
 {
 	s_lyle.scroll_disable_v = !en;
 }
 
-void lyle_set_control_en(int16_t en)
+void lyle_set_control_en(bool en)
 {
 	s_lyle.ext_disable = !en;
 }
 
-void lyle_set_master_en(int16_t en)
+void lyle_set_master_en(bool en)
 {
 	s_lyle.full_disable = !en;
 }
@@ -1309,13 +1309,13 @@ void lyle_set_anim_frame(int8_t frame)
 	s_lyle.anim_frame = frame;
 }
 
-uint16_t lyle_touching_obj(Obj *o)
+bool lyle_touching_obj(Obj *o)
 {
-	if (s_lyle.head.x + LYLE_RIGHT < o->x + o->left) return 0;
-	if (s_lyle.head.x + LYLE_LEFT > o->x + o->right) return 0;
-	if (s_lyle.head.y < o->y + o->top) return 0;
-	if (s_lyle.head.y + LYLE_TOP > o->y) return 0;
-	return 1;
+	if (s_lyle.head.x + LYLE_RIGHT < o->x + o->left) return false;
+	if (s_lyle.head.x + LYLE_LEFT > o->x + o->right) return false;
+	if (s_lyle.head.y < o->y + o->top) return false;
+	if (s_lyle.head.y + LYLE_TOP > o->y) return false;
+	return true;
 }
 
 O_Lyle *lyle_get(void)

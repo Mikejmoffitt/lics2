@@ -4,7 +4,9 @@
 #include "obj.h"
 #include "input.h"
 
-typedef enum PauseScreen
+#include <stdbool.h>
+
+typedef enum __attribute__((packed)) PauseScreen
 {
 	PAUSE_SCREEN_NONE = 0,
 	PAUSE_SCREEN_LYLE_WEAK,
@@ -73,36 +75,15 @@ typedef struct O_Pause
 
 	int16_t menu_flash_cnt;
 	int16_t menu_flash_frame;
-	int16_t pause_choice;  // 0 - continue; 1 = save & quit; 2 = yes; 3 = no
 	int16_t pause_select_cnt;
+	uint8_t pause_choice;  // 0 - continue; 1 = save & quit; 2 = yes; 3 = no
 
-	struct
-	{
-		int16_t main_cursor;
-		int16_t room_cursor;
-		int16_t room_last_page;
-		int16_t chosen_room_id;
-
-		int16_t sound_cursor;
-		uint8_t bgm_id;
-		uint8_t sfx_id;
-
-		int16_t progress_cursor_main;
-		int16_t progress_cursor_bit;
-
-		uint16_t vram_view_offset;
-		uint8_t vram_view_pal;
-
-		uint16_t input_cheat_idx;
-	} debug;
-
-	int16_t paused;
-	int16_t window;  // nonzero if window should be shown.
+	bool window;  // nonzero if window should be shown.
 } O_Pause;
 
 void pause_set_screen(PauseScreen screen);
 
-int16_t pause_want_window(void);
+bool pause_want_window(void);
 int16_t pause_get_debug_room_id(void);
 
 void o_load_pause(Obj *o, uint16_t data);

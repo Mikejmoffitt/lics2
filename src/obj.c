@@ -63,7 +63,7 @@ static const PowerupType powerup_drop_order[32] =
 };
 
 // Object list execution ======================================================
-int obj_init(void)
+void obj_init(void)
 {
 	SYSTEM_ASSERT(sizeof(g_objects[0]) % sizeof(uint32_t) == 0);
 
@@ -71,11 +71,9 @@ int obj_init(void)
 	set_constants();
 
 	s_powerup_drop_index = system_rand() % ARRAYSIZE(powerup_drop_order);
-
-	return 1;
 }
 
-static inline uint16_t obj_is_offscreen(const Obj *o)
+static inline bool obj_is_offscreen(const Obj *o)
 {
 	const int16_t obj_x = FIX32TOINT(o->x);
 	const int16_t obj_y = FIX32TOINT(o->y);
@@ -83,11 +81,11 @@ static inline uint16_t obj_is_offscreen(const Obj *o)
 	const int16_t cam_top = map_get_y_scroll();
 	const int16_t cam_right = map_get_x_scroll() + GAME_SCREEN_W_PIXELS;
 	const int16_t cam_bottom = map_get_y_scroll() + GAME_SCREEN_H_PIXELS;
-	if (obj_x < cam_left - OBJ_OFFSCREEN_MARGIN) return 1;
-	if (obj_y < cam_top - OBJ_OFFSCREEN_MARGIN) return 1;
-	if (obj_x > cam_right + OBJ_OFFSCREEN_MARGIN) return 1;
-	if (obj_y > cam_bottom + OBJ_OFFSCREEN_MARGIN) return 1;
-	return 0;
+	if (obj_x < cam_left - OBJ_OFFSCREEN_MARGIN) return true;
+	if (obj_y < cam_top - OBJ_OFFSCREEN_MARGIN) return true;
+	if (obj_x > cam_right + OBJ_OFFSCREEN_MARGIN) return true;
+	if (obj_y > cam_bottom + OBJ_OFFSCREEN_MARGIN) return true;
+	return false;
 }
 
 static void obj_explode(Obj *o)
@@ -143,6 +141,13 @@ static inline void obj_check_player(Obj *o)
 	O_Lyle *l = lyle_get();
 	if (!(o->touching_player = lyle_touching_obj(o))) return;
 
+	const bool bounce_l = (o->flags & OBJ_FLAG_BOUNCE_L) &&
+	                      !(o->flags & OBJ_FLAG_BOUNCE_R);
+	const bool bounce_r = !(o->flags & OBJ_FLAG_BOUNCE_L) &&
+	                      (o->flags & OBJ_FLAG_BOUNCE_R);
+	const bool bounce_any = (o->flags & OBJ_FLAG_BOUNCE_L) &&
+	                        (o->flags & OBJ_FLAG_BOUNCE_R);
+
 	if (o->flags & OBJ_FLAG_HARMFUL)
 	{
 		lyle_get_hurt((o->flags & OBJ_FLAG_ALWAYS_HARMFUL) ? 1 : 0);
@@ -151,14 +156,12 @@ static inline void obj_check_player(Obj *o)
 	{
 		lyle_kill();
 	}
-	if (o->flags & OBJ_FLAG_BOUNCE_L ||
-	    (o->flags & OBJ_FLAG_BOUNCE_ANY && o->x > l->head.x))
+	if (bounce_l || (bounce_any && o->x > l->head.x))
 	{
 		l->head.direction = OBJ_DIRECTION_RIGHT;
 		lyle_get_bounced();
 	}
-	if (o->flags & OBJ_FLAG_BOUNCE_R ||
-	    (o->flags & OBJ_FLAG_BOUNCE_ANY && o->x < l->head.x))
+	if (bounce_r || (bounce_any && o->x < l->head.x))
 	{
 		l->head.direction = OBJ_DIRECTION_LEFT;
 		lyle_get_bounced();
@@ -269,12 +272,14 @@ void obj_cube_impact(Obj *o, Cube *c)
 
 void obj_basic_init(Obj *o, const char *name, ObjFlags flags, fix16_t left, fix16_t right, fix16_t top, int16_t hp)
 {
+	/*
 	uint16_t name_idx = 0;
 	while (*name && name_idx < 8)
 	{
 		o->name[name_idx] = *name++;
 		name_idx++;
-	}
+	}*/
+	(void)name;
 	o->left = left;
 	o->right = right;
 	o->top = top;

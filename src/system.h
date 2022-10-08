@@ -1,6 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "md/megadrive.h"
 #include "util/text.h"
@@ -10,21 +11,21 @@
 void system_init(void);
 void system_srand(uint32_t seed);
 uint32_t system_rand(void);
-void system_set_debug_enabled(int16_t en);
+void system_set_debug_enabled(bool en);
 void system_profile(uint16_t color);
 
 void system_print_error(const char *expression,
                         const char *file,
                         const char *line_string);
 
-extern int8_t g_system_is_ntsc;
-static inline int8_t system_is_ntsc(void)
+extern bool g_system_is_ntsc;
+static inline bool system_is_ntsc(void)
 {
 	return g_system_is_ntsc;
 }
 
-extern int8_t g_system_debug_enabled;
-static inline int8_t system_is_debug_enabled(void)
+extern bool g_system_debug_enabled;
+static inline bool system_is_debug_enabled(void)
 {
 	return g_system_debug_enabled;
 }

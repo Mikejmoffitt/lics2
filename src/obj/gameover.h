@@ -4,7 +4,7 @@
 #include "obj.h"
 #include "input.h"
 
-typedef enum GameOverState
+typedef enum __attribute__((packed)) GameOverState
 {
 	GAMEOVER_LYLE_FALL,
 	GAMEOVER_LYLE_ANIM,
@@ -16,26 +16,23 @@ typedef enum GameOverState
 typedef struct O_GameOver
 {
 	Obj head;
-	
+
 	fix32_t max_y;
 
-	GameOverState state;
 	int16_t state_elapsed;
 
-	fix32_t lyle_y;
-	fix16_t lyle_dy;
-
 	int16_t lyle_anim_cnt;
-	uint16_t lyle_anim_frame;
-	int16_t lyle_metaframe;
+	uint8_t lyle_anim_frame;
+	int8_t lyle_metaframe;
 
-	int16_t flash_cnt;
-	int16_t flash_frame;
+	uint8_t flash_cnt;
+	uint8_t flash_frame;
 
-	int16_t menu_choice;
-	int16_t choose_cnt;
+	int8_t menu_choice;
+	int8_t choose_cnt;
 
 	LyleBtn buttons_prev;
+	GameOverState state;
 } O_GameOver;
 
 void o_load_gameover(Obj *o, uint16_t data);

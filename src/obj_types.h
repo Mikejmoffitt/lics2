@@ -2,7 +2,7 @@
 #define OBJ_TYPES_H
 
 // Make sure to hook these up to their related init functions in obj.c.
-typedef enum ObjType
+typedef enum __attribute__((packed)) ObjType
 {
 	OBJ_NULL          =  0,  // Nothing.
 	OBJ_ENTRANCE      =  1,  // "Door" pointer.

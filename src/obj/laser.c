@@ -123,7 +123,7 @@ static void main_func(Obj *o)
 	{
 		if (e->mode == LASER_MODE_ON)
 		{
-			o->flags |= OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_ANY | OBJ_FLAG_ALWAYS_HARMFUL;
+			o->flags |= OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_L | OBJ_FLAG_BOUNCE_R | OBJ_FLAG_ALWAYS_HARMFUL;
 		}
 		else
 		{
@@ -132,7 +132,7 @@ static void main_func(Obj *o)
 	}
 	else
 	{
-		o->flags &= ~(OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_ANY | OBJ_FLAG_ALWAYS_HARMFUL);
+		o->flags &= ~(OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_L | OBJ_FLAG_BOUNCE_R | OBJ_FLAG_ALWAYS_HARMFUL);
 	}
 
 

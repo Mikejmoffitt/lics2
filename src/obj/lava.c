@@ -151,7 +151,7 @@ static void generator_func(Obj *o)
 	{
 		e->generator_cnt = 0;
 		O_Lava *new_lava = (O_Lava *)obj_spawn(FIX32TOINT(o->x) - 8, FIX32TOINT(o->y) - 48,
-		                                       OBJ_LAVA, (0x8000 | (FIX32TOINT(e->max_y) & 0x0FFF)));
+		                                       OBJ_LAVA, (0x8000 | (e->max_y & 0x0FFF)));
 		new_lava->cow = e->cow;
 		new_lava->px = e->px;
 		new_lava->splat_py = e->splat_py;
@@ -254,7 +254,7 @@ static void main_func(Obj *o)
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 	o->y += o->dy;
-	if (o->y >= e->max_y)
+	if (o->y >= INTTOFIX32(e->max_y))
 	{
 		become_splat(o);
 		o->y = INTTOFIX32(FIX32TOINT(o->y) & 0xFFFFFFF8);
@@ -295,22 +295,26 @@ void o_load_lava(Obj *o, uint16_t data)
 		int16_t y_px = FIX32TOINT(o->y);
 		const int16_t x_center = FIX32TOINT(o->x);
 
-		e->max_y = o->y;
+		e->max_y = FIX32TOINT(o->y);
 
 		for (int16_t i = 0; i < 256; i++)
 		{
 			y_px += 8;
 			if (map_collision(x_center, y_px))
 			{
-				e->max_y = INTTOFIX32(y_px & 0xFFFFFFF8);
+				// A collision shouldn't happen so quickly. Cancel the
+				// spawn as this height is unsuitable.
+				if (i == 0)
+				{
+					obj_erase(o);
+					return;
+				}
+				e->max_y = y_px & 0xFFFFFFF8;
 				break;
 			}
 		}
 
-		// If ground wasn't found within accepted bounds, cancel spawn.
-		if (e->max_y == o->y) obj_erase(o);
-
-		e->is_generator = 1;
+		e->is_generator = true;
 
 		e->generator_cnt = kgenerator_speed;
 		e->px = FIX32TOINT(o->x) - 16;
@@ -321,7 +325,7 @@ void o_load_lava(Obj *o, uint16_t data)
 		o->left = INTTOFIX16(-4);
 		o->right = INTTOFIX16(4);
 		o->dy = kfall_dy;
-		e->max_y = INTTOFIX32(data & 0x0FFF);
+		e->max_y = data & 0x0FFF;
 		e->size = (data & 0xF000) >> 12;
 	}
 }

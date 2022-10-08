@@ -33,7 +33,7 @@
 #define OBJ_ACTIVE_DISTANCE 16
 
 // Possible states for an object to be in.
-typedef enum ObjStatus
+typedef enum __attribute__((packed)) ObjStatus
 {
 	OBJ_STATUS_NULL,
 	OBJ_STATUS_ACTIVE,
@@ -41,22 +41,20 @@ typedef enum ObjStatus
 } ObjStatus;
 
 // Flags containing some basic properties about the object.
-typedef enum ObjFlags
+typedef enum __attribute__((packed)) ObjFlags
 {
 	// Flags that indicate what happens when the player touches an object.
-	OBJ_FLAG_HARMFUL = 0x8000,  // Hurts the player on contact.
-	OBJ_FLAG_BOUNCE_L = 0x4000,  // Pushes the player to the left on contact.
-	OBJ_FLAG_BOUNCE_R = 0x2000,  // Pushes the player to the right on contact.
-	OBJ_FLAG_DEADLY = 0x1000,  // Kills the player immediately on contact.
-	OBJ_FLAG_SENSITIVE = 0x0800,  // Innocuous player contact.
-	OBJ_FLAG_BOUNCE_ANY = 0x0400,  // Picks BOUNCE_L or BOUNCE_R based on side.
-	OBJ_FLAG_ALWAYS_HARMFUL = 0x0200,  // Hurts Lyle even if he is still flashing.
-
-	OBJ_FLAG_TANGIBLE = 0x0040,  // Can be hit by a cube and get hurt.
-	OBJ_FLAG_ALWAYS_ACTIVE = 0x0010,  // Active even if off-screen.
+	OBJ_FLAG_HARMFUL =        0x80,  // Hurts the player on contact.
+	OBJ_FLAG_BOUNCE_L =       0x40,  // Pushes the player left on contact.
+	OBJ_FLAG_BOUNCE_R =       0x20,  // Pushes the player right on contact.
+	OBJ_FLAG_DEADLY =         0x10,  // Kills the player on contact.
+	OBJ_FLAG_SENSITIVE =      0x08,  // Innocuous player contact.
+	OBJ_FLAG_ALWAYS_HARMFUL = 0x04,  // Hurts Lyle even while invulnerable.
+	OBJ_FLAG_TANGIBLE =       0x02,  // Can be hit by a cube and get hurt.
+	OBJ_FLAG_ALWAYS_ACTIVE =  0x01,  // Active even if off-screen.
 } ObjFlags;
 
-typedef enum ObjDirection
+typedef enum __attribute__((packed)) ObjDirection
 {
 	OBJ_DIRECTION_RIGHT,
 	OBJ_DIRECTION_LEFT
@@ -65,7 +63,7 @@ typedef enum ObjDirection
 typedef struct Obj Obj;
 struct Obj
 {
-	char name[8];  // This is NOT null-terminated!
+//	char name[8];  // This is NOT null-terminated!
 	void (*main_func)(Obj *o);
 	void (*cube_func)(Obj *o, Cube *c);
 
@@ -82,8 +80,8 @@ struct Obj
 
 	int8_t hp;
 	int8_t hurt_stun; // Decrements; decreases HP on zero.
-	int8_t offscreen;
-	int8_t touching_player;
+	bool offscreen;
+	bool touching_player;
 };
 
 typedef union ObjSlot
@@ -95,7 +93,7 @@ typedef union ObjSlot
 // Object list is public so it may be scanned.
 extern ObjSlot g_objects[OBJ_COUNT_MAX];
 
-int obj_init(void);
+void obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);
@@ -180,23 +178,23 @@ static inline void obj_render_setup_simple(Obj *o, int16_t *sp_x, int16_t *sp_y,
 }
 
 
-static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
+static inline bool obj_touching_obj(const Obj *a, const Obj *b)
 {
-	if (a->x + a->right < b->x + b->left) return 0;
-	if (a->x + a->left > b->x + b->right) return 0;
-	if (a->y < b->y + b->top) return 0;
-	if (a->y + a->top > b->y) return 0;
-	return 1;
+	if (a->x + a->right < b->x + b->left) return false;
+	if (a->x + a->left > b->x + b->right) return false;
+	if (a->y < b->y + b->top) return false;
+	if (a->y + a->top > b->y) return false;
+	return true;
 }
 
-static inline int obj_touching_cube(const Obj *o, const Cube *c)
+static inline bool obj_touching_cube(const Obj *o, const Cube *c)
 {
 	static const fix32_t margin = INTTOFIX32(1);
-	if (c->y < o->y + o->top - margin) return 0;
-	if (c->y + c->top > o->y + margin) return 0;
-	if (c->x + c->left > o->x + o->right + margin) return 0;
-	if (c->x + c->right < o->x + o->left - margin) return 0;
-	return 1;
+	if (c->y < o->y + o->top - margin) return false;
+	if (c->y + c->top > o->y + margin) return false;
+	if (c->x + c->left > o->x + o->right + margin) return false;
+	if (c->x + c->right < o->x + o->left - margin) return false;
+	return true;
 }
 
 static inline void obj_face_towards_obj(Obj *o, const Obj *e)

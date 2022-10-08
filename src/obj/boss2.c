@@ -114,28 +114,30 @@ static inline void set_constants(void)
 
 // ----------------------------------------------------------------------------
 
-static Brick s_bricks[46];
-
-static const Brick brick_mapping_1[] =
+typedef struct Brick
 {
-	{16,56,1,1,0},{40,56,1,1,0},{64,56,1,1,0},{88,56,1,1,0},{112,56,1,1,0},{136,56,1,1,0},{160,56,1,1,0},{184,56,1,1,0},{208,56,1,1,0},{232,56,1,1,0},{256,56,1,1,0},{280,56,1,1,0},
-	{28,64,2,0,0},{52,64,2,0,0},{76,64,2,0,0},{100,64,2,0,0},{124,64,2,0,0},{148,64,2,0,0},{172,64,2,0,0},{196,64,2,0,0},{220,64,2,0,0},{244,64,2,0,0},{268,64,2,0,0},
-};
+	int16_t x;
+	int16_t y;
+	int8_t type;  // 0 = inactive, 1 = blue, 2 = green (2 hits);
+	int8_t method;  // 0 = use sprite; 1 = use BG
+	int8_t previous_type;
+} Brick;
 
-static const Brick brick_mapping_2[]=
-{
-	{16,56,1,1,0},{40,56,1,1,0},{64,56,1,1,0},{88,56,1,1,0},{112,56,1,1,0},{136,56,1,1,0},{160,56,1,1,0},{184,56,1,1,0},{208,56,1,1,0},{232,56,1,1,0},{256,56,1,1,0},{280,56,1,1,0},
-	{28,64,2,0,0},{52,64,2,0,0},{76,64,2,0,0},{100,64,2,0,0},{124,64,2,0,0},{148,64,2,0,0},{172,64,2,0,0},{196,64,2,0,0},{220,64,2,0,0},{244,64,2,0,0},{268,64,2,0,0},
-	{16,72,1,1,0},{40,72,1,1,0},{64,72,1,1,0},{88,72,1,1,0},{112,72,1,1,0},{136,72,1,1,0},{160,72,1,1,0},{184,72,1,1,0},{208,72,1,1,0},{232,72,1,1,0},{256,72,1,1,0},{280,72,1,1,0},
-};
-
-static const Brick brick_mapping_3[]=
+static const Brick s_brick_mapping[]=
 {
 	{16,56,1,1,0},{40,56,1,1,0},{64,56,1,1,0},{88,56,1,1,0},{112,56,1,1,0},{136,56,1,1,0},{160,56,1,1,0},{184,56,1,1,0},{208,56,1,1,0},{232,56,1,1,0},{256,56,1,1,0},{280,56,1,1,0},
 	{28,64,2,0,0},{52,64,2,0,0},{76,64,2,0,0},{100,64,2,0,0},{124,64,2,0,0},{148,64,2,0,0},{172,64,2,0,0},{196,64,2,0,0},{220,64,2,0,0},{244,64,2,0,0},{268,64,2,0,0},
 	{16,72,1,1,0},{40,72,1,1,0},{64,72,1,1,0},{88,72,1,1,0},{112,72,1,1,0},{136,72,1,1,0},{160,72,1,1,0},{184,72,1,1,0},{208,72,1,1,0},{232,72,1,1,0},{256,72,1,1,0},{280,72,1,1,0},
 	{52,80,1,0,0},{76,80,1,0,0},{124,80,1,0,0},{148,80,1,0,0},{172,80,1,0,0},{220,80,1,0,0},{244,80,1,0,0},
 	{40,104,1,1,0},{136,104,1,1,0},{160,104,1,1,0},{256,104,1,1,0},
+};
+
+static Brick s_bricks[ARRAYSIZE(s_brick_mapping)];
+
+// As the boss loses health, more bricks are drawn.
+static const uint16_t brick_count_for_hp[] =
+{
+	0, ARRAYSIZE(s_brick_mapping), 35, 23
 };
 
 // Brick functions ------------------------------------------------------------
@@ -172,7 +174,7 @@ static inline void draw_brick(Brick *b)
 // Draws all bricks as sprites.
 static void bricks_render(O_Boss2 *e)
 {
-	for (uint16_t i = 0; i < e->brick_list_size; i++)
+	for (uint16_t i = 0; i < brick_count_for_hp[e->head.hp]; i++)
 	{
 		Brick *b = &s_bricks[i];
 		draw_brick(b);
@@ -188,31 +190,8 @@ static void bricks_reset(void)
 }
 
 // Sets up a brick mapping for bricks_process to handle
-static void bricks_init(O_Boss2 *e, int16_t phase)
+static void brick_draw_reset(O_Boss2 *e)
 {
-	switch (phase)
-	{
-		default:
-			e->brick_list = brick_mapping_1;
-			e->brick_list_size = 0;
-			break;
-
-		case 3:
-			e->brick_list = brick_mapping_1;
-			e->brick_list_size = ARRAYSIZE(brick_mapping_1);
-			break;
-
-		case 2:
-			e->brick_list = brick_mapping_2;
-			e->brick_list_size = ARRAYSIZE(brick_mapping_2);
-			break;
-
-		case 1:
-			e->brick_list = brick_mapping_3;
-			e->brick_list_size = ARRAYSIZE(brick_mapping_3);
-			break;
-	}
-
 	e->brick_draw_cnt = 0;
 	e->brick_draw_index = 0;
 }
@@ -220,14 +199,14 @@ static void bricks_init(O_Boss2 *e, int16_t phase)
 // Activates bricks based on the current brick mapping.
 static void bricks_process(O_Boss2 *e)
 {
-	if (e->brick_draw_index < e->brick_list_size)
+	if (e->brick_draw_index < brick_count_for_hp[e->head.hp])
 	{
 		if (e->brick_draw_cnt >= kbrick_draw_speed)
 		{
-			s_bricks[e->brick_draw_index].x = e->brick_list[e->brick_draw_index].x;
-			s_bricks[e->brick_draw_index].y = e->brick_list[e->brick_draw_index].y + 16;
-			s_bricks[e->brick_draw_index].type = e->brick_list[e->brick_draw_index].type;
-			s_bricks[e->brick_draw_index].method = e->brick_list[e->brick_draw_index].method;
+			s_bricks[e->brick_draw_index].x = s_brick_mapping[e->brick_draw_index].x;
+			s_bricks[e->brick_draw_index].y = s_brick_mapping[e->brick_draw_index].y + 16;
+			s_bricks[e->brick_draw_index].type = s_brick_mapping[e->brick_draw_index].type;
+			s_bricks[e->brick_draw_index].method = s_brick_mapping[e->brick_draw_index].method;
 			s_bricks[e->brick_draw_index].previous_type = -1;  // Force redraw
 			e->brick_draw_index++;
 			e->brick_draw_cnt = 0;
@@ -249,7 +228,7 @@ static inline void ball_brick_collisions(O_Boss2 *e, int16_t px, int16_t py)
 
 	if (e->ball_state == BALL_STATE_ACTIVE_TOUCHED)
 	{
-		for (uint16_t i = 0; i < e->brick_list_size; i++)
+		for (uint16_t i = 0; i < brick_count_for_hp[e->head.hp]; i++)
 		{
 			Brick *b = &s_bricks[i];
 			if (b->type == 0) continue;
@@ -571,12 +550,12 @@ static void render(O_Boss2 *e)
 
 static inline void hover_osc(O_Boss2 *e)
 {
-	if (e->hover_phase == 0)
+	if (e->hover_phase == false)
 	{
 		e->hover_d += khover_accel;
 		if (e->hover_d >= khover_d_max)
 		{
-			e->hover_phase = 1;
+			e->hover_phase = true;
 		}
 	}
 	else
@@ -584,7 +563,7 @@ static inline void hover_osc(O_Boss2 *e)
 		e->hover_d -= khover_accel;
 		if (e->hover_d <= khover_d_min)
 		{
-			e->hover_phase = 0;
+			e->hover_phase = false;
 		}
 	}
 }
@@ -644,11 +623,10 @@ static void main_func(Obj *o)
 				{
 					e->anim_frame = 0;
 					e->anim_cnt = 0;
-					e->hover_phase = 0;
+					e->hover_phase = false;
 					e->hover_d = 0;
 					o->dy = kintro_flying_up_dy;
 					e->hover_d = khover_d_max - khover_accel;
-					e->hover_phase = 0;
 
 					o->right = INTTOFIX16(12);
 					o->left = INTTOFIX16(-12);
@@ -727,9 +705,9 @@ static void main_func(Obj *o)
 				else if (e->state_elapsed >= kintro_growth_time)
 				{
 					e->state = BOSS2_STATE_ROAM;
-					e->hover_phase = 0;
+					e->hover_phase = false;
 					e->hover_d = 0;
-					bricks_init(e, o->hp);
+					brick_draw_reset(e);
 					music_play(10);
 				}
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4,
@@ -879,7 +857,7 @@ static void main_func(Obj *o)
 				}
 				__attribute__((fallthrough));
 			case BOSS2_STATE_DIVING_HIT:
-				e->hit_pending = 0;
+				e->hit_pending = false;
 				if (o->y >= ground_y && o->hp < 127)
 				{
 					e->state = BOSS2_STATE_RETREAT;
@@ -955,7 +933,7 @@ static void main_func(Obj *o)
 				{
 					e->anim_frame = 0;
 					e->anim_cnt = 0;
-					e->hover_phase = 0;
+					e->hover_phase = false;
 					e->hover_d = 0;
 					o->dy = kintro_flying_up_dy;
 				}
@@ -969,11 +947,11 @@ static void main_func(Obj *o)
 				{
 					o->flags = OBJ_FLAG_SENSITIVE;
 					e->state = BOSS2_STATE_ROAM;
-					e->hover_phase = 0;
+					e->hover_phase = false;
 					e->hover_d = 0;
 					o->dy = 0;
 					o->y = growth_activation_y;
-					bricks_init(e, o->hp);
+					brick_draw_reset(e);
 				}
 				break;
 			case BOSS2_STATE_EXPLODED:
@@ -1021,7 +999,7 @@ static void cube_func(Obj *o, Cube *c)
 	}
 
 	O_Boss2 *e = (O_Boss2 *)o;
-	e->hit_pending = 1;
+	e->hit_pending = true;
 }
 
 void o_load_boss2(Obj *o, uint16_t data)

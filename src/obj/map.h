@@ -13,6 +13,7 @@
 #include "map_file.h"
 #include "md/megadrive.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef enum MapExitTrigger
@@ -90,12 +91,12 @@ void map_load(uint8_t id, uint8_t entrance_num);
 uint8_t map_get_music_track(void);
 uint8_t map_get_background(void);
 
-static inline uint8_t map_is_tile_harmful(uint8_t tile)
+static inline bool map_is_tile_harmful(uint8_t tile)
 {
 	return tile >= 0xE0;
 }
 
-static inline uint8_t map_is_tile_solid(uint8_t tile)
+static inline bool map_is_tile_solid(uint8_t tile)
 {
 	return tile >= 0x80 && tile < 0xE0;
 }
@@ -106,7 +107,7 @@ static inline uint16_t map_data_at(int16_t x, int16_t y)
 	return g_map_data[check_addr];
 }
 
-static inline uint16_t map_collision(int16_t x, int16_t y)
+static inline bool map_collision(int16_t x, int16_t y)
 {
 	return map_is_tile_solid(map_data_at(x, y) & 0xFF);
 }

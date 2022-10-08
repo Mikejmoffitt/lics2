@@ -1,9 +1,10 @@
 #ifndef OBJ_BOSS1_H
 #define OBJ_BOSS1_H
 
+#include <stdbool.h>
 #include "obj.h"
 
-typedef enum Boss1State
+typedef enum __attribute__((packed)) Boss1State
 {
 	BOSS1_STATE_INIT,  // Positions or deletes the boss.
 	BOSS1_STATE_APPROACH,  // Boss enters from left.
@@ -32,18 +33,18 @@ typedef struct O_Boss1
 	int16_t anim_cnt;
 
 	int32_t state_elapsed;
-	int16_t shots_remaining;  // Set between 1 - 5 during turn.
+	uint8_t shots_remaining;  // Set between 1 - 5 during turn.
+	uint8_t metaframe;
 
 	int16_t explode_cnt;
 
-	int16_t metaframe;
 
 	// Data for the cube dropping phase set during precharge.
 	struct
 	{
 		int16_t cnt;  // Used to space out drops.
-		int16_t remaining;
-		int16_t shaking;
+		uint8_t remaining;
+		bool shaking;
 	} drop;
 } O_Boss1;
 

@@ -101,8 +101,8 @@ static void main_func(Obj *o)
 	switch (e->state)
 	{
 		case GAMEOVER_LYLE_FALL:
-			e->lyle_dy += kgravity;
-			e->lyle_y += e->lyle_dy;
+			l->head.dy += kgravity;
+			l->head.y += l->head.dy;
 
 			OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame, 4, klyle_spin_anim_speed);
 			if (e->lyle_anim_cnt == 0 && e->lyle_anim_frame % 2 == 0)
@@ -112,16 +112,15 @@ static void main_func(Obj *o)
 			}
 			l->anim_frame = (e->lyle_anim_frame % 2) ? 0x0F : 0x10;
 
-			if (e->lyle_y >= e->max_y)
+			if (l->head.y >= e->max_y)
 			{
-				e->lyle_y = e->max_y;
+				l->head.y = e->max_y;
 				e->state = GAMEOVER_LYLE_ANIM;
 				l->head.direction = OBJ_DIRECTION_RIGHT;
 				l->anim_frame = 0x11;
 			}
 
 			l->head.x = o->x;
-			l->head.y = e->lyle_y;
 			break;
 
 		case GAMEOVER_LYLE_ANIM:
@@ -297,7 +296,8 @@ void o_load_gameover(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	e->max_y = o->y;
-	e->lyle_y = INTTOFIX32(-28);
+	O_Lyle *l = lyle_get();
+	l->head.y = INTTOFIX32(-28);
 	o->y = INTTOFIX32(-48);
 
 	hud_set_visible(0);

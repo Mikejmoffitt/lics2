@@ -141,7 +141,8 @@ void o_load_pilla(Obj *o, uint16_t data)
 	o->direction = OBJ_DIRECTION_RIGHT;
 	o->dx = kdx;
 
-	f->is_head = !!data;
+	f->is_head = data ? true : false;
+	/*
 	if (!f->is_head)
 	{
 		o->name[5] = 'B';
@@ -152,7 +153,7 @@ void o_load_pilla(Obj *o, uint16_t data)
 	{
 		o->name[5] = 'H';
 		o->name[6] = 'd';
-	}
+	}*/
 }
 
 void o_unload_pilla(void)

@@ -7,7 +7,7 @@
 // The end of the pipe above the cube power pad that takes Lyle's CP orbs and
 // emits cube power level-up items.
 
-typedef enum CpGiverState
+typedef enum __attribute__((packed)) CpGiverState
 {
 	CP_GIVER_STATE_IDLE,
 	CP_GIVER_STATE_PRETAKE,
@@ -19,25 +19,22 @@ typedef enum CpGiverState
 typedef struct O_CpGiver
 {
 	Obj head;
-
 	CpGiverState state;
-	int16_t state_elapsed;
 
-	int16_t metaframe;
+	uint8_t metaframe;
+	int16_t state_elapsed;
 
 	int16_t anim_frame;
 	int16_t anim_cnt;
 
-	// CP orb that comes out of lyle.
-	fix32_t orb_y;
-	fix16_t orb_dy;
-	int16_t orb_flicker_cnt;
+	// CP orb / cube powerup storage.
+	uint8_t orb_flicker_cnt;
+	uint8_t orb_anim_frame;
 	int16_t orb_anim_cnt;
-	int16_t orb_anim_frame;
-
-	// Cube powerup that is given to Lyle.
 	fix32_t powerup_y;
 	fix16_t powerup_dy;
+	fix32_t orb_y;
+	fix16_t orb_dy;
 	ProgressAbility powerup_ability;
 } O_CpGiver;
 

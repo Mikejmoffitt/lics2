@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef uint16_t LyleBtn;
+typedef uint8_t LyleBtn;
 
 #define LYLE_BTN_UP    0x0001
 #define LYLE_BTN_DOWN  0x0002

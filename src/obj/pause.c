@@ -21,6 +21,27 @@
 #include "str.h"
 #include "input.h"
 
+#include <string.h>
+
+static struct
+{
+	int16_t main_cursor;
+	int16_t room_cursor;
+	int16_t room_last_page;
+	int16_t chosen_room_id;
+
+	int16_t sound_cursor;
+	int16_t bgm_id;
+	int16_t sfx_id;
+	uint16_t input_cheat_idx;
+
+	int16_t progress_cursor_main;
+	int16_t progress_cursor_bit;
+
+	uint16_t vram_view_offset;
+	int16_t vram_view_pal;
+} s_debug;
+
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
 static uint16_t s_vram_kana_pos;
@@ -811,7 +832,7 @@ static void screen_reset(O_Pause *e)
 	sfx_play(SFX_PAUSE_1, 1);
 	sfx_play(SFX_PAUSE_2, 1);
 	clear_window_plane();
-	e->window = 1;
+	e->window = true;
 }
 
 static void maybe_switch_to_debug(O_Pause *e, LyleBtn buttons)
@@ -832,25 +853,25 @@ static void maybe_switch_to_debug(O_Pause *e, LyleBtn buttons)
 		LYLE_BTN_RIGHT
 	};
 
-	if (e->debug.input_cheat_idx >= ARRAYSIZE(kcheat_sequence))
+	if (s_debug.input_cheat_idx >= ARRAYSIZE(kcheat_sequence))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
-		e->debug.input_cheat_idx = 0;
+		s_debug.input_cheat_idx = 0;
 		return;
 	}
 
-	const LyleBtn next_btn = kcheat_sequence[e->debug.input_cheat_idx];
+	const LyleBtn next_btn = kcheat_sequence[s_debug.input_cheat_idx];
 	const LyleBtn edge = buttons & ~e->buttons_prev;
 
 	if (!edge) return;
 
 	if (edge == next_btn)
 	{
-		e->debug.input_cheat_idx++;
+		s_debug.input_cheat_idx++;
 	}
 	else
 	{
-		e->debug.input_cheat_idx = 0;
+		s_debug.input_cheat_idx = 0;
 	}
 }
 
@@ -894,24 +915,24 @@ static void debug_menu_logic(O_Pause *e, LyleBtn buttons)
 	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
-		e->screen = debug_options[e->debug.main_cursor].screen;
+		e->screen = debug_options[s_debug.main_cursor].screen;
 		return;
 	}
 
 	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
-		e->debug.main_cursor--;
-		if (e->debug.main_cursor < 0)
+		s_debug.main_cursor--;
+		if (s_debug.main_cursor < 0)
 		{
-			e->debug.main_cursor = ARRAYSIZE(debug_options) - 1;
+			s_debug.main_cursor = ARRAYSIZE(debug_options) - 1;
 		}
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
-		e->debug.main_cursor++;
-		if (e->debug.main_cursor >= (int16_t)ARRAYSIZE(debug_options))
+		s_debug.main_cursor++;
+		if (s_debug.main_cursor >= (int16_t)ARRAYSIZE(debug_options))
 		{
-			e->debug.main_cursor = 0;
+			s_debug.main_cursor = 0;
 		}
 	}
 }
@@ -919,7 +940,7 @@ static void debug_menu_logic(O_Pause *e, LyleBtn buttons)
 static void draw_debug_main_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.main_cursor * 2)) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (s_debug.main_cursor * 2)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -933,14 +954,14 @@ static void plot_room_select_title(void)
 	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
-static void plot_room_select_list(O_Pause *e)
+static void plot_room_select_list(void)
 {
 	static const int16_t rooms_per_list = 16;
-	const int16_t page = e->debug.room_cursor / 16;
+	const int16_t page = s_debug.room_cursor / 16;
 	for (int16_t i = 0; i < rooms_per_list; i++)
 	{
 		const int16_t id = (page * 16) + i;
-		if (page != e->debug.room_last_page)
+		if (page != s_debug.room_last_page)
 		{
 			plot_string("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 		}
@@ -955,13 +976,13 @@ static void plot_room_select_list(O_Pause *e)
 			plot_string(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 		}
 	}
-	e->debug.room_last_page = page;
+	s_debug.room_last_page = page;
 }
 
 static void draw_room_select_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.room_cursor % 16)) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (s_debug.room_cursor % 16)) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -969,34 +990,34 @@ static void debug_room_select_logic(O_Pause *e, LyleBtn buttons)
 {
 	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
-		e->debug.room_cursor--;
-		if (e->debug.room_cursor < 0)
+		s_debug.room_cursor--;
+		if (s_debug.room_cursor < 0)
 		{
-			e->debug.room_cursor = map_file_count() - 1;
+			s_debug.room_cursor = map_file_count() - 1;
 		}
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
-		e->debug.room_cursor++;
-		if (e->debug.room_cursor >= map_file_count())
+		s_debug.room_cursor++;
+		if (s_debug.room_cursor >= map_file_count())
 		{
-			e->debug.room_cursor = 0;
+			s_debug.room_cursor = 0;
 		}
 	}
 	else if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 	{
-		e->debug.room_cursor = ((e->debug.room_cursor / 16) - 1) * 16;
-		while (e->debug.room_cursor < 0)
+		s_debug.room_cursor = ((s_debug.room_cursor / 16) - 1) * 16;
+		while (s_debug.room_cursor < 0)
 		{
-			e->debug.room_cursor += map_file_count();
+			s_debug.room_cursor += map_file_count();
 		}
 	}
 	else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 	{
-		e->debug.room_cursor = ((e->debug.room_cursor / 16) + 1) * 16;
-		while (e->debug.room_cursor >= map_file_count())
+		s_debug.room_cursor = ((s_debug.room_cursor / 16) + 1) * 16;
+		while (s_debug.room_cursor >= map_file_count())
 		{
-			e->debug.room_cursor -= map_file_count();
+			s_debug.room_cursor -= map_file_count();
 		}
 	}
 
@@ -1004,7 +1025,7 @@ static void debug_room_select_logic(O_Pause *e, LyleBtn buttons)
 
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
-		e->debug.chosen_room_id = e->debug.room_cursor;
+		s_debug.chosen_room_id = s_debug.room_cursor;
 	}
 	else if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
@@ -1049,17 +1070,17 @@ static void plot_sound_test_title(void)
 	plot_string("BUTTON B @ EXIT", kdebug_left, kdebug_top + 21, ENEMY_PAL_LINE);
 }
 
-static void plot_sound_test_ui(O_Pause *e)
+static void plot_sound_test_ui(void)
 {
 	char id_str[4];
-	id_str[0] = '0' + (e->debug.bgm_id / 100) % 10;
-	id_str[1] = '0' + (e->debug.bgm_id / 10) % 10;
-	id_str[2] = '0' + e->debug.bgm_id % 10;
+	id_str[0] = '0' + (s_debug.bgm_id / 100) % 10;
+	id_str[1] = '0' + (s_debug.bgm_id / 10) % 10;
+	id_str[2] = '0' + s_debug.bgm_id % 10;
 	id_str[3] = '\0';
 	plot_string(id_str, kdebug_left + 11, kdebug_top + 2, MAP_PAL_LINE);
-	id_str[0] = '0' + (e->debug.sfx_id / 100) % 10;
-	id_str[1] = '0' + (e->debug.sfx_id / 10) % 10;
-	id_str[2] = '0' + e->debug.sfx_id % 10;
+	id_str[0] = '0' + (s_debug.sfx_id / 100) % 10;
+	id_str[1] = '0' + (s_debug.sfx_id / 10) % 10;
+	id_str[2] = '0' + s_debug.sfx_id % 10;
 	id_str[3] = '\0';
 	plot_string(id_str, kdebug_left + 11, kdebug_top + 4, MAP_PAL_LINE);
 }
@@ -1067,7 +1088,7 @@ static void plot_sound_test_ui(O_Pause *e)
 static void draw_sound_test_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0) return;
-	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.sound_cursor % 16) * 2) * 8,
+	md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (s_debug.sound_cursor % 16) * 2) * 8,
 	        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 }
 
@@ -1075,55 +1096,55 @@ static void sound_test_logic(O_Pause *e, LyleBtn buttons)
 {
 	if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 	{
-		e->debug.sound_cursor--;
-		if (e->debug.sound_cursor < 0)
+		s_debug.sound_cursor--;
+		if (s_debug.sound_cursor < 0)
 		{
-			e->debug.sound_cursor = 2;
+			s_debug.sound_cursor = 2;
 		}
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 	{
-		e->debug.sound_cursor++;
-		if (e->debug.sound_cursor >= 3)
+		s_debug.sound_cursor++;
+		if (s_debug.sound_cursor >= 3)
 		{
-			e->debug.sound_cursor = 0;
+			s_debug.sound_cursor = 0;
 		}
 	}
 
 	else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 	{
-		if (e->debug.sound_cursor == 0)
+		if (s_debug.sound_cursor == 0)
 		{
-			e->debug.bgm_id++;
+			s_debug.bgm_id++;
 		}
-		else if (e->debug.sound_cursor == 1)
+		else if (s_debug.sound_cursor == 1)
 		{
-			e->debug.sfx_id++;
+			s_debug.sfx_id++;
 		}
 	}
 	else if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 	{
-		if (e->debug.sound_cursor == 0)
+		if (s_debug.sound_cursor == 0)
 		{
-			e->debug.bgm_id--;
+			s_debug.bgm_id--;
 		}
-		else if (e->debug.sound_cursor == 1)
+		else if (s_debug.sound_cursor == 1)
 		{
-			e->debug.sfx_id--;
+			s_debug.sfx_id--;
 		}
 	}
 	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
-		if (e->debug.sound_cursor == 0)
+		if (s_debug.sound_cursor == 0)
 		{
-			music_play(e->debug.bgm_id);
+			music_play(s_debug.bgm_id);
 		}
-		else if (e->debug.sound_cursor == 1)
+		else if (s_debug.sound_cursor == 1)
 		{
-			sfx_play(e->debug.sfx_id, 0);
+			sfx_play(s_debug.sfx_id, 0);
 		}
-		else if (e->debug.sound_cursor == 2)
+		else if (s_debug.sound_cursor == 2)
 		{
 			music_stop();
 			sfx_stop_all();
@@ -1260,25 +1281,25 @@ static void progress_edit_logic_and_plot(O_Pause *e, LyleBtn buttons)
 	}
 
 	static const LyleBtn btn_chk = (LYLE_BTN_JUMP | LYLE_BTN_START);
-	ProgressEditSlot *s = &slots[e->debug.progress_cursor_main];
-	if (e->debug.progress_cursor_bit < 0)
+	ProgressEditSlot *s = &slots[s_debug.progress_cursor_main];
+	if (s_debug.progress_cursor_bit < 0)
 	{
 		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
-			e->debug.progress_cursor_main++;
+			s_debug.progress_cursor_main++;
 		}
 		if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 		{
-			e->debug.progress_cursor_main--;
+			s_debug.progress_cursor_main--;
 		}
 
-		if (e->debug.progress_cursor_main >= (signed)ARRAYSIZE(slots))
+		if (s_debug.progress_cursor_main >= (signed)ARRAYSIZE(slots))
 		{
-			e->debug.progress_cursor_main = 0;
+			s_debug.progress_cursor_main = 0;
 		}
-		else if (e->debug.progress_cursor_main < 0)
+		else if (s_debug.progress_cursor_main < 0)
 		{
-			e->debug.progress_cursor_main = ARRAYSIZE(slots) - 1;
+			s_debug.progress_cursor_main = ARRAYSIZE(slots) - 1;
 		}
 
 		if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
@@ -1289,19 +1310,19 @@ static void progress_edit_logic_and_plot(O_Pause *e, LyleBtn buttons)
 		{
 			if (s->type == PROGRESS_EDIT_BITFIELD16)
 			{
-				e->debug.progress_cursor_bit = 0;
+				s_debug.progress_cursor_bit = 0;
 			}
 			else
 			{
-				e->debug.progress_cursor_bit = 127;
+				s_debug.progress_cursor_bit = 127;
 			}
 		}
 	}
-	else if (e->debug.progress_cursor_bit == 127)
+	else if (s_debug.progress_cursor_bit == 127)
 	{
 		if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 		{
-			e->debug.progress_cursor_bit = -1;
+			s_debug.progress_cursor_bit = -1;
 		}
 		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
@@ -1318,31 +1339,31 @@ static void progress_edit_logic_and_plot(O_Pause *e, LyleBtn buttons)
 	{
 		if ((buttons & LYLE_BTN_LEFT) && !(e->buttons_prev & LYLE_BTN_LEFT))
 		{
-			e->debug.progress_cursor_bit++;
+			s_debug.progress_cursor_bit++;
 		}
 		else if ((buttons & LYLE_BTN_RIGHT) && !(e->buttons_prev & LYLE_BTN_RIGHT))
 		{
-			e->debug.progress_cursor_bit--;
+			s_debug.progress_cursor_bit--;
 		}
-		if (e->debug.progress_cursor_bit < 0)
+		if (s_debug.progress_cursor_bit < 0)
 		{
-			e->debug.progress_cursor_bit = 15;
+			s_debug.progress_cursor_bit = 15;
 		}
-		else if (e->debug.progress_cursor_bit > 15)
+		else if (s_debug.progress_cursor_bit > 15)
 		{
-			e->debug.progress_cursor_bit = 0;
+			s_debug.progress_cursor_bit = 0;
 		}
 		if ((buttons & (LYLE_BTN_CUBE | btn_chk)) && !(e->buttons_prev & (LYLE_BTN_CUBE | btn_chk)))
 		{
-			e->debug.progress_cursor_bit = -1;
+			s_debug.progress_cursor_bit = -1;
 		}
 		if ((buttons & LYLE_BTN_DOWN) && !(e->buttons_prev & LYLE_BTN_DOWN))
 		{
-			*s->data &= ~(1 << e->debug.progress_cursor_bit);
+			*s->data &= ~(1 << s_debug.progress_cursor_bit);
 		}
 		else if ((buttons & LYLE_BTN_UP) && !(e->buttons_prev & LYLE_BTN_UP))
 		{
-			*s->data |= (1 << e->debug.progress_cursor_bit);
+			*s->data |= (1 << s_debug.progress_cursor_bit);
 		}
 	}
 }
@@ -1351,20 +1372,20 @@ static void draw_progress_edit_cursor(O_Pause *e)
 {
 	if (e->cursor_flash_frame == 0)
 	{
-		md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		md_spr_put((kdebug_left + 2) * 8, (kdebug_top + 2 + (s_debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x70, 0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 	if (e->cursor_flash_cnt % 2) return;
 
-	if (e->debug.progress_cursor_bit == 127)
+	if (s_debug.progress_cursor_bit == 127)
 	{
-		md_spr_put((kdebug_left + 32) * 8, (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		md_spr_put((kdebug_left + 32) * 8, (kdebug_top + 2 + (s_debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(4, 1));
 	}
-	else if (e->debug.progress_cursor_bit >= 0)
+	else if (s_debug.progress_cursor_bit >= 0)
 	{
-		md_spr_put((kdebug_left + 19 + (16 - e->debug.progress_cursor_bit)) * 8,
-		        (kdebug_top + 2 + (e->debug.progress_cursor_main)) * 8,
+		md_spr_put((kdebug_left + 19 + (16 - s_debug.progress_cursor_bit)) * 8,
+		        (kdebug_top + 2 + (s_debug.progress_cursor_main)) * 8,
 		        VDP_ATTR(s_vram_pos + 0x87, 0, 0, ENEMY_PAL_LINE, 0), SPR_SIZE(1, 1));
 	}
 }
@@ -1513,32 +1534,32 @@ static void vram_view_logic(O_Pause *e)
 	const LyleBtn buttons = input_read();
 
 	if (buttons & LYLE_BTN_DOWN && !(e->buttons_prev & LYLE_BTN_DOWN) &&
-	    e->debug.vram_view_offset <= 0x06F0)
+	    s_debug.vram_view_offset <= 0x06F0)
 	{
-		e->debug.vram_view_offset += 0x0010;
+		s_debug.vram_view_offset += 0x0010;
 	}
 	if (buttons & LYLE_BTN_UP && !(e->buttons_prev & LYLE_BTN_UP) &&
-	    e->debug.vram_view_offset >= 0x0010)
+	    s_debug.vram_view_offset >= 0x0010)
 	{
-		e->debug.vram_view_offset -= 0x0010;
+		s_debug.vram_view_offset -= 0x0010;
 	}
 
 	if (buttons & LYLE_BTN_RIGHT && !(e->buttons_prev & LYLE_BTN_RIGHT) &&
-	    e->debug.vram_view_offset <= 0x600)
+	    s_debug.vram_view_offset <= 0x600)
 	{
-		e->debug.vram_view_offset += 0x0100;
+		s_debug.vram_view_offset += 0x0100;
 	}
 	if (buttons & LYLE_BTN_LEFT && !(e->buttons_prev & LYLE_BTN_LEFT) &&
-	    e->debug.vram_view_offset >= 0x0100)
+	    s_debug.vram_view_offset >= 0x0100)
 	{
-		e->debug.vram_view_offset -= 0x0100;
+		s_debug.vram_view_offset -= 0x0100;
 	}
 
 	if (buttons & btn_chk && !(e->buttons_prev & btn_chk))
 	{
-		e->debug.vram_view_pal++;
+		s_debug.vram_view_pal++;
 	}
-	e->debug.vram_view_pal &= 0x03;
+	s_debug.vram_view_pal &= 0x03;
 	if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
 		e->screen = PAUSE_SCREEN_DEBUG;
@@ -1597,7 +1618,7 @@ static void pause_menu_logic(O_Pause *e, LyleBtn buttons)
 
 	if (e->pause_select_cnt == 0)
 	{
-		if (e->pause_choice >= 0 && e->pause_choice <= 1)
+		if (e->pause_choice <= 1)
 		{
 			if (left_trigger)
 			{
@@ -1690,7 +1711,7 @@ static void main_func(Obj *o)
 				map_upload_palette();
 				bg_upload_palette();
 				lyle_upload_palette();
-				e->window = 0;
+				e->window = false;
 			}
 			maybe_map(e, buttons);
 			break;
@@ -1821,7 +1842,7 @@ static void main_func(Obj *o)
 		case PAUSE_SCREEN_DEBUG:
 			if (first_frame)
 			{
-				e->debug.main_cursor = 0;
+				s_debug.main_cursor = 0;
 				clear_window_plane();
 				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
 				           sizeof(res_pal_debug_bin) / 2);
@@ -1840,10 +1861,10 @@ static void main_func(Obj *o)
 			{
 				clear_window_plane();
 				plot_room_select_title();
-				e->debug.room_last_page = -1;
+				s_debug.room_last_page = -1;
 			}
 			debug_room_select_logic(e, buttons);
-			plot_room_select_list(e);
+			plot_room_select_list();
 			draw_room_select_cursor(e);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
@@ -1856,7 +1877,7 @@ static void main_func(Obj *o)
 				plot_sound_test_title();
 			}
 			sound_test_logic(e, buttons);
-			plot_sound_test_ui(e);
+			plot_sound_test_ui();
 			draw_sound_test_cursor(e);
 			
 			OBJ_SIMPLE_ANIM(e->cursor_flash_cnt, e->cursor_flash_frame,
@@ -1867,8 +1888,8 @@ static void main_func(Obj *o)
 			{
 				clear_window_plane();
 				plot_progress_edit_title();
-				e->debug.progress_cursor_main = 0;
-				e->debug.progress_cursor_bit = -1;
+				s_debug.progress_cursor_main = 0;
+				s_debug.progress_cursor_bit = -1;
 			}
 			progress_edit_logic_and_plot(e, buttons);
 			draw_progress_edit_cursor(e);
@@ -1880,8 +1901,8 @@ static void main_func(Obj *o)
 			if (first_frame)
 			{
 				clear_window_plane();
-				e->debug.vram_view_offset = 0;
-				e->debug.vram_view_pal = 0;
+				s_debug.vram_view_offset = 0;
+				s_debug.vram_view_pal = 0;
 				map_upload_palette();
 				bg_upload_palette();
 				lyle_upload_palette();
@@ -1889,7 +1910,7 @@ static void main_func(Obj *o)
 			}
 
 			vram_view_logic(e);
-			plot_vram_view(e->debug.vram_view_offset, e->debug.vram_view_pal);
+			plot_vram_view(s_debug.vram_view_offset, s_debug.vram_view_pal);
 			break;
 		case PAUSE_SCREEN_BUTTON_CHECK:
 			if (first_frame)
@@ -1942,11 +1963,13 @@ void o_load_pause(Obj *o, uint16_t data)
 	set_constants();
 	vram_load();
 
+	memset(&s_debug, 0, sizeof(&s_debug));
+
 	obj_basic_init(o, "Pause", OBJ_FLAG_ALWAYS_ACTIVE,
 	               INTTOFIX16(-1), INTTOFIX16(1), INTTOFIX16(-2), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
-	s_pause->debug.chosen_room_id = -1;
+	s_debug.chosen_room_id = -1;
 
 	clear_window_plane();
 }
@@ -1963,12 +1986,12 @@ void pause_set_screen(PauseScreen screen)
 	s_pause->screen = screen;
 }
 
-int16_t pause_want_window(void)
+bool pause_want_window(void)
 {
 	return s_pause->window;
 }
 
 int16_t pause_get_debug_room_id(void)
 {
-	return s_pause->debug.chosen_room_id;
+	return s_debug.chosen_room_id;
 }

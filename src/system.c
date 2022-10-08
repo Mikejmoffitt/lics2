@@ -2,8 +2,8 @@
 #include "md/megadrive.h"
 #include "vram_map.h"
 
-int8_t g_system_is_ntsc;
-int8_t g_system_debug_enabled;
+bool g_system_is_ntsc;
+bool g_system_debug_enabled;
 
 static uint32_t s_rand_value;
 
@@ -56,7 +56,7 @@ uint32_t system_rand(void)
 	return s_rand_value;
 }
 
-void system_set_debug_enabled(int16_t en)
+void system_set_debug_enabled(bool en)
 {
 	g_system_debug_enabled = en;
 }
