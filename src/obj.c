@@ -1,6 +1,7 @@
 #include "obj.h"
 
 #include "system.h"
+#include <string.h>
 #include <stdlib.h>
 #include "cube.h"
 #include "gfx.h"

@@ -946,7 +946,7 @@ static void plot_room_select_list(O_Pause *e)
 		}
 		if (id >= map_file_count()) continue;
 		const MapFile *file = map_file_by_id(id);
-		if (!file || !file->name)
+		if (!file)
 		{
 			plot_string(" (empty room slot)", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 		}

@@ -875,16 +875,15 @@ static void main_func(Obj *o)
 				if (e->state_elapsed == 0)
 				{
 					e->explode_cnt = 0;
-					
 				}
-				// Fall-through intended.
+				__attribute__((fallthrough));
 			case BOSS2_STATE_DIVING_HIT:
 				e->hit_pending = 0;
 				if (o->y >= ground_y && o->hp < 127)
 				{
 					e->state = BOSS2_STATE_RETREAT;
 				}
-				// Fall-through intended.
+				__attribute__((fallthrough));
 			case BOSS2_STATE_DIVING:
 				if (o->dy > 0)
 				{
