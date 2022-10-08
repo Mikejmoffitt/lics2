@@ -58,7 +58,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	kapproach_start_delay = PALSCALE_DURATION(240);
 	kapproach_dx = INTTOFIX16(PALSCALE_1ST(1.0));
@@ -89,7 +89,7 @@ static inline void set_constants(void)
 	kdrop_separation = PALSCALE_DURATION(23);
 	kstep_sound_separation = PALSCALE_DURATION(18);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void suppress_spawner_cubes(void)

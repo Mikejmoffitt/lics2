@@ -24,14 +24,14 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kthresh[0] = PALSCALE_DURATION(12);
 	kthresh[1] = PALSCALE_DURATION(24);
 	kthresh[2] = PALSCALE_DURATION(36);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void draw_segment(O_RockmanDoor *e, int16_t sp_x, int16_t sp_y)

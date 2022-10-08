@@ -27,7 +27,7 @@ static int16_t ksplat_anim_speed;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
@@ -36,7 +36,7 @@ static inline void set_constants(void)
 	kfall_dy = INTTOFIX16(PALSCALE_1ST(1.66667));
 	kgenerator_speed = PALSCALE_DURATION(76);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void render_splat(O_Lava *e)

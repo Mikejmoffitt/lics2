@@ -1917,14 +1917,14 @@ static void main_func(Obj *o)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kcursor_flash_delay = PALSCALE_DURATION(12);
 	kdismissal_delay_frames = PALSCALE_DURATION(60);
 	kselect_delay_frames = PALSCALE_DURATION(36);
 	kmenu_flash_delay = PALSCALE_DURATION(5);
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 void o_load_pause(Obj *o, uint16_t data)

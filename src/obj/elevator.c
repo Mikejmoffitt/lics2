@@ -30,14 +30,14 @@ static int16_t kcollision_delay_frames;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kmove_dy = INTTOFIX16(PALSCALE_1ST(1.666666667));
 	kanim_speed = PALSCALE_DURATION(8);
 	kcollision_delay_frames = PALSCALE_DURATION(60);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Elevator *e)

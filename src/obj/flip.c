@@ -17,7 +17,7 @@ static fix16_t kdy_cutoff;
 static fix16_t kdx;
 static int8_t kanim_delay;
 
-static int16_t s_constants_set;
+static bool s_constants_set;
 
 static void set_constants(void)
 {
@@ -28,7 +28,7 @@ static void set_constants(void)
 	kdx = INTTOFIX16(PALSCALE_1ST(0.41666666667));
 	kanim_delay = PALSCALE_DURATION(10);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.

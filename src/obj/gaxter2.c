@@ -24,7 +24,7 @@ static int16_t kshot_clock_max;
 static int16_t kshot_clock_flicker_time;
 static int16_t kshot_flicker_speed;
 
-static int16_t s_constants_set;
+static bool s_constants_set;
 
 static void set_constants(void)
 {
@@ -40,7 +40,7 @@ static void set_constants(void)
 	kshot_flicker_speed = PALSCALE_DURATION(4.4);
 
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.

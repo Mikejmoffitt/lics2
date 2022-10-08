@@ -27,11 +27,11 @@ void exploder_spawn(fix32_t x, fix32_t y, fix16_t dx, fix16_t dy,
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void main_func(Obj *o)

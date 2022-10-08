@@ -27,7 +27,7 @@ static fix16_t kcube_bounce_dy;
 
 static void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kbuggo1_shot_test = PALSCALE_DURATION(48);
@@ -38,7 +38,7 @@ static void set_constants(void)
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-1.8333334));
 
 	kdx = INTTOFIX16(PALSCALE_1ST(.277777777777778));
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.

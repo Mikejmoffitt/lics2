@@ -13,7 +13,7 @@ static fix16_t klunge_strength[4];
 static fix16_t kdecel;
 static int16_t klunge_time;
 
-static uint16_t s_constants_set;
+static bool s_constants_set;
 
 static int16_t s_disable;
 
@@ -28,7 +28,7 @@ static inline void set_constants(void)
 	klunge_strength[3] = INTTOFIX16(PALSCALE_1ST(2.3));
 	kdecel = INTTOFIX16(PALSCALE_2ND(0.096));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static uint16_t s_vram_pos;

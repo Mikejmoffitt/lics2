@@ -12,7 +12,7 @@
 #include "lyle.h"
 #include "game.h"
 #include "sfx.h"
-#include "trig.h"
+#include "util/trig.h"
 #include "particle.h"
 #include "projectile.h"
 #include "obj/cube_manager.h"
@@ -68,7 +68,7 @@ static int16_t kspread_shot_separation;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kintro_idle_anim_speed = PALSCALE_DURATION(8);
@@ -109,7 +109,7 @@ static inline void set_constants(void)
 	kspread_shot_speed = INTTOFIX16(PALSCALE_1ST(3));
 	kspread_shot_separation = PALSCALE_DURATION(120);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // ----------------------------------------------------------------------------

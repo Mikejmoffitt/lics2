@@ -43,7 +43,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	kanim_delay = PALSCALE_DURATION(12);
 	kjump_delay = PALSCALE_DURATION(24);
@@ -57,7 +57,7 @@ static inline void set_constants(void)
 		kjump_dy_table[i] = kdy_base - (i * kdy_spread);
 	}
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Fissins1 *e)

@@ -31,7 +31,7 @@ static int16_t kmouth_anim_frame_duration;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kmove_dx = INTTOFIX16(PALSCALE_1ST(0.166667));
@@ -41,7 +41,7 @@ static inline void set_constants(void)
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(0.9));
 	kmouth_anim_frame_duration = PALSCALE_DURATION(4);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void render(O_Magibear *m)

@@ -18,7 +18,7 @@ static fix16_t kceiling_dy;  // Same as lyle.c
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kspawn_seq[0] = PALSCALE_DURATION(180);  // Invisible up to this point.
@@ -26,7 +26,7 @@ static inline void set_constants(void)
 	kspawn_anim_speed = PALSCALE_DURATION(4);
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(-0.416666667));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void draw_to_bg(O_FakeCube *e)

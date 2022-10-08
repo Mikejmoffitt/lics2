@@ -24,13 +24,13 @@ static int16_t kdestroy_cnt_max;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
 	kdestroy_cnt_max = PALSCALE_DURATION(20);  // TODO: Tune, this is guesswork.
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void main_func(Obj *o)

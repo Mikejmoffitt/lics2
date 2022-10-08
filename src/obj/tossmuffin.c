@@ -31,7 +31,7 @@ static int16_t klift_anim_speed;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	klift_len = PALSCALE_DURATION(18);
@@ -41,7 +41,7 @@ static inline void set_constants(void)
 	kwalk_dx = INTTOFIX16(PALSCALE_1ST(0.333));
 	klift_anim_speed = PALSCALE_DURATION(2);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Tossmuffin *e)

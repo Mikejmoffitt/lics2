@@ -62,16 +62,12 @@ static const PowerupType powerup_drop_order[32] =
 };
 
 // Object list execution ======================================================
-int obj_init(void)
+void obj_init(void)
 {
-	SYSTEM_ASSERT(sizeof(g_objects[0]) % sizeof(uint32_t) == 0);
-
 	obj_clear();
 	set_constants();
 
 	s_powerup_drop_index = system_rand() % ARRAYSIZE(powerup_drop_order);
-
-	return 1;
 }
 
 static inline uint16_t obj_is_offscreen(const Obj *o)
@@ -221,12 +217,7 @@ Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)
 	{
 		Obj *o = &g_objects[i].obj;
 		if (o->status != OBJ_STATUS_NULL) continue;
-
-		uint32_t *raw_mem_uint32 = (uint32_t *)g_objects[i].raw_mem;
-		for (uint16_t j = 0; j < sizeof(g_objects[i]) / sizeof(uint32_t); j++)
-		{
-			raw_mem_uint32[j] = 0;
-		}
+		memset(&g_objects[i], 0, sizeof(g_objects[i]));
 		o->status = OBJ_STATUS_ACTIVE;
 		o->type = type;
 		o->x = INTTOFIX32(x);

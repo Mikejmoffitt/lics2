@@ -10,7 +10,7 @@
 
 #include "lyle.h"
 #include "projectile.h"
-#include "trig.h"
+#include "util/trig.h"
 
 static uint16_t s_vram_pos;
 
@@ -33,7 +33,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kddy = INTTOFIX16(PALSCALE_2ND(0.167));
@@ -46,7 +46,7 @@ static inline void set_constants(void)
 	kair_anim_delay = PALSCALE_DURATION(3);
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void render(Obj *o)

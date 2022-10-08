@@ -26,7 +26,7 @@ static int16_t kanim_speed;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
@@ -35,7 +35,7 @@ static inline void set_constants(void)
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1388888888892));
 	kanim_speed = PALSCALE_DURATION(10);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void render(O_Jraff *f)

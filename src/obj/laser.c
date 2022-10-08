@@ -29,7 +29,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kanim_delay = PALSCALE_DURATION(2);
@@ -37,7 +37,7 @@ static inline void set_constants(void)
 	ksequence[1] = PALSCALE_DURATION(54);
 	ksequence[2] = PALSCALE_DURATION(114);
 	ksequence[3] = PALSCALE_DURATION(132);
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Laser *e)

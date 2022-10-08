@@ -31,7 +31,7 @@ static fix16_t kbounce_dx;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
@@ -42,7 +42,7 @@ static inline void set_constants(void)
 	kbounce_dy_offset_cube = INTTOFIX16(PALSCALE_1ST(1.66666666667));
 	kbounce_dy_high = INTTOFIX16(PALSCALE_1ST(5.0));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void handle_hoop(O_Basketball *e, O_Hoop *h)

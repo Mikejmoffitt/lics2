@@ -29,7 +29,7 @@ static fix16_t kwalk_dx;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
@@ -41,7 +41,7 @@ static inline void set_constants(void)
 	kpunch_cube_dx = INTTOFIX16(PALSCALE_1ST(4.0));
 	kwalk_dx = INTTOFIX16(PALSCALE_1ST(0.4167));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Flargy *e)

@@ -41,7 +41,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kanim_speed = PALSCALE_DURATION(6);
@@ -60,7 +60,7 @@ static inline void set_constants(void)
 
 	klyle_center_dx = INTTOFIX16(PALSCALE_1ST(0.83333333334));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 typedef struct CpGiverFrame

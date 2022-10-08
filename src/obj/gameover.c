@@ -36,7 +36,7 @@ static float klyle_anim_speed_coef;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.09259259259259));  // Same as kgravity_dead in lyle.c
@@ -47,7 +47,7 @@ static inline void set_constants(void)
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-1.5));
 	kchoose_delay = PALSCALE_DURATION(36);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_GameOver *e)

@@ -15,7 +15,7 @@
 
 // Constants.
 
-static int16_t s_constants_set;
+static bool s_constants_set;
 
 static int8_t kanim_len;
 static fix16_t kaccel;
@@ -29,7 +29,7 @@ static void set_constants(void)
 	kaccel = INTTOFIX16(PALSCALE_2ND(0.09920634920634));
 	ktop_speed = INTTOFIX16(PALSCALE_1ST(2.38));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.

@@ -86,16 +86,17 @@ struct Obj
 	int8_t touching_player;
 };
 
-typedef union ObjSlot
+typedef union ObjSlot ObjSlot;
+union ObjSlot
 {
 	Obj obj;
 	uint8_t raw_mem[OBJ_BYTES];
-} ObjSlot;
+} __attribute__((aligned(OBJ_BYTES)));
 
 // Object list is public so it may be scanned.
 extern ObjSlot g_objects[OBJ_COUNT_MAX];
 
-int obj_init(void);
+void obj_init(void);
 void obj_exec(void);
 void obj_clear(void);
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data);

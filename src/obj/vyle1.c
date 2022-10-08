@@ -60,7 +60,7 @@ static void vram_load(void)
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kintro_dx = INTTOFIX16(PALSCALE_1ST(-0.2777777773));
@@ -109,7 +109,7 @@ static inline void set_constants(void)
 	kreatreat_flashing_stop_time = PALSCALE_DURATION(60);
 	kretreat_rockman_door_activate_time = PALSCALE_DURATION(120);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void render(O_Vyle1 *e)

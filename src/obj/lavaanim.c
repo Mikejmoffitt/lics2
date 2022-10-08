@@ -13,11 +13,11 @@ static int16_t kanim_speed;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kanim_speed = PALSCALE_DURATION(14);
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static void update_tiles(O_LavaAnim *e)

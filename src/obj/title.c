@@ -43,7 +43,7 @@ static int16_t klyle_anim_speed;
 
 static inline void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
 
@@ -78,7 +78,7 @@ static inline void set_constants(void)
 
 	klyle_anim_speed = PALSCALE_DURATION(6.8);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static uint16_t s_vram_pos;

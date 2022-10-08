@@ -20,7 +20,7 @@ static int16_t kanim_len;
 static int8_t ktele_sound_trigger;
 static int8_t kanim_speed;
 
-static uint16_t s_constants_set;
+static bool s_constants_set;
 
 static void set_constants(void)
 {
@@ -31,7 +31,7 @@ static void set_constants(void)
 	ktele_sound_trigger = PALSCALE_DURATION(75);
 	kanim_speed = PALSCALE_DURATION(2.5);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.

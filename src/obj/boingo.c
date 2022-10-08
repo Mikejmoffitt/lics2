@@ -31,7 +31,7 @@ static fix16_t kceiling_dy;
 
 static void set_constants(void)
 {
-	static uint16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.167));
@@ -53,7 +53,7 @@ static void set_constants(void)
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(2.0));
 	kair_anim_speed = PALSCALE_DURATION(2);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 // VRAM.
