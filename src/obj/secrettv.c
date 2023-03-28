@@ -1,4 +1,4 @@
-#include "obj/tvscreen.h"
+#include "obj/secrettv.h"
 #include <stdlib.h>
 #include "obj.h"
 #include "system.h"
@@ -17,8 +17,8 @@ static void vram_load(void)
 {
 	if (s_vram_pos) return;
 
-	const Gfx *g = gfx_get(GFX_TVSCREEN);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+//	const Gfx *g = gfx_get(GFX_SECRETTV);
+//	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 }
 
 // Store static constants here.
@@ -35,7 +35,7 @@ static inline void set_constants(void)
 	s_constants_set = true;
 }
 
-static void render(O_TvScreen *e)
+static void render(O_SecretTv *e)
 {
 	Obj *o = &e->head;
 	int16_t sp_x, sp_y;
@@ -49,9 +49,9 @@ static void render(O_TvScreen *e)
 
 static void main_func(Obj *o)
 {
-	O_TvScreen *e = (O_TvScreen *)o;
+	O_SecretTv *e = (O_SecretTv *)o;
 
-	if (!e->active)
+/*	if (!e->active)
 	{
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 3, kanim_speed_static);
 		e->attr = SPR_ATTR(s_vram_pos + ((3 + e->anim_frame) * 6),
@@ -62,29 +62,29 @@ static void main_func(Obj *o)
 		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 		if (e->anim_frame == 0)
 		{
-			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_tvscreen_bin,
-			           sizeof(res_pal_enemy_tvscreen_bin) / 2);
+			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_secrettv_bin,
+			           sizeof(res_pal_enemy_secrettv_bin) / 2);
 		}
 		else
 		{
-			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_tvscreen_dk_bin,
-			           sizeof(res_pal_enemy_tvscreen_dk_bin) / 2);
+			md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_secrettv_dk_bin,
+			           sizeof(res_pal_enemy_secrettv_dk_bin) / 2);
 		}
-	}
+	}*/
 
 	render(e);
 }
 
-void o_load_tvscreen(Obj *o, uint16_t data)
+void o_load_secrettv(Obj *o, uint16_t data)
 {
-	O_TvScreen *e = (O_TvScreen *)o;
+	O_SecretTv *e = (O_SecretTv *)o;
 	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
 	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
 	vram_load();
 
-	obj_basic_init(o, "TvScreen", 0,
+	obj_basic_init(o, "SecretTv", 0,
 	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-16), 1);
 	o->main_func = main_func;
 	o->cube_func = NULL;
@@ -106,7 +106,7 @@ void o_load_tvscreen(Obj *o, uint16_t data)
 	}
 }
 
-void o_unload_tvscreen(void)
+void o_unload_secrettv(void)
 {
 	s_vram_pos = 0;
 }

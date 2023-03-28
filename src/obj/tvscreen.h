@@ -2,12 +2,13 @@
 #define OBJ_TVSCREEN_H
 
 #include "obj.h"
+#include <stdbool.h>
 
 typedef struct O_TvScreen
 {
 	Obj head;
 	uint16_t id;
-	uint16_t active;
+	bool active;
 	uint16_t anim_frame;
 	uint16_t anim_cnt;
 	uint16_t attr;
