@@ -17,14 +17,15 @@ typedef enum ProjectileType
 	PROJECTILE_TYPE_DEATHORB2,  // Bouncing oblong thing from Boss 1.
 } ProjectileType;
 
-typedef struct Projectile
+typedef struct Projectile Projectile;
+struct Projectile
 {
 	ProjectileType type;
 	fix32_t x, y;
 	fix16_t dx, dy;
 	int16_t moving_up;
 	int16_t frames_alive;
-} Projectile;
+} __attribute__((aligned(16)));
 
 void projectile_load(void);
 void projectile_poll(void);

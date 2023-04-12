@@ -23,6 +23,7 @@
 #include "particle.h"
 #include "projectile.h"
 #include "obj/pause.h"
+#include "objtile.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -70,6 +71,7 @@ static void run_frame(void)
 			progress_init();
 			persistent_state_init();
 			physics_init();
+			objtile_clear();
 			want_display_en = 0;
 			md_vdp_set_window_top(0);
 			md_vdp_register_vblank_wait_callback(sfx_poll);
@@ -83,6 +85,7 @@ static void run_frame(void)
 			// Static singletons load or allocate VRAM first.
 			hud_load();
 			powerup_load();
+			objtile_clear();
 			projectile_load();
 			particle_load();
 			lyle_load();
@@ -115,6 +118,7 @@ static void run_frame(void)
 			lyle_poll();
 			// Game actor/object system
 			obj_exec();
+			objtile_poll();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();
 			const MapExitTrigger exit_trigger = map_get_exit_trigger();

@@ -27,7 +27,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 64
+#define OBJ_COUNT_MAX 48
 #define OBJ_BYTES 128
 
 #define OBJ_ACTIVE_DISTANCE 16
@@ -181,23 +181,23 @@ static inline void obj_render_setup_simple(Obj *o, int16_t *sp_x, int16_t *sp_y,
 }
 
 
-static inline uint16_t obj_touching_obj(const Obj *a, const Obj *b)
+static inline bool obj_touching_obj(const Obj *a, const Obj *b)
 {
-	if (a->x + a->right < b->x + b->left) return 0;
-	if (a->x + a->left > b->x + b->right) return 0;
-	if (a->y < b->y + b->top) return 0;
-	if (a->y + a->top > b->y) return 0;
-	return 1;
+	if (a->x + a->right < b->x + b->left) return false;
+	if (a->x + a->left > b->x + b->right) return false;
+	if (a->y < b->y + b->top) return false;
+	if (a->y + a->top > b->y) return false;
+	return true;
 }
 
-static inline int obj_touching_cube(const Obj *o, const Cube *c)
+static inline bool obj_touching_cube(const Obj *o, const Cube *c)
 {
 	static const fix32_t margin = INTTOFIX32(1);
-	if (c->y < o->y + o->top - margin) return 0;
-	if (c->y + c->top > o->y + margin) return 0;
-	if (c->x + c->left > o->x + o->right + margin) return 0;
-	if (c->x + c->right < o->x + o->left - margin) return 0;
-	return 1;
+	if (c->y < o->y + o->top - margin) return false;
+	if (c->y + c->top > o->y + margin) return false;
+	if (c->x + c->left > o->x + o->right + margin) return false;
+	if (c->x + c->right < o->x + o->left - margin) return false;
+	return true;
 }
 
 static inline void obj_face_towards_obj(Obj *o, const Obj *e)

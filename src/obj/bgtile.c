@@ -2,36 +2,18 @@
 #include <stdlib.h>
 #include "obj.h"
 #include "system.h"
-#include "gfx.h"
 #include "md/megadrive.h"
-#include "cube.h"
-#include "palscale.h"
-#include "obj/map.h"
 
-#include "lyle.h"
-#include "obj/exploder.h"
+#include "objtile.h"  // 2023-04-09: Dedicated list for this.
 
 static void main_func(Obj *o)
 {
-	O_BgTile *e = (O_BgTile *)o;
-	const int16_t sp_x = e->px - map_get_x_scroll();
-	const int16_t sp_y = e->py - map_get_y_scroll();
-
-	md_spr_put(sp_x, sp_y, e->attr, SPR_SIZE(2, 1));
-	md_spr_put(sp_x, sp_y + 8, e->attr + 0x10, SPR_SIZE(2, 1));
+	obj_erase(o);
 }
 
 void o_load_bgtile(Obj *o, uint16_t data)
 {
-	O_BgTile *e = (O_BgTile *)o;
-	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-
-	obj_basic_init(o, "BgTile", 0, INTTOFIX16(-8), INTTOFIX16(8),
-	               INTTOFIX16(-16), 127);
-	o->main_func = main_func;
-	o->cube_func = NULL;
-	e->attr = SPR_ATTR(data & 0x00FF, 0, 0, (data & 0x0300) >> 8, 0);
-	e->px = FIX32TOINT(o->x) - 8;
-	e->py = FIX32TOINT(o->y) - 16;
+	const uint16_t attr = SPR_ATTR(data & 0x00FF, 0, 0, (data & 0x0300) >> 8, 0);
+	objtile_place(o->x, o->y, attr);
+	obj_erase(o);
 }

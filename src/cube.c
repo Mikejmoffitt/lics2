@@ -45,7 +45,7 @@ void cube_set_constants(void)
 	kspawn_seq[1] = PALSCALE_DURATION(120);
 	kfizzle_duration = PALSCALE_DURATION(7);
 	kcollision_timeout = PALSCALE_DURATION(8);
-	
+
 	constants_set = 1;
 }
 

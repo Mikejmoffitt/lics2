@@ -9,6 +9,7 @@
 #include "obj/map.h"
 #include "obj/bg.h"
 
+#include "objtile.h"
 #include "powerup.h"
 #include "progress.h"
 #include "projectile.h"
@@ -748,6 +749,7 @@ static void wake_objects(void)
 		if (w->status != OBJ_STATUS_HIBERNATE) continue;
 		w->status = OBJ_STATUS_ACTIVE;
 	}
+	objtile_set_hibernate(0);
 	lyle_set_hibernate(0);
 	powerup_set_hibernate(0);
 	projectile_set_hibernate(0);
@@ -765,6 +767,7 @@ static void hibernate_objects()
 		if (w->type == OBJ_PAUSE) continue;
 		w->status = OBJ_STATUS_HIBERNATE;
 	}
+	objtile_set_hibernate(1);
 	lyle_set_hibernate(1);
 	powerup_set_hibernate(1);
 	projectile_set_hibernate(1);
@@ -1005,6 +1008,7 @@ static void debug_room_select_logic(O_Pause *e, LyleBtn buttons)
 	if ((buttons & btn_chk) && !(e->buttons_prev & btn_chk))
 	{
 		e->debug.chosen_room_id = e->debug.room_cursor;
+		wake_objects();
 	}
 	else if ((buttons & LYLE_BTN_CUBE) && !(e->buttons_prev & LYLE_BTN_CUBE))
 	{
