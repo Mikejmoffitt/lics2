@@ -177,18 +177,8 @@ static inline int16_t deathorb2_collision(Projectile *p)
 	return 0;
 }
 
-static inline void projectile_run(Projectile *p)
+static inline void bounds_crop(Projectile *p)
 {
-	// Projectile lifetime
-	p->frames_alive++;
-	if (p->type == PROJECTILE_TYPE_DEATHORB &&
-	    p->frames_alive >= kdeathorb_death_time)
-	{
-		p->type = PROJECTILE_TYPE_NULL;
-		return;
-	}
-
-	// Projectiles off-screen get cropped.
 	const int16_t tx = FIX32TOINT(p->x) - map_get_x_scroll();
 	const int16_t ty = FIX32TOINT(p->y) - map_get_y_scroll();
 	if (tx < -64 || tx > 384 || ty < -64 || ty > 304)
@@ -196,72 +186,96 @@ static inline void projectile_run(Projectile *p)
 		p->type = PROJECTILE_TYPE_NULL;
 		return;
 	}
-
-	// Move
-	p->x += p->dx;
-	p->y += p->dy;
-	if (p->type == PROJECTILE_TYPE_DEATHORB)
-	{
-		if (p->moving_up)
-		{
-			p->dy -= kdeathorb_ddy;
-			if (p->dy <= -kdeathorb_flip_dy) p->moving_up = 0;
-		}
-		else
-		{
-			p->dy += kdeathorb_ddy;
-			if (p->dy >= kdeathorb_flip_dy) p->moving_up = 1;
-		}
-	}
-	else if (p->type == PROJECTILE_TYPE_DEATHORB2)
-	{
-		p->dy += kdeathorb2_ddy;
-	}
-
-	// Check for having gone OOB
 	if (p->x > map_get_right() || p->x < 0 ||
 	    p->y > map_get_bottom() || p->y < 0)
 	{
 		p->type = PROJECTILE_TYPE_NULL;
 		return;
 	}
+}
 
+static inline void lyle_touch(Projectile *p)
+{
 	const Obj *lh = &lyle_get()->head;
-
-	// Check for collision with player
 	if (!((p->x + PROJECTILE_MARGIN < lh->x + lh->left) ||
 	      (p->x - PROJECTILE_MARGIN > lh->x + lh->right) ||
 	      (p->y < lh->y + lh->top) ||
 	      (p->y - (2 * PROJECTILE_MARGIN) > lh->y)))
 	{
-		lyle_get_hurt(0);
+		lyle_get_hurt(false);
 		p->type = PROJECTILE_TYPE_NULL;
-		return;
 	}
+}
 
-	// Background collisions. Collision functions return 1 if the projectile
-	// has been deactivated as a result of a collision.
-	switch (p->type)
-	{
-		default:
-			if (basic_collision(p)) return;
-			break;
-		case PROJECTILE_TYPE_BALL:
-			if (ball_collision(p)) return;
-			break;
-		case PROJECTILE_TYPE_DEATHORB2:
-			if (deathorb2_collision(p)) return;
-			break;
-	}
-
-	// Particle effects
-	if (p->type != PROJECTILE_TYPE_SPARK &&
-	    s_particle_cnt == 0)
+static inline void particle_effects(Projectile *p)
+{
+	if (s_particle_cnt == 0)
 	{
 		particle_spawn(p->x, p->y, PARTICLE_TYPE_SPARKLE);
 	}
+}
 
-	// Render
+static inline void projectile_run(Projectile *p)
+{
+	p->frames_alive++;
+	p->x += p->dx;
+	p->y += p->dy;
+	bounds_crop(p);
+	switch (p->type)
+	{
+		case PROJECTILE_TYPE_NULL:
+			if (basic_collision(p)) return;
+			lyle_touch(p);
+			particle_effects(p);
+			return;
+		case PROJECTILE_TYPE_BALL:
+			if (ball_collision(p)) return;
+			lyle_touch(p);
+			particle_effects(p);
+			break;
+		case PROJECTILE_TYPE_BALL2:
+			if (basic_collision(p)) return;
+			lyle_touch(p);
+			particle_effects(p);
+			break;
+		case PROJECTILE_TYPE_SPIKE:
+			if (basic_collision(p)) return;
+			lyle_touch(p);
+			particle_effects(p);
+			break;
+		case PROJECTILE_TYPE_SPARK:
+			if (basic_collision(p)) return;
+			lyle_touch(p);
+			break;
+		case PROJECTILE_TYPE_DEATHORB:
+			if (basic_collision(p)) return;
+			if (p->frames_alive >= kdeathorb_death_time)
+			{
+				p->type = PROJECTILE_TYPE_NULL;
+				return;
+			}
+			if (p->moving_up)
+			{
+				p->dy -= kdeathorb_ddy;
+				if (p->dy <= -kdeathorb_flip_dy) p->moving_up = 0;
+			}
+			else
+			{
+				p->dy += kdeathorb_ddy;
+				if (p->dy >= kdeathorb_flip_dy) p->moving_up = 1;
+			}
+			lyle_touch(p);
+			particle_effects(p);
+
+			break;
+		case PROJECTILE_TYPE_DEATHORB2:
+			p->dy += kdeathorb2_ddy;
+			if (deathorb2_collision(p)) return;
+			lyle_touch(p);
+			particle_effects(p);
+			break;
+	}
+
 	projectile_render(p);
 }
 

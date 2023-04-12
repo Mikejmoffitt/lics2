@@ -711,7 +711,7 @@ static inline void cube_collision(O_Lyle *l)
 					    c->type != CUBE_TYPE_GREENBLUE) ||
 					    (l->head.y >= c->y))
 					{
-						lyle_get_hurt(0);
+						lyle_get_hurt(false);
 					}
 					else
 					{
@@ -799,7 +799,7 @@ static inline void check_spikes(O_Lyle *l)
 	const int16_t py_bottom = FIX32TOINT(l->head.y);
 	if (map_is_tile_harmful(map_data_at(px, py_bottom)))
 	{
-		lyle_get_hurt(0);
+		lyle_get_hurt(false);
 	}
 	return;
 	const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
@@ -807,7 +807,7 @@ static inline void check_spikes(O_Lyle *l)
 	if (map_is_tile_harmful(map_data_at(px_r, py_bottom)) ||
 	    map_is_tile_harmful(map_data_at(px_l, py_bottom)))
 	{
-		lyle_get_hurt(0);
+		lyle_get_hurt(false);
 	}
 }
 
@@ -1222,7 +1222,7 @@ void lyle_get_bounced(void)
 	                khurt_dx : -khurt_dx;
 }
 
-void lyle_get_hurt(int16_t bypass_invuln)
+void lyle_get_hurt(bool bypass_invuln)
 {
 	if (s_lyle.tele_out_cnt > 0) return;
 	if (s_lyle.hurt_cnt != 0) return;
