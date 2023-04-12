@@ -5,6 +5,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define LYLE_START_HP 5
 #define LYLE_MAX_HP 15
@@ -64,7 +65,7 @@ O_Lyle *lyle_get(void);
 uint16_t lyle_touching_obj(Obj *o);
 
 void lyle_get_bounced(void);
-void lyle_get_hurt(int16_t bypass_invuln);
+void lyle_get_hurt(bool bypass_invuln);
 
 fix32_t lyle_get_x(void);
 fix32_t lyle_get_y(void);

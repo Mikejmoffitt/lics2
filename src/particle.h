@@ -16,7 +16,8 @@ typedef enum ParticleType
 	PARTICLE_TYPE_SAND,
 } ParticleType;
 
-typedef struct Particle
+typedef struct Particle Particle;
+typedef Particle
 {
 	ParticleType type;
 	fix32_t x, y;
@@ -25,7 +26,7 @@ typedef struct Particle
 	int16_t delay;
 	int16_t anim_cnt;
 	int16_t anim_frame;
-} Particle;
+} __attribute__((aligned(32)));
 
 void particle_load(void);
 void particle_poll(void);
