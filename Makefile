@@ -7,6 +7,9 @@ SRCDIR := src
 RESDIR := res
 OBJDIR := obj
 
+# The physics need 8 bits of subpixel precision.
+FLAGS = -D MD_FIXED_BITS=8
+
 # Sources.
 SOURCES_C := $(shell find $(SRCDIR)/ -type f -name '*.c')
 SOURCES_ASM := $(shell find $(SRCDIR)/ -type f -name '*.s')
