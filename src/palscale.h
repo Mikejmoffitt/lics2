@@ -5,25 +5,12 @@
 
 // Macros to scale constants by appropriate NTSC/PAL adjustment coefficients.
 
-// TODO: Make an interface for g_game_speed, and set that up at the start.
-extern float g_game_speed;
-
-#ifndef LYLE_PALSCALE_STATIC_COEF
-
-#define SPEED_DURATION_COEF (g_game_speed)
-#define SPEED_1ST_COEF (1 / g_game_speed)
-#define SPEED_2ND_COEF (SPEED_1ST_COEF * SPEED_1ST_COEF)
-
-#else
-
 // Master speed adjustment.
 #define SPEED_COEF (1.0)
 
 #define SPEED_DURATION_COEF (1 / SPEED_COEF)
 #define SPEED_1ST_COEF (1 / SPEED_DURATION_COEF)
 #define SPEED_2ND_COEF (SPEED_1ST_COEF * SPEED_1ST_COEF)
-
-#endif
 
 // Ratio that reflects the PAL vs NTSC framerate (50 vs 60hz)
 #define PAL_NTSC_RATIO (50.0 / 60.0)
@@ -42,7 +29,5 @@ extern float g_game_speed;
 
 // For accelerations (e.g. ddx)
 #define PALSCALE_2ND(x)           ( SPEED_2ND_COEF * (system_is_ntsc() ? (x) : ((x) * PALSCALE_2ND_COEF) ))
-
-void palscale_set_game_speed(float speed);
 
 #endif  // PALSCALE_H
