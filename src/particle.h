@@ -26,6 +26,7 @@ struct Particle
 	int16_t delay;
 	int16_t anim_cnt;
 	int16_t anim_frame;
+	SprParam spr;
 } __attribute__((aligned(32)));
 
 void particle_load(void);
