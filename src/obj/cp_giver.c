@@ -11,7 +11,7 @@
 #include "lyle.h"
 #include "obj/pause.h"
 #include "sfx.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 
 static uint16_t s_vram_pos;
 

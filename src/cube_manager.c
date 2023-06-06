@@ -1,7 +1,6 @@
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 
 #include <stdlib.h>
-#include "obj.h"
 #include "system.h"
 #include "gfx.h"
 
@@ -18,19 +17,25 @@ static uint8_t kphantom_anim_counter_max;
 
 Cube g_cubes[CUBE_COUNT_MAX];
 
+static bool s_hibernate;
+
+SprParam g_cube_spr;
+
 static void vram_load(void)
 {
-	if (s_vram_pos) return;
-
 	const Gfx *g = gfx_get(GFX_CUBES);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 	g_cube_vram_pos = s_vram_pos;
 }
 
-
-static void main_func(Obj *o)
+void cube_manager_set_hibernate(bool hibernate)
 {
-	(void)o;
+	s_hibernate = hibernate;
+}
+
+void cube_manager_poll(void)
+{
+	if (s_hibernate) return;
 	uint16_t i = ARRAYSIZE(g_cubes);
 	while (i--)
 	{
@@ -48,25 +53,17 @@ static void main_func(Obj *o)
 	}
 }
 
-void o_load_cube_manager(Obj *o, uint16_t data)
+void cube_manager_init(void)
 {
-	(void)data;
-	_Static_assert(sizeof(O_CubeManager) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-
-	// If VRAM is already loaded, then a cube manager already is present.
-	if (s_vram_pos)
-	{
-		obj_erase(o);
-		return;
-	}
-
+	g_cube_spr.size = SPR_SIZE(2, 2);
 	phantom_anim_counter = 0;
 	g_cube_phantom_anim_frame = 0;
 
 	cube_set_constants();
 
 	vram_load();
+
+	cube_manager_set_hibernate(false);
 
 	uint16_t i = ARRAYSIZE(g_cubes);
 	while (i--)
@@ -75,14 +72,5 @@ void o_load_cube_manager(Obj *o, uint16_t data)
 		c->status = CUBE_STATUS_NULL;
 	}
 
-	obj_basic_init(o, "CubeMngr", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 127);
-	o->main_func = main_func;
-	
 	kphantom_anim_counter_max = PALSCALE_DURATION(6);
-
-}
-
-void o_unload_cube_manager(void)
-{
-	s_vram_pos = 0;
 }

@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "map.h"
 
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "progress.h"
 #include "sfx.h"
 #include "obj/exploder.h"

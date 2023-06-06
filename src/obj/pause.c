@@ -21,6 +21,7 @@
 #include "music.h"
 #include "str.h"
 #include "input.h"
+#include "cube_manager.h"
 
 static O_Pause *s_pause;
 static uint16_t s_vram_pos;
@@ -749,11 +750,12 @@ static void wake_objects(void)
 		if (w->status != OBJ_STATUS_HIBERNATE) continue;
 		w->status = OBJ_STATUS_ACTIVE;
 	}
-	objtile_set_hibernate(0);
-	lyle_set_hibernate(0);
-	powerup_set_hibernate(0);
-	projectile_set_hibernate(0);
-	particle_set_hibernate(0);
+	objtile_set_hibernate(false);
+	lyle_set_hibernate(false);
+	powerup_set_hibernate(false);
+	projectile_set_hibernate(false);
+	particle_set_hibernate(false);
+	cube_manager_set_hibernate(false);
 }
 
 static void hibernate_objects()
@@ -766,11 +768,12 @@ static void hibernate_objects()
 		if (w->type == OBJ_PAUSE) continue;
 		w->status = OBJ_STATUS_HIBERNATE;
 	}
-	objtile_set_hibernate(1);
-	lyle_set_hibernate(1);
-	powerup_set_hibernate(1);
-	projectile_set_hibernate(1);
-	particle_set_hibernate(1);
+	objtile_set_hibernate(true);
+	lyle_set_hibernate(true);
+	powerup_set_hibernate(true);
+	projectile_set_hibernate(true);
+	particle_set_hibernate(true);
+	cube_manager_set_hibernate(true);
 }
 
 static void vram_load(void)

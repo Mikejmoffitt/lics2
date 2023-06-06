@@ -76,13 +76,11 @@ typedef enum ObjType
 	OBJ_BOGOLOGO     = 127,  // Bogologo object.
 
 	// Objects 128 and above are special objects added by the engine, rather
-	// than being found in map data. They are singletons, and are not
-	// instantiated from map data.
-	OBJ_CUBE_MANAGER = 129,
+	// than being found in map data.i
 	OBJ_BG = 131,
 
 	OBJ_EXPLODER = 135,
-	
+
 	OBJ_PAUSE = 137,
 
 	OBJ_TEMPLATE = 255,

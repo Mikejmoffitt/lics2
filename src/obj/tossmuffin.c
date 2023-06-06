@@ -9,7 +9,7 @@
 #include "map.h"
 
 #include "lyle.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "sfx.h"
 
 static uint16_t s_vram_pos;

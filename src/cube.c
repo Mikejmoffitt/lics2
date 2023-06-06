@@ -4,7 +4,7 @@
 #include "palscale.h"
 
 #include "system.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "particle.h"
 #include "powerup.h"
 #include "map.h"

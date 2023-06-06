@@ -15,6 +15,7 @@
 #include "res.h"
 #include "str.h"
 
+#include "cube_manager.h"
 #include "hud.h"
 #include "powerup.h"
 #include "physics.h"
@@ -91,7 +92,7 @@ static void run_frame(void)
 			lyle_load();
 			// TODO: Remove these singleton objects.
 			// The order of objects is important.
-			obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
+			cube_manager_init();
 			map_load(persistent_state->next_room_id,
 			         persistent_state->next_room_entrance);
 			obj_spawn(0, 0, OBJ_BG, 0);
@@ -118,6 +119,7 @@ static void run_frame(void)
 			map_poll();
 			// Game actor/object system
 			obj_exec();
+			cube_manager_poll();
 			objtile_poll();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();

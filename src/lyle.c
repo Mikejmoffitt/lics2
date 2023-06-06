@@ -12,7 +12,7 @@
 #include "game.h"
 #include "palscale.h"
 #include "cube.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "particle.h"
 #include "map.h"
 #include "obj/pause.h"

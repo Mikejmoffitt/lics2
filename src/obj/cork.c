@@ -13,7 +13,7 @@
 #include "particle.h"
 #include "sfx.h"
 #include "obj/exploder.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 
 // TODO: This is nearly the same as radio.c. Maybe refactor.
 

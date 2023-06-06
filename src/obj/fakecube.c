@@ -9,7 +9,7 @@
 #include "map.h"
 
 #include "game.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "lyle.h"
 
 static uint16_t kspawn_seq[2];

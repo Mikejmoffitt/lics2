@@ -9,7 +9,7 @@
 #include "map.h"
 
 #include "obj/exploder.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "progress.h"
 #include "sfx.h"
 

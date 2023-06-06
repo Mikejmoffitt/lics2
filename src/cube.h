@@ -1,7 +1,7 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-// Cubes are managed by obj/cube_manager.h
+// Cubes are managed by cube_manager.h
 
 #include "util/fixed.h"
 #include <stdint.h>

@@ -1,5 +1,5 @@
-#ifndef OBJ_CUBE_MANAGER_H
-#define OBJ_CUBE_MANAGER_H
+#ifndef CUBE_MANAGER_H
+#define CUBE_MANAGER_H
 
 #include "cube.h"
 #include "obj.h"
@@ -14,59 +14,57 @@
 
 #define CUBE_COUNT_MAX 32
 
-typedef struct O_CubeManager
-{
-	Obj head;
-} O_CubeManager;
-
 extern Cube g_cubes[CUBE_COUNT_MAX];
 extern uint16_t g_cube_vram_pos;
 extern uint8_t g_cube_phantom_anim_frame;
 
-void o_load_cube_manager(Obj *o, uint16_t data);
-void o_unload_cube_manager(void);
+extern SprParam g_cube_spr;
+
+void cube_manager_set_hibernate(bool hibernate);
+
+void cube_manager_init(void);
+void cube_manager_poll(void);
 
 // Cube drawing is done here, because the cube manager owns the cube VRAM.
 static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 {
-	x -= map_get_x_scroll();
-	y -= map_get_y_scroll();
+	g_cube_spr.x = x - map_get_x_scroll();
+	g_cube_spr.y = y - map_get_y_scroll();
 	switch(type)
 	{
 		case CUBE_TYPE_GREENBLUE:
 		case CUBE_TYPE_BLUE:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0),
-			        SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_RED:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 8, 0, 0, LYLE_PAL_LINE, 0),
-			        SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 8, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 
 		case CUBE_TYPE_GREEN:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 12, 0, 0, LYLE_PAL_LINE, 0),
-			        SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 12, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_PHANTOM:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 16 +
-			                       (4 * g_cube_phantom_anim_frame),
-			        0, 0, LYLE_PAL_LINE, 0), SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 16 +
+			                           (4 * g_cube_phantom_anim_frame),
+			        0, 0, LYLE_PAL_LINE, 0);
 			break;
 		default: // Handle all yellow variants with the default label.
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 4, 0, 0, LYLE_PAL_LINE, 0),
-			        SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 4, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_ORANGE:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 1),
-			        SPR_SIZE(4, 4));
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 1),
-			        SPR_SIZE(4, 4));
-			break;
+			g_cube_spr.size = SPR_SIZE(4, 4);
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 0);
+			md_spr_put_st(&g_cube_spr);
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 0);
+			md_spr_put_st(&g_cube_spr);
+			g_cube_spr.size = SPR_SIZE(2, 2);
+			return;
+
 		case CUBE_TYPE_SPAWNER:
-			md_spr_put(x, y, SPR_ATTR(g_cube_vram_pos + 48, 0, 0, BG_PAL_LINE, 0),
-			        SPR_SIZE(2, 2));
+			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 48, 0, 0, BG_PAL_LINE, 0);
 			break;
 	}
+	md_spr_put_st(&g_cube_spr);
 }
 
 static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
@@ -125,4 +123,4 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 	return NULL;
 }
 
-#endif  // OBJ_CUBE_MANAGER_H
+#endif  // CUBE_MANAGER_H

@@ -15,7 +15,7 @@
 #include "util/trig.h"
 #include "particle.h"
 #include "projectile.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "res.h"
 #include "music.h"
 #include "obj/rockman_door.h"

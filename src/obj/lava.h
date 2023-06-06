@@ -21,6 +21,9 @@ struct O_Lava
 	uint8_t anim_frame;
 	uint8_t size;
 	uint8_t is_generator;
+
+	uint16_t starting_hp_orb_status;
+	uint16_t starting_cp_orb_status;
 };
 
 void o_load_lava(Obj *o, uint16_t data);

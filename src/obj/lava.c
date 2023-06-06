@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "progress.h"
 
 #include "lyle.h"
 
@@ -157,7 +158,13 @@ static void generator_func(Obj *o)
 		new_lava->splat_py = e->splat_py;
 	}
 
-	// TODO: Disable generator if orb #5 is collected (cow) or the other orb in the technozone lava tunnel.
+	ProgressSlot *prog = progress_get();
+	// Generators self-disable if orb collection status has changed since spawn
+	if (prog->hp_orbs != e->starting_hp_orb_status ||
+	    prog->cp_orbs != e->starting_cp_orb_status)
+	{
+		obj_erase(o);
+	}
 }
 
 static void splat_func(Obj *o)
@@ -274,6 +281,7 @@ static void initial_main_func(Obj *o)
 void o_load_lava(Obj *o, uint16_t data)
 {
 	O_Lava *e = (O_Lava *)o;
+	ProgressSlot *prog = progress_get();
 	_Static_assert(sizeof(*e) <= sizeof(ObjSlot),
 	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
@@ -290,6 +298,9 @@ void o_load_lava(Obj *o, uint16_t data)
 	{
 		o->main_func = generator_func;
 		o->flags = 0;
+
+		e->starting_hp_orb_status = prog->hp_orbs;
+		e->starting_cp_orb_status = prog->cp_orbs;
 
 		// Find the ground position.
 		int16_t y_px = FIX32TOINT(o->y);

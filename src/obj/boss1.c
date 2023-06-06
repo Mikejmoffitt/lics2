@@ -12,7 +12,7 @@
 #include "progress.h"
 #include "particle.h"
 #include "projectile.h"
-#include "obj/cube_manager.h"
+#include "cube_manager.h"
 #include "music.h"
 #include "sfx.h"
 #include "lyle.h"
