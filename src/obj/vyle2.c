@@ -468,10 +468,10 @@ static void main_func(Obj *o)
 			{
 				o->direction = OBJ_DIRECTION_LEFT;
 				e->metaframe = 0;
-				lyle_set_control_en(0);
-				lyle_set_master_en(0);
-				lyle_set_scroll_h_en(0);
-				lyle_set_scroll_v_en(0);
+				lyle_set_control_en(false);
+				lyle_set_master_en(false);
+				lyle_set_scroll_h_en(false);
+				lyle_set_scroll_v_en(false);
 				l->head.dx = klyle_walk_dx;
 				l->head.dy = 0;
 				l->head.direction = OBJ_DIRECTION_RIGHT;
@@ -808,7 +808,7 @@ static void main_func(Obj *o)
 
 		case VYLE2_STATE_LAND:
 			e->metaframe = 22;
-			if (e->head.x != VYLE2_ARENA_CX)
+			if (e->jump_count < 6 || e->head.x != VYLE2_ARENA_CX)
 			{
 				e->state = VYLE2_STATE_PRE_JUMP;
 			}
@@ -839,11 +839,12 @@ static void main_func(Obj *o)
 					{
 						e->shot_cnt = 0;
 						e->shots_remaining--;
-					// TODO: Shot speed
-						const int16_t shot_angle = 9 + (system_rand() % 9);
+						const int16_t shot_angle = 64 - 8 * (1 + ((system_rand() % 9)));
+						const int16_t shot_angle_2 = 64 + 8 * (1 + ((system_rand() % 9)));
 						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(18), PROJECTILE_TYPE_BALL2,
 						                       shot_angle, kshot_speed);
-						// TODO: Fire shot left
+						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(18), PROJECTILE_TYPE_BALL2,
+						                       shot_angle_2, kshot_speed);
 						// TODO: Shot sfx
 					}
 				}
@@ -1124,6 +1125,7 @@ static void main_func(Obj *o)
 				{
 					e->head.y = s_ground_y;
 					e->head.dy = 0;
+					e->jump_count = 0;
 					e->state = VYLE2_STATE_LAND;
 				}
 				else
@@ -1136,8 +1138,25 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_SUPERJUMP_EXIT:
 			if (e->state_elapsed == 0)
 			{
-				
+				lyle_set_control_en(false);
+				lyle_set_master_en(false);
+				l->head.dx = 0;
+				l->head.dy = 0;
+				lyle_set_anim_frame(4);
 			}
+			l->head.dy += kgravity / 2;
+			obj_accurate_physics(&l->head);
+
+			if (e->head.y >= INTTOFIX32(256))
+			{
+				e->head.dy = 0;
+			}
+
+			if (l->head.y >= INTTOFIX32(256))
+			{
+				map_set_exit_trigger(MAP_EXIT_BOTTOM);
+			}
+
 			break;
 	}
 
