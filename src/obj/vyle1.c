@@ -184,13 +184,17 @@ static void main_func(Obj *o)
 			o->x = INTTOFIX32(GAME_SCREEN_W_PIXELS + 32);
 			e->metaframe = 0;
 
-			if (l->head.x >= INTTOFIX32(64))
+			if (l->head.x >= INTTOFIX32(64) && l->grounded)
 			{
 				o->direction = OBJ_DIRECTION_LEFT;
 				e->state = VYLE1_STATE_INTRO;
 				l->head.direction = OBJ_DIRECTION_RIGHT;
 				lyle_set_control_en(0);
 				l->anim_frame = 0;
+			}
+			if (l->head.x >= INTTOFIX32(160))
+			{
+				l->head.x = INTTOFIX32(160);
 			}
 			break;
 
@@ -295,7 +299,7 @@ static void main_func(Obj *o)
 				}
 
 				o->dy += kgravity;
-				obj_standard_physics(o);
+				obj_mixed_physics_h(o);
 
 				if (o->dy > 0 && o->y >= e->original_y)
 				{
@@ -330,7 +334,7 @@ static void main_func(Obj *o)
 						10, 11, 12, 11
 					};
 					e->metaframe = metaframes[e->anim_frame];
-					obj_standard_physics(o);
+					obj_mixed_physics_h(o);
 				}
 
 				// "Direction" refers to his movement, not which way he faces.
@@ -422,7 +426,7 @@ static void main_func(Obj *o)
 				o->direction = OBJ_DIRECTION_RIGHT;
 			}
 
-			obj_standard_physics(o);
+			obj_mixed_physics_h(o);
 			break;
 
 		case VYLE1_STATE_RETREAT:
@@ -456,7 +460,7 @@ static void main_func(Obj *o)
 				obj_erase(o);
 			}
 
-			obj_standard_physics(o);
+			obj_mixed_physics_h(o);
 
 			break;
 	}

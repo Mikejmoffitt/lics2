@@ -17,10 +17,10 @@ enum
 typedef struct ObjTile ObjTile;
 struct ObjTile
 {
-	int16_t px, py;
 	uint16_t flags;
-	uint16_t attr;
-} __attribute__((aligned(8)));
+	SprParam spr;
+	int16_t px, py;
+} __attribute__((aligned(16)));
 
 void objtile_clear(void);
 void objtile_poll(void);

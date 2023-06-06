@@ -22,8 +22,14 @@ static inline void objtile_render(ObjTile *p)
 	const int16_t ty = p->py - map_get_y_scroll();
 	if (tx < -16 || tx > 320 || ty < -16 || ty > 240) return;
 
-	md_spr_put(tx, ty, p->attr, SPR_SIZE(2, 1));
-	md_spr_put(tx, ty + 8, p->attr + 0x10, SPR_SIZE(2, 1));
+	p->spr.x = tx;
+	p->spr.y = ty;
+
+	md_spr_put_st(&p->spr);
+	p->spr.y += 8;
+	p->spr.attr += 0x10;
+	md_spr_put_st(&p->spr);
+	p->spr.attr -= 0x10;
 }
 
 void objtile_poll(void)
@@ -64,7 +70,8 @@ ObjTile *objtile_place(fix32_t x, fix32_t y, uint16_t attr)
 		p->flags = OBJTILE_FLAG_ACTIVE;
 		p->px = FIX32TOINT(x);
 		p->py = FIX32TOINT(y);
-		p->attr = attr;
+		p->spr.size = SPR_SIZE(2, 1);
+		p->spr.attr = attr;
 	}
 	return p;
 }

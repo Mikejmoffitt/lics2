@@ -194,6 +194,8 @@ static void render(O_Vyle2 *e)
 	const uint16_t attr = SPR_ATTR(s_vram_pos, flip, 0, ENEMY_PAL_LINE, 0);
 	uint16_t spr_tile = 0;
 
+	SprParam spr;
+
 	for (uint16_t i = 0; i < 4; i++)
 	{
 		if (frame->size == -1) continue;  // Unused sprite.
@@ -204,10 +206,13 @@ static void render(O_Vyle2 *e)
 		const int16_t offs_x = (flip) ?
 		                       (-frame->x - spr_w) :
 		                       frame->x;
+		spr.x = sp_x + offs_x;
+		spr.y = sp_y + frame->y;
+		spr.attr = attr + spr_tile;
+		spr.size = frame->size;
 
 		// Take a sprite slot for this asset.
-		md_spr_put(sp_x + offs_x, sp_y + frame->y,
-		        attr + spr_tile, frame->size);
+		md_spr_put_st(&spr);;
 
 		// Slot the graphics assets into VRAM.
 		const uint16_t transfer_bytes = bytes_for_sprite_size[frame->size];
