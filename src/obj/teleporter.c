@@ -7,7 +7,7 @@
 #include "md/megadrive.h"
 #include "palscale.h"
 #include "lyle.h"
-#include "obj/map.h"
+#include "map.h"
 #include "particle.h"
 #include "game.h"
 #include "sfx.h"

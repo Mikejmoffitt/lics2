@@ -1,6 +1,6 @@
 #include "obj/metagrub.h"
 #include "system.h"
-#include "obj/map.h"
+#include "map.h"
 #include "lyle.h"
 #include "obj/title.h"
 

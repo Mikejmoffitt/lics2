@@ -10,7 +10,7 @@
 #include "util/fixed.h"
 
 
-#include "obj/map.h"
+#include "map.h"
 
 static Particle s_particles[16];
 

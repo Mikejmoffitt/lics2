@@ -6,7 +6,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 
 
 static int16_t kanim_speed;

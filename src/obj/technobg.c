@@ -6,7 +6,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 
 
 // Offsets into the source tile data have been precalculated to avoid an

@@ -7,7 +7,7 @@
 #include "obj/cube_manager.h"
 #include "particle.h"
 #include "powerup.h"
-#include "obj/map.h"
+#include "map.h"
 #include "game.h"
 #include "sfx.h"
 #include "lyle.h"

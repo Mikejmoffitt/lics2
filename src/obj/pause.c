@@ -6,7 +6,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 #include "obj/bg.h"
 
 #include "objtile.h"
@@ -763,7 +763,6 @@ static void hibernate_objects()
 	{
 		Obj *w = &g_objects[i].obj;
 		if (w->status == OBJ_STATUS_NULL) continue;
-		if (w->type == OBJ_MAP) continue;
 		if (w->type == OBJ_PAUSE) continue;
 		w->status = OBJ_STATUS_HIBERNATE;
 	}

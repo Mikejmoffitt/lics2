@@ -5,7 +5,7 @@
 #include "system.h"
 #include "gfx.h"
 #include "md/megadrive.h"
-#include "obj/map.h"
+#include "map.h"
 
 
 #include "game.h"

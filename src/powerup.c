@@ -8,7 +8,7 @@
 #include "palscale.h"
 #include "particle.h"
 
-#include "obj/map.h"
+#include "map.h"
 #include "lyle.h"
 #include "obj/pause.h"
 

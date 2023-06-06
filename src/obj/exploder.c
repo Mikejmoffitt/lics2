@@ -6,7 +6,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 
 
 void exploder_spawn(fix32_t x, fix32_t y, fix16_t dx, fix16_t dy,

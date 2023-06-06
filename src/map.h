@@ -1,17 +1,15 @@
 #ifndef MAP_H
 #define MAP_H
 
-// Room management singleton
-
 // The map is responsible for setting up a room with data from a map file hwen
 // a new room is entered.
 
 // In addition, during gameplay, the map is the object responsible for
 // scrolling the map around and redrawing foreground tiles.
 
-#include "obj.h"
 #include "map_file.h"
 #include "md/megadrive.h"
+#include "util/fixed.h"
 
 #include <stdint.h>
 
@@ -28,9 +26,8 @@ typedef enum MapExitTrigger
 	MAP_EXIT_OTHER
 } MapExitTrigger;
 
-typedef struct O_Map
+typedef struct Map
 {
-	Obj head;
 	const MapFile *current_map;
 	uint32_t current_map_size;
 	MapExitTrigger exit_trigger;
@@ -55,7 +52,7 @@ typedef struct O_Map
 
 	uint8_t next_room_id;
 	uint8_t next_room_entrance;
-} O_Map;
+} Map;
 
 extern const uint16_t *g_map_data;
 extern uint16_t g_map_row_size;
@@ -74,8 +71,6 @@ static inline int16_t map_get_y_scroll(void)
 	return g_map_y_scroll;
 }
 
-void o_load_map(Obj *o, uint16_t data);
-
 // Public singleton functions
 
 // Load a map by ID number. In particular:
@@ -85,6 +80,8 @@ void o_load_map(Obj *o, uint16_t data);
 // * Queues DMA for the sprite, enemy palettes
 // * Queues DMA for the tileset
 void map_load(uint8_t id, uint8_t entrance_num);
+
+void map_poll(void);
 
 // Map metadata.
 uint8_t map_get_music_track(void);

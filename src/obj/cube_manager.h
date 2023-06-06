@@ -8,7 +8,7 @@
 #include "md/megadrive.h"
 #include "game.h"
 
-#include "obj/map.h"
+#include "map.h"
 
 #include "progress.h"
 

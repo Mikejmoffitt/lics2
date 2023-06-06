@@ -14,7 +14,7 @@
 #include "cube.h"
 #include "obj/cube_manager.h"
 #include "particle.h"
-#include "obj/map.h"
+#include "map.h"
 #include "obj/pause.h"
 
 #include "progress.h"

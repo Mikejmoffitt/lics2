@@ -18,7 +18,7 @@
 #include "hud.h"
 #include "powerup.h"
 #include "physics.h"
-#include "obj/map.h"
+#include "map.h"
 #include "lyle.h"
 #include "particle.h"
 #include "projectile.h"
@@ -92,7 +92,6 @@ static void run_frame(void)
 			// TODO: Remove these singleton objects.
 			// The order of objects is important.
 			obj_spawn(0, 0, OBJ_CUBE_MANAGER, 0);
-			obj_spawn(0, 0, OBJ_MAP, 0);
 			map_load(persistent_state->next_room_id,
 			         persistent_state->next_room_entrance);
 			obj_spawn(0, 0, OBJ_BG, 0);
@@ -116,6 +115,7 @@ static void run_frame(void)
 			projectile_poll();
 			particle_poll();
 			lyle_poll();
+			map_poll();
 			// Game actor/object system
 			obj_exec();
 			objtile_poll();

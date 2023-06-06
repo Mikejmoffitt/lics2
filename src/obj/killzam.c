@@ -7,7 +7,7 @@
 #include "util/fixed.h"
 #include "cube.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 #include "lyle.h"
 #include "projectile.h"
 

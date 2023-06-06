@@ -9,7 +9,7 @@
 #include "util/fixed.h"
 #include "particle.h"
 
-#include "obj/map.h"
+#include "map.h"
 #include "lyle.h"
 
 #include "util/trig.h"

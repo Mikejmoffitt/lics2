@@ -79,7 +79,6 @@ typedef enum ObjType
 	// than being found in map data. They are singletons, and are not
 	// instantiated from map data.
 	OBJ_CUBE_MANAGER = 129,
-	OBJ_MAP = 130,
 	OBJ_BG = 131,
 
 	OBJ_EXPLODER = 135,

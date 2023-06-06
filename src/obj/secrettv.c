@@ -5,7 +5,7 @@
 #include "gfx.h"
 #include "md/megadrive.h"
 #include "palscale.h"
-#include "obj/map.h"
+#include "map.h"
 #include "progress.h"
 
 static uint16_t kanim_speed;
