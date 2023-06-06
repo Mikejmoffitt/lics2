@@ -33,8 +33,11 @@ typedef enum Vyle2State
 	VYLE2_STATE_CHARGE,
 	VYLE2_STATE_ZAP,
 	VYLE2_STATE_ZAP_RECOIL,
+	VYLE2_STATE_ZAP_RECOIL_BOUNCED,
 	VYLE2_STATE_VULNERABLE,
-	VYLE2_STATE_JUMP_TO_CENTER,  // --> JUMP_TO_CENTER or PRE_SUPERJUMP
+	VYLE2_STATE_CENTER_PRE_JUMP,
+	VYLE2_STATE_CENTER_JUMP,
+	VYLE2_STATE_CENTER_LAND,  // --> JUMP_TO_CENTER or PRE_SUPERJUMP
 	VYLE2_STATE_PRE_SUPERJUMP,
 	VYLE2_STATE_SUPERJUMP_UP,
 	VYLE2_STATE_SUPERJUMP_HOVER,
@@ -67,6 +70,10 @@ typedef struct O_Vyle2
 	// shot phase
 	int16_t shots_remaining;
 	int16_t shot_cnt;
+	// superjump phase
+	int16_t crumble_cnt;
+
+	int16_t ground_slams;
 } O_Vyle2;
 
 void o_load_vyle2(Obj *o, uint16_t data);

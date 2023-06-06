@@ -14,6 +14,7 @@ typedef enum ParticleType
 	PARTICLE_TYPE_FIZZLERED,
 	PARTICLE_TYPE_EXPLOSION,
 	PARTICLE_TYPE_SAND,
+	PARTICLE_TYPE_CRUMBLY,  // final boss ground bits
 } ParticleType;
 
 typedef struct Particle Particle;

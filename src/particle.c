@@ -24,6 +24,8 @@ static int16_t kanim_speed;
 static int16_t kanim_speed_explosion;
 static int16_t kanim_speed_sand;
 
+static fix16_t kcrumbly_gravity;
+
 static int16_t s_spawn_start_index;
 
 static uint16_t s_hibernate;
@@ -40,6 +42,7 @@ static void set_constants(void)
 	kanim_speed_explosion = PALSCALE_DURATION(3.4);
 	kanim_speed_sand = PALSCALE_DURATION(3.3);
 	ksand_life = kanim_speed_sand * 5;
+	kcrumbly_gravity = INTTOFIX16(PALSCALE_1ST(0.1190476));
 	s_constants_set = 1;
 }
 
@@ -137,6 +140,9 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			p->spr.attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
 			                       0, 0, LYLE_PAL_LINE, 1);
 			break;
+		case PARTICLE_TYPE_CRUMBLY:
+			p->dy += kcrumbly_gravity;
+			break;
 	}
 
 	p->spr.x = px;
@@ -193,6 +199,7 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 		[PARTICLE_TYPE_FIZZLERED] = INTTOFIX32(8),
 		[PARTICLE_TYPE_EXPLOSION] = 0,  // Handled at runtime.
 		[PARTICLE_TYPE_SAND] = INTTOFIX32(4),
+		[PARTICLE_TYPE_CRUMBLY] = INTTOFIX32(4),
 	};
 
 	Particle *ret = NULL;
@@ -230,6 +237,11 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 				p->spr.size = SPR_SIZE(1, 1);
 				p->life = ksand_life;
 				break;
+			case PARTICLE_TYPE_CRUMBLY:
+				p->life = kfizzle_life * 4;
+				p->spr.size = SPR_SIZE(1, 1);
+				p->spr.attr = SPR_ATTR(0x0060, 0, 0, MAP_PAL_LINE, 1);
+				break;
 		}
 
 		if (type == PARTICLE_TYPE_SPARKLE)
@@ -237,7 +249,7 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 			p->x += INTTOFIX32((system_rand() % 16) - 8);
 			p->y += INTTOFIX32((system_rand() % 16) - 8);
 		}
-		else
+		else if (type != PARTICLE_TYPE_CRUMBLY)
 		{
 			// TODO: These don't take palscale into account.
 			p->dy = INTTOFIX16(((system_rand() % 64) - 32)) / 16;

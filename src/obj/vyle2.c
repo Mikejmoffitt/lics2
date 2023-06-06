@@ -12,6 +12,7 @@
 #include "sfx.h"
 #include "music.h"
 #include "projectile.h"
+#include "particle.h"
 #include "obj/laser.h"
 
 // Vyle 2's sprite is huge (64x64px), so he's animated like Lyle, through DMA
@@ -70,6 +71,11 @@ static fix32_t s_ground_y;
 static int16_t kvyle_zap_duration;
 static fix16_t kshot_speed;
 
+static fix16_t kvyle_zap_recoil_dx;
+static fix16_t kvyle_zap_recoil_dy;
+
+static fix16_t kvyle_after_vuln_jump_dy;
+
 static inline void set_constants(void)
 {
 	static bool s_constants_set;
@@ -116,6 +122,11 @@ static inline void set_constants(void)
 
 	kvyle_zap_duration = PALSCALE_DURATION(83.333);
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
+
+	kvyle_zap_recoil_dx = INTTOFIX16(PALSCALE_1ST(1.66667));
+	kvyle_zap_recoil_dy = INTTOFIX16(PALSCALE_1ST(-4.1667));
+
+	kvyle_after_vuln_jump_dy = INTTOFIX16(PALSCALE_1ST(-7.29167));
 
 	s_constants_set = true;
 }
@@ -349,6 +360,21 @@ static void vyle2_do_jump_towards(O_Vyle2 *e, fix32_t tx)
 	if (e->head.x > tx) e->head.dx *= -1;
 }
 
+static void vyle2_ground_slam(O_Vyle2 *e)
+{
+	e->ground_slams++;
+	const Gfx *g = gfx_get(GFX_EX_VYLE2_GROUND);
+
+	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+
+	if (e->ground_slams == 0) return;
+
+	const uint16_t data_offs = (e->ground_slams - 1) * 32 * 4;
+
+	md_dma_transfer_vram(0x1480, g->data + data_offs, 32 * 4 / 2, 2);
+	md_dma_transfer_vram(0x1680, g->data + data_offs + 32 * 4 * 4, 32 * 4 / 2, 2);
+}
+
 // Returns true if landed.
 static bool vyle2_jump_midair_logic(O_Vyle2 *e, bool hone_to_tx)
 {
@@ -544,6 +570,7 @@ static void main_func(Obj *o)
 			// Vyle pushes the button.
 			if (e->state_elapsed == kvyle_activation_delay_frames)
 			{
+				sfx_play(SFX_BEEP, 0);
 				// TODO: keddums meow
 				// TODO: activate big orb thing
 				// TODO: make keddums begin shaking
@@ -754,7 +781,7 @@ static void main_func(Obj *o)
 
 		case VYLE2_STATE_LAND:
 			e->metaframe = 22;
-			if (e->jump_count < 6)
+			if (e->head.x != VYLE2_ARENA_CX)
 			{
 				e->state = VYLE2_STATE_PRE_JUMP;
 			}
@@ -763,7 +790,7 @@ static void main_func(Obj *o)
 				e->jump_count = 0;
 				e->state = VYLE2_STATE_SHOOTING;
 			}
-			break;  // --> PRE_JUMP: or SHOOTING
+			break;  // --> PRE_JUMP or SHOOTING
 
 		case VYLE2_STATE_SHOOTING:
 			if (e->state_elapsed == 0)
@@ -787,7 +814,7 @@ static void main_func(Obj *o)
 						e->shots_remaining--;
 					// TODO: Shot speed
 						const int16_t shot_angle = 9 + (system_rand() % 9);
-						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
+						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(18), PROJECTILE_TYPE_BALL2,
 						                       shot_angle, kshot_speed);
 						// TODO: Fire shot left
 						// TODO: Shot sfx
@@ -920,15 +947,95 @@ static void main_func(Obj *o)
 			break;
 
 		case VYLE2_STATE_ZAP_RECOIL:
+			if (e->state_elapsed == 0)
+			{
+				e->head.dx = kvyle_zap_recoil_dx;
+				e->head.dy = kvyle_zap_recoil_dy;
+			}
+			e->head.dy += kgravity;
+			e->metaframe = 25;
+			if (e->head.dy >= 0 && e->head.y >= s_ground_y)
+			{
+				e->state = VYLE2_STATE_ZAP_RECOIL_BOUNCED;
+				e->head.y = s_ground_y;
+			}
+			break;
+
+		case VYLE2_STATE_ZAP_RECOIL_BOUNCED:
+			if (e->state_elapsed == 0)
+			{
+				e->head.dx = kvyle_zap_recoil_dx / 2;
+				e->head.dy = (kvyle_zap_recoil_dy * 3) / 4;
+			}
+			e->head.dy += kgravity;
+			if (e->head.dy >= 0 && e->head.y >= s_ground_y)
+			{
+				e->state = VYLE2_STATE_VULNERABLE;
+			}
 			break;
 
 		case VYLE2_STATE_VULNERABLE:
+			if (e->state_elapsed == 0)
+			{
+				e->head.y = s_ground_y;
+				e->head.dy = 0;
+				e->head.dx = 0;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+			e->metaframe = 25 + e->anim_frame;
+
+			// Cube function marks a hit with an HP change.
+			if (e->head.hp != 127)
+			{
+				e->head.hp = 127;  // Don't actually let him die
+				e->state = VYLE2_STATE_CENTER_PRE_JUMP;
+			}
 			break;
 
-		case VYLE2_STATE_JUMP_TO_CENTER:
-			break;  // --> JUMP_TO_CENTER or PRE_SUPERJUMP
+		case VYLE2_STATE_CENTER_PRE_JUMP:
+			if (vyle2_prejump(e))
+			{
+				e->state = VYLE2_STATE_CENTER_JUMP;
+			}
+			break;
+
+		case VYLE2_STATE_CENTER_JUMP:
+			if (e->state_elapsed == 0)
+			{
+				vyle2_do_jump_towards(e, VYLE2_ARENA_CX);
+				e->head.dy = kvyle_after_vuln_jump_dy;
+			}
+			if (vyle2_jump_midair_logic(e, true))
+			{
+				e->state = VYLE2_STATE_CENTER_LAND;
+			}
+			break;
+
+		case VYLE2_STATE_CENTER_LAND:
+			e->metaframe = 22;
+			if (e->head.x != VYLE2_ARENA_CX)
+			{
+				e->state = VYLE2_STATE_CENTER_PRE_JUMP;
+			}
+			else if (e->state_elapsed == kvyle_general_anim_delay)
+			{
+				e->metaframe = 15;
+				e->state = VYLE2_STATE_PRE_SUPERJUMP;
+			}
+			break;  // CENTER_PRE_JUMP OR PRE_SUPERJUMP
 
 		case VYLE2_STATE_PRE_SUPERJUMP:
+			if (e->state_elapsed == 0)
+			{
+				vyle2_ground_slam(e);
+				e->crumble_cnt = 40;
+			}
+			if (e->crumble_cnt > 0)
+			{
+				e->crumble_cnt--;
+				particle_spawn(VYLE2_ARENA_CX - INTTOFIX32(144) + INTTOFIX32(system_rand() % (320 - 32)),
+				               s_ground_y + INTTOFIX32(8), PARTICLE_TYPE_CRUMBLY);
+			}
 			break;
 
 		case VYLE2_STATE_SUPERJUMP_UP:
@@ -948,7 +1055,22 @@ static void main_func(Obj *o)
 	else e->state_elapsed++;
 	obj_mixed_physics_h(o);
 
+	md_pal_set(ENEMY_CRAM_POSITION + 0xC, PALRGB(0x7, 0x3, 0x3));
 	render(e);
+}
+
+static void cube_func(Obj *o, Cube *c)
+{
+	O_Vyle2 *e = (O_Vyle2 *)o;
+
+	if (e->state == VYLE2_STATE_VULNERABLE)
+	{
+		obj_standard_cube_response(o, c);
+	}
+	else
+	{
+		cube_destroy(c);
+	}
 }
 
 void o_load_vyle2(Obj *o, uint16_t data)
@@ -960,12 +1082,12 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	vram_load();
 
 	obj_basic_init(o, "Vyle 2", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE | OBJ_FLAG_ALWAYS_ACTIVE,
-	               INTTOFIX16(-32), INTTOFIX16(32), INTTOFIX16(-64), 5);
+	               INTTOFIX16(-32), INTTOFIX16(32), INTTOFIX16(-64), 127);
 	o->left = INTTOFIX16(-18);
 	o->right = INTTOFIX16(18);
 	o->top = INTTOFIX16(-48);
 	o->main_func = main_func;
-	o->cube_func = NULL;
+	o->cube_func = cube_func;
 
 	lyle_set_scroll_h_en(0);
 	lyle_set_scroll_v_en(0);

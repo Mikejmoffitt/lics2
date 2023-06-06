@@ -84,6 +84,7 @@ static const Gfx gfx[] =
 	[GFX_EX_CITYBG] = GFX(ex_citybg),
 	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
 	[GFX_EX_KANA_FONT] = GFX(ex_kana_font),
+	[GFX_EX_VYLE2_GROUND] = GFX(ex_vyle2_ground),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),
