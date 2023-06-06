@@ -54,6 +54,7 @@ static fix16_t kjump_shot_dy_thresh;
 
 static fix16_t kjump_dy_table[8];
 static fix16_t kgravity;
+static fix16_t kgravity_sjump;
 
 static fix16_t kjump_dx;
 
@@ -75,6 +76,13 @@ static fix16_t kvyle_zap_recoil_dx;
 static fix16_t kvyle_zap_recoil_dy;
 
 static fix16_t kvyle_after_vuln_jump_dy;
+
+static int16_t kvyle_vulnerable_timeout;
+
+static fix16_t kvyle_superjump_dy;
+
+static int16_t kvyle_hover_time;
+static int16_t kvyle_superjump_down_dy;
 
 static inline void set_constants(void)
 {
@@ -108,9 +116,10 @@ static inline void set_constants(void)
 	kjump_dy_table[7] = INTTOFIX16(PALSCALE_1ST(-5.208 - (7*0.208)));
 
 	kgravity = INTTOFIX16(PALSCALE_1ST(0.208));
+	kgravity_sjump = INTTOFIX16(PALSCALE_1ST(0.1667));
 
 	kvyle_shot_phase_start_delay = PALSCALE_DURATION(33.333);
-	kvyle_shot_interval = PALSCALE_DURATION(8.333);
+	kvyle_shot_interval = PALSCALE_DURATION(12);
 	kvyle_shot_phase_duration = PALSCALE_DURATION(208.333);
 
 	kjump_shot_dy_thresh = INTTOFIX16(PALSCALE_1ST(-2.083));
@@ -120,13 +129,21 @@ static inline void set_constants(void)
 	kvyle_precharge_duration = PALSCALE_DURATION(41.6667);
 	kvyle_charge_dx = INTTOFIX16(PALSCALE_1ST(1.6667));
 
-	kvyle_zap_duration = PALSCALE_DURATION(83.333);
+	kvyle_zap_duration = PALSCALE_DURATION(120);
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 
 	kvyle_zap_recoil_dx = INTTOFIX16(PALSCALE_1ST(1.66667));
 	kvyle_zap_recoil_dy = INTTOFIX16(PALSCALE_1ST(-4.1667));
 
 	kvyle_after_vuln_jump_dy = INTTOFIX16(PALSCALE_1ST(-7.29167));
+
+	kvyle_vulnerable_timeout = PALSCALE_DURATION(360);
+	
+	kvyle_superjump_dy = INTTOFIX16(PALSCALE_1ST(-5.8333));
+
+	kvyle_hover_time = PALSCALE_DURATION(48);
+
+	kvyle_superjump_down_dy = INTTOFIX16(PALSCALE_1ST(8.3333));
 
 	s_constants_set = true;
 }
@@ -985,7 +1002,12 @@ static void main_func(Obj *o)
 			e->metaframe = 25 + e->anim_frame;
 
 			// Cube function marks a hit with an HP change.
-			if (e->head.hp != 127)
+
+			if (e->state_elapsed == kvyle_vulnerable_timeout)
+			{
+				e->state = VYLE2_STATE_CENTER_PRE_JUMP;
+			}
+			else if (e->head.hp != 127)
 			{
 				e->head.hp = 127;  // Don't actually let him die
 				e->state = VYLE2_STATE_CENTER_PRE_JUMP;
@@ -1027,28 +1049,93 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_PRE_SUPERJUMP:
 			if (e->state_elapsed == 0)
 			{
-				vyle2_ground_slam(e);
-				e->crumble_cnt = 40;
 			}
-			if (e->crumble_cnt > 0)
+			else if (e->state_elapsed == kvyle_general_anim_delay)
 			{
-				e->crumble_cnt--;
-				particle_spawn(VYLE2_ARENA_CX - INTTOFIX32(144) + INTTOFIX32(system_rand() % (320 - 32)),
-				               s_ground_y + INTTOFIX32(8), PARTICLE_TYPE_CRUMBLY);
+				e->metaframe = 20;
+				if (e->anim_cnt == 0)
+				{
+					e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+				}
 			}
+			else if (e->state_elapsed == kvyle_general_anim_delay * 4)
+			{
+				e->metaframe = 21 + e->anim_frame;
+			}
+			else if (e->state_elapsed == kvyle_general_anim_delay * 7.5)
+			{
+				e->state = VYLE2_STATE_SUPERJUMP_UP;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+
 			break;
 
 		case VYLE2_STATE_SUPERJUMP_UP:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 24;
+				e->head.dy = kvyle_superjump_dy;
+			}
+			e->head.dy += kgravity_sjump;
+			if (e->head.dy >= 0 || e->head.y <= INTTOFIX32(48))
+			{
+				e->state = VYLE2_STATE_SUPERJUMP_HOVER;
+			}
 			break;
 
 		case VYLE2_STATE_SUPERJUMP_HOVER:
+			if (e->state_elapsed == 0)
+			{
+				e->head.dy = 0;
+				e->metaframe = 20;
+			}
+			else if (e->state_elapsed >= kvyle_hover_time)
+			{
+				e->state = VYLE2_STATE_SUPERJUMP_DOWN;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+			if (e->anim_cnt == 0)
+			{
+				e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+			}
 			break;
 
 		case VYLE2_STATE_SUPERJUMP_DOWN:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 24;
+				e->head.dy = kvyle_superjump_down_dy;
+			}
+			if (e->head.dy > 0 && e->head.y >= s_ground_y)
+			{
+				vyle2_ground_slam(e);
+				e->crumble_cnt = 40;
+				if (e->ground_slams < 4)
+				{
+					e->head.y = s_ground_y;
+					e->head.dy = 0;
+					e->state = VYLE2_STATE_LAND;
+				}
+				else
+				{
+					e->state = VYLE2_STATE_SUPERJUMP_EXIT;
+				}
+			}
 			break;  // --> VYLE2_STATE_LAND or VYLE2_STATE_SUPERJUMP_EXIT
 
 		case VYLE2_STATE_SUPERJUMP_EXIT:
+			if (e->state_elapsed == 0)
+			{
+				
+			}
 			break;
+	}
+
+	if (e->crumble_cnt > 0)
+	{
+		e->crumble_cnt--;
+		particle_spawn(VYLE2_ARENA_CX - INTTOFIX32(144) + INTTOFIX32(system_rand() % (320 - 32)),
+		               s_ground_y + INTTOFIX32(8), PARTICLE_TYPE_CRUMBLY);
 	}
 
 	if (state_prev != e->state) e->state_elapsed = 0;
