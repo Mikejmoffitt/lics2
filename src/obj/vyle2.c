@@ -11,12 +11,15 @@
 #include "lyle.h"
 #include "sfx.h"
 #include "music.h"
+#include "projectile.h"
 #include "obj/laser.h"
 
 // Vyle 2's sprite is huge (64x64px), so he's animated like Lyle, through DMA
 // transfers, instead of loading everything at once.
 #define VYLE2_VRAM_SIZE (8 * 8 * 32)
 
+#define VYLE2_ARENA_CX INTTOFIX32(480)
+#define VYLE2_ARENA_HALFWIDTH INTTOFIX32(116)
 static uint16_t s_vram_pos;
 
 static void vram_load(void)
@@ -41,7 +44,31 @@ static int16_t kvyle_grow_post_frames;
 static int16_t kvyle_grow_anim_speed;
 
 static int16_t kvyle_big_walk_anim_speed;
+static int16_t kvyle_shaking_anim_speed;
 static int16_t kstart_delay;
+
+static int16_t kvyle_general_anim_delay;
+
+static fix16_t kjump_shot_dy_thresh;
+
+static fix16_t kjump_dy_table[8];
+static fix16_t kgravity;
+
+static fix16_t kjump_dx;
+
+static int16_t kvyle_shot_phase_start_delay;
+static int16_t kvyle_shot_interval;
+static int16_t kvyle_shot_phase_duration;
+
+static int16_t kvyle_precharge_duration;
+static fix16_t kvyle_charge_dx;
+
+static int16_t kvyle_superjump_anim_speed;
+
+static fix32_t s_ground_y;
+
+static int16_t kvyle_zap_duration;
+static fix16_t kshot_speed;
 
 static inline void set_constants(void)
 {
@@ -60,7 +87,35 @@ static inline void set_constants(void)
 	kvyle_grow_post_frames = PALSCALE_DURATION(120);
 	kvyle_grow_anim_speed = PALSCALE_DURATION(2);
 	kvyle_big_walk_anim_speed = PALSCALE_DURATION(7);
+	kvyle_shaking_anim_speed = PALSCALE_DURATION(2);
 	kstart_delay = PALSCALE_DURATION(90);
+	kvyle_general_anim_delay = PALSCALE_DURATION(16.67);
+	kvyle_superjump_anim_speed = PALSCALE_DURATION(3);
+
+	kjump_dy_table[0] = INTTOFIX16(PALSCALE_1ST(-5.208));
+	kjump_dy_table[1] = INTTOFIX16(PALSCALE_1ST(-5.208 - (1*0.208)));
+	kjump_dy_table[2] = INTTOFIX16(PALSCALE_1ST(-5.208 - (2*0.208)));
+	kjump_dy_table[3] = INTTOFIX16(PALSCALE_1ST(-5.208 - (3*0.208)));
+	kjump_dy_table[4] = INTTOFIX16(PALSCALE_1ST(-5.208 - (4*0.208)));
+	kjump_dy_table[5] = INTTOFIX16(PALSCALE_1ST(-5.208 - (5*0.208)));
+	kjump_dy_table[6] = INTTOFIX16(PALSCALE_1ST(-5.208 - (6*0.208)));
+	kjump_dy_table[7] = INTTOFIX16(PALSCALE_1ST(-5.208 - (7*0.208)));
+
+	kgravity = INTTOFIX16(PALSCALE_1ST(0.208));
+
+	kvyle_shot_phase_start_delay = PALSCALE_DURATION(33.333);
+	kvyle_shot_interval = PALSCALE_DURATION(8.333);
+	kvyle_shot_phase_duration = PALSCALE_DURATION(208.333);
+
+	kjump_shot_dy_thresh = INTTOFIX16(PALSCALE_1ST(-2.083));
+
+	kjump_dx = INTTOFIX16(PALSCALE_1ST(0.8333));
+	
+	kvyle_precharge_duration = PALSCALE_DURATION(41.6667);
+	kvyle_charge_dx = INTTOFIX16(PALSCALE_1ST(1.6667));
+
+	kvyle_zap_duration = PALSCALE_DURATION(83.333);
+	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 
 	s_constants_set = true;
 }
@@ -119,47 +174,47 @@ static void render(O_Vyle2 *e)
 		{-16, -24, 78, SPR_SIZE(4, 3)},
 		{-1, -1, -1, -1}, {-1, -1, -1, -1},
 
-		// 07 - stand forward (full)
+		// 08 - stand forward (full)
 		FULLFRAME(0, 96),
-		// 08 - charge 1
+		// 09 - charge 1
 		FULLFRAME(1, 96),
-		// 09 - charge 2
+		// 10 - charge 2
 		FULLFRAME(2, 96),
-		// 10 - charge 3
+		// 11 - charge 3
 		FULLFRAME(3, 96),
-		// 11 - charge 4
+		// 12 - charge 4
 		FULLFRAME(4, 96),
-		// 12 - charge 5
+		// 13 - charge 5
 		FULLFRAME(5, 96),
-		// 13 - charge 6
+		// 14 - charge 6
 		FULLFRAME(6, 96),
-		// 14 - stand
+		// 15 - stand forward (copy of 8?)
 		FULLFRAME(7, 96),
-		// 15 - mouth open
+		// 16 - mouth open (enemy eject)
 		FULLFRAME(8, 96),
-		// 16 - walk 1
+		// 17 - walk 1
 		FULLFRAME(9, 96),
-		// 17 - walk 2
+		// 18 - walk 2
 		FULLFRAME(10, 96),
-		// 18 - walk 3
+		// 19 - walk 3
 		FULLFRAME(11, 96),
-		// 19 - stance
+		// 20 - stance / prejump
 		FULLFRAME(12, 96),
-		// 20 - jump prep 1
+		// 21 - super jump prep 1
 		FULLFRAME(13, 96),
-		// 21 - jump prep 2
+		// 22 - super jump prep 2
 		FULLFRAME(14, 96),
-		// 22 - stand forward alt
+		// 23 - stand forward alt
 		FULLFRAME(15, 96),
-		// 23 - jump
+		// 24 - jump
 		FULLFRAME(16, 96),
-		// 24 - hurt 1
+		// 25 - hurt 1
 		FULLFRAME(17, 96),
-		// 25 - hurt 2
+		// 26 - hurt 2
 		FULLFRAME(18, 96),
-		// 26 - falling
+		// 27 - falling
 		FULLFRAME(19, 96),
-		// 27 - dead
+		// 28 - dead
 		FULLFRAME(20, 96),
 	};
 #undef FULLFRAME
@@ -207,6 +262,7 @@ static void render(O_Vyle2 *e)
 		                       (-frame->x - spr_w) :
 		                       frame->x;
 		spr.x = sp_x + offs_x;
+		if (flip) spr.x -= 1;
 		spr.y = sp_y + frame->y;
 		spr.attr = attr + spr_tile;
 		spr.size = frame->size;
@@ -251,6 +307,97 @@ static inline void do_lyle_walk_anim(O_Vyle2 *e)
 	}
 }
 
+//
+// Fight state helpers
+//
+
+// Returns true if jump has occured.
+static bool vyle2_prejump(O_Vyle2 *e)
+{
+	if (e->state_elapsed == 0)
+	{
+		e->head.dx = 0;
+		e->head.dy = 0;
+	}
+	else if (e->state_elapsed == kvyle_general_anim_delay)
+	{
+		e->metaframe = 15;
+	}
+	else if (e->state_elapsed == kvyle_general_anim_delay * 2)
+	{
+		OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+		e->metaframe = 20;
+		if (e->anim_cnt == 0)
+		{
+			e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+		}
+	}
+	else if (e->state_elapsed >= kvyle_general_anim_delay * 3)
+	{
+		return true;
+	}
+	return false;
+}
+
+static void vyle2_do_jump_towards(O_Vyle2 *e, fix32_t tx)
+{
+	// TODO: jump sfx
+	e->metaframe = 24;
+	e->jump_tx = tx;
+	e->head.dy = kjump_dy_table[system_rand() % ARRAYSIZE(kjump_dy_table)];
+	e->head.dx = kjump_dx * ((system_rand() % 3) + 1);
+	if (e->head.x > tx) e->head.dx *= -1;
+}
+
+// Returns true if landed.
+static bool vyle2_jump_midair_logic(O_Vyle2 *e, bool hone_to_tx)
+{
+	const O_Lyle *l = lyle_get();
+	e->head.dy += kgravity;
+
+	// Bouncing off the walls during a jump.
+	if ((e->head.x > VYLE2_ARENA_CX + VYLE2_ARENA_HALFWIDTH && e->head.dx > 0) ||
+	    (e->head.x < VYLE2_ARENA_CX - VYLE2_ARENA_HALFWIDTH && e->head.dx < 0))
+	{
+		e->head.dx *= -1;
+	}
+
+	// Fire a shot at Lyle during ascent.
+	if (e->head.dy < 0 && !e->shot_at_lyle && e->head.dy >= kjump_shot_dy_thresh)
+	{
+		e->shot_at_lyle = true;
+		// TODO: Shot sfx
+		// TODO: Shot speed
+		projectile_shoot_at(e->head.x, e->head.y - INTTOFIX32(24), PROJECTILE_TYPE_BALL2,
+		                    l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
+	}
+
+	// The last jump hones in to the center.
+	if (hone_to_tx)
+	{
+		// Snap to center once it's been reached.
+		if ((e->head.x >= e->jump_tx && e->head.dx > 0) ||
+		    (e->head.x <= e->jump_tx && e->head.dx < 0))
+		{
+			e->head.x = e->jump_tx;
+			e->head.dx = 0;
+		}
+		if (e->head.x < e->jump_tx && e->head.dx < 0) e->head.dx *= -1;
+		else if (e->head.x > e->jump_tx && e->head.dx > 0) e->head.dx *= -1;
+	}
+
+	// Landing
+	if (e->head.dy > 0 && e->head.y >= s_ground_y)
+	{
+		e->shot_at_lyle = 0;
+		e->head.y = s_ground_y;
+		e->head.dy = 0;
+		e->head.dx = 0;
+		return true;
+	}
+	return false;
+}
+
 static void main_func(Obj *o)
 {
 	O_Vyle2 *e = (O_Vyle2 *)o;
@@ -263,8 +410,9 @@ static void main_func(Obj *o)
 
 	const Vyle2State state_prev = e->state;
 
-	const int16_t vyle_walk_cycle[] = { 2, 1, 2, 3 };
-	const int16_t vyle_big_walk_cycle[] = { 9, 10, 11, 12, 13, 14};
+	static const uint16_t vyle_walk_cycle[] = { 2, 1, 2, 3 };
+	static const uint16_t vyle_big_walk_cycle[] = { 9, 10, 11, 12, 13, 14};
+	static const uint16_t vyle_precharge_cycle[] = { 10, 11, 13, 14 };
 
 	switch (e->state)
 	{
@@ -544,7 +692,7 @@ static void main_func(Obj *o)
 			}
 
 			// Vyle runs to the left, until he reaches the center of the stage.
-			if (e->head.x > INTTOFIX32(480))
+			if (e->head.x > VYLE2_ARENA_CX)
 			{
 				e->head.dx = -klyle_run_dx;
 				e->head.direction = OBJ_DIRECTION_LEFT;
@@ -559,6 +707,7 @@ static void main_func(Obj *o)
 			obj_accurate_physics(&l->head);
 			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
+
 		case VYLE2_STATE_START_DELAY:
 			if (e->state_elapsed == 0)
 			{
@@ -573,11 +722,225 @@ static void main_func(Obj *o)
 			{
 				// TODO: Is his start state random?
 				e->state = VYLE2_STATE_PRE_JUMP;
+				e->jump_count = 0;
 				lyle_set_control_en(1);
 				lyle_set_master_en(1);
 				lyle_set_scroll_h_en(0);
 				music_play(11);
+				s_ground_y = e->head.y;
 			}
+			break;
+	//
+	// Fight states.
+	//
+		case VYLE2_STATE_PRE_JUMP:
+			if (vyle2_prejump(e))
+			{
+				e->state = VYLE2_STATE_JUMP;
+				e->jump_count++;
+			}
+			break;
+
+		case VYLE2_STATE_JUMP:
+			if (e->state_elapsed == 0)
+			{
+				vyle2_do_jump_towards(e, (e->jump_count < 6) ? l->head.x : VYLE2_ARENA_CX);
+			}
+			if (vyle2_jump_midair_logic(e, e->jump_count >= 6))
+			{
+				e->state = VYLE2_STATE_LAND;
+			}
+			break;
+
+		case VYLE2_STATE_LAND:
+			e->metaframe = 22;
+			if (e->jump_count < 6)
+			{
+				e->state = VYLE2_STATE_PRE_JUMP;
+			}
+			else if (e->state_elapsed == kvyle_general_anim_delay)
+			{
+				e->jump_count = 0;
+				e->state = VYLE2_STATE_SHOOTING;
+			}
+			break;  // --> PRE_JUMP: or SHOOTING
+
+		case VYLE2_STATE_SHOOTING:
+			if (e->state_elapsed == 0)
+			{
+				e->shots_remaining = 18;
+				e->shot_cnt = 0;
+				e->metaframe = 15;
+				e->head.x = VYLE2_ARENA_CX;
+			}
+			else if (e->state_elapsed > kvyle_shot_phase_start_delay)
+			{
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_superjump_anim_speed);
+				e->metaframe = 21 + e->anim_frame;
+
+				if (e->shots_remaining > 0)
+				{
+					e->shot_cnt++;
+					if (e->shot_cnt >= kvyle_shot_interval)
+					{
+						e->shot_cnt = 0;
+						e->shots_remaining--;
+					// TODO: Shot speed
+						const int16_t shot_angle = 9 + (system_rand() % 9);
+						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
+						                       shot_angle, kshot_speed);
+						// TODO: Fire shot left
+						// TODO: Shot sfx
+					}
+				}
+
+				if (e->state_elapsed >= kvyle_shot_phase_duration)
+				{
+					e->state = VYLE2_STATE_EDGE_PRE_JUMP;
+				}
+			}
+			break;
+
+		case VYLE2_STATE_EDGE_PRE_JUMP:
+			if (vyle2_prejump(e))
+			{
+				e->state = VYLE2_STATE_EDGE_JUMP;
+			}
+			break;
+
+		case VYLE2_STATE_EDGE_JUMP:
+			if (e->state_elapsed == 0)
+			{
+				vyle2_do_jump_towards(e, VYLE2_ARENA_CX + VYLE2_ARENA_HALFWIDTH - INTTOFIX32(4));
+			}
+			if (vyle2_jump_midair_logic(e, true))
+			{
+				e->state = VYLE2_STATE_EDGE_LAND;
+			}
+			break;
+
+		case VYLE2_STATE_EDGE_LAND:
+			e->metaframe = 22;
+			if (e->head.x < VYLE2_ARENA_CX + VYLE2_ARENA_HALFWIDTH - INTTOFIX32(4))
+			{
+				e->state = VYLE2_STATE_EDGE_PRE_JUMP;
+			}
+			else if (e->state_elapsed == kvyle_general_anim_delay)
+			{
+				e->metaframe = 15;
+				e->state = VYLE2_STATE_PRE_BELCH;
+				e->shot_cnt = 0;
+				e->shots_remaining = 1 + (system_rand() % 4);
+			}
+			break;  // --> EDGE_PRE_JUMP or PRE_BELCH
+
+		case VYLE2_STATE_PRE_BELCH:
+			if (e->state_elapsed == kvyle_general_anim_delay)
+			{
+				e->metaframe = 18;
+			}
+			// Exit condition
+			if (e->shots_remaining == 0)
+			{
+				if (e->state_elapsed >= kvyle_general_anim_delay * 2 &&
+				    (obj_find_by_type(OBJ_GAXTER1) == NULL))
+				{
+					e->state = VYLE2_STATE_PRE_CHARGE;
+				}
+				else if (e->state_elapsed >= kvyle_general_anim_delay * 4)
+				{
+					e->state = VYLE2_STATE_PRE_CHARGE;
+				}
+			}
+			else if (e->shots_remaining > 0 && e->state_elapsed == kvyle_general_anim_delay*3)
+			{
+				e->state = VYLE2_STATE_BELCH;
+				e->shots_remaining--;
+			}
+			break;  // --> BELCH or PRE_CHARGE
+
+		case VYLE2_STATE_BELCH:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 16;
+				// TODO: sfx
+				obj_spawn(FIX32TOINT(e->head.x) - 8, FIX32TOINT(e->head.y) - 48, OBJ_GAXTER1, 0);
+			}
+			else if (e->state_elapsed < kvyle_general_anim_delay*2)
+			{
+				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+				if (e->anim_cnt == 0)
+				{
+					e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+				}
+			}
+			else
+			{
+				e->state = VYLE2_STATE_PRE_BELCH;
+			}
+			break;
+
+		case VYLE2_STATE_PRE_CHARGE:
+			if (e->state_elapsed >= kvyle_precharge_duration)
+			{
+				e->state = VYLE2_STATE_CHARGE;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, ARRAYSIZE(vyle_precharge_cycle), kvyle_big_walk_anim_speed);
+			e->metaframe = vyle_precharge_cycle[e->anim_frame];
+			break;
+
+		case VYLE2_STATE_CHARGE:
+			if (e->state_elapsed == 0)
+			{
+				e->head.dx = -kvyle_charge_dx;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, ARRAYSIZE(vyle_big_walk_cycle), kvyle_big_walk_anim_speed);
+			e->metaframe = vyle_big_walk_cycle[e->anim_frame];
+			if (e->head.x <= VYLE2_ARENA_CX - VYLE2_ARENA_HALFWIDTH - INTTOFIX32(28))
+			{
+				e->state = VYLE2_STATE_ZAP;
+				e->head.dx = 0;
+			}
+			break;
+
+		case VYLE2_STATE_ZAP:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = 16;
+			}
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
+			if (e->anim_cnt == 0)
+			{
+				e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+			}
+			else if (e->state_elapsed >= kvyle_zap_duration)
+			{
+				e->state = VYLE2_STATE_ZAP_RECOIL;
+			}
+			break;
+
+		case VYLE2_STATE_ZAP_RECOIL:
+			break;
+
+		case VYLE2_STATE_VULNERABLE:
+			break;
+
+		case VYLE2_STATE_JUMP_TO_CENTER:
+			break;  // --> JUMP_TO_CENTER or PRE_SUPERJUMP
+
+		case VYLE2_STATE_PRE_SUPERJUMP:
+			break;
+
+		case VYLE2_STATE_SUPERJUMP_UP:
+			break;
+
+		case VYLE2_STATE_SUPERJUMP_HOVER:
+			break;
+
+		case VYLE2_STATE_SUPERJUMP_DOWN:
+			break;  // --> VYLE2_STATE_LAND or VYLE2_STATE_SUPERJUMP_EXIT
+
+		case VYLE2_STATE_SUPERJUMP_EXIT:
 			break;
 	}
 

@@ -24,7 +24,9 @@ typedef enum Vyle2State
 	VYLE2_STATE_JUMP,
 	VYLE2_STATE_LAND,  // --> PRE_JUMP, or SHOOTING
 	VYLE2_STATE_SHOOTING,
-	VYLE2_STATE_JUMP_TO_EDGE,  // --> JUMP_TO_EDGE or PRE_BELCH
+	VYLE2_STATE_EDGE_PRE_JUMP,
+	VYLE2_STATE_EDGE_JUMP,
+	VYLE2_STATE_EDGE_LAND,  // --> EDGE_PRE_JUMP or PRE_BELCH
 	VYLE2_STATE_PRE_BELCH,
 	VYLE2_STATE_BELCH,  // --> PRE_BELCH or PRE_CHARGE
 	VYLE2_STATE_PRE_CHARGE,
@@ -54,9 +56,17 @@ typedef struct O_Vyle2
 	Vyle2State state;
 	int16_t state_elapsed;
 
-	int16_t anim_cnt;
-	int16_t anim_frame;
-	int16_t metaframe;
+	uint16_t anim_cnt;
+	uint16_t anim_frame;
+	uint16_t metaframe;
+
+	// jump logic
+	int16_t jump_count;
+	bool shot_at_lyle;
+	fix32_t jump_tx;
+	// shot phase
+	int16_t shots_remaining;
+	int16_t shot_cnt;
 } O_Vyle2;
 
 void o_load_vyle2(Obj *o, uint16_t data);
