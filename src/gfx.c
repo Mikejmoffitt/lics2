@@ -59,6 +59,7 @@ static const Gfx gfx[] =
 	[GFX_CHICK] = GFX(obj_52_chick),
 
 	[GFX_ROCKMAN_DOOR] = GFX(obj_54_rockman_door),
+	[GFX_KEDDUMS] = GFX(obj_56_keddums),
 	[GFX_TVSCREEN] = GFX(obj_57_tvscreen),
 
 	[GFX_GAMEOVER] = GFX(obj_118_gameover),
@@ -85,6 +86,12 @@ static const Gfx gfx[] =
 	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
 	[GFX_EX_KANA_FONT] = GFX(ex_kana_font),
 	[GFX_EX_VYLE2_GROUND] = GFX(ex_vyle2_ground),
+	[GFX_EX_PWAVE_MARQUEE] = GFX(ex_pwave_marquee),
+	[GFX_EX_PWAVE_SCREENBACK] = GFX(ex_pwave_screenback),
+	[GFX_EX_PWAVE_CATFACE] = GFX(ex_pwave_catface),
+	[GFX_EX_PWAVE_LIGHTR] = GFX(ex_pwave_lightr),
+	[GFX_EX_PWAVE_LIGHTG] = GFX(ex_pwave_lightg),
+	[GFX_EX_PWAVE_ARM] = GFX(ex_pwave_arm),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

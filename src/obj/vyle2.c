@@ -13,7 +13,9 @@
 #include "music.h"
 #include "projectile.h"
 #include "particle.h"
+#include "obj/keddums.h"
 #include "obj/laser.h"
+#include "obj/psychowave.h"
 
 // Vyle 2's sprite is huge (64x64px), so he's animated like Lyle, through DMA
 // transfers, instead of loading everything at once.
@@ -474,6 +476,8 @@ static void main_func(Obj *o)
 				l->head.dy = 0;
 				l->head.direction = OBJ_DIRECTION_RIGHT;
 				map_set_x_scroll(0);
+				keddums_set_state(KEDDUMS_FLOAT);
+				psychowave_set_state(PWAVE_STATE_OFF);
 			}
 
 			// Lyle begins by approaching until he reaches a certain point.
@@ -508,6 +512,8 @@ static void main_func(Obj *o)
 			break;
 
 		case VYLE2_STATE_KEDDUMS_MEOW:
+			// TODO: Is this sequence quite right?
+			keddums_set_state(KEDDUMS_SHAKE);
 			// After a short time, keddums meows, and the screen moves back.
 			if (e->state_elapsed > kkeddums_meow_delay_frames)
 			{
@@ -519,6 +525,7 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_CAMERA_PAN_TO_LYLE:
 			// Camera pans back to Lyle.
 			e->xscroll -= kscroll_pan_dx;
+			keddums_set_state(KEDDUMS_FLOAT);
 			if (e->xscroll < 0)
 			{
 				e->xscroll = 0;
@@ -588,9 +595,10 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == kvyle_activation_delay_frames)
 			{
 				sfx_play(SFX_BEEP, 0);
+				keddums_set_state(KEDDUMS_SHAKE);
+				psychowave_set_state(PWAVE_STATE_ON);
 				// TODO: keddums meow
 				// TODO: activate big orb thing
-				// TODO: make keddums begin shaking
 				// TODO: Illuminate kitty powered psychowave
 				e->metaframe = 4;
 			}
@@ -620,9 +628,9 @@ static void main_func(Obj *o)
 			break;
 
 		case VYLE2_STATE_VYLE_GROW_1:
-			o->dx = 0;
 			if (e->state_elapsed == 0)
 			{
+				o->dx = 0;
 				e->metaframe = 5;
 			}
 
@@ -701,6 +709,8 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == kvyle_grow_post_frames)
 			{
 				e->state = VYLE2_STATE_ENTER_ARENA;
+				psychowave_set_state(PWAVE_STATE_OFF);
+				keddums_set_state(KEDDUMS_FLOAT);
 			}
 
 			do_lyle_shake_anim(e, l);
@@ -1005,7 +1015,7 @@ static void main_func(Obj *o)
 
 			if (e->state_elapsed == kvyle_vulnerable_timeout)
 			{
-				e->state = VYLE2_STATE_CENTER_PRE_JUMP;
+				e->state = VYLE2_STATE_PRE_JUMP;
 			}
 			else if (e->head.hp != 127)
 			{
