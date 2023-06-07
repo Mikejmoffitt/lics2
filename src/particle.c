@@ -171,6 +171,8 @@ void particle_poll(void)
 
 void particle_load(void)
 {
+	s_hibernate = false;
+
 	set_constants();
 	const Gfx *g = gfx_get(GFX_SYS_PARTICLE);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
