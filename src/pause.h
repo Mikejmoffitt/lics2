@@ -1,12 +1,12 @@
 #ifndef OBJ_PAUSE_H
 #define OBJ_PAUSE_H
 
-#include "obj.h"
-#include "input.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef enum PauseScreen
 {
-	PAUSE_SCREEN_NONE = 0,
+	PAUSE_SCREEN_NONE,
 	PAUSE_SCREEN_LYLE_WEAK,
 	PAUSE_SCREEN_MAP,
 	PAUSE_SCREEN_GET_MAP,
@@ -58,55 +58,13 @@ typedef enum PauseScreen
 	PAUSE_SCREEN_BUTTON_CHECK,
 } PauseScreen;
 
-typedef struct O_Pause
-{
-	Obj head;
-	LyleBtn buttons_prev;
-	PauseScreen screen;
-	PauseScreen screen_prev;
-
-	int16_t cursor_flash_cnt;
-	int16_t cursor_flash_frame;
-
-	int16_t dismissal_delay_cnt;
-	int16_t select_delay_cnt;
-
-	int16_t menu_flash_cnt;
-	int16_t menu_flash_frame;
-	int16_t pause_choice;  // 0 - continue; 1 = save & quit; 2 = yes; 3 = no
-	int16_t pause_select_cnt;
-
-	struct
-	{
-		int16_t main_cursor;
-		int16_t room_cursor;
-		int16_t room_last_page;
-		int16_t chosen_room_id;
-
-		int16_t sound_cursor;
-		uint8_t bgm_id;
-		uint8_t sfx_id;
-
-		int16_t progress_cursor_main;
-		int16_t progress_cursor_bit;
-
-		uint16_t vram_view_offset;
-		uint8_t vram_view_pal;
-
-		uint16_t input_cheat_idx;
-	} debug;
-
-	int16_t paused;
-	int16_t window;  // nonzero if window should be shown.
-} O_Pause;
-
 void pause_set_screen(PauseScreen screen);
 
-int16_t pause_want_window(void);
+bool pause_want_window(void);
 int16_t pause_get_debug_room_id(void);
 
-void o_load_pause(Obj *o, uint16_t data);
-void o_unload_pause(void);
+void pause_init(void);
+void pause_poll(void);
 
 
 #endif  // OBJ_PAUSE_H

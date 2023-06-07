@@ -738,14 +738,14 @@ void bg_init(void)
 
 	if (b->mapping)
 	{
-		uint16_t s_vram_pos = md_vdp_get_plane_base(VDP_PLANE_B);
+		uint16_t vram_pos = md_vdp_get_plane_base(VDP_PLANE_B);
 		SYSTEM_ASSERT(b->mapping_size / 2 <= bg_plane_words);
 		// TODO: MD framework util function to get plane byte size.
 		uint16_t remaining_words = bg_plane_words;
 		while (remaining_words > 0)
 		{
-			md_dma_transfer_vram(s_vram_pos, b->mapping, b->mapping_size / 2, 2);
-			s_vram_pos += b->mapping_size;
+			md_dma_transfer_vram(vram_pos, b->mapping, b->mapping_size / 2, 2);
+			vram_pos += b->mapping_size;
 			remaining_words -= b->mapping_size / 2;
 		}
 	}

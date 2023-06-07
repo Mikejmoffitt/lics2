@@ -74,6 +74,8 @@ typedef struct O_Vyle2
 	int16_t crumble_cnt;
 
 	int16_t ground_slams;
+
+	bool shaking;
 } O_Vyle2;
 
 void o_load_vyle2(Obj *o, uint16_t data);

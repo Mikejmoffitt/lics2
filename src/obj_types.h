@@ -77,11 +77,7 @@ typedef enum ObjType
 
 	// Objects 128 and above are special objects added by the engine, rather
 	// than being found in map data.i
-	OBJ_BG = 131,
-
 	OBJ_EXPLODER = 135,
-
-	OBJ_PAUSE = 137,
 
 	OBJ_TEMPLATE = 255,
 	OBJ_INVALID = 256

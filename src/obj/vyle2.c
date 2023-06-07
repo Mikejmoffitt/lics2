@@ -272,6 +272,12 @@ static void render(O_Vyle2 *e)
 	obj_render_setup(o, &sp_x, &sp_y, 0, 0,
 	                 map_get_x_scroll(), map_get_y_scroll());
 
+	if (e->shaking)
+	{
+		sp_x += (system_rand() % 8) - 4;
+		sp_y += (system_rand() % 8) - 4;
+	}
+
 	const int16_t flip = (o->direction == OBJ_DIRECTION_RIGHT);
 	const SprDef *frame = &frames[e->metaframe * 4];
 
@@ -961,6 +967,7 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_ZAP:
 			if (e->state_elapsed == 0)
 			{
+				e->shaking = true;
 				e->metaframe = 16;
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
@@ -977,6 +984,7 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_ZAP_RECOIL:
 			if (e->state_elapsed == 0)
 			{
+				e->shaking = false;
 				e->head.dx = kvyle_zap_recoil_dx;
 				e->head.dy = kvyle_zap_recoil_dy;
 			}
@@ -1061,21 +1069,21 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 			}
-			else if (e->state_elapsed == kvyle_general_anim_delay)
+			else if (e->state_elapsed >= kvyle_general_anim_delay * 7.5)
+			{
+				e->state = VYLE2_STATE_SUPERJUMP_UP;
+			}
+			else if (e->state_elapsed >= kvyle_general_anim_delay * 4)
+			{
+				e->metaframe = 21 + e->anim_frame;
+			}
+			else if (e->state_elapsed >= kvyle_general_anim_delay)
 			{
 				e->metaframe = 20;
 				if (e->anim_cnt == 0)
 				{
 					e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
 				}
-			}
-			else if (e->state_elapsed == kvyle_general_anim_delay * 4)
-			{
-				e->metaframe = 21 + e->anim_frame;
-			}
-			else if (e->state_elapsed == kvyle_general_anim_delay * 7.5)
-			{
-				e->state = VYLE2_STATE_SUPERJUMP_UP;
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
 
@@ -1097,6 +1105,7 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_SUPERJUMP_HOVER:
 			if (e->state_elapsed == 0)
 			{
+				e->shaking = true;
 				e->head.dy = 0;
 				e->metaframe = 20;
 			}
@@ -1114,6 +1123,7 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_SUPERJUMP_DOWN:
 			if (e->state_elapsed == 0)
 			{
+				e->shaking = false;
 				e->metaframe = 24;
 				e->head.dy = kvyle_superjump_down_dy;
 			}
@@ -1147,12 +1157,12 @@ static void main_func(Obj *o)
 			l->head.dy += kgravity / 2;
 			obj_accurate_physics(&l->head);
 
-			if (e->head.y >= INTTOFIX32(256))
+			if (e->head.y >= INTTOFIX32(240+96))
 			{
 				e->head.dy = 0;
 			}
 
-			if (l->head.y >= INTTOFIX32(256))
+			if (l->head.y >= INTTOFIX32(240+96))
 			{
 				map_set_exit_trigger(MAP_EXIT_BOTTOM);
 			}

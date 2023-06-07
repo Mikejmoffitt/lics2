@@ -9,7 +9,7 @@
 #include "map.h"
 
 #include "lyle.h"
-#include "obj/pause.h"
+#include "pause.h"
 #include "sfx.h"
 #include "cube_manager.h"
 

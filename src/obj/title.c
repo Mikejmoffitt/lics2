@@ -16,7 +16,7 @@
 #include "persistent_state.h"
 #include "obj/wndwback.h"
 #include "obj/metagrub.h"
-#include "obj/pause.h"
+#include "pause.h"
 #include "sfx.h"
 #include "input.h"
 

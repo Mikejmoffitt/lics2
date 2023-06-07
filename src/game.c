@@ -24,7 +24,7 @@
 #include "lyle.h"
 #include "particle.h"
 #include "projectile.h"
-#include "obj/pause.h"
+#include "pause.h"
 #include "objtile.h"
 
 #include <stdlib.h>
@@ -91,12 +91,11 @@ static void run_frame(void)
 			projectile_load();
 			particle_load();
 			lyle_load();
-			// TODO: Remove these singleton objects.
 			cube_manager_init();
 			map_load(persistent_state->next_room_id,
 			         persistent_state->next_room_entrance);
 			bg_init();
-			obj_spawn(0, 0, OBJ_PAUSE, 0);
+			pause_init();
 
 			// TODO: Move this functionality into lyle.h
 			load_lyle_persistent_state();
@@ -119,6 +118,7 @@ static void run_frame(void)
 			cube_manager_poll();
 			obj_exec();
 			bg_poll();
+			pause_poll();
 			objtile_poll();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();

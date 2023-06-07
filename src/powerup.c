@@ -10,7 +10,7 @@
 
 #include "map.h"
 #include "lyle.h"
-#include "obj/pause.h"
+#include "pause.h"
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
