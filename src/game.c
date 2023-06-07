@@ -58,9 +58,8 @@ static void load_lyle_persistent_state(void)
 
 static void run_frame(void)
 {
-	int16_t want_display_en = 0;
+	bool want_display_en = false;
 	ProgressSlot *prog = progress_get();
-	system_profile(0);
 	PersistentState *persistent_state = persistent_state_get();
 	switch (s_game_state)
 	{
@@ -74,7 +73,7 @@ static void run_frame(void)
 			persistent_state_init();
 			physics_init();
 			objtile_clear();
-			want_display_en = 0;
+			want_display_en = false;
 			md_vdp_set_window_top(0);
 			md_vdp_register_vblank_wait_callback(sfx_poll);
 			str_set_locale(md_sys_is_overseas() ? LOCALE_EN : LOCALE_JA);
@@ -167,11 +166,11 @@ static void run_frame(void)
 				persistent_state->lyle_hp = l->head.hp;
 				persistent_state->lyle_tele_in_cnt = l->tele_in_cnt;
 				s_game_state = GAME_STATE_NEW_ROOM;
-				want_display_en = 0;
+				want_display_en = false;
 			}
 			else
 			{
-				want_display_en = s_room_elapsed >= 1;
+				want_display_en = s_room_elapsed >= 1 ? true : false;
 			}
 			s_room_elapsed++;
 			break;
@@ -196,7 +195,7 @@ void game_main(void)
 {
 	s_game_state = GAME_STATE_INIT;
 
-	while (1)
+	while (true)
 	{
 		run_frame();
 		g_elapsed++;

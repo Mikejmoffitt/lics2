@@ -516,25 +516,18 @@ void cube_run(Cube *c)
 	}
 	if (c->status == CUBE_STATUS_AIR || c->status == CUBE_STATUS_KICKED)
 	{
-		system_profile(PALRGB(6, 6, 7));
 		// Collision is processed one frame late to mimic the original
 		// game's behavior... so says the old code.
 		cube_scan_objects(c);
-		system_profile(PALRGB(6, 3, 7));
 		if (c->status == CUBE_STATUS_AIR ||
 		    c->status == CUBE_STATUS_KICKED)
 		{
-			system_profile(PALRGB(4, 0, 7));
 			cube_bg_collision(c);
-			system_profile(PALRGB(4, 2, 5));
 			cube_movement(c);
-			system_profile(PALRGB(3, 5, 3));
 			cube_on_cube_collisions(c);
 		}
 	}
 	
-	system_profile(PALRGB(0, 1, 0));
-
 	// Check if the cube is off-screen, and skip some things if so.
 	const fix32_t margin = 32;
 	const int16_t x_scroll = map_get_x_scroll();
@@ -547,8 +540,6 @@ void cube_run(Cube *c)
 	if (cx < x_scroll - margin) goto off_screen;
 	
 	// Things that only happen when cubes are on-screen:
-	system_profile(PALRGB(7, 3, 0));
-
 	if (c->type == CUBE_TYPE_SPAWNER)
 	{
 		if (c->spawn_count < kspawn_seq[1]) c->spawn_count++;
@@ -596,8 +587,6 @@ void cube_run(Cube *c)
 		particle_spawn(c->x, c->y + (c->top / 2), PARTICLE_TYPE_EXPLOSION);
 		return;
 	}
-	system_profile(PALRGB(3, 0, 7));
-
 	// Render the cube.
 	CubeType render_type = c->type;
 	// Render the cube.
@@ -616,9 +605,7 @@ void cube_run(Cube *c)
 		}
 	}
 
-	system_profile(PALRGB(7, 7, 7));
 	cube_manager_draw_cube(cx, cy, render_type);
-	system_profile(PALRGB(0, 0, 0));
 	return;
 
 off_screen:
@@ -632,7 +619,6 @@ off_screen:
 		if (c->spawn_count < kspawn_seq[1] - 1) c->spawn_count = kspawn_seq[1] - 1;
 	}
 
-	system_profile(PALRGB(0, 0, 0));
 }
 
 void cube_bounce_dx(Cube *c)

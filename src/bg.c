@@ -374,7 +374,6 @@ static void undersand_green_columns(void)
 
 // Woooow this one's pretty ugly
 // On the other hand, it's working well enough.
-// TODO: Clean up and profile
 static void bg_undersand_columns_func(void)
 {
 	const int16_t x_scroll = s_bg.x_scroll;
@@ -692,8 +691,6 @@ static void (*bg_funcs[])(void) =
 
 void bg_poll(void)
 {
-	system_profile(PALRGB(0, 4, 0));
-
 	s_bg.x_scroll = map_get_x_scroll();
 	s_bg.y_scroll = map_get_y_scroll();
 
@@ -707,7 +704,6 @@ void bg_poll(void)
 
 	md_dma_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 	md_dma_transfer_vram(md_vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
-	system_profile(PALRGB(0, 0, 0));
 }
 
 void bg_init(void)
