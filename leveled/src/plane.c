@@ -469,8 +469,8 @@ void plane_handle_io(void)
 		}
 	}
 
-	int keys_taken[256];
-	memset(&keys_taken[0], 0, 256);
+	bool keys_taken[ALLEGRO_KEY_MAX];
+	memset(&keys_taken[0], 0, sizeof(keys_taken));
 
 	// User hits save ikey
 	while (!al_is_event_queue_empty(input_queue))
@@ -485,7 +485,7 @@ void plane_handle_io(void)
 			{
 				continue;
 			}
-			keys_taken[ev.keyboard.keycode] = 1;
+			keys_taken[ev.keyboard.keycode] = true;
 			switch (ev.keyboard.keycode)
 			{
 				// Let Ctrl+S save 
@@ -643,7 +643,7 @@ do_hex_entry:
 				case ALLEGRO_KEY_SPACE:
 					if (edit_mode == MODE_OBJECTS)
 					{
-						if (meta_cursor_pos == -1)
+						if (meta_cursor_pos < 0)
 						{
 							meta_cursor_pos = 0;
 						}
