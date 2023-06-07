@@ -7,7 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
-#include "obj/bg.h"
+#include "bg.h"
 
 #include "objtile.h"
 #include "powerup.h"

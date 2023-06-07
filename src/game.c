@@ -15,6 +15,7 @@
 #include "res.h"
 #include "str.h"
 
+#include "bg.h"
 #include "cube_manager.h"
 #include "hud.h"
 #include "powerup.h"
@@ -91,11 +92,10 @@ static void run_frame(void)
 			particle_load();
 			lyle_load();
 			// TODO: Remove these singleton objects.
-			// The order of objects is important.
 			cube_manager_init();
 			map_load(persistent_state->next_room_id,
 			         persistent_state->next_room_entrance);
-			obj_spawn(0, 0, OBJ_BG, 0);
+			bg_init();
 			obj_spawn(0, 0, OBJ_PAUSE, 0);
 
 			// TODO: Move this functionality into lyle.h
@@ -109,7 +109,6 @@ static void run_frame(void)
 
 		case GAME_STATE_RUN:
 			md_vdp_set_window_top(pause_want_window() ? 31 : 0);
-			// Static singleton objects / managers
 			music_handle_pending();
 			hud_render();
 			powerup_poll();
@@ -117,9 +116,9 @@ static void run_frame(void)
 			particle_poll();
 			lyle_poll();
 			map_poll();
-			// Game actor/object system
-			obj_exec();
 			cube_manager_poll();
+			obj_exec();
+			bg_poll();
 			objtile_poll();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();

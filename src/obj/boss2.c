@@ -187,7 +187,7 @@ static void bricks_reset(void)
 	}
 }
 
-// Sets up a brick mapping for bricks_process to handle
+// Sets up a brick mapping for bricks_poll to handle
 static void bricks_init(O_Boss2 *e, int16_t phase)
 {
 	switch (phase)
@@ -218,7 +218,7 @@ static void bricks_init(O_Boss2 *e, int16_t phase)
 }
 
 // Activates bricks based on the current brick mapping.
-static void bricks_process(O_Boss2 *e)
+static void bricks_poll(O_Boss2 *e)
 {
 	if (e->brick_draw_index < e->brick_list_size)
 	{
@@ -976,9 +976,12 @@ static void main_func(Obj *o)
 				}
 				break;
 			case BOSS2_STATE_EXPLODED:
+				// Put back normal palette, as a dropped item may use it.
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				              sizeof(res_pal_enemy_bin) / 2);
 				rockman_door_set_closed(0);
 				bricks_reset();
-				bricks_process(e);
+				bricks_poll(e);
 				return;
 		}
 
@@ -1007,7 +1010,7 @@ static void main_func(Obj *o)
 
 	render(e);
 	ball_process(e);
-	bricks_process(e);
+	bricks_poll(e);
 }
 
 static void cube_func(Obj *o, Cube *c)

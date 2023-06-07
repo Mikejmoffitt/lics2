@@ -1,4 +1,4 @@
-#include "obj/bg.h"
+#include "bg.h"
 
 #include <stdlib.h>
 #include "obj.h"
@@ -12,60 +12,20 @@
 #include "res.h"
 #include "palscale.h"
 
-static O_Bg *s_bg;
+#include <string.h>
 
-static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
-static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
+//
+// Background resource descriptors
+//
 
-// 4K of scratch memory, used for software background tiling.
-static uint8_t scratch[64 * 64 / 2];
 
-// Some hacky drawing operations for scratch memory.
-static inline void scratch_clear(void)
+typedef struct BgDescriptor
 {
-	uint16_t i = ARRAYSIZE(scratch);
-	while (i--) scratch[i] = 0;
-}
-
-static inline int16_t scratch_index(int16_t x, int16_t y)
-{
-	const int16_t coarse_x = (x / 4) * 32;
-	const int16_t coarse_y = (y / 8) * 256;
-	const int16_t index = (coarse_x + coarse_y) + (x % 4) + (y % 8) * 4;
-	return index;
-}
-
-static inline uint8_t scratch_fetch(int16_t x, int16_t y)
-{
-	x = x % 32;
-	y = y % 64;
-	return scratch[scratch_index(x, y)];
-}
-
-static inline void scratch_plot(int16_t x, int16_t y, uint8_t value)
-{
-	const int16_t idx_x = x % 32;
-	const int16_t idx_y = y % 64;
-	scratch[scratch_index(idx_x, idx_y)] = value;
-}
-
-static inline void set_h_scroll_plane(int16_t value)
-{
-	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
-	while (i--)
-	{
-		s_h_scroll_buffer[i] = value;
-	}
-}
-
-static inline void set_v_scroll_plane(int16_t value)
-{
-	uint16_t i = ARRAYSIZE(s_v_scroll_buffer);
-	while (i--)
-	{
-		s_v_scroll_buffer[i] = value;
-	}
-}
+	GfxId gfx_id;
+	const uint8_t *palette;
+	const uint8_t *mapping;
+	uint16_t mapping_size;
+} BgDescriptor;
 
 static const BgDescriptor backgrounds[] =
 {
@@ -98,7 +58,77 @@ static const BgDescriptor backgrounds[] =
 	[26] = {GFX_BG_26, res_pal_bg_bg26_bin, res_bgmap_bg26_bin, sizeof(res_bgmap_bg26_bin)},
 };
 
-static void bg_rooftop_func(O_Bg *f)
+typedef struct Bg
+{
+	uint8_t bg_id;
+	int16_t x_scroll;
+	int16_t y_scroll;
+	int16_t last_x_scroll;
+	int16_t last_y_scroll;
+	int16_t anim_cnt;
+	int16_t anim_frame;
+	const BgDescriptor *descriptor;
+	uint8_t scratch[64 * 64 / 2];
+} Bg;
+
+static Bg s_bg;
+
+static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
+static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
+
+//
+// Software rendering
+//
+
+static inline int16_t scratch_index(int16_t x, int16_t y)
+{
+	const int16_t coarse_x = (x / 4) * 32;
+	const int16_t coarse_y = (y / 8) * 256;
+	const int16_t index = (coarse_x + coarse_y) + (x % 4) + (y % 8) * 4;
+	return index;
+}
+
+static inline uint8_t scratch_fetch(int16_t x, int16_t y)
+{
+	x = x % 32;
+	y = y % 64;
+	return s_bg.scratch[scratch_index(x, y)];
+}
+
+static inline void scratch_plot(int16_t x, int16_t y, uint8_t value)
+{
+	const int16_t idx_x = x % 32;
+	const int16_t idx_y = y % 64;
+	s_bg.scratch[scratch_index(idx_x, idx_y)] = value;
+}
+
+//
+// Helper functions
+//
+
+static inline void set_h_scroll_plane(int16_t value)
+{
+	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
+	while (i--)
+	{
+		s_h_scroll_buffer[i] = value;
+	}
+}
+
+static inline void set_v_scroll_plane(int16_t value)
+{
+	uint16_t i = ARRAYSIZE(s_v_scroll_buffer);
+	while (i--)
+	{
+		s_v_scroll_buffer[i] = value;
+	}
+}
+
+//
+// Background main routines
+//
+
+static void bg_rooftop_func(void)
 {
 	set_v_scroll_plane(system_is_ntsc() ? 8 : 0);
 
@@ -109,7 +139,7 @@ static void bg_rooftop_func(O_Bg *f)
 	s_x_offs[1] += INTTOFIX16(PALSCALE_1ST(0.277777773));
 	if (s_x_offs[1] >= INTTOFIX16(32)) s_x_offs[1] -= INTTOFIX16(32);
 
-	const fix32_t x_fixed = INTTOFIX32(f->x_scroll);
+	const fix32_t x_fixed = INTTOFIX32(s_bg.x_scroll);
 	int16_t x_front_scroll = FIX16TOINT(s_x_offs[0]) + FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.6666666667)));
 	int16_t x_back_scroll = FIX16TOINT(s_x_offs[1]) + FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.5)));
 	x_front_scroll = x_front_scroll % 48;
@@ -132,16 +162,16 @@ static void bg_rooftop_func(O_Bg *f)
 	}
 }
 
-static void bg_city_func(O_Bg *f)
+static void bg_city_func(void)
 {
 	// Y Position follows camera directly for the sake of the title screen.
-	int16_t y_scroll = f->y_scroll;
+	int16_t y_scroll = s_bg.y_scroll;
 	const int16_t is_tall_screen = map_get_bottom() > INTTOFIX32(240);
 	if (!is_tall_screen) y_scroll -= 32;
 	set_v_scroll_plane(y_scroll + 32);
 
 	// Scroll from the camera.
-	const int16_t x_scroll = f->x_scroll + 46;
+	const int16_t x_scroll = s_bg.x_scroll + 46;
 
 	// The furthest background.
 	const int16_t main_scroll = -x_scroll / 2;
@@ -174,20 +204,20 @@ static void bg_city_func(O_Bg *f)
 	                     (8 * 2 * 32) / 2, 2);
 }
 
-static void bg_finalboss_func(O_Bg *f)
+static void bg_finalboss_func(void)
 {
 	const int16_t anim_speed = PALSCALE_DURATION(8);
-	OBJ_SIMPLE_ANIM(f->anim_cnt, f->anim_frame, 2, anim_speed);
+	OBJ_SIMPLE_ANIM(s_bg.anim_cnt, s_bg.anim_frame, 2, anim_speed);
 	// TODO: Check paralax, it may not be this
-	const int16_t x_scroll = f->x_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
 	set_h_scroll_plane(-x_scroll / 2);
-	set_v_scroll_plane(f->anim_frame ? 16 : 0);
+	set_v_scroll_plane(s_bg.anim_frame ? 16 : 0);
 }
 
-static void bg_plane_func(O_Bg *f)
+static void bg_plane_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t far_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_h_scroll_plane(far_x);
@@ -198,10 +228,10 @@ static void bg_plane_func(O_Bg *f)
 	set_v_scroll_plane(y_scroll/2);
 }
 
-static void bg_plane_func_offset(O_Bg *f)
+static void bg_plane_func_offset(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	int16_t y_scroll = s_bg.y_scroll;
 	y_scroll -= 112;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t far_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
@@ -214,10 +244,10 @@ static void bg_plane_func_offset(O_Bg *f)
 }
 
 
-static void bg_blue_bumps_func(O_Bg *f)
+static void bg_blue_bumps_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const Gfx *g = gfx_get(GFX_BG_3);
 	set_h_scroll_plane(x_scroll);
 	s_v_scroll_buffer[0] = y_scroll / 2;
@@ -235,9 +265,9 @@ static void bg_blue_bumps_func(O_Bg *f)
 	md_dma_transfer_vram(BG_TILE_VRAM_POSITION + (12 * 32), g->data + (16 * 32) + (128 * scroll_off), 32 * 4 / 2, 2);
 }
 
-static void bg_bubbles_func(O_Bg *f)
+static void bg_bubbles_func(void)
 {
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	set_h_scroll_plane(0);
 	for (uint16_t i = 0; i < ARRAYSIZE(s_v_scroll_buffer); i++)
 	{
@@ -254,10 +284,10 @@ static void bg_bubbles_func(O_Bg *f)
 	}
 }
 
-static void bg_orange_balls_func(O_Bg *f)
+static void bg_orange_balls_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const Gfx *g = gfx_get(GFX_BG_7_EX);
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
@@ -345,35 +375,35 @@ static void undersand_green_columns(void)
 // Woooow this one's pretty ugly
 // On the other hand, it's working well enough.
 // TODO: Clean up and profile
-static void bg_undersand_columns_func(O_Bg *f)
+static void bg_undersand_columns_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	set_v_scroll_plane(y_scroll);
 
 	undersand_purple_columns(x_scroll);
 	undersand_green_columns();
 
 	set_h_scroll_plane(-x_scroll/2);
-	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, s_bg.scratch, (sizeof(s_bg.scratch) / 4) / 2, 2);
 }
 
-static void bg_columns_2_func(O_Bg *f)
+static void bg_columns_2_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	set_v_scroll_plane(y_scroll);
 
 	undersand_purple_columns(x_scroll);
 
 	set_h_scroll_plane(-x_scroll/2);
-	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, scratch, (sizeof(scratch) / 4) / 2, 2);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, s_bg.scratch, (sizeof(s_bg.scratch) / 4) / 2, 2);
 }
 
-static void bg_crazy_city_func(O_Bg *f)
+static void bg_crazy_city_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_v_scroll_plane(y_scroll);
@@ -388,10 +418,10 @@ static void bg_crazy_city_func(O_Bg *f)
 	}
 }
 
-static void bg_crazy_city_low_func(O_Bg *f)
+static void bg_crazy_city_low_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_v_scroll_plane(y_scroll);
@@ -406,10 +436,10 @@ static void bg_crazy_city_low_func(O_Bg *f)
 	}
 }
 
-static void bg_elevator_func(O_Bg *f)
+static void bg_elevator_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	(void)x_scroll;
 	const int16_t far_y = y_scroll / 2;  // far
 	const int16_t close_y = FIX32TOINT(FIX32MUL(INTTOFIX32(y_scroll), INTTOFIX32(0.83333334)));  // close
@@ -430,10 +460,10 @@ static void bg_elevator_func(O_Bg *f)
 	s_v_scroll_buffer[19] = close_y;
 }
 
-static void bg_brown_grass_solo_func(O_Bg *f)
+static void bg_brown_grass_solo_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t x_squiggle_scroll = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.3333333334)));
 	(void)y_scroll;
@@ -442,10 +472,10 @@ static void bg_brown_grass_solo_func(O_Bg *f)
 	set_h_scroll_plane(x_squiggle_scroll);
 }
 
-static void bg_brown_grass_and_green_func(O_Bg *f)
+static void bg_brown_grass_and_green_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const Gfx *g = gfx_get(GFX_BG_16_EX);
 
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
@@ -471,10 +501,10 @@ static void bg_brown_grass_and_green_func(O_Bg *f)
 
 // Simple far purple scrolling 48x48 tile BG, as a companio to the FG tile
 // substitution front layer (horizontal ver.)
-static void bg_technozone_horizontal_simple_func(O_Bg *f)
+static void bg_technozone_horizontal_simple_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
 	const int16_t x_front_scroll_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.333333334)));
 	const int16_t x_front_scroll = x_front_scroll_raw % 48;
@@ -485,10 +515,10 @@ static void bg_technozone_horizontal_simple_func(O_Bg *f)
 
 // Simple far purple scrolling 48x48 tile BG, as a companio to the FG tile
 // substitution front layer (vertical ver.)
-static void bg_technozone_vertical_simple_func(O_Bg *f)
+static void bg_technozone_vertical_simple_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	const fix32_t y_fixed = INTTOFIX32(-y_scroll);
 	const int16_t y_front_scroll_raw = FIX32TOINT(FIX32MUL(y_fixed, INTTOFIX32(0.333333334)));
 	const int16_t y_front_scroll = 47 - (y_front_scroll_raw % 48);
@@ -497,14 +527,13 @@ static void bg_technozone_vertical_simple_func(O_Bg *f)
 	set_v_scroll_plane(y_front_scroll);
 }
 
-static void bg_static_func(O_Bg *f)
+static void bg_static_func(void)
 {
-	(void)f;
 	set_v_scroll_plane(0);
 	set_h_scroll_plane(0);
 }
 
-static void bg_gauntlet_func(O_Bg *f)
+static void bg_gauntlet_func(void)
 {
 /*
 
@@ -543,7 +572,7 @@ static void bg_gauntlet_func(O_Bg *f)
 31	em
 
 */
-	const int16_t x_scroll = f->x_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
 	set_v_scroll_plane((system_is_ntsc() ? 8 : 0));
 
 	static const int16_t modulo = 48;
@@ -596,10 +625,10 @@ static void bg_gauntlet_func(O_Bg *f)
 	                    (32 * 6 * 2) / 2, 2);
 }
 
-static void bg_longsand_func(O_Bg *f)
+static void bg_longsand_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	set_v_scroll_plane(y_scroll);
 	const fix32_t x_fixed = INTTOFIX32(x_scroll);
 	const int16_t x_1_1_3_raw = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.23079)));
@@ -622,15 +651,15 @@ static void bg_longsand_func(O_Bg *f)
 	buffer[21] = x_1_2;
 }
 
-static void bg_thin_bricks_func(O_Bg *f)
+static void bg_thin_bricks_func(void)
 {
-	const int16_t x_scroll = f->x_scroll;
-	const int16_t y_scroll = f->y_scroll;
+	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = s_bg.y_scroll;
 	set_v_scroll_plane(y_scroll / 2);
 	set_h_scroll_plane(-x_scroll / 2);
 }
 
-static void (*bg_funcs[])(O_Bg *f) =
+static void (*bg_funcs[])(void) =
 {
 	[0] = NULL,
 	[1] = bg_city_func,
@@ -661,50 +690,36 @@ static void (*bg_funcs[])(O_Bg *f) =
 	[26] = bg_finalboss_func,
 };
 
-static void main_func(Obj *o)
+void bg_poll(void)
 {
 	system_profile(PALRGB(0, 4, 0));
-	O_Bg *f = (O_Bg *)o;
 
-	f->x_scroll = map_get_x_scroll();
-	f->y_scroll = map_get_y_scroll();
+	s_bg.x_scroll = map_get_x_scroll();
+	s_bg.y_scroll = map_get_y_scroll();
 
-	if (f->bg_id < ARRAYSIZE(bg_funcs) && bg_funcs[f->bg_id])
+	if (s_bg.bg_id < ARRAYSIZE(bg_funcs) && bg_funcs[s_bg.bg_id])
 	{
-		bg_funcs[f->bg_id](f);
+		bg_funcs[s_bg.bg_id]();
 	}
 
-	f->last_y_scroll = f->x_scroll;
-	f->last_y_scroll = f->y_scroll;
+	s_bg.last_y_scroll = s_bg.x_scroll;
+	s_bg.last_y_scroll = s_bg.y_scroll;
 
 	md_dma_transfer_vsram(2, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
 	md_dma_transfer_vram(md_vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
 	system_profile(PALRGB(0, 0, 0));
 }
 
-void o_load_bg(Obj *o, uint16_t data)
+void bg_init(void)
 {
-	_Static_assert(sizeof(O_Bg) <= sizeof(ObjSlot),
-	               "Object size exceeds sizeof(ObjSlot)");
-	(void)data;
+	memset(&s_bg, 0, sizeof(s_bg));
 
-	// Only allow one BG object to be loaded.
-	SYSTEM_ASSERT(s_bg == NULL);
-	O_Bg *f = (O_Bg *)o;
-	s_bg = f;
+	s_bg.last_x_scroll = -1;
+	s_bg.last_y_scroll = -1;
 
-	f->last_x_scroll = -1;
-	f->last_y_scroll = -1;
-
-	obj_basic_init(o, "Backgrnd", OBJ_FLAG_ALWAYS_ACTIVE, 0, 0, 0, 1);
-	o->main_func = main_func;
-	o->cube_func = NULL;
-
-	scratch_clear();
-
-	f->bg_id = map_get_background();
-	f->descriptor = &backgrounds[f->bg_id];
-	const BgDescriptor *b = f->descriptor;
+	s_bg.bg_id = map_get_background();
+	s_bg.descriptor = &backgrounds[s_bg.bg_id];
+	const BgDescriptor *b = s_bg.descriptor;
 
 	bg_upload_palette();
 
@@ -746,15 +761,9 @@ void o_load_bg(Obj *o, uint16_t data)
 	md_dma_transfer_vram(md_vdp_get_hscroll_base() + 2, s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 4);
 }
 
-void o_unload_bg(void)
-{
-	s_bg = NULL;
-}
-
 void bg_upload_palette(void)
 {
-	if (!s_bg) return;
-	const BgDescriptor *b = s_bg->descriptor;
+	const BgDescriptor *b = s_bg.descriptor;
 
 	// Load palette.
 	md_pal_upload(BG_COMMON_CRAM_POSITION, res_pal_bg_common_bin,
