@@ -1008,6 +1008,28 @@ static const SfxSample sfx_beep[] =
 	SFX_END()
 };
 
+#define SFXVIB(pitch, e) \
+SFX_P(pitch-20, e), \
+SFX_P(pitch-20, e), \
+SFX_P(pitch, e), \
+SFX_P(pitch, e) \
+
+static const SfxSample sfx_slam[] =
+{
+	SFXVIB(900, 0),
+	SFXVIB(900, 0),
+	SFXVIB(900, 0),
+	SFXVIB(900, 0),
+	SFXVIB(900, 0),
+	SFXVIB(900, 0),
+	SFXVIB(1023, 0),
+	SFXVIB(1023, 0),
+	SFXVIB(1023, 0),
+	SFXVIB(1023, 0),
+	SFXVIB(1023, 0),
+	SFXVIB(1023, 0),
+};
+
 // Sound ID LUT.
 static const SfxSample *stream_by_id[] =
 {
@@ -1044,5 +1066,6 @@ static const SfxSample *stream_by_id[] =
 	[SFX_BEEP] = sfx_beep,
 	[SFX_SELECT_1] = sfx_select_1,
 	[SFX_SELECT_2] = sfx_select_2,
+	[SFX_SLAM] = sfx_slam,
 };
 

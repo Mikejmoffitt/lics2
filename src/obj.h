@@ -27,7 +27,7 @@
 	} \
 }
 
-#define OBJ_COUNT_MAX 32
+#define OBJ_COUNT_MAX 40
 #define OBJ_BYTES 128
 
 #define OBJ_ACTIVE_DISTANCE 16

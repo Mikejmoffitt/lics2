@@ -85,7 +85,7 @@ static void main_func(Obj *o)
 	}
 
 	o->dy += kgravity;
-	obj_standard_physics(o);
+	obj_mixed_physics_h(o);
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_speed);
 
 	// Destruction upon hitting the ground

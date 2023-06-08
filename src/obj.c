@@ -188,7 +188,6 @@ void obj_exec(void)
 		}
 
 		if (o->main_func) o->main_func(o);
-		sfx_poll();
 	}
 }
 

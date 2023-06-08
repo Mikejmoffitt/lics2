@@ -40,35 +40,14 @@ typedef enum SfxId
 	SFX_BEEP,
 	SFX_SELECT_1,
 	SFX_SELECT_2,
+	SFX_SLAM,
 } SfxId;
-
-typedef struct SfxSample
-{
-	int8_t valid;
-	uint16_t pitch;
-	int8_t vol;
-} SfxSample;
-
-typedef struct SfxChannelState
-{
-	SfxId id;
-	const SfxSample *stream;  // NULL if not playing a sample.
-	const SfxSample *stream_base;
-	int8_t channel;  // 0 - 2.
-	int8_t priority;  // 0 = highest priority.
-} SfxChannelState;
 
 // Initializes playback state, sets up horizontal interrupts for timing, and
 // registers a timer interrupt callback (or, rather, an H-blank IRQ).
 void sfx_init(void);
 
-// Services the sound engine. This should be called whenever idle, and ideally
-// frequently. If it is not called often enough, sound effect pacing may become
-// choppy.
-void sfx_poll(void);
-
-void sfx_play(SfxId id, int8_t priority);
-void sfx_play_on_channel(SfxId id, int8_t priority, int8_t channel);
+void sfx_play(SfxId id, uint16_t priority);
 void sfx_stop(SfxId id);
 void sfx_stop_all(void);
 

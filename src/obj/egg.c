@@ -66,7 +66,7 @@ static void main_func(Obj *o)
 
 	if (o->dy > 0)
 	{
-		obj_standard_physics(o);
+		obj_mixed_physics_h(o);
 		o->dy += kgravity;
 
 		if (o->y + o->top > map_get_bottom())

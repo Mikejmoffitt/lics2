@@ -580,6 +580,7 @@ static void main_func(Obj *o)
 					if (e->v_scroll_dy > kbounce_dead_dy)
 					{
 						e->v_scroll_dy = e->v_scroll_dy / -2;
+						sfx_play(SFX_SLAM, 0);
 					}
 					else if (e->v_scroll_dy > 0 &&
 					         e->v_scroll_dy < kbounce_dead_dy)
