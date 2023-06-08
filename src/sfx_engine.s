@@ -49,6 +49,40 @@ env_walk_decay:
 	dc.b	14
 	dc.b	15
 	dc.b	-1
+env_hurt_decay:
+	.rept	15
+	dc.b	0
+	.endr
+	.rept	10
+	dc.b	1
+	.endr
+	.rept	10
+	dc.b	2
+	.endr
+	.rept	10
+	dc.b	4
+	.endr
+	.rept	10
+	dc.b	6
+	.endr
+	dc.b	-1
+env_hurt_decay_reduced:
+	.rept	15
+	dc.b	3
+	.endr
+	.rept	10
+	dc.b	4
+	.endr
+	.rept	10
+	dc.b	5
+	.endr
+	.rept	10
+	dc.b	6
+	.endr
+	.rept	10
+	dc.b	7
+	.endr
+	dc.b	-1
 
 	.align	2
 
@@ -80,49 +114,106 @@ sfx_walk2:
 	dc.w	SFXOP_PERIOD, 0x0A00
 	dc.w	SFXOP_JMP
 	dc.l	sfx_walk_sub
-	
+
+sfx_hurt_sub:
+	dc.w	SFXOP_PERIOD_ADD, -0x200
+	dc.w	SFXOP_SWEEP, 0xA0
+	dc.w	SFXOP_REST, 5
+	dc.w	SFXOP_SWEEP, 80
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_RET
+
+sfx_hurt:
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_decay
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_decay
+	dc.w	SFXOP_PERIOD, 0x0450
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_decay_reduced
+	dc.w	SFXOP_PERIOD, 0x0450
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_END
+
 
 sound_list:
-# 00 SFX_NULL
+# SFX_NULL
 	dc.l	sfx_null
-# 01 SFX_JUMP
+# SFX_JUMP
 	dc.l	sfx_jump
-# 02 SFX_WALK1
-	dc.l	sfx_walk1
-# 02 SFX_WALK2
-	dc.l	sfx_walk2
 # SFX_WALK1
+	dc.l	sfx_walk1
 # SFX_WALK2
+	dc.l	sfx_walk2
 # SFX_HURT
+	dc.l	sfx_hurt
 # SFX_CUBE_LIFT
+	dc.l	sfx_null
 # SFX_CUBE_SPAWN
+	dc.l	sfx_null
 # SFX_CUBE_TOSS
+	dc.l	sfx_null
 # SFX_CUBE_BOUNCE
+	dc.l	sfx_null
 # SFX_CUBE_HIT
+	dc.l	sfx_null
 # SFX_CUBE_FIZZLE
+	dc.l	sfx_null
 # SFX_OBJ_BURST
+	dc.l	sfx_null
 # SFX_OBJ_BURST_HI
+	dc.l	sfx_null
 # SFX_TELEPORT
+	dc.l	sfx_null
 # SFX_TELEPORT_2
+	dc.l	sfx_null
 # SFX_BOINGO_JUMP
+	dc.l	sfx_null
 # SFX_POWERUP_GET
+	dc.l	sfx_null
 # SFX_MAGIBEAR_SHOT
+	dc.l	sfx_null
 # SFX_GAXTER_SHOT
+	dc.l	sfx_null
 # SFX_GAXTER_SHOT_2
+	dc.l	sfx_null
 # SFX_EXPLODE
+	dc.l	sfx_null
 # SFX_ELEVATOR
+	dc.l	sfx_null
 # SFX_ELEVATOR_2
+	dc.l	sfx_null
 # SFX_PAUSE_1
+	dc.l	sfx_null
 # SFX_PAUSE_2
+	dc.l	sfx_null
 # SFX_MOO_1
+	dc.l	sfx_null
 # SFX_MOO_2
+	dc.l	sfx_null
 # SFX_GIVER_1
+	dc.l	sfx_null
 # SFX_GIVER_2
+	dc.l	sfx_null
 # SFX_GIVER_3
+	dc.l	sfx_null
 # SFX_BEEP
+	dc.l	sfx_null
 # SFX_SELECT_1
+	dc.l	sfx_null
 # SFX_SELECT_2
+	dc.l	sfx_null
 # SFX_SLAM
+	dc.l	sfx_null
 
 
 #
@@ -167,7 +258,8 @@ req_search_found:
 	move.w	d0, SFXCHAN_id(a0)
 	add.w	d0, d0
 	add.w	d0, d0
-	lea	sound_list(pc, d0.w), a1
+	lea	sound_list, a1
+	adda.w	d0, a1
 	move.l	(a1), SFXCHAN_head(a0)
 
 	lea	SFXCHAN_stack(a0), a1

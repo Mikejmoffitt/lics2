@@ -17,7 +17,6 @@ void sfx_init(void)
 
 void sfx_play(SfxId id, uint16_t priority)
 {
-	if (id > SFX_WALK2) return;
 	md_sys_di();
 	sfx_engine_play(id, priority);
 	md_sys_ei();
