@@ -652,7 +652,6 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				sfx_play(SFX_TELEPORT, 3);
-				sfx_play(SFX_TELEPORT_2, 3);
 			}
 			if (e->state_elapsed < kvyle_grow_frames)
 			{
@@ -676,7 +675,6 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				sfx_play(SFX_TELEPORT, 3);
-				sfx_play(SFX_TELEPORT_2, 3);
 			}
 			if (e->state_elapsed < kvyle_grow_frames)
 			{
@@ -700,7 +698,6 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				sfx_play(SFX_TELEPORT, 3);
-				sfx_play(SFX_TELEPORT_2, 3);
 			}
 			if (e->state_elapsed < kvyle_grow_frames)
 			{

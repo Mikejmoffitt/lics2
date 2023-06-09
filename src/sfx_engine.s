@@ -4,262 +4,54 @@
 
 	.section	.text
 
-#
-# Envelopes
-#
-env_default:
-	dc.b	0
-	dc.b	-1
-env_decay:
-	.rept	18
-	dc.b	0
-	.endr
-	.rept	8
-	dc.b	1
-	.endr
-	.rept	7
-	dc.b	2
-	.endr
-	.rept	6
-	dc.b	3
-	.endr
-	.rept	5
-	dc.b	4
-	.endr
-	dc.b	-1
-env_walk_decay:
-	dc.b	1
-	dc.b	1
-	dc.b	1
-	dc.b	1
-	dc.b	1
-	dc.b	1
-	dc.b	2
-	dc.b	3
-	dc.b	4
-	dc.b	5
-	dc.b	6
-	dc.b	7
-	dc.b	8
-	dc.b	9
-	dc.b	10
-	dc.b	11
-	dc.b	12
-	dc.b	13
-	dc.b	14
-	dc.b	15
-	dc.b	-1
-env_hurt_decay:
-	.rept	15
-	dc.b	0
-	.endr
-	.rept	10
-	dc.b	1
-	.endr
-	.rept	10
-	dc.b	2
-	.endr
-	.rept	10
-	dc.b	4
-	.endr
-	.rept	10
-	dc.b	6
-	.endr
-	dc.b	-1
-env_hurt_decay_reduced:
-	.rept	15
-	dc.b	3
-	.endr
-	.rept	10
-	dc.b	4
-	.endr
-	.rept	10
-	dc.b	5
-	.endr
-	.rept	10
-	dc.b	6
-	.endr
-	.rept	10
-	dc.b	7
-	.endr
-	dc.b	-1
-
-	.align	2
-
-#
-# Sound effects
-#
-sfx_null:
-	dc.w	SFXOP_END
-
-sfx_jump:
-	dc.w	SFXOP_ENV
-	dc.l	env_decay
-	dc.w	SFXOP_PERIOD, 0x27FF
-	dc.w	SFXOP_SWEEP, -140
-	dc.w	SFXOP_REST, 50
-	dc.w	SFXOP_END
-
-sfx_walk1:
-	dc.w	SFXOP_PERIOD, 0x0870
-
-sfx_walk_sub:
-	dc.w	SFXOP_ENV
-	dc.l	env_walk_decay
-	dc.w	SFXOP_SWEEP, 90
-	dc.w	SFXOP_REST, 80
-	dc.w	SFXOP_END
-
-sfx_walk2:
-	dc.w	SFXOP_PERIOD, 0x0A00
-	dc.w	SFXOP_JMP
-	dc.l	sfx_walk_sub
-
-sfx_hurt_sub:
-	dc.w	SFXOP_PERIOD_ADD, -0x200
-	dc.w	SFXOP_SWEEP, 0xA0
-	dc.w	SFXOP_REST, 5
-	dc.w	SFXOP_SWEEP, 80
-	dc.w	SFXOP_REST, 30
-	dc.w	SFXOP_RET
-
-sfx_hurt:
-	dc.w	SFXOP_ENV
-	dc.l	env_hurt_decay
-	dc.w	SFXOP_PERIOD, 0x0600
-	dc.w	SFXOP_CALL
-	dc.l	sfx_hurt_sub
-
-	dc.w	SFXOP_ENV
-	dc.l	env_hurt_decay
-	dc.w	SFXOP_PERIOD, 0x0450
-	dc.w	SFXOP_CALL
-	dc.l	sfx_hurt_sub
-
-	dc.w	SFXOP_ENV
-	dc.l	env_hurt_decay_reduced
-	dc.w	SFXOP_PERIOD, 0x0450
-	dc.w	SFXOP_CALL
-	dc.l	sfx_hurt_sub
-
-	dc.w	SFXOP_END
-
-
-sound_list:
-# SFX_NULL
-	dc.l	sfx_null
-# SFX_JUMP
-	dc.l	sfx_jump
-# SFX_WALK1
-	dc.l	sfx_walk1
-# SFX_WALK2
-	dc.l	sfx_walk2
-# SFX_HURT
-	dc.l	sfx_hurt
-# SFX_CUBE_LIFT
-	dc.l	sfx_null
-# SFX_CUBE_SPAWN
-	dc.l	sfx_null
-# SFX_CUBE_TOSS
-	dc.l	sfx_null
-# SFX_CUBE_BOUNCE
-	dc.l	sfx_null
-# SFX_CUBE_HIT
-	dc.l	sfx_null
-# SFX_CUBE_FIZZLE
-	dc.l	sfx_null
-# SFX_OBJ_BURST
-	dc.l	sfx_null
-# SFX_OBJ_BURST_HI
-	dc.l	sfx_null
-# SFX_TELEPORT
-	dc.l	sfx_null
-# SFX_TELEPORT_2
-	dc.l	sfx_null
-# SFX_BOINGO_JUMP
-	dc.l	sfx_null
-# SFX_POWERUP_GET
-	dc.l	sfx_null
-# SFX_MAGIBEAR_SHOT
-	dc.l	sfx_null
-# SFX_GAXTER_SHOT
-	dc.l	sfx_null
-# SFX_GAXTER_SHOT_2
-	dc.l	sfx_null
-# SFX_EXPLODE
-	dc.l	sfx_null
-# SFX_ELEVATOR
-	dc.l	sfx_null
-# SFX_ELEVATOR_2
-	dc.l	sfx_null
-# SFX_PAUSE_1
-	dc.l	sfx_null
-# SFX_PAUSE_2
-	dc.l	sfx_null
-# SFX_MOO_1
-	dc.l	sfx_null
-# SFX_MOO_2
-	dc.l	sfx_null
-# SFX_GIVER_1
-	dc.l	sfx_null
-# SFX_GIVER_2
-	dc.l	sfx_null
-# SFX_GIVER_3
-	dc.l	sfx_null
-# SFX_BEEP
-	dc.l	sfx_null
-# SFX_SELECT_1
-	dc.l	sfx_null
-# SFX_SELECT_2
-	dc.l	sfx_null
-# SFX_SLAM
-	dc.l	sfx_null
+	.extern	sfx_engine_sound_list
 
 
 #
 # void sfx_engine_play(uint16_t id, uint16_t prio)
 #
 	.global	sfx_engine_play
-.set	SPID, 4+2
+.set	SPID, 4
 
 # SP - pushed args
 .set	ARG_REQ_ID, SPID+2
 .set	ARG_REQ_PRIO, SPID+(4*1)+2
 
 sfx_engine_play:
-	move.w	d2, -(sp)
+	move.w	ARG_REQ_ID(sp), d0
+	beq	req_abort
+	add.w	d0, d0
+	add.w	d0, d0
+	lea	sfx_engine_sound_list, a1
+	adda.w	d0, a1
+	tst.b	(a1)
+	bpl	req_no_force_channel_3
+# Sound effect specifically wants channel 3 (for noise purposes)
+	lea	SfxChans+SFXCHAN_SIZE*2, a0
+	bra	req_search_found
+
+req_no_force_channel_3:
 # Try to find an open channel.
-	move.w	#0x80, d2  /* Register base. */
 	lea	SfxChans, a0
 	move.w	#SFXCHAN_CHANNEL_COUNT-1, d0
 	move.w	ARG_REQ_PRIO(sp), d1
 req_search_top:
 	tst.w	SFXCHAN_id(a0)
 	beq	req_search_found
-	add.w	#0x20, d2
 	lea	SFXCHAN_SIZE(a0), a0
 	dbf	d0, req_search_top
 # If no open channel, find one to replace by priority.
-	move.w	#0x80, d2  /* Register base. */
 	lea	SfxChans, a0
 	move.w	#SFXCHAN_CHANNEL_COUNT-1, d0
 replace_search_top:
 	cmp.w	SFXCHAN_prio(a0), d1
-	bcc	req_search_found
-	add.w	#0x20, d2
+	bls	req_search_found
 	dbf	d0, replace_search_top
-	move.w	(sp)+, d2
 	rts
 # Register the sound in the channel at a0.
 req_search_found:
 	/* Set ID and head */
-	move.w	ARG_REQ_ID(sp), d0
-	beq	req_abort
-	move.w	d0, SFXCHAN_id(a0)
-	add.w	d0, d0
-	add.w	d0, d0
-	lea	sound_list, a1
-	adda.w	d0, a1
+	move.w	ARG_REQ_ID(sp), SFXCHAN_id(a0)
 	move.l	(a1), SFXCHAN_head(a0)
 
 	lea	SFXCHAN_stack(a0), a1
@@ -269,11 +61,9 @@ req_search_found:
 	moveq	#0, d0
 	move.w	d0, SFXCHAN_rests(a0)
 	move.w	d0, SFXCHAN_sweep(a0)
-	move.l	#env_default, SFXCHAN_env_head(a0)
+	move.l	#sfx_engine_envelope_default, SFXCHAN_env_head(a0)
 	move.w	d1, SFXCHAN_prio(a0)
-	move.w	d2, SFXCHAN_regbase(a0)
 req_abort:
-	move.w	(sp)+, d2
 	rts
 
 
@@ -291,6 +81,15 @@ sfx_engine_init:
 clear_top:
 	move.w	d0, (a0)+
 	dbf	d1, clear_top
+	/* Assign register base values across channels */
+	lea	SfxChans, a0
+	move.w	#0x80, d0  /* register base */
+	move.w	#SFXCHAN_CHANNEL_COUNT-1, d1
+set_regbase_top:
+	move.w	d0, SFXCHAN_regbase(a0)
+	add.w	#0x20, d0
+	lea	SFXCHAN_SIZE(a0), a0
+	dbf	d1, set_regbase_top
 	rts
 
 	add.w	d0, d0
@@ -325,6 +124,9 @@ channel_erase:
 	moveq	#0, d0
 	move.l	d0, SFXCHAN_head(a0)
 	move.w	d0, SFXCHAN_id(a0)
+	move.w	SFXCHAN_regbase(a0), d0
+	ori.w	#0x001F, d0  /* vol and silence */
+	move.b	d0, PSG_BASE
 	rts
 
 
@@ -402,6 +204,8 @@ opcode_jptbl:
 	bra.w	op0a
 	bra.w	op0b
 	bra.w	op0c
+	bra.w	op0d
+	bra.w	op0e
 op00:  /* rest */
 	move.w	(a1)+, SFXCHAN_rests(a0)
 	bra	poll_cycle_complete
@@ -427,13 +231,13 @@ op03:  /* ret */
 	move.l	d1, a1
 	bra	poll_cycle_complete
 op04:  /* loop set */
-	move.w	(a1)+, SFXCHAN_loop_cnt
-	move.l	a1, SFXCHAN_loop_head
+	move.w	(a1)+, SFXCHAN_loop_cnt(a0)
+	move.l	a1, SFXCHAN_loop_head(a0)
 	bra	poll_cycle_complete
 op05:  /* loop end */
 	sub.w	#1, SFXCHAN_loop_cnt(a0)
 	bmi	poll_cycle_complete
-	move.l	SFXCHAN_loop_head, a1
+	move.l	SFXCHAN_loop_head(a0), a1
 	bra	poll_cycle_complete
 op06:  /* env */
 	move.l	(a1)+, SFXCHAN_env_head(a0)
@@ -463,7 +267,12 @@ op0b:  /* period add */
 op0c:  /* jump */
 	move.l	(a1)+, a1
 	bra	poll_cycle_complete
-
+op0d:	/* period save */
+	move.w	SFXCHAN_period(a0), SFXCHAN_period_save(a0)
+	bra	poll_cycle_complete
+op0e:	/* period load */
+	move.w	SFXCHAN_period_save(a0), SFXCHAN_period(a0)
+	bra	poll_cycle_complete
 
 poll_cycle_complete:
 	move.l	a1, SFXCHAN_head(a0)

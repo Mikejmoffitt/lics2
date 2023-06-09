@@ -266,6 +266,11 @@ static inline void cube_do_ground_recoil(Cube *c)
 	// Bounce - about 35% of original dy.
 	c->dy = -FIX16MUL(c->dy, kdy_degrade);
 
+	if (c->dy < kbounce_cutoff)
+	{
+		sfx_play(SFX_CUBE_BOUNCE, 15);
+	}
+
 	// See if the cube should stop moving.
 	if (c->bounce_count <= 0 && c->dx == 0 && c->dy >= kbounce_cutoff)
 	{
@@ -293,9 +298,6 @@ static inline void cube_do_ground_recoil(Cube *c)
 	else c->dx = 0;
 
 	if (c->dx != 0 && c->dy >= kbounce_cutoff) c->dy = 0;
-
-
-	sfx_play(SFX_CUBE_BOUNCE, 15);
 
 }
 

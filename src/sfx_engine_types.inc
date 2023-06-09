@@ -1,3 +1,6 @@
+/* Flag (upper byte of sfx script pointer) */
+.set	SFX_FLAG_CH3,           0x80000000
+
 /* Register defs */
 
 .set	PSG_BASE, 0xC00011
@@ -15,6 +18,8 @@
 .set	SFXOP_NOISE_TONE,       0x0A  /* Sets shorter, periodic noise mode tap. */
 .set	SFXOP_PERIOD_ADD,       0x0B  /* Adds to period */
 .set	SFXOP_JMP,              0x0C  /* Jump */
+.set	SFXOP_PERIOD_SAVE,      0x0D  /* Save copy of current period. */
+.set	SFXOP_PERIOD_LOAD,      0x0E  /* Load copy of current period. */
 
 
 /* Channel structure */
@@ -30,10 +35,10 @@
 .set	SFXCHAN_env_head,       SFXCHAN_sweep+2
 .set	SFXCHAN_sp,             SFXCHAN_env_head+4
 .set	SFXCHAN_stack,          SFXCHAN_sp+4
-.set	SFXCHAN_pad,            SFXCHAN_stack+(4*SFXCHAN_STACK_DEPTH)
+.set	SFXCHAN_period_save,    SFXCHAN_stack+(4*SFXCHAN_STACK_DEPTH)
 
 .set	SFXCHAN_STACK_DEPTH,    8
-.set	SFXCHAN_SIZE,           SFXCHAN_pad+2
+.set	SFXCHAN_SIZE,           SFXCHAN_period_save+2
 
 .set	SFXCHAN_CHANNEL_COUNT,  3
 .set	SFXCHAN_TOTAL_BYTES,    SFXCHAN_SIZE+SFXCHAN_SIZE

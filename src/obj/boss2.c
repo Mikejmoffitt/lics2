@@ -676,7 +676,6 @@ static void main_func(Obj *o)
 					e->anim_cnt = 0;
 					// TODO: stop buzzing sound
 					sfx_play(SFX_TELEPORT, 0);
-					sfx_play(SFX_TELEPORT_2, 1);
 				}
 				else if (e->state_elapsed >= kintro_growth_time)
 				{
@@ -699,7 +698,6 @@ static void main_func(Obj *o)
 					e->anim_frame = 0;
 					e->anim_cnt = 0;
 					sfx_play(SFX_TELEPORT, 0);
-					sfx_play(SFX_TELEPORT_2, 1);
 				}
 				else if (e->state_elapsed >= kintro_growth_time)
 				{
@@ -722,7 +720,6 @@ static void main_func(Obj *o)
 					e->anim_frame = 0;
 					e->anim_cnt = 0;
 					sfx_play(SFX_TELEPORT, 0);
-					sfx_play(SFX_TELEPORT_2, 1);
 				}
 				else if (e->state_elapsed >= kintro_growth_time)
 				{

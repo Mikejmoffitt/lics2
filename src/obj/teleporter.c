@@ -128,7 +128,6 @@ static void main_func(Obj *o)
 			if (l->tele_in_cnt == ktele_sound_trigger)
 			{
 				sfx_play(SFX_TELEPORT, 3);
-				sfx_play(SFX_TELEPORT_2, 3);
 			}
 			if (g_elapsed % 2)
 			{
@@ -148,7 +147,6 @@ static void main_func(Obj *o)
 			l->tele_in_cnt = kanim_len;
 			t->active_cnt = kactive_len;
 			sfx_play(SFX_TELEPORT, 3);
-			sfx_play(SFX_TELEPORT_2, 3);
 		}
 	}
 

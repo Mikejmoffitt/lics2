@@ -77,7 +77,6 @@ static void main_func(Obj *o)
 	if (e->appear_cnt == kappear_frame)
 	{
 		sfx_play(SFX_TELEPORT, 3);
-		sfx_play(SFX_TELEPORT_2, 3);
 		const Obj *title = obj_find_by_type(OBJ_TITLE);
 		// We need the title object to live.
 		if (!title) obj_erase(o);

@@ -1,6 +1,6 @@
 // Required headers
 #include <stdint.h>
-#include "echoblob.h"
+#include "res.h"
 #include "echo.h"
 
 // Z80 addresses
@@ -113,9 +113,9 @@ void echo_init(const void* const* list) {
    // Copy the Echo blob into Z80 RAM
    // No, memcpy() won't do here since we must ensure accesses are byte-sized
    // (memcpy() may not know this and try word or long accesses)
-   const uint8_t *src = echo_blob;
+   const uint8_t *src = res_echo_bin;
    dest = z80_ram;
-   int16_t count = sizeof(echo_blob)-1;
+   int16_t count = sizeof(res_echo_bin)-1;
    while (count-- >= 0)
       *dest++ = *src++;
    

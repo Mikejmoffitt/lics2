@@ -149,7 +149,6 @@ static void main_func(Obj *o)
 			                         kshot_speed, kshot_speed);
 		}
 		sfx_play(SFX_GAXTER_SHOT, 14);
-		sfx_play(SFX_GAXTER_SHOT_2, 40);
 	}
 	else
 	{
