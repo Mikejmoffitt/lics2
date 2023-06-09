@@ -6,7 +6,7 @@
 FILE "..\..\\music\xm\bgm14\bgm14.xm"
 TYPE BGM LOOP
 TEMPO 6
-NOISE 1
+NOISE 0
 FM 5
 PCM 1
 
@@ -16,7 +16,6 @@ FM3 3
 FM4 4
 FM5 5
 PCMC 6
-PSGN 9
 [Instruments]
 1 2
 2 2
@@ -152,16 +151,10 @@ FM2 -2
 FM3 -2
 FM4 -2
 FM5 -2
-PSG1 -50
-PSG2 -50
-PSGN 30
 [Volume]
-FM1 56
-FM2 56
-FM3 56
-FM4 56
-FM5 56
-PSG1 50
-PSG2 50
-PSGN 64
+FM1 45
+FM2 45
+FM3 45
+FM4 45
+FM5 45
 [END]

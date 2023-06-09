@@ -182,9 +182,7 @@ static void main_func(Obj *o)
 		case CP_GIVER_STATE_TAKING:
 			if (e->state_elapsed == 0)
 			{
-				sfx_play(SFX_GIVER_1, 5);
-				sfx_play(SFX_GIVER_2, 6);
-				sfx_play(SFX_GIVER_3, 7);
+				sfx_play(SFX_GIVER, 5);
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 			e->metaframe = 1 + e->anim_frame;
@@ -196,9 +194,7 @@ static void main_func(Obj *o)
 				e->orb_flicker_cnt = 0;
 				e->orb_anim_cnt = 0;
 				e->orb_anim_frame = 0;
-				sfx_play(SFX_GIVER_1, 1);
-				sfx_play(SFX_GIVER_2, 2);
-				sfx_play(SFX_GIVER_3, 3);
+				sfx_play(SFX_GIVER, 1);
 			}
 			else if (e->state_elapsed > ktake_orb_rise_time)
 			{

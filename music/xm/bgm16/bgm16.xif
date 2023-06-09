@@ -4,7 +4,7 @@ FILE "..\..\\music\xm\bgm16\bgm16.xm"
 
 TYPE BGM LOOP
 TEMPO 6
-NOISE 1
+NOISE 0
 FM 5
 PCM 1
 
@@ -14,7 +14,6 @@ FM3 3
 FM4 4
 FM4 5
 PCMC 6
-PSGN 7
 
 [Instruments]
 1 4
@@ -151,12 +150,10 @@ FM2 -5
 FM3 -5
 FM4 -5
 FM5 -5
-PSGN 0
 [Volume]
-FM1 50
-FM2 50
-FM3 50
-FM4 50
-FM5 50
-PSGN 64
+FM1 40
+FM2 40
+FM3 40
+FM4 40
+FM5 40
 [END]

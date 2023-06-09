@@ -7,7 +7,7 @@ FILE "..\..\\music\xm\bgm1\bgm1.xm"
 TYPE BGM LOOP
 TEMPO 4
 PSG 0
-NOISE 1
+NOISE 0
 FM 5
 PCM 1
 FM1 1
@@ -16,7 +16,6 @@ FM3 3
 FM4 4
 FM5 5
 PCMC 6
-PSGN 7
 [Instruments]
 1 0
 2 0
@@ -152,12 +151,10 @@ FM2 0
 FM3 0
 FM4 0
 FM5 0
-PSGN 30
 [Volume]
-FM1 50
-FM2 50
-FM3 50
-FM4 50
-FM5 50
-PSGN 64
+FM1 40
+FM2 40
+FM3 40
+FM4 40
+FM5 40
 [END]

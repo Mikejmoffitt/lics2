@@ -184,6 +184,13 @@ env_scratchy:
 	dc.b	15
 	dc.b	-1
 
+env_pausenote:
+	dc.b	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 10, 15
+	dc.b	-1
+env_pausenote_quiet:
+	dc.b	5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 8, 8, 9, 9, 10,10,11,11,12,12,13,14,15
+	dc.b	-1
+
 .align	2
 
 #
@@ -330,7 +337,7 @@ sfx_cube_hit_sub:
 	dc.w	SFXOP_PERIOD_LOAD
 	dc.w	SFXOP_SWEEP, 140
 	dc.w	SFXOP_REST, 5
-	dc.w	SFXOP_NOISE_VOL, 15
+#	dc.w	SFXOP_NOISE_VOL, 15
 	dc.w	SFXOP_REST, 40
 	dc.w	SFXOP_RET
 
@@ -340,8 +347,8 @@ sfx_cube_hit:
 	dc.w	SFXOP_ENV
 	dc.l	env_att0
 
-	dc.w	SFXOP_NOISE_TONE, 0x04
-	dc.w	SFXOP_NOISE_VOL, 0
+#	dc.w	SFXOP_NOISE_TONE, 0x04
+#	dc.w	SFXOP_NOISE_VOL, 0
 	dc.w	SFXOP_CALL
 	dc.l	sfx_cube_hit_sub
 
@@ -398,18 +405,18 @@ sfx_obj_burst_hi:
 	dc.w	SFXOP_ENV
 	dc.l	env_att0
 
-	dc.w	SFXOP_SWEEP, 222
+	dc.w	SFXOP_SWEEP, 111
 	dc.w	SFXOP_REST, 32
 
 	dc.w	SFXOP_PERIOD, 0x0F00/2
-	dc.w	SFXOP_SWEEP, 50
+	dc.w	SFXOP_SWEEP, 25
 	dc.w	SFXOP_REST, 56
 
 	dc.w	SFXOP_ENV
 	dc.l	env_att6
 
 	dc.w	SFXOP_PERIOD, 0x0F00/2
-	dc.w	SFXOP_SWEEP, 50
+	dc.w	SFXOP_SWEEP, 25
 	dc.w	SFXOP_REST, 56
 	dc.w	SFXOP_END
 
@@ -520,33 +527,171 @@ sfx_gaxter_shot:
 	dc.w	SFXOP_END
 
 sfx_explode:
-	dc.w	SFXOP_NOISE_TONE, 0x06
+	dc.w	SFXOP_NOISE_TONE, 0x07
 	dc.w	SFXOP_NOISE_VOL, 0
 	dc.w	SFXOP_ENV
-	dc.l	env_att0
-	dc.w	SFXOP_PERIOD, 0x3000
-	dc.w	SFXOP_SWEEP, 140
-	dc.w	SFXOP_REST, 14
-
-	dc.w	SFXOP_ENV
-	dc.l	env_att15
+	dc.l	env_att13
+	dc.w	SFXOP_PERIOD, 0x300
+	dc.w	SFXOP_SWEEP, 60
+	dc.w	SFXOP_REST, 17
 	dc.w	SFXOP_NOISE_VOL, 15
-	dc.w	SFXOP_REST, 6
+	dc.w	SFXOP_REST, 5
 
-	dc.w	SFXOP_NOISE_TONE, 0x06
 	dc.w	SFXOP_NOISE_VOL, 0
-	dc.w	SFXOP_ENV
-	dc.l	env_att0
-	dc.w	SFXOP_PERIOD, 0x1400
-	dc.w	SFXOP_SWEEP, 170
-	dc.w	SFXOP_REST, 20
-	dc.w	SFXOP_NOISE_VOL, 1
-	dc.w	SFXOP_REST, 20
-	dc.w	SFXOP_NOISE_VOL, 2
-	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_PERIOD, 0x080
+	dc.w	SFXOP_REST, 50
+
+	dc.w	SFXOP_PERIOD_SAVE
+	dc.w	SFXOP_REST, 50
+	dc.w	SFXOP_NOISE_VOL, 4
+	dc.w	SFXOP_PERIOD_LOAD
+	dc.w	SFXOP_REST, 50
 
 	dc.w	SFXOP_NOISE_VOL, 15
 	dc.w	SFXOP_END
+
+sfx_elevator:
+	dc.w	SFXOP_PERIOD, 0x3D00
+	dc.w	SFXOP_ENV
+	dc.l	env_att2
+sfx_elevator_forever:
+	dc.w	SFXOP_SWEEP, 4
+	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_SWEEP, -4
+	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_JMP
+	dc.l	sfx_elevator_forever
+
+sfx_elevator_2:
+	dc.w	SFXOP_PERIOD, 0x3C40
+	dc.w	SFXOP_ENV
+	dc.l	env_att2
+	dc.w	SFXOP_JMP
+	dc.l	sfx_elevator_forever
+
+.set	PAUSE_NOTE_LEN, 23
+
+sfx_pause:
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x0E20
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x1680/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x12E0/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x0E20/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN*2
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote_quiet
+	dc.w	SFXOP_PERIOD, 0x0E20/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+	dc.w	SFXOP_END
+
+sfx_pause2:
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x1680
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x12E0
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x0E20
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote
+	dc.w	SFXOP_PERIOD, 0x1680/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN*2
+
+	dc.w	SFXOP_ENV
+	dc.l	env_pausenote_quiet
+	dc.w	SFXOP_PERIOD, 0x1680/2
+	dc.w	SFXOP_REST, PAUSE_NOTE_LEN
+	dc.w	SFXOP_END
+
+sfx_giver:
+	dc.w	SFXOP_ENV
+	dc.l	env_att14
+	dc.w	SFXOP_NOISE_TONE, 0x03
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_SWEEP, -6
+	dc.w	SFXOP_REST, 0x100
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
+sfx_beep:
+	dc.w	SFXOP_ENV
+	dc.l	env_att14
+	dc.w	SFXOP_NOISE_TONE, 0x03
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x200
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x200/2
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x200
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x200/2
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
+
+
+
+	dc.w	SFXOP_ENV
+	dc.l	env_att0
+	dc.w	SFXOP_PERIOD, 0x17D0/2
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x17D0/4
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x17D0/2
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_PERIOD, 0x17D0/4
+	dc.w	SFXOP_REST, 3*4
+	dc.w	SFXOP_END
+
+.set	SELSOUND_NOTE_LEN, 20
+
+sfx_select:
+	dc.w	SFXOP_ENV
+	dc.l	env_att14
+	dc.w	SFXOP_NOISE_TONE, 0x03
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x01C0*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN
+	dc.w	SFXOP_PERIOD, 0x0180*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN
+	dc.w	SFXOP_PERIOD, 0x0130*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN
+	dc.w	SFXOP_PERIOD, 0x0100*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN*2
+	dc.w	SFXOP_NOISE_VOL, 4
+	dc.w	SFXOP_PERIOD, 0x0180*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN
+	dc.w	SFXOP_PERIOD, 0x0130*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN
+	dc.w	SFXOP_PERIOD, 0x0100*2
+	dc.w	SFXOP_REST, SELSOUND_NOTE_LEN*2
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
 
 
 sfx_engine_sound_list:
@@ -591,29 +736,29 @@ sfx_engine_sound_list:
 # free
 	dc.l	sfx_null
 # SFX_EXPLODE
-	dc.l	sfx_explode
+	dc.l	sfx_explode + SFX_FLAG_CH3
 # SFX_ELEVATOR
-	dc.l	sfx_null
+	dc.l	sfx_elevator
 # SFX_ELEVATOR_2
-	dc.l	sfx_null
+	dc.l	sfx_elevator_2
 # SFX_PAUSE_1
-	dc.l	sfx_null
+	dc.l	sfx_pause
 # SFX_PAUSE_2
-	dc.l	sfx_null
+	dc.l	sfx_pause2
 # SFX_MOO_1
 	dc.l	sfx_null
 # SFX_MOO_2
 	dc.l	sfx_null
-# SFX_GIVER_1
+# SFX_GIVER
+	dc.l	sfx_giver + SFX_FLAG_CH3
+# free
 	dc.l	sfx_null
-# SFX_GIVER_2
-	dc.l	sfx_null
-# SFX_GIVER_3
+# free
 	dc.l	sfx_null
 # SFX_BEEP
-	dc.l	sfx_null
+	dc.l	sfx_beep + SFX_FLAG_CH3
 # SFX_SELECT_1
-	dc.l	sfx_null
+	dc.l	sfx_select + SFX_FLAG_CH3
 # SFX_SELECT_2
 	dc.l	sfx_null
 # SFX_SLAM
