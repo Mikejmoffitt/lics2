@@ -589,6 +589,7 @@ static void main_func(Obj *o)
 						e->state = TITLE_STATE_CUTSCENE;
 						e->v_scroll_y = kfloor_pos;
 						wndwback_set_visible(1);
+						sfx_play(SFX_SLAM, 0);
 					}
 				}
 			}
@@ -715,8 +716,7 @@ static void main_func(Obj *o)
 					persistent_state_init();
 				}
 				e->state = TITLE_STATE_BEGIN;
-				sfx_play(SFX_SELECT_1, 0);
-				sfx_play(SFX_SELECT_2, 0);
+				sfx_play(SFX_SELECT, 0);
 			}
 			
 			if (e->state_elapsed >= 1)

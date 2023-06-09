@@ -38,8 +38,8 @@ typedef enum SfxId
 	SFX_FREE2,
 	SFX_FREE3,
 	SFX_BEEP,
-	SFX_SELECT_1,
-	SFX_SELECT_2,
+	SFX_SELECT,
+	SFX_FREE4,
 	SFX_SLAM,
 } SfxId;
 

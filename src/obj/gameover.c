@@ -211,7 +211,7 @@ static void main_func(Obj *o)
 				e->state = GAMEOVER_CUBE_BOUNCE;
 				l->anim_frame = 0x15;
 				l->head.x -= INTTOFIX32(3);
-				// TODO: Play crash sound
+				sfx_play(SFX_SLAM, 0);
 			}
 			break;
 
@@ -254,8 +254,7 @@ static void main_func(Obj *o)
 				    !(e->buttons_prev & (LYLE_BTN_JUMP | LYLE_BTN_START)))
 				{
 					e->choose_cnt = 1;
-					sfx_play(SFX_SELECT_1, 0);
-					sfx_play(SFX_SELECT_2, 0);
+					sfx_play(SFX_SELECT, 0);
 				}
 			}
 			else

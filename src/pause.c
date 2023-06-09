@@ -835,8 +835,7 @@ static void maybe_dismiss(LyleBtn buttons, int16_t min_delay)
 
 	if (s_pause.select_delay_cnt == 0 && (buttons & kbutton_mask) && !(s_pause.buttons_prev & kbutton_mask))
 	{
-		sfx_play(SFX_SELECT_1, 0);
-		sfx_play(SFX_SELECT_2, 0);
+		sfx_play(SFX_SELECT, 0);
 		s_pause.select_delay_cnt = 1;
 	}
 }
@@ -1675,8 +1674,7 @@ static void pause_menu_logic(LyleBtn buttons)
 		if ((buttons & (LYLE_BTN_JUMP | LYLE_BTN_START) && !(s_pause.buttons_prev & (LYLE_BTN_JUMP | LYLE_BTN_START))))
 		{
 			s_pause.pause_select_cnt = kselect_delay_frames;
-			sfx_play(SFX_SELECT_1, 0);
-			sfx_play(SFX_SELECT_2, 0);
+			sfx_play(SFX_SELECT, 0);
 		}
 	}
 	else

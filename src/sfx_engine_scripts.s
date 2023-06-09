@@ -692,9 +692,24 @@ sfx_select:
 	dc.w	SFXOP_NOISE_VOL, 15
 	dc.w	SFXOP_END
 
+sfx_slam:
+	dc.w	SFXOP_NOISE_TONE, 0x07
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_ENV
+	dc.l	env_att13
+	dc.w	SFXOP_PERIOD, 0x100
+	dc.w	SFXOP_SWEEP, 60
+	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_REST, 10
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x100
+	dc.w	SFXOP_SWEEP, 100
+	dc.w	SFXOP_REST, 120
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
 
-
-sfx_engine_sound_list:
+	sfx_engine_sound_list:
 # SFX_NULL
 	dc.l	sfx_null
 # SFX_JUMP
@@ -757,9 +772,9 @@ sfx_engine_sound_list:
 	dc.l	sfx_null
 # SFX_BEEP
 	dc.l	sfx_beep + SFX_FLAG_CH3
-# SFX_SELECT_1
+# SFX_SELECT
 	dc.l	sfx_select + SFX_FLAG_CH3
-# SFX_SELECT_2
+# free
 	dc.l	sfx_null
 # SFX_SLAM
-	dc.l	sfx_null
+	dc.l	sfx_slam + SFX_FLAG_CH3

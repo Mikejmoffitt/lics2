@@ -273,7 +273,7 @@ static void main_func(Obj *o)
 				e->state = BOSS1_STATE_SHAKE_DELAY;
 				e->drop.shaking = 1;
 				e->metaframe = 0;
-				// TODO: play loud crash sound
+				sfx_play(SFX_SLAM, 5);
 			}
 			break;
 
@@ -317,12 +317,14 @@ static void main_func(Obj *o)
 			}
 			if (o->dx > 0 && o->x > max_x)
 			{
+				sfx_play(SFX_SLAM, 5);
 				o->dx = 0;
 				o->x = max_x;
 				e->state = BOSS1_STATE_RECOIL;
 			}
 			else if (o->dx < 0 && o->x < min_x)
 			{
+				sfx_play(SFX_SLAM, 5);
 				o->dx = 0;
 				o->x = min_x;
 				e->state = BOSS1_STATE_RECOIL;

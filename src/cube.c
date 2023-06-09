@@ -89,7 +89,6 @@ void cube_destroy(Cube *c)
 
 	if (c->type >= CUBE_TYPE_YELLOW_HPUP)
 	{
-		sfx_play(SFX_CUBE_FIZZLE, 14);
 		switch (c->type)
 		{
 			case CUBE_TYPE_YELLOW_HPUP:

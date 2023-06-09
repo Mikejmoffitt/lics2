@@ -806,6 +806,7 @@ static void main_func(Obj *o)
 			if (vyle2_jump_midair_logic(e, e->jump_count >= 6))
 			{
 				e->state = VYLE2_STATE_LAND;
+				sfx_play(SFX_SLAM, 5);
 			}
 			break;
 
@@ -873,6 +874,7 @@ static void main_func(Obj *o)
 			}
 			if (vyle2_jump_midair_logic(e, true))
 			{
+				sfx_play(SFX_SLAM, 5);
 				e->state = VYLE2_STATE_EDGE_LAND;
 			}
 			break;
@@ -1045,6 +1047,7 @@ static void main_func(Obj *o)
 			}
 			if (vyle2_jump_midair_logic(e, true))
 			{
+				sfx_play(SFX_SLAM, 5);
 				e->state = VYLE2_STATE_CENTER_LAND;
 			}
 			break;
@@ -1134,6 +1137,7 @@ static void main_func(Obj *o)
 					e->head.dy = 0;
 					e->jump_count = 0;
 					e->state = VYLE2_STATE_LAND;
+					sfx_play(SFX_SLAM, 5);
 				}
 				else
 				{
