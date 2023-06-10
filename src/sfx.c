@@ -9,7 +9,7 @@ void sfx_init(void)
 {
 	sfx_engine_init();
 
-	md_irq_register_unsafe(MD_IRQ_HBLANK, sfx_engine_irq_handler);
+	md_irq_register(MD_IRQ_HBLANK, sfx_engine_irq_handler);
 	md_vdp_set_hint_line(system_is_ntsc() ? 220 / 5 : 220 / 6);
 	md_vdp_set_hint_en(1);
 
