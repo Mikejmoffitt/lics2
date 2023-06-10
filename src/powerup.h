@@ -2,7 +2,9 @@
 #define POWERUP_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "util/fixed.h"
+#include "vram_map.h"
 
 #define POWERUP_LIST_SIZE 8
 
@@ -39,15 +41,18 @@ typedef struct Powerup
 
 extern Powerup g_powerups[POWERUP_LIST_SIZE];
 
-void powerup_load(void);
+void powerup_init(void);
 // TODO: Maybe split poll and render
 void powerup_poll(void);
 
 void powerup_clear(void);
 Powerup *powerup_spawn(fix32_t x, fix32_t y, PowerupType type, int8_t orb_id);
 void powerup_bounce(Powerup *p);
-uint16_t powerup_get_vram_pos(void);
+static inline uint16_t powerup_get_vram_pos(void)
+{
+	return POWERUP_VRAM_POSITION / 32;
+}
 
-void powerup_set_hibernate(uint16_t en);
+void powerup_set_hibernate(bool en);
 
 #endif  // POWERUP_H

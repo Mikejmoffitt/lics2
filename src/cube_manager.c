@@ -8,25 +8,14 @@
 #include "util/fixed.h"
 #include "cube.h"
 
-uint16_t g_cube_vram_pos;
-static uint16_t s_vram_pos;
+Cube g_cubes[CUBE_COUNT_MAX];
 
 static uint8_t phantom_anim_counter;
 uint8_t g_cube_phantom_anim_frame;
 static uint8_t kphantom_anim_counter_max;
-
-Cube g_cubes[CUBE_COUNT_MAX];
-
 static bool s_hibernate;
 
 SprParam g_cube_spr;
-
-static void vram_load(void)
-{
-	const Gfx *g = gfx_get(GFX_CUBES);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
-	g_cube_vram_pos = s_vram_pos;
-}
 
 void cube_manager_set_hibernate(bool hibernate)
 {
@@ -60,8 +49,6 @@ void cube_manager_init(void)
 	g_cube_phantom_anim_frame = 0;
 
 	cube_set_constants();
-
-	vram_load();
 
 	cube_manager_set_hibernate(false);
 

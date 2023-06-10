@@ -33,7 +33,7 @@ static void draw_to_bg(O_FakeCube *e)
 {
 	if (e->tile_state)
 	{
-		const uint16_t attr = VDP_ATTR(g_cube_vram_pos,
+		const uint16_t attr = VDP_ATTR(CUBE_VRAM_POSITION/32,
 		                               0, 0, BG_PAL_LINE, 0);
 		md_vdp_poke(e->tile_vram_addr, attr);
 		md_vdp_poke(e->tile_vram_addr + 2, attr + 2);

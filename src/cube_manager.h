@@ -14,8 +14,9 @@
 
 #define CUBE_COUNT_MAX 32
 
+#define CUBE_VRAM_TILE (CUBE_VRAM_POSITION / 32)
+
 extern Cube g_cubes[CUBE_COUNT_MAX];
-extern uint16_t g_cube_vram_pos;
 extern uint8_t g_cube_phantom_anim_frame;
 
 extern SprParam g_cube_spr;
@@ -34,34 +35,34 @@ static inline void cube_manager_draw_cube(int16_t x, int16_t y, CubeType type)
 	{
 		case CUBE_TYPE_GREENBLUE:
 		case CUBE_TYPE_BLUE:
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE, 0, 0, BG_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_RED:
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 8, 0, 0, LYLE_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 8, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 
 		case CUBE_TYPE_GREEN:
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 12, 0, 0, LYLE_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 12, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_PHANTOM:
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 16 +
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 16 +
 			                           (4 * g_cube_phantom_anim_frame),
 			        0, 0, LYLE_PAL_LINE, 0);
 			break;
 		default: // Handle all yellow variants with the default label.
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 4, 0, 0, LYLE_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 4, 0, 0, LYLE_PAL_LINE, 0);
 			break;
 		case CUBE_TYPE_ORANGE:
 			g_cube_spr.size = SPR_SIZE(4, 4);
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 52, 0, 0, LYLE_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 52, 0, 0, LYLE_PAL_LINE, 0);
 			md_spr_put_st(&g_cube_spr);
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 32, 0, 0, BG_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 32, 0, 0, BG_PAL_LINE, 0);
 			md_spr_put_st(&g_cube_spr);
 			g_cube_spr.size = SPR_SIZE(2, 2);
 			return;
 
 		case CUBE_TYPE_SPAWNER:
-			g_cube_spr.attr = SPR_ATTR(g_cube_vram_pos + 48, 0, 0, BG_PAL_LINE, 0);
+			g_cube_spr.attr = SPR_ATTR(CUBE_VRAM_TILE + 48, 0, 0, BG_PAL_LINE, 0);
 			break;
 	}
 	md_spr_put_st(&g_cube_spr);

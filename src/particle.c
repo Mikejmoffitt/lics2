@@ -14,7 +14,7 @@
 
 static Particle s_particles[16];
 
-static uint16_t s_vram_pos;
+#define PARTICLE_VRAM_TILE (PARTICLE_VRAM_POSITION / 32)
 
 static int16_t ksparkle_life;
 static int16_t kfizzle_life;
@@ -95,17 +95,17 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			goto delete_particle;
 		case PARTICLE_TYPE_SPARKLE:
 			animate(p, kanim_speed);
-			p->spr.attr = SPR_ATTR(s_vram_pos + sparkle_anim[p->anim_frame],
+			p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + sparkle_anim[p->anim_frame],
 			                       0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLE:
 			animate(p, kanim_speed);
-			p->spr.attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame],
+			p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + fizzle_anim[p->anim_frame],
 			                       0, 0, BG_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_FIZZLERED:
 			animate(p, kanim_speed);
-			p->spr.attr = SPR_ATTR(s_vram_pos + fizzle_anim[p->anim_frame] + 16,
+			p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + fizzle_anim[p->anim_frame] + 16,
 			                       0, 0, LYLE_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_EXPLOSION:
@@ -114,7 +114,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			{
 				px -= 12;
 				py -= 12;
-				p->spr.attr = SPR_ATTR(s_vram_pos + 52,
+				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 52,
 				                       0, 0, LYLE_PAL_LINE, 1);
 				p->spr.size = SPR_SIZE(3, 3);
 			}
@@ -122,7 +122,7 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			{
 				px -= 8;
 				py -= 8;
-				p->spr.attr = SPR_ATTR(s_vram_pos + 48,
+				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 48,
 				                       0, 0, LYLE_PAL_LINE, 1);
 				p->spr.size = SPR_SIZE(2, 2);
 			}
@@ -130,14 +130,14 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 			{
 				px -= 16;
 				py -= 16;
-				p->spr.attr = SPR_ATTR(s_vram_pos + 61,
+				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 61,
 				                       0, 0, LYLE_PAL_LINE, 1);
 				p->spr.size = SPR_SIZE(4, 4);
 			}
 			break;
 		case PARTICLE_TYPE_SAND:
 			animate(p, kanim_speed_sand);
-			p->spr.attr = SPR_ATTR(s_vram_pos + sand_anim[p->anim_frame],
+			p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + sand_anim[p->anim_frame],
 			                       0, 0, LYLE_PAL_LINE, 1);
 			break;
 		case PARTICLE_TYPE_CRUMBLY:
@@ -169,13 +169,11 @@ void particle_poll(void)
 	}
 }
 
-void particle_load(void)
+void particle_init(void)
 {
 	s_hibernate = false;
 
 	set_constants();
-	const Gfx *g = gfx_get(GFX_SYS_PARTICLE);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
 	particle_clear();
 }

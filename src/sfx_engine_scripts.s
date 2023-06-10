@@ -678,7 +678,7 @@ sfx_giver:
 
 sfx_beep:
 	dc.w	SFXOP_ENV
-	dc.l	env_att14
+	dc.l	env_att15
 	dc.w	SFXOP_NOISE_TONE, 0x03
 	dc.w	SFXOP_NOISE_VOL, 0
 	dc.w	SFXOP_PERIOD, 0x200
@@ -711,7 +711,7 @@ sfx_beep:
 
 sfx_select:
 	dc.w	SFXOP_ENV
-	dc.l	env_att14
+	dc.l	env_att15
 	dc.w	SFXOP_NOISE_TONE, 0x03
 	dc.w	SFXOP_NOISE_VOL, 0
 	dc.w	SFXOP_PERIOD, 0x01C0*2

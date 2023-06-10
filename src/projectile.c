@@ -16,6 +16,8 @@
 
 #define PROJECTILE_MARGIN INTTOFIX32(3)
 
+#define PROJECTILE_VRAM_TILE (PROJECTILE_VRAM_POSITION / 32)
+
 static Projectile s_projectiles[10];
 
 static int16_t kparticle_rate;
@@ -33,9 +35,7 @@ static int16_t s_flicker_cnt;
 static int8_t s_flicker_2f_anim;
 static int8_t s_flicker_4f_anim;
 
-static uint16_t s_hibernate;
-
-static uint16_t s_vram_pos;
+static bool s_hibernate;
 
 static void set_constants(void)
 {
@@ -55,7 +55,7 @@ static void set_constants(void)
 	kdeathorb_ddy = INTTOFIX16(PALSCALE_2ND(0.194444444448));
 	kdeathorb2_ddy = INTTOFIX16(PALSCALE_2ND(0.17361111111113));
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void projectile_render(Projectile *p)
@@ -116,7 +116,7 @@ static inline void projectile_render(Projectile *p)
 			break;
 	}
 
-	md_spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, xflip, 0, pal, 0), size);
+	md_spr_put(tx, ty, SPR_ATTR(PROJECTILE_VRAM_TILE + tile_offset, xflip, 0, pal, 0), size);
 }
 
 static inline int16_t basic_collision(Projectile *p)
@@ -304,11 +304,9 @@ void projectile_poll(void)
 	}
 }
 
-void projectile_load(void)
+void projectile_init(void)
 {
 	set_constants();
-	const Gfx *g = gfx_get(GFX_SYS_PROJECTILE);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
 	projectile_clear();
 }
@@ -367,7 +365,7 @@ Projectile *projectile_shoot_at(fix32_t x, fix32_t y,
 	return projectile_shoot_angle(x, y, type, trig_atan(delta_y, delta_x), speed);
 }
 
-void projectile_set_hibernate(uint16_t en)
+void projectile_set_hibernate(bool en)
 {
 	s_hibernate = en;
 }

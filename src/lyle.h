@@ -57,12 +57,12 @@ typedef struct O_Lyle
 } O_Lyle;
 
 // TODO: Params for persistent state
-void lyle_load(void);
+void lyle_init(void);
 void lyle_poll(void);
 
 O_Lyle *lyle_get(void);
 
-uint16_t lyle_touching_obj(Obj *o);
+bool lyle_touching_obj(Obj *o);
 
 void lyle_get_bounced(void);
 void lyle_get_hurt(bool bypass_invuln);
@@ -85,6 +85,6 @@ void lyle_set_anim_frame(int8_t frame);
 
 void lyle_upload_palette(void);
 
-void lyle_set_hibernate(uint16_t en);
+void lyle_set_hibernate(bool en);
 
 #endif  // OBJ_LYLE_H

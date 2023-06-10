@@ -3,6 +3,7 @@
 
 #include "obj.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include "md/megadrive.h"
 
@@ -27,7 +28,7 @@ struct Projectile
 	int16_t frames_alive;
 } __attribute__((aligned(16)));
 
-void projectile_load(void);
+void projectile_init(void);
 void projectile_poll(void);
 void projectile_clear(void);
 Projectile *projectile_shoot(fix32_t x, fix32_t y, ProjectileType type,
@@ -38,6 +39,6 @@ Projectile *projectile_shoot_at(fix32_t x, fix32_t y,
                                 ProjectileType type,
                                 fix32_t tx, fix32_t ty, fix16_t speed);
 
-void projectile_set_hibernate(uint16_t en);
+void projectile_set_hibernate(bool en);
 
 #endif  // PROJECTILE_H

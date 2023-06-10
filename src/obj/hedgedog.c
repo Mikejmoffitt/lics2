@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 #include "lyle.h"
 #include "projectile.h"
@@ -160,6 +161,8 @@ static void main_func(Obj *o)
 					                               DEGTOUINT8(180 + 67.5),
 					                               kshot_speed);
 				}
+
+				sfx_play(SFX_GAXTER_SHOT, 1);
 			}
 
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kair_anim_delay);

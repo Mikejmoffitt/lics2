@@ -208,6 +208,7 @@ void obj_clear(void)
 	}
 
 	obj_vram_pos = OBJ_TILE_VRAM_POSITION;
+	md_dma_fill_vram(OBJ_TILE_VRAM_POSITION, 0, OBJ_TILE_VRAM_LENGTH, 1);
 }
 
 Obj *obj_spawn(int16_t x, int16_t y, ObjType type, uint16_t data)

@@ -7,8 +7,15 @@
 
 static const Gfx gfx[] =
 {
-	[GFX_CUBES] = GFX(obj_129_cubes),
-	[GFX_PAUSE] = GFX(obj_137_pause),
+	[GFX_SYS_CUBES] = GFX(sys_cubes),
+	[GFX_SYS_PAUSE] = GFX(sys_pause),
+	[GFX_SYS_LYLE] = GFX(sys_lyle),
+	[GFX_SYS_HUD] = GFX(sys_hud),
+	[GFX_SYS_POWERUP] = GFX(sys_powerup),
+	[GFX_SYS_PROJECTILE] = GFX(sys_projectile),
+	[GFX_SYS_PARTICLE] = GFX(sys_particle),
+	[GFX_SYS_KANA_FONT] = GFX(sys_kana_font),
+
 	[GFX_TEMPLATE] = GFX(obj_255_template),
 
 	[GFX_METAGRUB] = GFX(obj_3_metagrub),
@@ -69,12 +76,6 @@ static const Gfx gfx[] =
 	[GFX_TITLE_SCR] = GFX(obj_126_title_scr),
 	[GFX_BOGOLOGO] = GFX(obj_127_bogologo),
 
-	[GFX_SYS_LYLE] = GFX(sys_lyle),
-	[GFX_SYS_HUD] = GFX(sys_hud),
-	[GFX_SYS_POWERUP] = GFX(sys_powerup),
-	[GFX_SYS_PROJECTILE] = GFX(sys_projectile),
-	[GFX_SYS_PARTICLE] = GFX(sys_particle),
-
 	[GFX_EX_CREDITS] = GFX(ex_credits),
 	[GFX_EX_KEDDUMS_INTRO] = GFX(ex_keddums_intro),
 	[GFX_EX_CLOAKDUDE] = GFX(ex_cloakdude),
@@ -84,7 +85,6 @@ static const Gfx gfx[] =
 	[GFX_EX_TECHNOBGV] = GFX(ex_technobgv),
 	[GFX_EX_CITYBG] = GFX(ex_citybg),
 	[GFX_EX_TITLE_MENU] = GFX(ex_title_menu),
-	[GFX_EX_KANA_FONT] = GFX(ex_kana_font),
 	[GFX_EX_VYLE2_GROUND] = GFX(ex_vyle2_ground),
 	[GFX_EX_PWAVE_MARQUEE] = GFX(ex_pwave_marquee),
 	[GFX_EX_PWAVE_SCREENBACK] = GFX(ex_pwave_screenback),

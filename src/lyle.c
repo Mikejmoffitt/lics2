@@ -21,6 +21,8 @@
 
 #include "res.h"
 
+#define LYLE_VRAM_TILE (LYLE_VRAM_POSITION / 32)
+
 // Access for Lyle singleton.
 static O_Lyle s_lyle;
 
@@ -97,7 +99,7 @@ static int16_t ktele_anim;
 
 static void set_constants(void)
 {
-	static int16_t s_constants_set = 0;
+	static bool s_constants_set = false;
 	if (s_constants_set) return;
 
 	kdx_max = INTTOFIX16(PALSCALE_1ST(1.41666666667));
@@ -147,10 +149,8 @@ static void set_constants(void)
 	kdead_anim_speed = PALSCALE_DURATION(6);
 	ktele_anim = PALSCALE_DURATION(75);  // was 75 : 62
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
-
-static uint16_t s_vram_pos;
 
 static inline uint16_t is_control_disabled(O_Lyle *l)
 {
@@ -1072,7 +1072,7 @@ static inline void draw(O_Lyle *l)
 	}
 
 	const Gfx *g = gfx_get(GFX_SYS_LYLE);
-	gfx_load_ex(g, tile_offset * 32, transfer_bytes, s_vram_pos * 32);
+	gfx_load_ex(g, tile_offset * 32, transfer_bytes, LYLE_VRAM_TILE * 32);
 
 	int16_t sp_x = FIX32TOINT(l->head.x) + xoff - map_get_x_scroll();
 	int16_t sp_y = FIX32TOINT(l->head.y) + yoff - map_get_y_scroll();
@@ -1082,7 +1082,7 @@ static inline void draw(O_Lyle *l)
 	if (sp_y < -32 || sp_y > GAME_SCREEN_H_PIXELS) return;
 
 	md_spr_put(sp_x, sp_y,
-	        SPR_ATTR(s_vram_pos,
+	        SPR_ATTR(LYLE_VRAM_TILE,
 	                 l->head.direction == OBJ_DIRECTION_LEFT, yflip,
 	                 LYLE_PAL_LINE, l->priority),
 	        size);
@@ -1195,10 +1195,9 @@ void lyle_poll(void)
 	update_exploration(&s_lyle);
 }
 
-void lyle_load(void)
+void lyle_init(void)
 {
 	memset(&s_lyle, 0, sizeof(s_lyle));
-	s_vram_pos = obj_vram_alloc(3 * 3 * 32) / 32;
 
 	set_constants();
 
@@ -1309,13 +1308,13 @@ void lyle_set_anim_frame(int8_t frame)
 	s_lyle.anim_frame = frame;
 }
 
-uint16_t lyle_touching_obj(Obj *o)
+bool lyle_touching_obj(Obj *o)
 {
-	if (s_lyle.head.x + LYLE_RIGHT < o->x + o->left) return 0;
-	if (s_lyle.head.x + LYLE_LEFT > o->x + o->right) return 0;
-	if (s_lyle.head.y < o->y + o->top) return 0;
-	if (s_lyle.head.y + LYLE_TOP > o->y) return 0;
-	return 1;
+	if (s_lyle.head.x + LYLE_RIGHT < o->x + o->left) return false;
+	if (s_lyle.head.x + LYLE_LEFT > o->x + o->right) return false;
+	if (s_lyle.head.y < o->y + o->top) return false;
+	if (s_lyle.head.y + LYLE_TOP > o->y) return false;
+	return true;
 }
 
 O_Lyle *lyle_get(void)
@@ -1323,7 +1322,7 @@ O_Lyle *lyle_get(void)
 	return &s_lyle;
 }
 
-void lyle_set_hibernate(uint16_t en)
+void lyle_set_hibernate(bool en)
 {
 	if (en) s_lyle.head.status |= OBJ_STATUS_HIBERNATE;
 	else s_lyle.head.status &= ~(OBJ_STATUS_HIBERNATE);

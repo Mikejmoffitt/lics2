@@ -12,7 +12,9 @@
 
 #include "util/trig.h"
 
-static ObjTile s_objtiles[32];
+static ObjTile s_objtiles[40];
+
+static uint16_t s_objtile_count;
 
 static uint16_t s_hibernate;
 
@@ -36,7 +38,7 @@ void objtile_poll(void)
 {
 	if (s_hibernate) return;
 
-	for (uint16_t i = 0; i < ARRAYSIZE(s_objtiles); i++)
+	for (uint16_t i = 0; i < s_objtile_count; i++)
 	{
 		ObjTile *p = &s_objtiles[i];
 		if (p->flags & OBJTILE_FLAG_ACTIVE) objtile_render(p);
@@ -49,6 +51,7 @@ void objtile_clear(void)
 	{
 		s_objtiles[i].flags = 0;
 	}
+	s_objtile_count = 0;
 }
 
 static ObjTile *find_slot(void)
@@ -72,6 +75,7 @@ ObjTile *objtile_place(fix32_t x, fix32_t y, uint16_t attr)
 		p->py = FIX32TOINT(y);
 		p->spr.size = SPR_SIZE(2, 1);
 		p->spr.attr = attr;
+		s_objtile_count++;
 	}
 	return p;
 }

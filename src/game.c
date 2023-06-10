@@ -22,6 +22,7 @@
 #include "physics.h"
 #include "map.h"
 #include "lyle.h"
+#include "fixed_vram.h"
 #include "particle.h"
 #include "projectile.h"
 #include "pause.h"
@@ -31,7 +32,7 @@
 #include <string.h>
 
 uint32_t g_elapsed;
-static int32_t s_room_elapsed = 0;
+static bool s_room_first_frame_shown = false;
 
 typedef enum GameState
 {
@@ -69,7 +70,11 @@ static void run_frame(void)
 			obj_init();
 			music_init();
 			sfx_init();
+			hud_init();
 			progress_init();
+			powerup_init();
+			projectile_init();
+			particle_init();
 			persistent_state_init();
 			physics_init();
 			objtile_clear();
@@ -80,15 +85,13 @@ static void run_frame(void)
 			break;
 
 		case GAME_STATE_NEW_ROOM:
-			// Clear object list, and reset bump VRAM allocator.
 			obj_clear();
-			// Static singletons load or allocate VRAM first.
-			hud_load();
-			powerup_load();
+			fixed_vram_load();
+			powerup_clear();
 			objtile_clear();
-			projectile_load();
-			particle_load();
-			lyle_load();
+			projectile_clear();
+			particle_clear();
+			lyle_init();
 			cube_manager_init();
 			map_load(persistent_state->next_room_id,
 			         persistent_state->next_room_entrance);
@@ -98,7 +101,7 @@ static void run_frame(void)
 			// TODO: Move this functionality into lyle.h
 			load_lyle_persistent_state();
 			music_play(map_get_music_track());
-			s_room_elapsed = 0;
+			s_room_first_frame_shown = false;
 			progress_save();
 			md_vdp_set_window_top(0);
 			s_game_state++;
@@ -169,9 +172,9 @@ static void run_frame(void)
 			}
 			else
 			{
-				want_display_en = s_room_elapsed >= 1 ? true : false;
+				want_display_en = s_room_first_frame_shown;
 			}
-			s_room_elapsed++;
+			s_room_first_frame_shown = true;
 			break;
 	}
 

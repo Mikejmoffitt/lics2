@@ -22,18 +22,13 @@ static fix16_t kspawn_dy;
 static fix16_t kbounce_dy;
 static fix16_t kceiling_dy;
 
-static uint16_t s_vram_pos;
+#define POWERUP_VRAM_TILE (POWERUP_VRAM_POSITION/32)
 
-static uint16_t s_hibernate;
-
-uint16_t powerup_get_vram_pos(void)
-{
-	return s_vram_pos;
-}
+static bool s_hibernate;
 
 static void set_constants(void)
 {
-	static int16_t s_constants_set;
+	static bool s_constants_set;
 	if (s_constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
@@ -42,7 +37,7 @@ static void set_constants(void)
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(0.833333333));
 	kanim_speed = PALSCALE_DURATION(4);
 
-	s_constants_set = 1;
+	s_constants_set = true;
 }
 
 static inline void powerup_render(Powerup *p)
@@ -149,7 +144,7 @@ static inline void powerup_render(Powerup *p)
 
 	if (tx < -32 || tx > 336 || ty < -32 || ty > 256) return;
 
-	md_spr_put(tx, ty, SPR_ATTR(s_vram_pos + tile_offset, 0, 0, pal, 0), size);
+	md_spr_put(tx, ty, SPR_ATTR(POWERUP_VRAM_TILE + tile_offset, 0, 0, pal, 0), size);
 }
 
 void powerup_bounce(Powerup *p)
@@ -318,11 +313,9 @@ void powerup_poll(void)
 	}
 }
 
-void powerup_load(void)
+void powerup_init(void)
 {
 	set_constants();
-	const Gfx *g = gfx_get(GFX_SYS_POWERUP);
-	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
 
 	powerup_clear();
 }
@@ -396,7 +389,7 @@ Powerup *powerup_spawn(fix32_t x, fix32_t y,
 	return NULL;
 }
 
-void powerup_set_hibernate(uint16_t en)
+void powerup_set_hibernate(bool en)
 {
 	s_hibernate = en;
 }

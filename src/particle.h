@@ -30,7 +30,7 @@ struct Particle
 	SprParam spr;
 } __attribute__((aligned(32)));
 
-void particle_load(void);
+void particle_init(void);
 void particle_poll(void);
 
 void particle_clear(void);
