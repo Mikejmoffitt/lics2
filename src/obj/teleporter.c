@@ -19,6 +19,7 @@ static int8_t kactive_len;
 static int16_t kanim_len;
 static int8_t ktele_sound_trigger;
 static int8_t kanim_speed;
+static int16_t kreactivate_frames;
 
 static bool s_constants_set;
 
@@ -30,6 +31,7 @@ static void set_constants(void)
 	kanim_len = PALSCALE_DURATION(120);
 	ktele_sound_trigger = PALSCALE_DURATION(75);
 	kanim_speed = PALSCALE_DURATION(2.5);
+	kreactivate_frames = PALSCALE_DURATION(40);
 
 	s_constants_set = true;
 }
@@ -88,7 +90,7 @@ static void main_func(Obj *o)
 		t->active_cnt--;
 		if (t->active_cnt == 0)
 		{
-			t->disabled = 0;
+			t->disabled = false;
 		}
 
 		// Center the player on the pad.
@@ -136,7 +138,7 @@ static void main_func(Obj *o)
 				                       PARTICLE_TYPE_SPARKLE);
 			}
 			
-			if (l->tele_in_cnt == 8) t->disabled = 1;
+			if (l->tele_in_cnt == 8) t->disabled = true;
 		}
 		// Normal active player is ready to teleport.
 		else if (l->tele_in_cnt == 0)
@@ -148,6 +150,30 @@ static void main_func(Obj *o)
 			t->active_cnt = kactive_len;
 			sfx_play(SFX_TELEPORT, 3);
 		}
+	}
+
+	// Reactivate if Lyle walks away from the teleporter.
+	if (t->disabled)
+	{
+		static const fix32_t kmargin = INTTOFIX32(32);
+		if (l->head.x < t->head.x - kmargin ||
+		    l->head.x > t->head.x + kmargin)
+		{
+			t->reactivate_cnt++;
+			if (t->reactivate_cnt >= kreactivate_frames)
+			{
+				t->disabled = false;
+				t->active_cnt = 0;
+			}
+		}
+		else
+		{
+			t->reactivate_cnt = 0;
+		}
+	}
+	else
+	{
+		t->reactivate_cnt = 0;
 	}
 
 	// Animate.
@@ -184,7 +210,7 @@ void o_load_teleporter(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	t->id = data & 0xFF;
-	t->activator = (data & 0xFF00) >> 8;
+	t->activator = ((data & 0xFF00) >> 8) ? true : false;
 
 	SYSTEM_ASSERT(t->id < (sizeof(uint16_t) * 8));
 

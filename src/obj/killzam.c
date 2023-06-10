@@ -10,6 +10,7 @@
 #include "map.h"
 #include "lyle.h"
 #include "projectile.h"
+#include "sfx.h"
 
 
 static uint16_t s_vram_pos;
@@ -119,7 +120,8 @@ static void run_timer(Obj *o)
 	if (e->timer == ksequence[0] ||
 	    e->timer == ksequence[2])
 	{
-		// TODO: Warp sfx
+		e->head.flags |= OBJ_FLAG_ALWAYS_ACTIVE;
+		sfx_play(SFX_KILLZAM_WARP, 2);
 	}
 
 	if (e->timer == ksequence[2])
@@ -127,7 +129,7 @@ static void run_timer(Obj *o)
 		// TODO: Figure out actual shot speed.
 		projectile_shoot_at(o->x, o->y - INTTOFIX32(8), PROJECTILE_TYPE_BALL2,
 		                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
-		// TODO: Shot sfx
+		sfx_play(SFX_GAXTER_SHOT, 1);
 	}
 
 	// Advance timer

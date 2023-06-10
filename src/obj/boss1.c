@@ -216,13 +216,12 @@ static void main_func(Obj *o)
 			if (e->state_elapsed < kapproach_start_delay) break;
 			if (o->x < INTTOFIX32(4))
 			{
-				const int16_t frame_prev = e->anim_frame;
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4,
-				                kwalk_anim_speed);
+				                kwalk_anim_speed*4);
 				o->x += kapproach_dx;
-				if (e->anim_frame == 2 && frame_prev != 2)
+				if (e->anim_cnt == 0 && (e->anim_frame == 0 || e->anim_frame == 2))
 				{
-					// TODO: Play step sound
+					sfx_play(SFX_BOSS_STEP, 1);
 				}
 				static const int16_t metaframes[4] = {0, 1, 0, 2};
 				e->metaframe = metaframes[e->anim_frame];
@@ -300,6 +299,14 @@ static void main_func(Obj *o)
 				static const int16_t metaframes[4] = {0, 1, 0, 2};
 				e->metaframe = metaframes[e->anim_frame];
 			}
+
+			if (e->anim_cnt == 0)
+			{
+				if (e->anim_frame == 0 || e->anim_frame == 2)
+				{
+					sfx_play(SFX_BOSS_STEP, 1);
+				}
+			}
 			if (e->state_elapsed >= kprecharge_delay + kprecharge_duration)
 			{
 				e->state = BOSS1_STATE_CHARGE;
@@ -314,6 +321,10 @@ static void main_func(Obj *o)
 			{
 				const int16_t metaframes[4] = {3, 4, 0, 5};
 				e->metaframe = metaframes[e->anim_frame];
+			}
+			if (e->anim_cnt == 0 && e->anim_frame == 0)
+			{
+				sfx_play(SFX_BOSS_STEP, 1);
 			}
 			if (o->dx > 0 && o->x > max_x)
 			{

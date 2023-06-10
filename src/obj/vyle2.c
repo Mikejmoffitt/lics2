@@ -103,10 +103,10 @@ static inline void set_constants(void)
 	kvyle_grow_post_frames = PALSCALE_DURATION(120);
 	kvyle_grow_anim_speed = PALSCALE_DURATION(2);
 	kvyle_big_walk_anim_speed = PALSCALE_DURATION(7);
-	kvyle_shaking_anim_speed = PALSCALE_DURATION(2);
+	kvyle_shaking_anim_speed = PALSCALE_DURATION(4);
 	kstart_delay = PALSCALE_DURATION(90);
 	kvyle_general_anim_delay = PALSCALE_DURATION(16.67);
-	kvyle_superjump_anim_speed = PALSCALE_DURATION(3);
+	kvyle_superjump_anim_speed = PALSCALE_DURATION(4);
 
 	kjump_dy_table[0] = INTTOFIX16(PALSCALE_1ST(-5.208));
 	kjump_dy_table[1] = INTTOFIX16(PALSCALE_1ST(-5.208 - (1*0.208)));
@@ -196,10 +196,10 @@ static void render(O_Vyle2 *e)
 		// 05 - stand forward (small)
 		{-8, -24, 48, SPR_SIZE(2, 3)},
 		{-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1},
-		// 05 - stand forward (med)
+		// 06 - stand forward (med)
 		{-12, -32, 54, SPR_SIZE(3, 4)},
 		{-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1},
-		// 06 - stand forward (large)
+		// 07 - stand forward (large)
 		{-16, -48, 66, SPR_SIZE(4, 3)},
 		{-16, -24, 78, SPR_SIZE(4, 3)},
 		{-1, -1, -1, -1}, {-1, -1, -1, -1},
@@ -248,6 +248,8 @@ static void render(O_Vyle2 *e)
 		FULLFRAME(20, 96),
 	};
 #undef FULLFRAME
+
+	if (e->metaframe >= ARRAYSIZE(frames)) return;
 
 	static const int16_t bytes_for_sprite_size[] =
 	{
@@ -308,6 +310,7 @@ static void render(O_Vyle2 *e)
 
 		// Slot the graphics assets into VRAM.
 		const uint16_t transfer_bytes = bytes_for_sprite_size[frame->size];
+		SYSTEM_ASSERT(frame->size < ARRAYSIZE(bytes_for_sprite_size));
 		gfx_load_ex(gfx_get(GFX_VYLE2), frame->tile * 32,
 		            transfer_bytes, (s_vram_pos + spr_tile) * 32);
 
@@ -417,10 +420,10 @@ static bool vyle2_jump_midair_logic(O_Vyle2 *e, bool hone_to_tx)
 	if (e->head.dy < 0 && !e->shot_at_lyle && e->head.dy >= kjump_shot_dy_thresh)
 	{
 		e->shot_at_lyle = true;
-		// TODO: Shot sfx
 		// TODO: Shot speed
 		projectile_shoot_at(e->head.x, e->head.y - INTTOFIX32(24), PROJECTILE_TYPE_BALL2,
 		                    l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
+		sfx_play(SFX_GAXTER_SHOT, 1);
 	}
 
 	// The last jump hones in to the center.
@@ -512,6 +515,7 @@ static void main_func(Obj *o)
 			{
 				e->xscroll = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS);
 				e->state = VYLE2_STATE_KEDDUMS_MEOW;
+				sfx_play(SFX_MEOW, 1);
 			}
 
 			map_set_x_scroll(FIX32TOINT(e->xscroll));
@@ -525,7 +529,6 @@ static void main_func(Obj *o)
 			{
 				e->state = VYLE2_STATE_CAMERA_PAN_TO_LYLE;
 			}
-			// TODO: actual meow
 			break;
 
 		case VYLE2_STATE_CAMERA_PAN_TO_LYLE:
@@ -754,6 +757,13 @@ static void main_func(Obj *o)
 				e->head.dx = -klyle_run_dx;
 				e->head.direction = OBJ_DIRECTION_LEFT;
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 6, kvyle_big_walk_anim_speed);
+				if (e->anim_cnt == 0)
+				{
+					if (e->anim_frame == 2 || e->anim_frame == 5)
+					{
+						sfx_play(SFX_BOSS_STEP, 1);
+					}
+				}
 				e->metaframe = vyle_big_walk_cycle[e->anim_frame];
 			}
 			else
@@ -849,7 +859,7 @@ static void main_func(Obj *o)
 						                       shot_angle, kshot_speed);
 						projectile_shoot_angle(e->head.x, e->head.y - INTTOFIX32(18), PROJECTILE_TYPE_BALL2,
 						                       shot_angle_2, kshot_speed);
-						// TODO: Shot sfx
+						sfx_play(SFX_GAXTER_SHOT, 1);
 					}
 				}
 
@@ -969,12 +979,7 @@ static void main_func(Obj *o)
 				e->shaking = true;
 				e->metaframe = 16;
 			}
-			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kvyle_shaking_anim_speed);
-			if (e->anim_cnt == 0)
-			{
-				e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
-			}
-			else if (e->state_elapsed >= kvyle_zap_duration)
+			if (e->state_elapsed >= kvyle_zap_duration)
 			{
 				e->state = VYLE2_STATE_ZAP_RECOIL;
 			}
@@ -991,6 +996,7 @@ static void main_func(Obj *o)
 			e->metaframe = 25;
 			if (e->head.dy >= 0 && e->head.y >= s_ground_y)
 			{
+				sfx_play(SFX_SLAM, 5);
 				e->state = VYLE2_STATE_ZAP_RECOIL_BOUNCED;
 				e->head.y = s_ground_y;
 			}
@@ -1005,6 +1011,7 @@ static void main_func(Obj *o)
 			e->head.dy += kgravity;
 			if (e->head.dy >= 0 && e->head.y >= s_ground_y)
 			{
+				sfx_play(SFX_SLAM, 5);
 				e->state = VYLE2_STATE_VULNERABLE;
 			}
 			break;
@@ -1012,6 +1019,8 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_VULNERABLE:
 			if (e->state_elapsed == 0)
 			{
+				e->anim_frame = 0;
+				e->anim_cnt = 0;
 				e->head.y = s_ground_y;
 				e->head.dy = 0;
 				e->head.dx = 0;

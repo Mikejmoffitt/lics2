@@ -3,16 +3,18 @@
 
 #include "obj.h"
 #include <md/megadrive.h>
+#include <stdbool.h>
 
 typedef struct O_Teleporter
 {
 	Obj head;
 	uint16_t id;
-	int16_t activator;
 	int16_t anim_cnt;
 	int16_t anim_frame;
 	int16_t active_cnt;  // Transition from 1 --> 0 disables teleporter.
-	int16_t disabled;
+	int16_t reactivate_cnt;
+	bool activator;
+	bool disabled;
 } O_Teleporter;
 
 void o_load_teleporter(Obj *o, uint16_t data);

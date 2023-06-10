@@ -638,6 +638,7 @@ static void main_func(Obj *o)
 			{
 				e->cloakdude_dx = -INTTOFIX16(PALSCALE_1ST(2.500000));
 				e->cloakdude_anim_state = 3;
+				sfx_play(SFX_MEOW, 1);
 				e->kitty_anim_state = 2;
 			}
 
@@ -660,6 +661,17 @@ static void main_func(Obj *o)
 					e->state = TITLE_STATE_MENU;
 				}
 			}
+
+
+			// keddums snoring
+			if (e->kitty_anim_state == 0)
+			{
+				if (e->kitty_anim_cnt == 0 && e->kitty_anim_frame == 2)
+				{
+					sfx_play(SFX_SNORE, 1);
+				}
+			}
+
 			render_cutscene(e);
 
 			maybe_skip_to_menu(e);

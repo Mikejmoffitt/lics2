@@ -188,8 +188,7 @@ static void main_func(Obj *o)
 			{
 				o->dx = 0;
 				o->dy = -kjump_str;
-				sfx_play(SFX_MOO_1, 0);
-				sfx_play(SFX_MOO_2, 0);
+				sfx_play(SFX_MOO, 0);
 			}
 			o->dy += kgravity;
 			if (o->dy > 0 && o->y >= e->max_y)
