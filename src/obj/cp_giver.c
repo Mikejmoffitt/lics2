@@ -107,7 +107,7 @@ static void render(O_CpGiver *e)
 	{
 		md_spr_put(sp_x,
 		        FIX32TOINT(e->orb_y) + offset_y - yscroll,
-		        SPR_ATTR(s_vram_pos + 12 + (4 * e->orb_anim_frame), 0, 0, ENEMY_PAL_LINE, 0),
+		        SPR_ATTR(s_vram_pos + 12 + (4 * e->orb_anim_frame), 0, 0, LYLE_PAL_LINE, 0),
 		        SPR_SIZE(2, 2));
 	}
 

@@ -334,6 +334,7 @@ void o_load_lava(Obj *o, uint16_t data)
 		o->dy = kfall_dy;
 		e->max_y = INTTOFIX32(data & 0x0FFF);
 		e->size = (data & 0xF000) >> 12;
+		e->head.top = INTTOFIX16(-16) * e->size;
 	}
 }
 

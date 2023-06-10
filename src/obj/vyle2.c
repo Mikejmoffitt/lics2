@@ -310,7 +310,6 @@ static void render(O_Vyle2 *e)
 
 		// Slot the graphics assets into VRAM.
 		const uint16_t transfer_bytes = bytes_for_sprite_size[frame->size];
-		SYSTEM_ASSERT(frame->size < ARRAYSIZE(bytes_for_sprite_size));
 		gfx_load_ex(gfx_get(GFX_VYLE2), frame->tile * 32,
 		            transfer_bytes, (s_vram_pos + spr_tile) * 32);
 

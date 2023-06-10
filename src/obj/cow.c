@@ -215,6 +215,7 @@ static void main_func(Obj *o)
 			{
 				const O_Lyle *l = lyle_get();
 				e->shot_cnt = 0;
+				sfx_play(SFX_GAXTER_SHOT, 2);
 				projectile_shoot_at(o->x, o->y - INTTOFIX32(9), PROJECTILE_TYPE_BALL2,
 				                            l->head.x, l->head.y - INTTOFIX32(10), kshot_speed);
 			}

@@ -281,13 +281,26 @@ static void plot_item_display_borders(void)
 	plot_item_display_border(208, 192);
 }
 
-static void draw_cp_orb_count(void)
+static void draw_cp_orbs_corner(void)
 {
+	static const int16_t x = 272;
+	static const int16_t y = 204;
 	const ProgressSlot *progress = progress_get();
 	const int16_t cp_orbs = progress->collected_cp_orbs;
-	md_spr_put(272, 204, VDP_ATTR(s_pause.vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
-	md_spr_put(288, 204, VDP_ATTR(s_pause.vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
-	md_spr_put(295, 204, VDP_ATTR(s_pause.vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	md_spr_put(x, y, VDP_ATTR(s_pause.vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+	md_spr_put(x + 16, y, VDP_ATTR(s_pause.vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	md_spr_put(x + 23, y, VDP_ATTR(s_pause.vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+}
+
+static void draw_cp_orbs_center(void)
+{
+	static const int16_t x = 160 - 16;
+	static const int16_t y = 120;
+	const ProgressSlot *progress = progress_get();
+	const int16_t cp_orbs = progress->collected_cp_orbs;
+	md_spr_put(x, y, VDP_ATTR(s_pause.vram_pos + 0x3C, 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(2, 2));
+	md_spr_put(x + 16, y, VDP_ATTR(s_pause.vram_pos + 0x40 + ((cp_orbs > 10) ? 2 : 0), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
+	md_spr_put(x + 23, y, VDP_ATTR(s_pause.vram_pos + 0x40 + (2 * (cp_orbs % 10)), 0, 0, MAP_PAL_LINE, 0), SPR_SIZE(1, 2));
 }
 
 static void draw_item_icons(void)
@@ -515,6 +528,24 @@ static const CharMapping kmapping_phantom_cube_magic_x[] =
 	{62, 28, 'C'},
 };
 
+static const CharMapping kmapping_hp_orb[] =
+{
+	{16, 24, 'H'},
+	{24, 24, 'P'},
+	{40, 24, 'O'},
+	{48, 24, 'R'},
+	{56, 24, 'B'},
+};
+
+static const CharMapping kmapping_cp_orb[] =
+{
+	{16, 24, 'C'},
+	{24, 24, 'P'},
+	{40, 24, 'O'},
+	{48, 24, 'R'},
+	{56, 24, 'B'},
+};
+
 static const CharMapping kmapping_2[] =
 {
 	{71, 28, '2'},
@@ -545,7 +576,7 @@ static void draw_you_got(PauseScreen screen)
 {
 	static const int16_t base_x = 120;
 	const int16_t base_y = 32 - (system_is_ntsc() ? 8 : 0);
-	int16_t show_you_got = 1;
+	bool show_you_got = true;
 
 	const uint16_t powerup_vram_pos = powerup_get_vram_pos();
 
@@ -558,7 +589,7 @@ static void draw_you_got(PauseScreen screen)
 			md_spr_put(88, base_y + 12, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
 			md_spr_put(216, base_y + 12, SPR_ATTR(g_cube_vram_pos, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
 			// Uses same layout, but does not show "you got".
-			show_you_got = 0;
+			show_you_got = false;
 			break;
 		case PAUSE_SCREEN_GET_MAP:
 			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x18, 0, 0, pal, 0), SPR_SIZE(2, 2));
@@ -619,9 +650,51 @@ static void draw_you_got(PauseScreen screen)
 			draw_char_mapping(base_x, base_y, kmapping_4,
 			                  ARRAYSIZE(kmapping_4));
 			break;
+		case PAUSE_SCREEN_HP_ORB_0:
+		case PAUSE_SCREEN_HP_ORB_1:
+		case PAUSE_SCREEN_HP_ORB_2:
+		case PAUSE_SCREEN_HP_ORB_3:
+		case PAUSE_SCREEN_HP_ORB_4:
+		case PAUSE_SCREEN_HP_ORB_5:
+		case PAUSE_SCREEN_HP_ORB_6:
+		case PAUSE_SCREEN_HP_ORB_7:
+		case PAUSE_SCREEN_HP_ORB_8:
+		case PAUSE_SCREEN_HP_ORB_9:
+		case PAUSE_SCREEN_HP_ORB_10:
+		case PAUSE_SCREEN_HP_ORB_11:
+		case PAUSE_SCREEN_HP_ORB_12:
+		case PAUSE_SCREEN_HP_ORB_13:
+		case PAUSE_SCREEN_HP_ORB_14:
+		case PAUSE_SCREEN_HP_ORB_15:
+			md_spr_put(88, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x00, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(powerup_vram_pos + 0x00, 0, 0, BG_PAL_LINE, 0), SPR_SIZE(2, 2));
+			draw_char_mapping(base_x, base_y, kmapping_hp_orb,
+			                  ARRAYSIZE(kmapping_hp_orb));
+			break;
+		case PAUSE_SCREEN_CP_ORB_0:
+		case PAUSE_SCREEN_CP_ORB_1:
+		case PAUSE_SCREEN_CP_ORB_2:
+		case PAUSE_SCREEN_CP_ORB_3:
+		case PAUSE_SCREEN_CP_ORB_4:
+		case PAUSE_SCREEN_CP_ORB_5:
+		case PAUSE_SCREEN_CP_ORB_6:
+		case PAUSE_SCREEN_CP_ORB_7:
+		case PAUSE_SCREEN_CP_ORB_8:
+		case PAUSE_SCREEN_CP_ORB_9:
+		case PAUSE_SCREEN_CP_ORB_10:
+		case PAUSE_SCREEN_CP_ORB_11:
+		case PAUSE_SCREEN_CP_ORB_12:
+		case PAUSE_SCREEN_CP_ORB_13:
+		case PAUSE_SCREEN_CP_ORB_14:
+		case PAUSE_SCREEN_CP_ORB_15:
+			// TODO: Get and use alternate CP orb graphic that works with the palette.
+			md_spr_put(88, base_y + 12, VDP_ATTR(s_pause.vram_pos + 0x3C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			md_spr_put(216, base_y + 12, VDP_ATTR(s_pause.vram_pos + 0x3C, 0, 0, pal, 0), SPR_SIZE(2, 2));
+			draw_char_mapping(base_x, base_y, kmapping_cp_orb,
+			                  ARRAYSIZE(kmapping_cp_orb));
+			draw_cp_orbs_center();
+			break;
 		default:
-			// TODO: HP Orb, CP Orb
-			// CP orb uses Lyle's pal line, while HP uses the BG common one.
 			break;
 	}
 
@@ -739,23 +812,9 @@ static void plot_get_dialogue_text(PauseScreen screen)
 		[PAUSE_SCREEN_HP_ORB_13] = STR_GET_HP_ORB,
 		[PAUSE_SCREEN_HP_ORB_14] = STR_GET_HP_ORB,
 		[PAUSE_SCREEN_HP_ORB_15] = STR_GET_HP_ORB,
-		[PAUSE_SCREEN_CP_ORB_0] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_1] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_2] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_3] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_4] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_5] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_6] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_7] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_8] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_9] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_10] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_11] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_12] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_13] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_14] = STR_GET_CP_ORB,
-		[PAUSE_SCREEN_CP_ORB_15] = STR_GET_CP_ORB,
 	};
+
+	if (screen >= ARRAYSIZE(string_ids)) return;
 
 	const char *str = str_get(string_ids[screen]);
 	if (!str) return;
@@ -1758,7 +1817,7 @@ void pause_poll(void)
 			draw_map_pause_text();
 			draw_cube_sector_text();
 			draw_item_icons();
-			draw_cp_orb_count();
+			draw_cp_orbs_corner();
 			draw_pause_menu();
 			maybe_switch_to_debug(buttons);
 			break;
@@ -1814,10 +1873,18 @@ void pause_poll(void)
 			{
 				screen_reset();
 				plot_get_dialogue_backing(s_pause.screen);
+				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(s_pause.screen);
+			OBJ_SIMPLE_ANIM(s_pause.menu_flash_cnt, s_pause.menu_flash_frame,
+			                2, kmenu_flash_delay);
+			if (s_pause.dismissal_delay_cnt >= kdismissal_delay_frames)
+			{
+				draw_press_button(114, 192 - (system_is_ntsc() ? 8 : 0), s_pause.menu_flash_frame);
+			}
 			maybe_dismiss(buttons, kdismissal_delay_frames);
 			if (s_pause.select_delay_cnt >= 1) s_pause.select_delay_cnt++;
 			if (s_pause.select_delay_cnt >= kselect_delay_frames)
@@ -1845,10 +1912,18 @@ void pause_poll(void)
 			{
 				screen_reset();
 				plot_get_dialogue_backing(s_pause.screen);
+				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_pause_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_pause_bin) / 2);
 			}
 			draw_you_got(s_pause.screen);
+			OBJ_SIMPLE_ANIM(s_pause.menu_flash_cnt, s_pause.menu_flash_frame,
+			                2, kmenu_flash_delay);
+			if (s_pause.dismissal_delay_cnt >= kdismissal_delay_frames)
+			{
+				draw_press_button(114, 192 - (system_is_ntsc() ? 8 : 0), s_pause.menu_flash_frame);
+			}
 			maybe_dismiss(buttons, kdismissal_delay_frames);
 			if (s_pause.select_delay_cnt >= 1) s_pause.select_delay_cnt++;
 			if (s_pause.select_delay_cnt >= kselect_delay_frames)
