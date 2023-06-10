@@ -135,12 +135,11 @@ static void main_func(Obj *o)
 		case DOG_STATE_HAPPY:
 			if (e->state_elapsed == 0)
 			{
-				// TODO: Killzam appear sound
-//				sfx_play(SFX_, 18);
+				e->metaframe = 5;
 			}
-			e->metaframe = 5;
-			if (e->state_elapsed >= khappy_time)
+			else if (e->state_elapsed >= khappy_time)
 			{
+				sfx_play(SFX_KILLZAM_WARP, 18);
 				e->state = DOG_STATE_FLICKER;
 			}
 			break;
@@ -149,19 +148,10 @@ static void main_func(Obj *o)
 			e->anim_frame = (e->anim_frame == 0) ? 1 : 0;
 			e->metaframe = 5 + e->anim_frame;
 
-			// Delete eggs and egg generator
-			for (uint16_t i = 0; i < ARRAYSIZE(g_objects); i++)
-			{
-				Obj *egg = &g_objects[i].obj;
-				if (egg->status == OBJ_STATUS_NULL) continue;
-				if (egg->type != OBJ_SMALL_EGG) continue;
-				obj_erase(egg);
-			}
-
 			if (e->state_elapsed >= kflicker_time)
 			{
 				powerup_spawn(o->x, o->y - INTTOFIX32(8),
-				                      POWERUP_TYPE_CP_ORB, 6);
+				              POWERUP_TYPE_CP_ORB, 6);
 				Obj *egg = NULL;
 				// Delete eggs and egg generator
 				while ((egg = obj_find_by_type(OBJ_EGG)) != NULL)

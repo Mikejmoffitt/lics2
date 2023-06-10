@@ -73,6 +73,7 @@ static inline void check_collision_with_lyle_cube(Obj *o)
 
 	o->dx = kbounce_dx;
 	o->dy = (-o->dy / 2) - kbounce_dy;
+	sfx_play(SFX_BOSS_STEP, 1);
 
 }
 
