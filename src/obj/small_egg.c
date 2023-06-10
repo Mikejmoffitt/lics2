@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 #include "lyle.h"
 #include "particle.h"
@@ -94,13 +95,13 @@ static void main_func(Obj *o)
 	if (o->dy > 0 && map_collision(x_center, y_px))
 	{
 		obj_erase(o);
+		sfx_play(SFX_SAND, 1);
 		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 		particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
 	}
-
 
 	render(e);
 }

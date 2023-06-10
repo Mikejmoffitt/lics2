@@ -693,8 +693,7 @@ sfx_beep:
 	dc.w	SFXOP_END
 
 
-
-
+sfx_beep_pulse:
 	dc.w	SFXOP_ENV
 	dc.l	env_att0
 	dc.w	SFXOP_PERIOD, 0x17D0/2
@@ -844,8 +843,29 @@ sfx_boss_step:
 	dc.w	SFXOP_REST, 8
 	dc.w	SFXOP_NOISE_VOL, 15
 	dc.w	SFXOP_END
-	
-	
+
+sfx_sand:
+	dc.w	SFXOP_ENV
+	dc.l	env_att15
+	dc.w	SFXOP_NOISE_TONE, 0x07
+	dc.w	SFXOP_PERIOD, 0x0200
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_PERIOD, 0x0010
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 2
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 4
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 6
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 8
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 10
+	dc.w	SFXOP_REST, 8
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
 
 	sfx_engine_sound_list:
 # SFX_NULL
@@ -906,8 +926,8 @@ sfx_boss_step:
 	dc.l	sfx_giver + SFX_FLAG_CH3
 # SFX_SNORE
 	dc.l	sfx_snore + SFX_FLAG_CH3
-# free
-	dc.l	sfx_null
+# SFX_SAND
+	dc.l	sfx_sand + SFX_FLAG_CH3
 # SFX_BEEP
 	dc.l	sfx_beep + SFX_FLAG_CH3
 # SFX_SELECT

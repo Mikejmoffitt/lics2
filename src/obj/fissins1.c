@@ -11,7 +11,8 @@
 
 /*
 
-Fissins 1 is more complicated than it appears on the surface.
+Fissins 1 jumps up and down from a pool of lava. He is more
+complicated than he appears on the surface.
 
 Original movement is speed / 5.0, for PAL speed.
 Gravity is thus (5/6) / 5.0.

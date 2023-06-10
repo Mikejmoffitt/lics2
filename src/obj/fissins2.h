@@ -7,11 +7,11 @@ typedef struct O_Fissins2
 {
 	Obj head;
 	fix32_t base_y;
-	int16_t airborn;
 	int16_t cooldown;
 
 	int16_t anim_cnt;
 	int16_t anim_frame;
+	bool airborn;
 } O_Fissins2;
 
 void o_load_fissins2(Obj *o, uint16_t data);

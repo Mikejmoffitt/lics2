@@ -7,24 +7,14 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 #include "lyle.h"
 #include "particle.h"
 #include "game.h"
 
 /*
-
-Fissins 1 is more complicated than it appears on the surface.
-
-Original movement is speed / 5.0, for PAL speed.
-Gravity is thus (5/6) / 5.0.
-
-Jump strength is a range between -25 and -35.
-That translates to (5/6) * -5 to -7
-
-He waits 20 frames (in PAL) before jumping each time.
-So jump delay is 6/5 * 20
-
+Fissins 2 swims horizontally through sand, jumping out if Lyle draws near.
 */
 
 static uint16_t s_vram_pos;
@@ -137,10 +127,10 @@ static void main_func(Obj *o)
 		    o->x > (l->head.x - distance_margin) &&
 		    o->x < (l->head.x + distance_margin))
 		{
-			// TODO: Play sand sound
+			sfx_play(SFX_SAND, 1);
 			o->flags |= OBJ_FLAG_TANGIBLE;
 			o->flags |= OBJ_FLAG_HARMFUL;
-			e->airborn = 1;
+			e->airborn = true;
 			o->dy = kjump_dy_table[system_rand() % ARRAYSIZE(kjump_dy_table)];
 			e->anim_frame = 0;
 			particle_spawn(o->x, o->y, PARTICLE_TYPE_SAND);
@@ -159,8 +149,8 @@ static void main_func(Obj *o)
 	{
 		if (o->dy > 0 && o->y >= e->base_y)
 		{
-			// TODO: Play sand sound
-			e->airborn = 0;
+			sfx_play(SFX_SAND, 1);
+			e->airborn = false;
 			o->y = e->base_y;
 			o->dy = 0;
 			o->flags &= ~(OBJ_FLAG_TANGIBLE);
