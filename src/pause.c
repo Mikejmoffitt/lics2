@@ -2048,6 +2048,8 @@ void pause_init()
 	memset(&s_pause, 0, sizeof(s_pause));
 	set_constants();
 	vram_load();
+	
+	wake_objects();
 
 	s_pause.debug.chosen_room_id = -1;
 
