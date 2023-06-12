@@ -217,7 +217,7 @@ static void main_func(Obj *o)
 			if (o->x < INTTOFIX32(4))
 			{
 				OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4,
-				                kwalk_anim_speed*4);
+				                kwalk_anim_speed*2);
 				o->x += kapproach_dx;
 				if (e->anim_cnt == 0 && (e->anim_frame == 0 || e->anim_frame == 2))
 				{
@@ -241,7 +241,7 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed == kroar_delay)
 			{
-				// TODO: roar sound
+				sfx_play(SFX_ROAR, 6);
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
 			e->metaframe = 7 + e->anim_frame;

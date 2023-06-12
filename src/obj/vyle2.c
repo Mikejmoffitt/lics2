@@ -932,7 +932,7 @@ static void main_func(Obj *o)
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 16;
-				// TODO: sfx
+				sfx_play(SFX_ROAR, 2);
 				obj_spawn(FIX32TOINT(e->head.x) - 8, FIX32TOINT(e->head.y) - 48, OBJ_GAXTER1, 0);
 			}
 			else if (e->state_elapsed < kvyle_general_anim_delay*2)

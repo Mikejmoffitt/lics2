@@ -132,56 +132,10 @@ env_hurt_reduced:
 	dc.b	8
 	dc.b	-1
 env_scratchy:
+	.rept	64
 	dc.b	0
 	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
-	dc.b	0
-	dc.b	15
+	.endr
 	dc.b	-1
 
 env_pausenote:
@@ -868,6 +822,34 @@ sfx_sand:
 	dc.w	SFXOP_NOISE_VOL, 15
 	dc.w	SFXOP_END
 
+sfx_roar:
+	dc.w	SFXOP_ENV
+	dc.l	env_scratchy
+	dc.w	SFXOP_PERIOD, 0x3A00
+	dc.w	SFXOP_SWEEP, 0x23
+	dc.w	SFXOP_REST, 40
+
+	dc.w	SFXOP_ENV
+	dc.l	env_scratchy
+	dc.w	SFXOP_SWEEP, -0x97
+	dc.w	SFXOP_REST, 64
+
+	dc.w	SFXOP_ENV
+	dc.l	env_scratchy
+	dc.w	SFXOP_SWEEP, 0x23
+	dc.w	SFXOP_REST, 24
+
+	dc.w	SFXOP_ENV
+	dc.l	env_scratchy
+	dc.w	SFXOP_SWEEP, 0x32
+	dc.w	SFXOP_REST, 32
+
+	dc.w	SFXOP_ENV
+	dc.l	env_scratchy
+	dc.w	SFXOP_SWEEP, 0x33
+	dc.w	SFXOP_REST, 64
+	dc.w	SFXOP_END
+
 	sfx_engine_sound_list:
 # SFX_NULL
 	dc.l	sfx_null
@@ -933,7 +915,7 @@ sfx_sand:
 	dc.l	sfx_beep + SFX_FLAG_CH3
 # SFX_SELECT
 	dc.l	sfx_select + SFX_FLAG_CH3
-# free
-	dc.l	sfx_null
+# SFX_ROAR
+	dc.l	sfx_roar
 # SFX_SLAM
 	dc.l	sfx_slam + SFX_FLAG_CH3

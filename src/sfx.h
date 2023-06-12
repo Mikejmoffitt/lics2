@@ -39,7 +39,7 @@ typedef enum SfxId
 	SFX_SAND,
 	SFX_BEEP,
 	SFX_SELECT,
-	SFX_FREE4,
+	SFX_ROAR,
 	SFX_SLAM,
 } SfxId;
 
