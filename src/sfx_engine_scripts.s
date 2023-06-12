@@ -778,6 +778,7 @@ sfx_snore:
 	dc.l	env_att15
 
 	dc.w	SFXOP_PERIOD, 0x0340
+	dc.w	SFXOP_SWEEP, 3
 	dc.w	SFXOP_LOOP_SET, 20
 	dc.w	SFXOP_NOISE_VOL, 2
 	dc.w	SFXOP_REST, 1
@@ -785,7 +786,7 @@ sfx_snore:
 	dc.w	SFXOP_REST, 1
 	dc.w	SFXOP_LOOP_END
 
-	dc.w	SFXOP_PERIOD, 0x02E0
+	dc.w	SFXOP_SWEEP, -6
 	dc.w	SFXOP_LOOP_SET, 15
 	dc.w	SFXOP_NOISE_VOL, 3
 	dc.w	SFXOP_REST, 1
@@ -793,7 +794,7 @@ sfx_snore:
 	dc.w	SFXOP_REST, 1
 	dc.w	SFXOP_LOOP_END
 
-	dc.w	SFXOP_PERIOD, 0x02D0
+	dc.w	SFXOP_SWEEP, -5
 	dc.w	SFXOP_LOOP_SET, 10
 	dc.w	SFXOP_NOISE_VOL, 4
 	dc.w	SFXOP_REST, 1
