@@ -10,7 +10,7 @@
 #include "map_file.h"
 #include "md/megadrive.h"
 #include "util/fixed.h"
-
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef enum MapExitTrigger
@@ -32,8 +32,6 @@ typedef struct Map
 	uint32_t current_map_size;
 	MapExitTrigger exit_trigger;
 
-	int16_t fresh_room;
-
 	// Map limits, in subpixels
 	fix32_t right;
 	fix32_t bottom;
@@ -52,6 +50,8 @@ typedef struct Map
 
 	uint8_t next_room_id;
 	uint8_t next_room_entrance;
+
+	bool fresh_room;
 } Map;
 
 extern const uint16_t *g_map_data;

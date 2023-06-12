@@ -7,6 +7,8 @@
 #include "md/megadrive.h"
 #include "game.h"
 
+#include <stdbool.h>
+
 #include "obj/entrance.h"
 #include "lyle.h"
 
@@ -138,11 +140,11 @@ static const MapAssets map_by_id[] =
 };
 #undef MAP_ASSETS
 
-static inline int16_t draw_vertical(void)
+static inline bool draw_vertical(void)
 {
 	Map *m = &s_map;
-	if (g_map_y_scroll == m->y_scroll_prev) return 0;
-	const uint16_t bottom_side = (g_map_y_scroll > m->y_scroll_prev);
+	if (g_map_y_scroll == m->y_scroll_prev) return false;
+	const bool bottom_side = (g_map_y_scroll > m->y_scroll_prev);
 
 	// VRAM address at which the vertical seam occurs
 	const uint16_t v_seam_vram_offset = 2 * GAME_PLANE_H_CELLS *
@@ -155,7 +157,7 @@ static inline int16_t draw_vertical(void)
 	if (map_src_x == m->v_x_map_src_prev &&
 	    map_src_y == m->v_y_map_src_prev)
 	{
-		return 1;
+		return true;
 	}
 
 	m->v_x_map_src_prev = map_src_x;
@@ -227,14 +229,14 @@ static inline int16_t draw_vertical(void)
 
 	md_dma_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) md_dma_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
-	return 1;
+	return true;
 }
 
-static inline int16_t draw_horizontal(void)
+static inline bool draw_horizontal(void)
 {
 	Map *m = &s_map;
-	if (g_map_x_scroll == m->x_scroll_prev) return 0;
-	const uint16_t right_side = (g_map_x_scroll > m->x_scroll_prev);
+	if (g_map_x_scroll == m->x_scroll_prev) return false;
+	const bool right_side = (g_map_x_scroll > m->x_scroll_prev);
 	const int16_t scroll_idx_x = g_map_x_scroll / 8;
 	const int16_t scroll_idx_y = g_map_y_scroll / 8;
 
@@ -253,7 +255,7 @@ static inline int16_t draw_horizontal(void)
 	if (map_src_x == m->h_x_map_src_prev &&
 	    map_src_y == m->h_y_map_src_prev)
 	{
-		return 1;
+		return true;
 	}
 
 	m->h_x_map_src_prev = map_src_x;
@@ -324,7 +326,7 @@ static inline int16_t draw_horizontal(void)
 		                    &s_horizontal_dma_buffer[map_dma_h_len[0]],
 		                    map_dma_h_len[1], stride);
 	}
-	return 1;
+	return true;
 }
 
 static inline void draw_full(void)
@@ -407,26 +409,13 @@ static inline void prepare_vscroll(void)
 
 void map_poll(void)
 {
-/*
-	uint16_t i = ARRAYSIZE(s_h_scroll_buffer);
-	while (i--)
-	{
-		s_h_scroll_buffer[i] = -g_map_x_scroll;
-	}
-
-	i = ARRAYSIZE(s_v_scroll_buffer);
-	while (i--)
-	{
-		s_v_scroll_buffer[i] = g_map_y_scroll;
-	}*/
-
 	// Update plane A.
 	if (s_map.fresh_room)
 	{
 		prepare_vscroll();
 		prepare_hscroll();
 		draw_full();
-		s_map.fresh_room = 0;
+		s_map.fresh_room = false;
 
 		md_dma_transfer_vram(md_vdp_get_hscroll_base(), s_h_scroll_buffer, sizeof(s_h_scroll_buffer) / 2, 32);
 		md_dma_transfer_vsram(0, s_v_scroll_buffer, sizeof(s_v_scroll_buffer) / 2, 4);
@@ -470,7 +459,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	s_map.bottom = INTTOFIX32(s_map.bottom_px);
 	SYSTEM_ASSERT(s_map.right >= INTTOFIX32(320));
 	SYSTEM_ASSERT(s_map.bottom >= INTTOFIX32(240));
-	s_map.fresh_room = 1;
+	s_map.fresh_room = true;
 
 	g_map_x_scroll = 0;
 	g_map_y_scroll = 0;
@@ -486,7 +475,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	md_vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
 
 	// Build the object list.
-	uint16_t found_entrance = 0;
+	bool found_entrance = false;
 	for (uint8_t i = 0; i < ARRAYSIZE(s_map.current_map->objects); i++)
 	{
 		const MapObj *b = &s_map.current_map->objects[i];
@@ -500,7 +489,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 			if (e->entrance_num == entrance_num)
 			{
 				lyle_set_pos(o->x, o->y);
-				found_entrance = 1;
+				found_entrance = true;
 			}
 		}
 	}
@@ -508,7 +497,7 @@ void map_load(uint8_t id, uint8_t entrance_num)
 
 void map_redraw_room(void)
 {
-	s_map.fresh_room = 1;
+	s_map.fresh_room = true;
 }
 
 fix32_t map_get_right(void)
