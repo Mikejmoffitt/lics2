@@ -583,7 +583,6 @@ static void main_func(Obj *o)
 				l->head.dx = 0;
 				lyle_set_anim_frame(24);
 				// Turn on the lasers.
-				// TODO: laser sfx
 				laser_set_mode(LASER_MODE_ON);
 
 				int16_t px = FIX32TOINT(l->head.x);
@@ -605,9 +604,8 @@ static void main_func(Obj *o)
 				sfx_play(SFX_BEEP, 0);
 				keddums_set_state(KEDDUMS_SHAKE);
 				psychowave_set_state(PWAVE_STATE_ON);
-				// TODO: keddums meow
+				sfx_play(SFX_MEOW, 1);
 				// TODO: activate big orb thing
-				// TODO: Illuminate kitty powered psychowave
 				e->metaframe = 4;
 			}
 			else if (e->state_elapsed == (kvyle_activation_delay_frames +
@@ -724,7 +722,6 @@ static void main_func(Obj *o)
 			// The camera pans back until it reaches the arena.
 			if (e->xscroll > INTTOFIX32(320))
 			{
-				// TODO: laser sfx
 				laser_set_mode(LASER_MODE_OFF);
 				e->xscroll -= kscroll_pan_dx;
 				if (e->xscroll < INTTOFIX32(320))
@@ -734,7 +731,6 @@ static void main_func(Obj *o)
 			}
 			else
 			{
-				// TODO: laser sfx (limit once...)
 				laser_set_mode(LASER_MODE_ON);
 			}
 
@@ -760,7 +756,7 @@ static void main_func(Obj *o)
 				{
 					if (e->anim_frame == 2 || e->anim_frame == 5)
 					{
-						sfx_play(SFX_BOSS_STEP, 1);
+						sfx_play(SFX_KNOCK, 1);
 					}
 				}
 				e->metaframe = vyle_big_walk_cycle[e->anim_frame];
@@ -975,11 +971,14 @@ static void main_func(Obj *o)
 		case VYLE2_STATE_ZAP:
 			if (e->state_elapsed == 0)
 			{
+				sfx_play(SFX_LASER_CONSTANT, 0);
 				e->shaking = true;
 				e->metaframe = 16;
 			}
-			if (e->state_elapsed >= kvyle_zap_duration)
+			else if (e->state_elapsed >= kvyle_zap_duration)
 			{
+				sfx_stop(SFX_LASER_CONSTANT);
+				sfx_play(SFX_NOISE_SILENCE, 0);
 				e->state = VYLE2_STATE_ZAP_RECOIL;
 			}
 			break;

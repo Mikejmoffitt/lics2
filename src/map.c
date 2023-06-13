@@ -451,7 +451,10 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	memset(&s_map, 0, sizeof(s_map));
 	s_map.current_map = map_by_id[id].data;
 	s_map.current_map_size = map_by_id[id].size;
-	g_map_data = s_map.current_map->map_data;
+
+	memcpy(s_map.data.raw, s_map.current_map->map_data, s_map.current_map_size);
+	g_map_data = &s_map.data.file;
+
 	g_map_row_size = s_map.current_map->w * GAME_SCREEN_W_CELLS;
 	s_map.right_px = s_map.current_map->w * GAME_SCREEN_W_PIXELS;
 	s_map.bottom_px = s_map.current_map->h * GAME_SCREEN_H_PIXELS;

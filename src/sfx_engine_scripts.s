@@ -131,6 +131,69 @@ env_hurt_reduced:
 	.endr
 	dc.b	8
 	dc.b	-1
+
+
+env_hurt2:
+	.rept	25
+	dc.b	3
+	.endr
+	.rept	35
+	dc.b	4
+	.endr
+	dc.b	5
+	dc.b	-1
+env_hurt_reduced2:
+	.rept	25
+	dc.b	8
+	.endr
+	.rept	35
+	dc.b	9
+	.endr
+	dc.b	10
+	dc.b	-1
+
+
+env_hurt3:
+	.rept	25
+	dc.b	5
+	.endr
+	.rept	35
+	dc.b	6
+	.endr
+	dc.b	7
+	dc.b	-1
+env_hurt_reduced3:
+	.rept	25
+	dc.b	10
+	.endr
+	.rept	35
+	dc.b	11
+	.endr
+	dc.b	12
+	dc.b	-1
+
+
+env_hurt4:
+	.rept	25
+	dc.b	8
+	.endr
+	.rept	35
+	dc.b	9
+	.endr
+	dc.b	10
+	dc.b	-1
+env_hurt_reduced4:
+	.rept	25
+	dc.b	12
+	.endr
+	.rept	35
+	dc.b	13
+	.endr
+	dc.b	14
+	dc.b	-1
+
+
+
 env_scratchy:
 	.rept	64
 	dc.b	0
@@ -199,6 +262,90 @@ sfx_hurt:
 
 	dc.w	SFXOP_ENV
 	dc.l	env_hurt_reduced
+	dc.w	SFXOP_PERIOD_LOAD
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_END
+
+
+
+sfx_die:
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt
+	dc.w	SFXOP_PERIOD, 0x0520
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt
+	dc.w	SFXOP_PERIOD, 0x03B0
+	dc.w	SFXOP_PERIOD_SAVE
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_reduced
+	dc.w	SFXOP_PERIOD_LOAD
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_REST, 10
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt2
+	dc.w	SFXOP_PERIOD, 0x0520
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt2
+	dc.w	SFXOP_PERIOD, 0x03B0
+	dc.w	SFXOP_PERIOD_SAVE
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_reduced2
+	dc.w	SFXOP_PERIOD_LOAD
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_REST, 10
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt3
+	dc.w	SFXOP_PERIOD, 0x0520
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt3
+	dc.w	SFXOP_PERIOD, 0x03B0
+	dc.w	SFXOP_PERIOD_SAVE
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_reduced3
+	dc.w	SFXOP_PERIOD_LOAD
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_REST, 10
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt4
+	dc.w	SFXOP_PERIOD, 0x0520
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt4
+	dc.w	SFXOP_PERIOD, 0x03B0
+	dc.w	SFXOP_PERIOD_SAVE
+	dc.w	SFXOP_CALL
+	dc.l	sfx_hurt_sub
+
+	dc.w	SFXOP_ENV
+	dc.l	env_hurt_reduced4
 	dc.w	SFXOP_PERIOD_LOAD
 	dc.w	SFXOP_CALL
 	dc.l	sfx_hurt_sub
@@ -850,6 +997,147 @@ sfx_roar:
 	dc.w	SFXOP_REST, 64
 	dc.w	SFXOP_END
 
+sfx_rumble:
+	dc.w	SFXOP_ENV
+	dc.l	env_att15
+	dc.w	SFXOP_NOISE_TONE, 0x07
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_NOISE_VOL, 1
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_NOISE_VOL, 2
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_NOISE_VOL, 3
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_NOISE_VOL, 4
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_NOISE_VOL, 5
+	dc.w	SFXOP_PERIOD, 0x0700
+	dc.w	SFXOP_REST, 30
+	dc.w	SFXOP_PERIOD, 0x0600
+	dc.w	SFXOP_REST, 30
+
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
+.set	FLIZZ_DELAY, 5
+.set	FLIZZ_BASE, 0x0A4
+.set	FLIZZ_P0, FLIZZ_BASE*(399-373)
+.set	FLIZZ_P1, FLIZZ_BASE*(846-777)
+.set	FLIZZ_P2, FLIZZ_BASE*(1168-1125)
+.set	FLIZZ_P3, FLIZZ_BASE*(1493-1470)
+.set	FLIZZ_P4, FLIZZ_BASE*(1929-1918)
+.set	FLIZZ_P5, FLIZZ_BASE*(2242-2235)
+.set	FLIZZ_P6, FLIZZ_BASE*(2586-2566)
+.set	FLIZZ_P7, FLIZZ_BASE*(2943-2936)
+.set	FLIZZ_P8, FLIZZ_BASE*(3323-3312)
+.set	FLIZZ_P9, FLIZZ_BASE*(3700-3687)
+.set	FLIZZ_P10, FLIZZ_BASE*(4052-4032)
+
+# Ported by analyzing original carefully
+sfx_flizz:
+	dc.w	SFXOP_ENV
+	dc.l	env_att0
+	dc.w	SFXOP_PERIOD, FLIZZ_P0
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P1
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P2
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P3
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P4
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P5
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P6
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P7
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P8
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P9
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_PERIOD, FLIZZ_P10
+	dc.w	SFXOP_REST, FLIZZ_DELAY
+	dc.w	SFXOP_END
+
+sfx_knock:
+	dc.w	SFXOP_NOISE_TONE, 0x07
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_ENV
+	dc.l	env_att15
+	dc.w	SFXOP_PERIOD, 0x0210
+	dc.w	SFXOP_SWEEP, 0x10
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_REST, 5
+	.rept	4
+	dc.w	SFXOP_NOISE_VOL, 5
+	dc.w	SFXOP_REST, 5
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_REST, 5
+	.endr
+	dc.w	SFXOP_SWEEP, 0
+	dc.w	SFXOP_PERIOD, 0x0920
+	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_NOISE_VOL, 1
+	dc.w	SFXOP_REST, 20
+	dc.w	SFXOP_NOISE_VOL, 2
+	dc.w	SFXOP_REST, 18
+	dc.w	SFXOP_NOISE_VOL, 3
+	dc.w	SFXOP_REST, 15
+	dc.w	SFXOP_NOISE_VOL, 4
+	dc.w	SFXOP_REST, 13
+	dc.w	SFXOP_NOISE_VOL, 5
+	dc.w	SFXOP_REST, 9
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
+sfx_laser_body:
+	dc.w	SFXOP_ENV
+	dc.l	env_att15
+	dc.w	SFXOP_NOISE_TONE, 0x03
+	dc.w	SFXOP_NOISE_VOL, 0
+	dc.w	SFXOP_PERIOD, 0x0210
+	dc.w	SFXOP_LOOP_SET, 14
+	dc.w	SFXOP_PERIOD_ADD, 0x28
+	dc.w	SFXOP_REST, 6
+	dc.w	SFXOP_PERIOD_ADD, -0x28
+	dc.w	SFXOP_REST, 6
+	dc.w	SFXOP_LOOP_END
+	dc.w	SFXOP_RET
+
+sfx_laser:
+	dc.w	SFXOP_CALL
+	dc.l	sfx_laser_body
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
+sfx_laser_constant:
+	dc.w	SFXOP_CALL
+	dc.l	sfx_laser_body
+	dc.w	SFXOP_JMP
+	dc.l	sfx_laser_constant
+
+sfx_noise_silence:
+	dc.w	SFXOP_NOISE_VOL, 15
+	dc.w	SFXOP_END
+
 	sfx_engine_sound_list:
 # SFX_NULL
 	dc.l	sfx_null
@@ -886,7 +1174,7 @@ sfx_roar:
 # SFX_POWERUP_GET
 	dc.l	sfx_powerup_get
 # SFX_MAGIBEAR_SHOT
-	dc.l	sfx_magibear_shot
+	dc.l	sfx_flizz
 # SFX_GAXTER_SHOT
 	dc.l	sfx_gaxter_shot + SFX_FLAG_CH3
 # SFX_MEOW
@@ -919,3 +1207,15 @@ sfx_roar:
 	dc.l	sfx_roar
 # SFX_SLAM
 	dc.l	sfx_slam + SFX_FLAG_CH3
+# SFX_RUMBLE
+	dc.l	sfx_rumble + SFX_FLAG_CH3
+# SFX_DIE
+	dc.l	sfx_die
+# SFX_KNOCK
+	dc.l	sfx_knock + SFX_FLAG_CH3
+# SFX_LASER
+	dc.l	sfx_laser + SFX_FLAG_CH3
+# SFX_LASER_CONSTANT
+	dc.l	sfx_laser_constant + SFX_FLAG_CH3
+# SFX_NOISE_SILENCE
+	dc.l	sfx_noise_silence + SFX_FLAG_CH3

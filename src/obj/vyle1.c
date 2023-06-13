@@ -226,7 +226,9 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed == kintro_toss_time)
 			{
+				sfx_play(SFX_SAND, 1);
 				e->metaframe = 3;
+				// TODO: Spawn discarded cloak
 			}
 			else if (e->state_elapsed == kintro_seek_start_time)
 			{

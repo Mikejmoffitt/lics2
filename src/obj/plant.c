@@ -9,6 +9,7 @@
 #include "map.h"
 #include "projectile.h"
 #include "lyle.h"
+#include "sfx.h"
 
 
 static uint16_t s_vram_pos;
@@ -153,8 +154,8 @@ static void main_func(Obj *o)
 				const fix32_t x_offset = (o->direction == OBJ_DIRECTION_RIGHT) ? INTTOFIX32(10) : INTTOFIX32(-10);
 				projectile_shoot_at(o->x + x_offset, o->y - INTTOFIX32(32), PROJECTILE_TYPE_BALL2,
 				                            lyle_x, lyle_y - INTTOFIX32(10), kshot_speed);
+				sfx_play(SFX_MAGIBEAR_SHOT, 6);
 				// TODO: Shot speed
-				// TODO: Shot sound
 			}
 			break;
 
@@ -169,7 +170,8 @@ static void main_func(Obj *o)
 			break;
 	}
 
-	e->state_elapsed++;
+	if (e->initial_delay > 0) e->initial_delay--;
+	else e->state_elapsed++;
 
 	render(e);
 }
@@ -186,6 +188,9 @@ void o_load_plant(Obj *o, uint16_t data)
 	               INTTOFIX16(-9), INTTOFIX16(9), INTTOFIX16(-44), 3);
 	o->main_func = main_func;
 	o->cube_func = NULL;
+
+	O_Plant *e = (O_Plant *)o;
+	e->initial_delay = system_rand() % (kidle_duration / 2);
 }
 
 void o_unload_plant(void)

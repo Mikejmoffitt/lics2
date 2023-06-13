@@ -45,6 +45,8 @@ static int16_t kexplosion_separation;
 static int16_t kexploding_duration;
 static int16_t kflash_speed;
 
+static int16_t krumble_sound_delay;
+
 static int16_t kdrop_separation;
 static int16_t kstep_sound_separation;
 
@@ -85,6 +87,8 @@ static inline void set_constants(void)
 	kexplosion_separation = PALSCALE_DURATION(12);
 	kexploding_duration = kexplosion_separation * 20;
 	kflash_speed = PALSCALE_DURATION(2);
+
+	krumble_sound_delay = PALSCALE_DURATION(32);
 
 	kdrop_separation = PALSCALE_DURATION(23);
 	kstep_sound_separation = PALSCALE_DURATION(18);
@@ -150,20 +154,28 @@ static void render(O_Boss1 *e)
 
 static void drop_reset(O_Boss1 *e)
 {
-	e->drop.cnt = 0;
-	e->drop.remaining = 15;
+	e->drop_cnt = 0;
+	e->drop_remaining = 15;
 }
 
 static void drop_process(O_Boss1 *e)
 {
-	if (e->drop.remaining == 0) return;
-	if (e->drop.cnt > 0)
+	if (e->drop_remaining == 0) return;
+
+	e->drop_snd_cnt++;
+	if (e->drop_snd_cnt >= krumble_sound_delay)
 	{
-		e->drop.cnt--;
+		e->drop_snd_cnt = 0;
+		sfx_play(SFX_RUMBLE, 16);
+	}
+
+	if (e->drop_cnt > 0)
+	{
+		e->drop_cnt--;
 		return;
 	}
 
-	const CubeType cube_to_drop = (e->drop.remaining == 6) ? CUBE_TYPE_GREENBLUE : CUBE_TYPE_BLUE;
+	const CubeType cube_to_drop = (e->drop_remaining == 6) ? CUBE_TYPE_GREENBLUE : CUBE_TYPE_BLUE;
 	const int16_t drop_id = ((e->head.x > INTTOFIX32(160)) ? 0 : 3) + (system_rand() % 15);
 
 	ObjSlot *s = &g_objects[0];
@@ -180,8 +192,8 @@ static void drop_process(O_Boss1 *e)
 		O_FakeCube *f = (O_FakeCube *)b;
 		if (f->id == drop_id && fakecube_drop_cube(f, cube_to_drop))
 		{
-			e->drop.remaining--;
-			e->drop.cnt = kdrop_separation;
+			e->drop_remaining--;
+			e->drop_cnt = kdrop_separation;
 			break;
 		}
 	}
@@ -270,7 +282,7 @@ static void main_func(Obj *o)
 				o->y = ground_y;
 				o->dy = 0;
 				e->state = BOSS1_STATE_SHAKE_DELAY;
-				e->drop.shaking = 1;
+				e->drop_shaking = 1;
 				e->metaframe = 0;
 				sfx_play(SFX_SLAM, 5);
 			}
@@ -282,7 +294,7 @@ static void main_func(Obj *o)
 				e->state = BOSS1_STATE_PRESHOT;
 				e->shots_remaining = 1 + (system_rand() % 4);
 				music_play(10);
-				e->drop.shaking = 0;
+				e->drop_shaking = 0;
 			}
 			break;
 
@@ -345,8 +357,9 @@ static void main_func(Obj *o)
 		case BOSS1_STATE_RECOIL:  // Wall hit animation for a short bit.
 			if (e->state_elapsed == 0)
 			{
+				sfx_play(SFX_SLAM, 0);
 				e->metaframe = 6;
-				e->drop.shaking = 1;
+				e->drop_shaking = 1;
 			}
 			else if (e->state_elapsed == krecoil_frame_change)
 			{
@@ -371,14 +384,14 @@ static void main_func(Obj *o)
 
 		case BOSS1_STATE_DROP_WAIT:
 			e->metaframe = 0;
-			if (e->drop.remaining == 0) e->state = BOSS1_STATE_PRESHOT;
+			if (e->drop_remaining == 0) e->state = BOSS1_STATE_PRESHOT;
 			break;
 
 		case BOSS1_STATE_PRESHOT:  // The boss delays and contemplates firing.
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = 0;
-				e->drop.shaking = 0;
+				e->drop_shaking = 0;
 			}
 			if (e->state_elapsed < kpreshot_duration) break;
 
@@ -386,13 +399,16 @@ static void main_func(Obj *o)
 			                                      BOSS1_STATE_PRECHARGE;
 			break;
 		case BOSS1_STATE_SHOT:  // The boss fires a projectile.
-			if (e->state_elapsed == kshot_event_frames)
+			if (e->state_elapsed == 0)
+			{
+				sfx_play(SFX_ROAR, 6);
+			}
+			else if (e->state_elapsed == kshot_event_frames)
 			{
 				const fix32_t shot_x = o->x + INTTOFIX32((o->direction == OBJ_DIRECTION_RIGHT ? 13 : -13));
 				const fix32_t shot_y = o->y - INTTOFIX32(16);
 				const fix16_t shot_dx = (o->direction == OBJ_DIRECTION_RIGHT) ? kshot_dx : -kshot_dx;
 				projectile_shoot(shot_x, shot_y, PROJECTILE_TYPE_DEATHORB2, shot_dx, kshot_dy);
-				// TODO: roar sound
 			}
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kroar_anim_speed);
 			e->metaframe = 7 + e->anim_frame;
@@ -434,7 +450,7 @@ static void main_func(Obj *o)
 
 	drop_process(e);
 	suppress_spawner_cubes();
-	if (e->drop.shaking)
+	if (e->drop_shaking)
 	{
 		int16_t shake_y = (system_rand() % 4) - 1;
 		if (shake_y == 0) shake_y = -2;

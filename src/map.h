@@ -52,6 +52,12 @@ typedef struct Map
 	uint8_t next_room_entrance;
 
 	bool fresh_room;
+
+	union
+	{
+		uint8_t raw[0x9000];
+		MapFile file;
+	} data;
 } Map;
 
 extern const uint16_t *g_map_data;

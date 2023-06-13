@@ -1132,9 +1132,8 @@ static void maybe_die(O_Lyle *l)
 {
 	if (l->head.hp == 0 && !l->dead)
 	{
-		// TODO: Play big hurt sound
 		sfx_stop_all();
-		sfx_play(SFX_HURT, 0);
+		sfx_play(SFX_DIE, 0);
 		music_stop();
 
 		l->head.dx = 0;

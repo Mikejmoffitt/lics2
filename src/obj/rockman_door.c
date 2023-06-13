@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 #include "lyle.h"
 
@@ -73,6 +74,13 @@ static void main_func(Obj *o)
 	if (e->closed && e->state < kthresh[2])
 	{
 		e->state++;
+
+		if (e->state == kthresh[0] ||
+		    e->state == kthresh[1] ||
+		    e->state == kthresh[2])
+		{
+			sfx_play(SFX_KNOCK, 0);
+		}
 	}
 	else if (!e->closed && e->state > 0)
 	{

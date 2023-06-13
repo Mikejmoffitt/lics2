@@ -16,6 +16,7 @@ typedef struct O_Plant
 
 	uint16_t anim_frame;
 	uint16_t anim_cnt;
+	uint16_t initial_delay;
 
 	PlantState state;
 	uint16_t state_elapsed;

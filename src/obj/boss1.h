@@ -39,12 +39,10 @@ typedef struct O_Boss1
 	int16_t metaframe;
 
 	// Data for the cube dropping phase set during precharge.
-	struct
-	{
-		int16_t cnt;  // Used to space out drops.
-		int16_t remaining;
-		int16_t shaking;
-	} drop;
+	int16_t drop_cnt;  // Used to space out drops.
+	int16_t drop_remaining;
+	int16_t drop_shaking;
+	int16_t drop_snd_cnt;
 } O_Boss1;
 
 void o_load_boss1(Obj *o, uint16_t data);

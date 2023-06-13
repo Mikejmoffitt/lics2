@@ -41,6 +41,12 @@ typedef enum SfxId
 	SFX_SELECT,
 	SFX_ROAR,
 	SFX_SLAM,
+	SFX_RUMBLE,
+	SFX_DIE,
+	SFX_KNOCK,
+	SFX_LASER,
+	SFX_LASER_CONSTANT,
+	SFX_NOISE_SILENCE,
 } SfxId;
 
 // Initializes playback state, sets up horizontal interrupts for timing, and

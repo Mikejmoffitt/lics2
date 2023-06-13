@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 
 static uint16_t s_vram_pos;
@@ -106,6 +107,10 @@ static void main_func(Obj *o)
 	}
 	else if (e->timer < ksequence[2])
 	{
+		if (e->timer == ksequence[1])
+		{
+			sfx_play(SFX_LASER, 0);
+		}
 		// Laser is on.
 		e->phase = 2;
 		if (e->mode == LASER_MODE_ON)

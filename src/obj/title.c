@@ -580,7 +580,7 @@ static void main_func(Obj *o)
 					if (e->v_scroll_dy > kbounce_dead_dy)
 					{
 						e->v_scroll_dy = e->v_scroll_dy / -2;
-						sfx_play(SFX_SLAM, 0);
+						sfx_play(SFX_KNOCK, 0);
 					}
 					else if (e->v_scroll_dy > 0 &&
 					         e->v_scroll_dy < kbounce_dead_dy)
@@ -589,7 +589,7 @@ static void main_func(Obj *o)
 						e->state = TITLE_STATE_CUTSCENE;
 						e->v_scroll_y = kfloor_pos;
 						wndwback_set_visible(1);
-						sfx_play(SFX_SLAM, 0);
+						sfx_play(SFX_KNOCK, 0);
 					}
 				}
 			}

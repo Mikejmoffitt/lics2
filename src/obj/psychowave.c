@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 enum
 {
@@ -116,6 +117,10 @@ static void main_func(Obj *o)
 
 		case PWAVE_STATE_ON:
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
+			if (e->anim_cnt == 0)
+			{
+//				sfx_play(SFX_LASER, 0);
+			}
 			if (e->anim_frame == 0)
 			{
 				s_spr[PW_SPR_MARQUEE_0].size &= ~0x80;
@@ -236,5 +241,6 @@ void o_unload_psychowave(void)
 void psychowave_set_state(PsychowaveState state)
 {
 	if (!s_pwave) return;
+//	if (state != PWAVE_STATE_ON) sfx_stop(SFX_LASER);
 	s_pwave->state = state;
 }
