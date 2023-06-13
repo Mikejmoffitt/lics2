@@ -29,7 +29,11 @@ typedef enum MapExitTrigger
 typedef struct Map
 {
 	const MapFile *current_map;
-	uint32_t current_map_size;
+	union
+	{
+		uint8_t map_raw[0x9200];
+		MapFile map_file;
+	};
 	MapExitTrigger exit_trigger;
 
 	// Map limits, in subpixels
@@ -52,12 +56,6 @@ typedef struct Map
 	uint8_t next_room_entrance;
 
 	bool fresh_room;
-
-	union
-	{
-		uint8_t raw[0x9000];
-		MapFile file;
-	} data;
 } Map;
 
 extern const uint16_t *g_map_data;
@@ -140,6 +138,5 @@ int16_t map_get_world_y_tile(void);
 void map_upload_tiles(void);
 void map_upload_palette(void);
 
-const MapFile *map_file_by_id(int16_t id);
 int16_t map_file_count(void);
 #endif  // MAP_H

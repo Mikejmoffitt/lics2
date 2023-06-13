@@ -13,3 +13,7 @@ util/xm2esf/TEMP
 editor
 history/
 obj_dispatch.inc
+util/accurate-kosinski
+res/map
+util/tm/resources
+util/tm/settings.xml

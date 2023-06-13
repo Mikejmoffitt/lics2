@@ -1044,15 +1044,6 @@ static void plot_room_select_list()
 			plot_string("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
 		}
 		if (id >= map_file_count()) continue;
-		const MapFile *file = map_file_by_id(id);
-		if (!file)
-		{
-			plot_string(" (empty room slot)", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
-		}
-		else
-		{
-			plot_string(file->name, kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
-		}
 	}
 	s_pause.debug.room_last_page = page;
 }

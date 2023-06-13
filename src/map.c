@@ -16,6 +16,8 @@
 
 #include "res.h"
 
+#include "util/kosinski.h"
+
 const uint16_t *g_map_data;  // Cast from s_map.current_map->map_data
 uint16_t g_map_row_size;  // Set to 40 * s_map.current_map->w
 
@@ -68,12 +70,12 @@ static const TilesetAssets tileset_by_id[] =
 // LUT for map data by ID
 typedef struct MapAssets
 {
-	const MapFile *data;
+	const uint8_t *data;
 	unsigned int size;
 } MapAssets;
 
-#define MAP_ASSETS(name) { (const MapFile *)(res_map_##name##_bin),\
-                           sizeof(res_map_##name##_bin) }
+#define MAP_ASSETS(name) { res_map_##name##_kos,\
+                           sizeof(res_map_##name##_kos) }
 static const MapAssets map_by_id[] =
 {
 	[0] = MAP_ASSETS(00_roomzero),
@@ -224,8 +226,10 @@ static inline bool draw_vertical(void)
 			dma_dest[1] -= v_seam_vram_offset;
 		}
 	}
-	while ((uint8_t *)dma_src[0] >= (uint8_t *)(s_map.current_map) + s_map.current_map_size) dma_src[0] -= s_map.current_map_size;
-	while ((uint8_t *)dma_src[1] >= (uint8_t *)(s_map.current_map) + s_map.current_map_size) dma_src[1] -= s_map.current_map_size;
+
+	// TODO: Were these DMA limits busted anyway>
+//	while ((uint8_t *)dma_src[0] >= (uint8_t *)(s_map.current_map) + s_map.current_map_size) dma_src[0] -= s_map.current_map_size;
+//	while ((uint8_t *)dma_src[1] >= (uint8_t *)(s_map.current_map) + s_map.current_map_size) dma_src[1] -= s_map.current_map_size;
 
 	md_dma_transfer_vram(dma_dest[0], dma_src[0], dma_len[0], 2);
 	if (dma_len[1] > 0) md_dma_transfer_vram(dma_dest[1], dma_src[1], dma_len[1], 2);
@@ -297,10 +301,11 @@ static inline bool draw_horizontal(void)
 
 	for (uint16_t i = 0; i < row_count; i++)
 	{
-		while ((uint8_t *)(dma_src) >= (uint8_t *)(s_map.current_map) + s_map.current_map_size)
-		{
-			dma_src -= s_map.current_map_size;
-		}
+		// TODO: Redo broken map limits
+//		while ((uint8_t *)(dma_src) >= (uint8_t *)(s_map.current_map) + s_map.current_map_size)
+//		{
+//			dma_src -= s_map.current_map_size;
+//		}
 		s_horizontal_dma_buffer[i] = *dma_src;
 		dma_src += g_map_row_size;
 		map_dma_h_len[current_dma]++;
@@ -377,10 +382,12 @@ static inline void draw_full(void)
 		for (uint16_t i = 0; i < ARRAYSIZE(dma_src); i++)
 		{
 			if (dma_len[i] == 0) continue;
-			if ((uint8_t *)(dma_src[i]) >= (uint8_t *)(s_map.current_map) + s_map.current_map_size)
-			{
-				dma_src[i] -= s_map.current_map_size;
-			}
+
+			// TODO: Broken map limits
+//			if ((uint8_t *)(dma_src[i]) >= (uint8_t *)(s_map.current_map) + s_map.current_map_size)
+//			{
+//				dma_src[i] -= s_map.current_map_size;
+//			}
 			md_dma_transfer_vram(dma_dest[i], dma_src[i], dma_len[i], 2);
 			dma_src[i] += g_map_row_size;
 			dma_dest[i] += GAME_PLANE_W_CELLS * 2;
@@ -449,11 +456,13 @@ void map_poll(void)
 void map_load(uint8_t id, uint8_t entrance_num)
 {
 	memset(&s_map, 0, sizeof(s_map));
-	s_map.current_map = map_by_id[id].data;
-	s_map.current_map_size = map_by_id[id].size;
 
-	memcpy(s_map.data.raw, s_map.current_map->map_data, s_map.current_map_size);
-	g_map_data = &s_map.data.file;
+	const bool ints_enabled = md_sys_di();
+	kosinski_decomp(map_by_id[id].data, s_map.map_raw);
+	if (ints_enabled) md_sys_ei();
+	s_map.current_map = &s_map.map_file;
+
+	g_map_data = s_map.current_map->map_data;
 
 	g_map_row_size = s_map.current_map->w * GAME_SCREEN_W_CELLS;
 	s_map.right_px = s_map.current_map->w * GAME_SCREEN_W_PIXELS;
@@ -610,11 +619,6 @@ void map_upload_palette(void)
 		const TilesetAssets *tsa = &tileset_by_id[s_map.current_map->tileset];
 		md_pal_upload(MAP_TILE_CRAM_POSITION, tsa->pal_data, tsa->pal_data_size / 2);
 	}
-}
-
-const MapFile *map_file_by_id(int16_t id)
-{
-	return map_by_id[id].data;
 }
 
 int16_t map_file_count(void)
