@@ -447,23 +447,26 @@ void map_poll(void)
 
 // Public functions -----------------------------------------------------------
 
-// Load a map by ID number. In particular:
-// * Sets the current map pointer
-// * Populates the object list with entities from the map file
-// * Sets the BG based on map file
-// * Queues DMA for the sprite, enemy palettes
-// * Queues DMA for the tileset
 void map_load(uint8_t id, uint8_t entrance_num)
 {
-	memset(&s_map, 0, sizeof(s_map));
+	s_map.x_scroll_prev = -32767;
+	s_map.y_scroll_prev = -32767;
 
-	const bool ints_enabled = md_sys_di();
+	s_map.h_x_map_src_prev = 0;
+	s_map.h_y_map_src_prev = 0;
+	s_map.v_x_map_src_prev = 0;
+	s_map.v_y_map_src_prev = 0;
+
+	s_map.exit_trigger = MAP_EXIT_NONE;
+
+	// Decompress the map data into RAM.
 	kosinski_decomp(map_by_id[id].data, s_map.map_raw);
-	if (ints_enabled) md_sys_ei();
 	s_map.current_map = &s_map.map_file;
-
 	g_map_data = s_map.current_map->map_data;
 
+	s_map.fresh_room = true;
+
+	// Set geometry data.
 	g_map_row_size = s_map.current_map->w * GAME_SCREEN_W_CELLS;
 	s_map.right_px = s_map.current_map->w * GAME_SCREEN_W_PIXELS;
 	s_map.bottom_px = s_map.current_map->h * GAME_SCREEN_H_PIXELS;
@@ -471,20 +474,20 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	s_map.bottom = INTTOFIX32(s_map.bottom_px);
 	SYSTEM_ASSERT(s_map.right >= INTTOFIX32(320));
 	SYSTEM_ASSERT(s_map.bottom >= INTTOFIX32(240));
-	s_map.fresh_room = true;
-
-	g_map_x_scroll = 0;
-	g_map_y_scroll = 0;
-
-	map_upload_tiles();
-	map_upload_palette();
-	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
-	              sizeof(res_pal_enemy_bin) / 2);
 
 	// Set scroll mode based on room geometry.
 	if (s_map.current_map->w <= 1) md_vdp_set_vscroll_mode(VDP_VSCROLL_CELL);
 	else md_vdp_set_vscroll_mode(VDP_VSCROLL_PLANE);
 	md_vdp_set_hscroll_mode(VDP_HSCROLL_CELL);
+
+	g_map_x_scroll = 0;
+	g_map_y_scroll = 0;
+
+	// Asset management.
+	map_upload_tiles();
+	map_upload_palette();
+	md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+	              sizeof(res_pal_enemy_bin) / 2);
 
 	// Build the object list.
 	bool found_entrance = false;

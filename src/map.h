@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum MapExitTrigger
+typedef enum MapExitTrigger : uint8_t
 {
 	MAP_EXIT_NONE,
 	MAP_EXIT_TOP,
@@ -31,10 +31,9 @@ typedef struct Map
 	const MapFile *current_map;
 	union
 	{
-		uint8_t map_raw[0x9200];
+		uint8_t map_raw[0x9200];  // Sized to fit the biggest rooms, which are 0x90CC in size
 		MapFile map_file;
 	};
-	MapExitTrigger exit_trigger;
 
 	// Map limits, in subpixels
 	fix32_t right;
@@ -46,15 +45,20 @@ typedef struct Map
 	int16_t x_scroll_prev;
 	int16_t y_scroll_prev;
 
+	// Scroll update parameter data from the last frame.
 	uint16_t h_x_map_src_prev;
 	uint16_t h_y_map_src_prev;
-
 	uint16_t v_x_map_src_prev;
 	uint16_t v_y_map_src_prev;
 
+	// Indices set when Lyle touches a door.
 	uint8_t next_room_id;
 	uint8_t next_room_entrance;
 
+	// Marker that the next room is to be loaded.
+	MapExitTrigger exit_trigger;
+
+	// Flag that the room/map has just loaded.
 	bool fresh_room;
 } Map;
 
@@ -75,10 +79,9 @@ static inline int16_t map_get_y_scroll(void)
 	return g_map_y_scroll;
 }
 
-// Public singleton functions
-
 // Load a map by ID number. In particular:
-// * Sets the current map pointer
+// * Resets state variables
+// * Decompresses the map data
 // * Populates the object list with entities from the map file ( --> lyle.c )
 // * Sets the BG based on map file (--> bg.c )
 // * Queues DMA for the sprite, enemy palettes
