@@ -30,6 +30,7 @@ static fix16_t kdy_degrade;
 static uint8_t kcollision_timeout;
 static uint8_t kfizzle_duration;
 static uint16_t kspawn_seq[2];
+static uint16_t kspawn_flash_anim_delay;
 
 void cube_set_constants(void)
 {
@@ -47,6 +48,7 @@ void cube_set_constants(void)
 	kspawn_seq[1] = PALSCALE_DURATION(120);
 	kfizzle_duration = PALSCALE_DURATION(7);
 	kcollision_timeout = PALSCALE_DURATION(8);
+	kspawn_flash_anim_delay = PALSCALE_DURATION(5);
 
 	constants_set = true;
 }
@@ -561,7 +563,7 @@ void cube_run(Cube *c)
 		{
 			c->spawned_cube = cube_manager_spawn(c->x, c->y, CUBE_TYPE_BLUE,
 			                                     CUBE_STATUS_IDLE, 0, 0);
-			c->spawned_cube->spawn_count = 1;  // Mark blue cube to flash.
+			c->spawned_cube->blue_cube_flash = true;
 		}
 	}
 
@@ -595,16 +597,22 @@ void cube_run(Cube *c)
 	// Render the cube.
 	if (c->type == CUBE_TYPE_SPAWNER)
 	{
+		OBJ_SIMPLE_ANIM(c->flash_anim_cnt, c->flash_anim_frame, 2, kspawn_flash_anim_delay);
+		render_type = (c->flash_anim_frame == 0) ? CUBE_TYPE_BLUE : CUBE_TYPE_SPAWNER;
+
 		if (c->spawn_count < kspawn_seq[0]) return;
-		if ((g_elapsed >> 2) % 2 == 0) return;
+		if ((g_elapsed % 4 >= 2) == 0) return;
 	}
 	else if (c->type == CUBE_TYPE_BLUE)
 	{
 		// Blue cubes flash the spawner colors if there is a spawner below them.
-		// TODO: Anim counter instead of dividing elapsed time.
-		if (c->spawn_count > 0 && (g_elapsed >> 2) % 2 == 0)
+		if (c->blue_cube_flash)
 		{
-			render_type = CUBE_TYPE_SPAWNER;
+			OBJ_SIMPLE_ANIM(c->flash_anim_cnt, c->flash_anim_frame, 2, kspawn_flash_anim_delay);
+			if (c->flash_anim_frame == 1)
+			{
+				render_type = CUBE_TYPE_SPAWNER;
+			}
 		}
 	}
 

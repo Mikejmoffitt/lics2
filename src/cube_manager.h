@@ -5,6 +5,8 @@
 #include "obj.h"
 
 #include <stdlib.h>
+#include <string.h>
+
 #include "md/megadrive.h"
 #include "game.h"
 
@@ -94,14 +96,13 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 	{
 		Cube *c = &g_cubes[i];
 		if (c->status != CUBE_STATUS_NULL) continue;
+		memset(c, 0, sizeof(*c));
 		c->x = x;
 		c->y = y;
 		c->type = type;
 		c->status = status;
 		c->dx = dx;
 		c->dy = dy;
-		c->spawned_cube = NULL;
-		c->lyle_spawn_check = 0;
 		if (c->type == CUBE_TYPE_ORANGE)
 		{
 			c->left = INTTOFIX16(-15);
@@ -115,10 +116,6 @@ static inline Cube *cube_manager_spawn(fix32_t x, fix32_t y, CubeType type,
 			c->top = INTTOFIX16(-15);
 		}
 
-		c->bounce_count = 0;
-		c->collision_timeout = 0;
-		c->spawn_count = 0;
-		c->fizzle_count = 0;
 		return c;
 	}
 	return NULL;

@@ -20,7 +20,9 @@ static int16_t kanim_speed;
 static fix16_t kgravity;
 static fix16_t kspawn_dy;
 static fix16_t kbounce_dy;
+static fix16_t kbounce_cube_dy;
 static fix16_t kceiling_dy;
+static fix16_t kmax_dy;
 
 #define POWERUP_VRAM_TILE (POWERUP_VRAM_POSITION/32)
 
@@ -31,11 +33,13 @@ static void set_constants(void)
 	static bool s_constants_set;
 	if (s_constants_set) return;
 
-	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
+	kgravity = INTTOFIX16(PALSCALE_2ND( (1.0 / 5.0) * (5.0 / 6.0) ));
 	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
-	kbounce_dy = INTTOFIX16(PALSCALE_1ST(-1.666667));
+	kbounce_dy = INTTOFIX16(PALSCALE_1ST( 2 * -10 * (1.0 / 5.0) * (5.0 / 6.0) ));
+	kbounce_cube_dy = INTTOFIX16(PALSCALE_1ST( -15 * (1.0 / 5.0) * (5.0 / 6.0) ));
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(0.833333333));
 	kanim_speed = PALSCALE_DURATION(4);
+	kmax_dy = INTTOFIX16(PALSCALE_1ST(30 * (1.0 / 5.0) * (5.0 / 6.0)));
 
 	s_constants_set = true;
 }
@@ -153,11 +157,18 @@ void powerup_bounce(Powerup *p)
 	p->dy = (p->dy / 2) + kbounce_dy;
 }
 
+void powerup_cube_bounce(Powerup *p)
+{
+	p->dx = 0;
+	p->dy = (p->dy / 2) + kbounce_cube_dy;
+}
+
 static inline void newtonian_physics(Powerup *p)
 {
-	p->x += p->dx;
-	p->y += p->dy;
 	p->dy += kgravity;
+	if (p->dy > kmax_dy) p->dy = kmax_dy;
+	p->x += p->dx;
+	p->y += physics_trunc_fix16(p->dy);
 	const int16_t px = FIX32TOINT(p->x);
 	const int16_t py = FIX32TOINT(p->y);
 
@@ -176,8 +187,6 @@ static inline void powerup_get(Powerup *p)
 		default:
 			break;
 		case POWERUP_TYPE_HP_2X:
-			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			               PARTICLE_TYPE_SPARKLE);
 			lh->hp += 1;
 			__attribute__((fallthrough));
 		case POWERUP_TYPE_HP:
@@ -187,9 +196,8 @@ static inline void powerup_get(Powerup *p)
 			lh->hp += 1;
 			if (lh->hp > prog->hp_capacity) lh->hp = prog->hp_capacity;
 			break;
+
 		case POWERUP_TYPE_CP_2X:
-			particle_spawn(p->x + INTTOFIX32(4), p->y - INTTOFIX32(8),
-			               PARTICLE_TYPE_SPARKLE);
 			l->cp += 4;
 			__attribute__((fallthrough));
 		case POWERUP_TYPE_CP:
@@ -199,12 +207,14 @@ static inline void powerup_get(Powerup *p)
 			l->cp += 4;
 			if (l->cp > LYLE_MAX_CP) l->cp = LYLE_MAX_CP;
 			break;
+
 		case POWERUP_TYPE_CP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->cp_orbs |= (1 << p->orb_id);
 			prog->collected_cp_orbs++;
 			pause_set_screen(PAUSE_SCREEN_CP_ORB_0 + p->orb_id);
 			break;
+
 		case POWERUP_TYPE_HP_ORB:
 			SYSTEM_ASSERT(p->orb_id < 16);
 			prog->hp_orbs |= (1 << p->orb_id);
@@ -212,28 +222,34 @@ static inline void powerup_get(Powerup *p)
 			pause_set_screen(PAUSE_SCREEN_HP_ORB_0 + p->orb_id);
 			l->head.hp = prog->hp_capacity;
 			break;
+
 		case POWERUP_TYPE_MAP:
 			prog->abilities |= ABILITY_MAP;
 			pause_set_screen(PAUSE_SCREEN_GET_MAP);
 			break;
+
 		case POWERUP_TYPE_LIFT:
 			prog->abilities |= ABILITY_LIFT;
 			prog->touched_first_cube = 1;
 			pause_set_screen(PAUSE_SCREEN_GET_CUBE_LIFT);
 			break;
+
 		case POWERUP_TYPE_JUMP:
 			prog->abilities |= ABILITY_JUMP;
 			pause_set_screen(PAUSE_SCREEN_GET_CUBE_JUMP);
 			break;
+
 		case POWERUP_TYPE_PHANTOM:
 			prog->abilities |= ABILITY_PHANTOM;
 			pause_set_screen(PAUSE_SCREEN_GET_PHANTOM);
 			l->cp = LYLE_MAX_CP;
 			break;
+
 		case POWERUP_TYPE_KICK:
 			prog->abilities |= ABILITY_KICK;
 			pause_set_screen(PAUSE_SCREEN_GET_CUBE_KICK);
 			break;
+
 		case POWERUP_TYPE_ORANGE:
 			prog->abilities |= ABILITY_ORANGE;
 			pause_set_screen(PAUSE_SCREEN_GET_ORANGE_CUBE);
@@ -269,17 +285,30 @@ static inline void powerup_run(Powerup *p)
 		return;
 	}
 
+	const O_Lyle *l = lyle_get();
 	const Obj *lh = &lyle_get()->head;
 
 	// Check for collision with player
-	if (lh->hp > 0 &&
-	    !((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
-	      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
-	      (p->y < lh->y + lh->top) ||
-	      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
+	if (lh->hp > 0)
 	{
-		powerup_get(p);
-		return;
+		if (l->holding_cube)
+		{
+			if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
+			      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
+			      (p->y < lh->y + lh->top - INTTOFIX16(16)) ||
+			      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
+			{
+				powerup_cube_bounce(p);
+			}
+		}
+		if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
+		      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
+		      (p->y < lh->y + lh->top) ||
+		      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
+		{
+			powerup_get(p);
+			return;
+		}
 	}
 
 	// Don't render off-screen.

@@ -4,7 +4,10 @@
 // Cubes are managed by cube_manager.h
 
 #include "util/fixed.h"
+#include <stdbool.h>
 #include <stdint.h>
+
+#define CUBE_BYTES 32
 
 typedef enum CubeStatus
 {
@@ -76,13 +79,15 @@ struct Cube
 	fix16_t dx, dy;
 	fix16_t left, right;
 	fix16_t top;
-	uint8_t bounce_count;
-	uint8_t collision_timeout;
-	uint8_t spawn_count;
-	uint8_t fizzle_count;
-	uint8_t lyle_spawn_check;
-	// TODO: anim vars for spawner flashing.
-};
+	uint16_t bounce_count;
+	uint16_t collision_timeout;
+	uint16_t spawn_count;
+	uint16_t fizzle_count;
+	uint16_t lyle_spawn_check;
+	uint16_t flash_anim_cnt;
+	uint16_t flash_anim_frame;
+	bool blue_cube_flash;
+} __attribute__((aligned(CUBE_BYTES)));
 
 // If needed, initialize constants used by cubes.
 void cube_set_constants(void);
