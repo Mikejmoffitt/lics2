@@ -229,9 +229,9 @@ static void main_func(Obj *o)
 					ProgressAbility mask;
 				} rewards[] =
 				{
-					{3, ABILITY_CHEAP_PHANTOM},
+					{3, ABILITY_2X_DAMAGE_PHANTOM}
 					{7, ABILITY_FAST_PHANTOM},
-					{10, ABILITY_2X_DAMAGE_PHANTOM}
+					{10, ABILITY_CHEAP_PHANTOM},
 				};
 
 				// If special thresholds were passed, prepare to give the CP orb.
