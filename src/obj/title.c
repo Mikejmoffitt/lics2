@@ -831,6 +831,7 @@ static void main_func(Obj *o)
 				obj_erase(o);
 				hud_set_visible(1);
 				metagrub_set_enable(1);
+				obj_scramble_powerup_spawn_index();
 				return;
 			}
 			render_title_full(e);

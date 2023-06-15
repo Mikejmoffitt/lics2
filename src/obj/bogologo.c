@@ -25,7 +25,7 @@ static inline void set_constants(void)
 	static bool s_constants_set;
 	if (s_constants_set) return;
 
-	kanim_speed = PALSCALE_DURATION(9);
+	kanim_speed = PALSCALE_DURATION(6);
 	kappear_frame = PALSCALE_DURATION(36.0);
 	ksolid_frame = PALSCALE_DURATION(108.0);
 	kflicker_speed = PALSCALE_DURATION(4);

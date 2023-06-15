@@ -34,7 +34,7 @@ static void set_constants(void)
 	if (s_constants_set) return;
 
 	kgravity = INTTOFIX16(PALSCALE_2ND( (1.0 / 5.0) * (5.0 / 6.0) ));
-	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-2.5));
+	kspawn_dy = INTTOFIX16(PALSCALE_1ST(-20 * (1.0 / 5.0) * (5.0 / 6.0)));
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST( 2 * -10 * (1.0 / 5.0) * (5.0 / 6.0) ));
 	kbounce_cube_dy = INTTOFIX16(PALSCALE_1ST( -15 * (1.0 / 5.0) * (5.0 / 6.0) ));
 	kceiling_dy = INTTOFIX16(PALSCALE_1ST(0.833333333));

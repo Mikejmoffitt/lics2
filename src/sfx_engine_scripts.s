@@ -521,7 +521,7 @@ sfx_obj_burst_hi:
 	dc.w	SFXOP_REST, 56
 	dc.w	SFXOP_END
 
-sfx_teleport_sub:
+sfx_teleport_sub_old:
 	dc.w	SFXOP_PERIOD, 0x1600
 	dc.w	SFXOP_SWEEP, -2184
 	dc.w	SFXOP_REST, 30
@@ -529,7 +529,7 @@ sfx_teleport_sub:
 	dc.w	SFXOP_REST, 30
 	dc.w	SFXOP_RET
 
-sfx_teleport:
+sfx_teleport_old:
 	dc.w	SFXOP_ENV
 
 	dc.l	env_att5
@@ -560,6 +560,67 @@ sfx_teleport:
 	dc.w	SFXOP_CALL
 	dc.l	sfx_teleport_sub
 	dc.w	SFXOP_END
+
+sfx_teleport_sub:
+	dc.w	SFXOP_PERIOD, 0x23FF
+	dc.w	SFXOP_LOOP_SET, 16
+	dc.w	SFXOP_REST, 1
+	dc.w	SFXOP_PERIOD_ADD, -0x0D00
+	dc.w	SFXOP_REST, 1
+	dc.w	SFXOP_PERIOD_ADD, 0x0D00
+	dc.w	SFXOP_LOOP_END
+	dc.w	SFXOP_RET
+
+sfx_teleport:
+	dc.w	SFXOP_ENV
+	dc.l	env_att5
+	dc.w	SFXOP_SWEEP, -0x070
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att4
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att3
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att2
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att1
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att0
+	.rept	5
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	.endr
+	dc.w	SFXOP_ENV
+	dc.l	env_att1
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att2
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att3
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att4
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_ENV
+	dc.l	env_att5
+	dc.w	SFXOP_CALL
+	dc.l	sfx_teleport_sub
+	dc.w	SFXOP_END
+
 
 sfx_boingo_jump:
 	dc.w	SFXOP_ENV

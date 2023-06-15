@@ -68,6 +68,12 @@ void obj_init(void)
 	obj_clear();
 	set_constants();
 
+	obj_scramble_powerup_spawn_index();
+
+}
+
+void obj_scramble_powerup_spawn_index(void)
+{
 	s_powerup_drop_index = system_rand() % ARRAYSIZE(powerup_drop_order);
 }
 
