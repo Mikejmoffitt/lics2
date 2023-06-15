@@ -189,7 +189,7 @@ static void bg_city_func(void)
 	{
 		for (uint16_t i = start_row; i < start_row + 5; i++)
 		{
-			s_h_scroll_buffer[i] = x_fg_scroll;
+			s_h_scroll_buffer[i] = x_fg_scroll + 9; // + 9 is a hack of a hack
 		}
 	}
 

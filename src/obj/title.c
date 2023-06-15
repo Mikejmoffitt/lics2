@@ -559,6 +559,7 @@ static void main_func(Obj *o)
 		case TITLE_STATE_INTRO:
 			if (e->state_elapsed == 0)
 			{
+				wndwback_set_visible(1);
 				const Gfx *gfx_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
 				s_vram_keddums_pos = gfx_load(gfx_keddums, s_vram_shared_pos);
 			}
