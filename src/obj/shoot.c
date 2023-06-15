@@ -35,8 +35,8 @@ static inline void set_constants(void)
 
 	kdx = INTTOFIX16(PALSCALE_1ST(0.833333334));
 	kddy = INTTOFIX16(PALSCALE_2ND(0.2));
-	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.2));  // TODO: Verify
-	kdy_cutoff_big = INTTOFIX16(PALSCALE_1ST(4.7));  // TODO: Verify
+	kdy_cutoff = INTTOFIX16(PALSCALE_1ST(2.4));  // TODO: Verify
+	kdy_cutoff_big = INTTOFIX16(PALSCALE_1ST(5.2));  // TODO: Verify
 	kanim_delay = PALSCALE_DURATION(10);
 
 	s_constants_set = true;
@@ -107,7 +107,7 @@ void o_load_shoot(Obj *o, uint16_t data)
 	vram_load();
 
 	obj_basic_init(o, "Shoot", OBJ_FLAG_HARMFUL | OBJ_FLAG_TANGIBLE,
-	               INTTOFIX16(-11), INTTOFIX16(11), INTTOFIX16(-12), 1);
+	               INTTOFIX16(-11), INTTOFIX16(11), INTTOFIX16(-12), 2);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 

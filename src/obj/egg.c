@@ -27,7 +27,7 @@ static inline void set_constants(void)
 	static bool s_constants_set;
 	if (s_constants_set) return;
 
-	kgravity = INTTOFIX16(PALSCALE_1ST(0.1666666667));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.1666666667));
 	s_constants_set = true;
 }
 

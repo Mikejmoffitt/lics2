@@ -117,8 +117,8 @@ static inline void set_constants(void)
 	kjump_dy_table[6] = INTTOFIX16(PALSCALE_1ST(-5.208 - (6*0.208)));
 	kjump_dy_table[7] = INTTOFIX16(PALSCALE_1ST(-5.208 - (7*0.208)));
 
-	kgravity = INTTOFIX16(PALSCALE_1ST(0.208));
-	kgravity_sjump = INTTOFIX16(PALSCALE_1ST(0.1667));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.208));
+	kgravity_sjump = INTTOFIX16(PALSCALE_2ND(0.1667));
 
 	kvyle_shot_phase_start_delay = PALSCALE_DURATION(33.333);
 	kvyle_shot_interval = PALSCALE_DURATION(12);

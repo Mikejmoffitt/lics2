@@ -3,6 +3,8 @@
 #include "util/fixed.h"
 #include "palscale.h"
 
+#include <stdbool.h>
+
 #include "system.h"
 #include "cube_manager.h"
 #include "particle.h"
@@ -31,9 +33,9 @@ static uint16_t kspawn_seq[2];
 
 void cube_set_constants(void)
 {
-	static int16_t constants_set = 0;
+	static bool constants_set = false;
 	if (constants_set) return;
-	kgravity = INTTOFIX16(PALSCALE_2ND(0.1388888888f));
+	kgravity = INTTOFIX16(PALSCALE_2ND(( (1.0 / 5.0) * (5.0 / 6.0) )));
 	kcube_on_cube_dy = INTTOFIX16(PALSCALE_1ST(-1.833));
 	kbounce_coef = INTTOFIX16(0.35);
 	kbounce_cutoff = INTTOFIX16(PALSCALE_1ST(-0.7)); // -1.04));  // TODO: Check this one - it was imbalanced in the first port; pal was -1.3
@@ -46,7 +48,7 @@ void cube_set_constants(void)
 	kfizzle_duration = PALSCALE_DURATION(7);
 	kcollision_timeout = PALSCALE_DURATION(8);
 
-	constants_set = 1;
+	constants_set = true;
 }
 
 static inline void cube_scan_objects(Cube *c)

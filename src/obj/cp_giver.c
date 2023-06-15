@@ -223,25 +223,31 @@ static void main_func(Obj *o)
 			e->metaframe = 3 + e->anim_frame;
 			if (e->state_elapsed >= kgive_anim_start_time)
 			{
+				static const struct PhantomReward
+				{
+					uint16_t level;
+					ProgressAbility mask;
+				} rewards[] =
+				{
+					{3, ABILITY_CHEAP_PHANTOM},
+					{7, ABILITY_FAST_PHANTOM},
+					{10, ABILITY_2X_DAMAGE_PHANTOM}
+				};
+
 				// If special thresholds were passed, prepare to give the CP orb.
-				if (prog->registered_cp_orbs >= 3 && !(prog->abilities & ABILITY_2X_DAMAGE_PHANTOM))
+				bool reward_given = false;
+				for (uint16_t i = 0; i < ARRAYSIZE(rewards); i++)
 				{
-					e->powerup_ability = ABILITY_2X_DAMAGE_PHANTOM;
-					e->state = CP_GIVER_STATE_GIVING;
-					break;
+					if (prog->registered_cp_orbs >= rewards[i].level &&
+					    !(prog->abilities & rewards[i].mask))
+					{
+						e->powerup_ability = rewards[i].mask;
+						e->state = CP_GIVER_STATE_GIVING;
+						reward_given = true;
+						break;
+					}
 				}
-				if (prog->registered_cp_orbs >= 7 && !(prog->abilities & ABILITY_FAST_PHANTOM))
-				{
-					e->powerup_ability = ABILITY_FAST_PHANTOM;
-					e->state = CP_GIVER_STATE_GIVING;
-					break;
-				}
-				else if (prog->registered_cp_orbs >= 10 && !(prog->abilities & ABILITY_CHEAP_PHANTOM))
-				{
-					e->powerup_ability = ABILITY_CHEAP_PHANTOM;
-					e->state = CP_GIVER_STATE_GIVING;
-					break;
-				}
+				if (reward_given) break;
 			}
 			if (e->state_elapsed >= ktake_orb_rise_time)
 			{

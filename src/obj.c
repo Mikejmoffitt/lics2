@@ -31,7 +31,7 @@ static void set_constants(void)
 	if (constants_set) return;
 
 	khurt_stun_time = PALSCALE_DURATION(24);
-	kcube_bounce_offset_dy = INTTOFIX16(PALSCALE_1ST(0));  // Was 0.8333333
+	kcube_bounce_offset_dy = INTTOFIX16(PALSCALE_1ST(1.6666667));
 	kcube_bounce_base_dx = INTTOFIX16(PALSCALE_1ST(0.8333333333));
 
 	constants_set = 1;

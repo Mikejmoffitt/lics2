@@ -8,7 +8,7 @@
 #define PROGRESS_MAP_W 25
 #define PROGRESS_MAP_H 12
 
-typedef enum ProgressAbility
+typedef enum ProgressAbility : uint16_t
 {
 	ABILITY_MAP = 0x01,
 	ABILITY_LIFT = 0x02,

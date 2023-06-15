@@ -41,8 +41,8 @@ static LyleBtn buttons_prev;
 #define LYLE_STEP_UP INTTOFIX32(-4)
 
 // TODO: Find real numbers from the MMF code.
-#define LYLE_CP_SPAWN_PRICE 4
-#define LYLE_CP_SPAWN_CHEAP 2
+#define LYLE_CP_SPAWN_PRICE 2
+#define LYLE_CP_SPAWN_CHEAP 1
 
 #define LYLE_DRAW_LEFT -8
 #define LYLE_DRAW_TOP -23
@@ -816,12 +816,15 @@ static inline void cp(O_Lyle *l)
 	const ProgressSlot *prog = progress_get();
 	if (!(prog->abilities & ABILITY_PHANTOM)) return;
 
-	l->cp_restore_cnt++;
-	// Periodic restoration of CP.
-	if (l->cp_restore_cnt >= kcp_restore_period)
+	if (!s_lyle.ext_disable)
 	{
-		l->cp_restore_cnt = 0;
-		if (l->cp < LYLE_MAX_CP) l->cp++;
+		l->cp_restore_cnt++;
+		// Periodic restoration of CP.
+		if (l->cp_restore_cnt >= kcp_restore_period)
+		{
+			l->cp_restore_cnt = 0;
+			if (l->cp < LYLE_MAX_CP) l->cp++;
+		}
 	}
 	// Bail out if in the middle of something that voids this ability
 	if (l->lift_cnt > 0 || l->hurt_cnt > 0 || l->action_cnt > 0 ||

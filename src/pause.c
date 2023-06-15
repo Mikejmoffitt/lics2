@@ -1038,12 +1038,24 @@ static void plot_room_select_list()
 	const int16_t page = s_pause.debug.room_cursor / 16;
 	for (int16_t i = 0; i < rooms_per_list; i++)
 	{
+		const int16_t px = kdebug_left + 4;
+		const int16_t py = kdebug_top + 2 + i;
+		const uint8_t pal = MAP_PAL_LINE;
 		const int16_t id = (page * 16) + i;
 		if (page != s_pause.debug.room_last_page)
 		{
-			plot_string("                                ", kdebug_left + 4, kdebug_top + 2 + i, MAP_PAL_LINE);
+			plot_string("                                ", px, py, pal);
 		}
 		if (id >= map_file_count()) continue;
+		const char *map_name = map_name_by_id(id);
+		if (!map_name)
+		{
+			plot_string(" (empty room slot)", px, py, pal);
+		}
+		else
+		{
+			plot_string(map_name, px, py, pal);
+		}
 	}
 	s_pause.debug.room_last_page = page;
 }

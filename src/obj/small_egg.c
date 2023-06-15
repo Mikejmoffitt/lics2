@@ -36,7 +36,7 @@ static inline void set_constants(void)
 	if (s_constants_set) return;
 	// Set constants here.
 
-	kgravity = INTTOFIX16(PALSCALE_1ST(0.16666666667));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.16666666667));
 	kbounce_dy = INTTOFIX16(PALSCALE_1ST(1.6666666667));
 	kcube_bounce_dy = INTTOFIX16(PALSCALE_1ST(-0.16666666667));
 	kbounce_dx = INTTOFIX16(PALSCALE_1ST(-0.8333333333));

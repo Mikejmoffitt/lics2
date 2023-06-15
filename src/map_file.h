@@ -16,6 +16,10 @@ typedef struct MapFile
 	// Room name (mostly for the editor)
 	char name[32];
 
+	// Everything after here is kosinski compressed in ROM.
+	// TODO: Make a separate MapFileKos struct that properly represents this.
+	//       Compression was hacked in in a very ugly way.
+
 	uint8_t music;
 
 	// Unique room identifier

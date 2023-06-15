@@ -49,7 +49,7 @@ static inline void set_constants(void)
 	kprepare_frames = PALSCALE_DURATION(48);
 	kshot_frames = PALSCALE_DURATION(12);
 	kjump_str = INTTOFIX16(PALSCALE_1ST(4.16666667));
-	kgravity = INTTOFIX16(PALSCALE_1ST(0.10416666667));
+	kgravity = INTTOFIX16(PALSCALE_2ND(0.10416666667));
 	kwalk_dx = INTTOFIX16(PALSCALE_1ST(0.416666667));
 	kshot_speed = INTTOFIX16(PALSCALE_1ST(3.0));
 

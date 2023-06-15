@@ -115,10 +115,10 @@ static void run_frame(void)
 			projectile_poll();
 			particle_poll();
 			lyle_poll();
+			bg_poll();
 			map_poll();
 			cube_manager_poll();
 			obj_exec();
-			bg_poll();
 			pause_poll();
 			objtile_poll();
 

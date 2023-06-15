@@ -10,7 +10,7 @@
 #define LYLE_START_HP 5
 #define LYLE_MAX_HP 15
 
-#define LYLE_START_CP 20
+#define LYLE_START_CP 15
 #define LYLE_MAX_CP 30
 
 // Hitboxes

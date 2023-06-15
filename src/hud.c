@@ -102,7 +102,9 @@ static void draw_cp(void)
 	md_spr_put_st_fast(&s_spr_cp_bar[0]);
 	md_spr_put_st_fast(&s_spr_cp_bar[1]);
 
-	int16_t scaled_cp = FIX16TOINT(FIX16MUL(INTTOFIX16(HUD_CP_DISP_HEIGHT / (float)HUD_CP_MAX), INTTOFIX16(lyle_get_cp())));
+	const fix16_t kcp_scale_factor = FIX16DIV(INTTOFIX16(HUD_CP_DISP_HEIGHT), INTTOFIX16(HUD_CP_MAX));
+
+	int16_t scaled_cp = FIX16TOINT(FIX16MUL(kcp_scale_factor, INTTOFIX16(lyle_get_cp())));
 	int16_t i = HUD_CP_DISP_HEIGHT / 8;
 	const int16_t original_y = s_spr_cp_seg.y;
 	while (i--)

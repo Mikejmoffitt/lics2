@@ -1,22 +1,21 @@
 #include "map.h"
 
-#include <stdlib.h>
-#include "gfx.h"
-#include "obj.h"
-#include "system.h"
 #include "md/megadrive.h"
-#include "game.h"
 
 #include <stdbool.h>
-
-#include "obj/entrance.h"
-#include "lyle.h"
-
+#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "game.h"
+#include "gfx.h"
+#include "lyle.h"
+#include "obj.h"
 #include "res.h"
-
+#include "system.h"
 #include "util/kosinski.h"
+
+#include "obj/entrance.h"
 
 const uint16_t *g_map_data;  // Cast from s_map.current_map->map_data
 uint16_t g_map_row_size;  // Set to 40 * s_map.current_map->w
@@ -28,8 +27,6 @@ static Map s_map;
 static uint16_t s_horizontal_dma_buffer[64];
 static int16_t s_h_scroll_buffer[GAME_SCREEN_H_CELLS];
 static int16_t s_v_scroll_buffer[GAME_SCREEN_W_CELLS / 2];
-
-
 
 // LUT representing the data needed for a given tileset ID.
 typedef struct TilesetAssets
@@ -74,8 +71,8 @@ typedef struct MapAssets
 	unsigned int size;
 } MapAssets;
 
-#define MAP_ASSETS(name) { res_map_##name##_kos,\
-                           sizeof(res_map_##name##_kos) }
+#define MAP_ASSETS(name) { res_map_##name##_map,\
+                           sizeof(res_map_##name##_map) }
 static const MapAssets map_by_id[] =
 {
 	[0] = MAP_ASSETS(00_roomzero),
@@ -460,7 +457,8 @@ void map_load(uint8_t id, uint8_t entrance_num)
 	s_map.exit_trigger = MAP_EXIT_NONE;
 
 	// Decompress the map data into RAM.
-	kosinski_decomp(map_by_id[id].data, s_map.map_raw);
+	const size_t kos_offs = offsetof(typeof(s_map.map_file), music);
+	kosinski_decomp(&map_by_id[id].data[kos_offs], &s_map.map_raw[kos_offs]);
 	s_map.current_map = &s_map.map_file;
 	g_map_data = s_map.current_map->map_data;
 
@@ -627,4 +625,11 @@ void map_upload_palette(void)
 int16_t map_file_count(void)
 {
 	return ARRAYSIZE(map_by_id);
+}
+
+const char *map_name_by_id(uint8_t id)
+{
+	if (id >= ARRAYSIZE(map_by_id)) return NULL;
+	const MapFile *mf = (const MapFile *)(map_by_id[id].data);
+	return mf->name;
 }

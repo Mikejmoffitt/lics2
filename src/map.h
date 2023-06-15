@@ -142,4 +142,7 @@ void map_upload_tiles(void);
 void map_upload_palette(void);
 
 int16_t map_file_count(void);
+
+const char *map_name_by_id(uint8_t id);
+
 #endif  // MAP_H
