@@ -69,7 +69,6 @@ static void run_frame(void)
 			gfx_init();
 			obj_init();
 			music_init();
-			sfx_init();
 			hud_init();
 			progress_init();
 			powerup_init();
@@ -86,6 +85,7 @@ static void run_frame(void)
 
 		case GAME_STATE_NEW_ROOM:
 			obj_clear();
+			sfx_init();
 			fixed_vram_load();
 			powerup_clear();
 			objtile_clear();

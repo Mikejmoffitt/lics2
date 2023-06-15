@@ -21,6 +21,7 @@ void input_poll(void)
 	if (ply & SYSC_PL_B) s_button_cache |= LYLE_BTN_JUMP;
 	if (ply & SYSC_PL_A) s_button_cache |= LYLE_BTN_CUBE;
 	if (ply & SYSC_PL_C) s_button_cache |= LYLE_BTN_CUBE;
+	if (ply & SYSC_PL_D) s_button_cache |= LYLE_BTN_DEBUG;
 	const MdIoCSystemInput sys = md_ioc_get_system_input();
 	if (sys & SYSC_SYSTEM_START1) s_button_cache |= LYLE_BTN_START;
 #else
@@ -33,5 +34,9 @@ void input_poll(void)
 	if (buttons & BTN_A) s_button_cache |= LYLE_BTN_JUMP;
 	if (buttons & BTN_B) s_button_cache |= LYLE_BTN_CUBE;
 	if (buttons & BTN_C) s_button_cache |= LYLE_BTN_JUMP;
+	if (buttons & BTN_X) s_button_cache |= LYLE_BTN_CUBE;
+	if (buttons & BTN_Y) s_button_cache |= LYLE_BTN_JUMP;
+	if (buttons & BTN_Z) s_button_cache |= LYLE_BTN_CUBE;
+	if (buttons & BTN_MODE) s_button_cache |= LYLE_BTN_DEBUG;
 #endif
 }

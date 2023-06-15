@@ -24,6 +24,10 @@ enum
 	PW_SPR_ARM_2,
 	PW_SPR_ARM_3,
 	PW_SPR_GRID,
+	PW_SPR_GLASSBALL1,
+	PW_SPR_GLASSBALL2,
+	PW_SPR_GLASSBALL3,
+	PW_SPR_GLASSBALL4,
 	PW_SPR_COUNT
 };
 
@@ -41,6 +45,7 @@ static int kanim_speed;
 #define PWAVE_OFFS_LIGHTR (PWAVE_OFFS_CATFACE+(2*2))
 #define PWAVE_OFFS_LIGHTG (PWAVE_OFFS_LIGHTR+(3*1))
 #define PWAVE_OFFS_ARM (PWAVE_OFFS_LIGHTG+(1*3))
+#define PWAVE_OFFS_GLASSBALL (PWAVE_OFFS_ARM+(17))
 
 static void vram_load(void)
 {
@@ -57,6 +62,8 @@ static void vram_load(void)
 	g = gfx_get(GFX_EX_PWAVE_LIGHTG);
 	gfx_load(g, obj_vram_alloc(g->size));
 	g = gfx_get(GFX_EX_PWAVE_ARM);
+	gfx_load(g, obj_vram_alloc(g->size));
+	g = gfx_get(GFX_EX_PWAVE_GLASSBALL);
 	gfx_load(g, obj_vram_alloc(g->size));
 }
 
@@ -113,6 +120,8 @@ static void main_func(Obj *o)
 			s_spr[PW_SPR_LIGHTR_0].size |= 0x80;
 			s_spr[PW_SPR_LIGHTR_1].size |= 0x80;
 			s_spr[PW_SPR_LIGHTG].size |= 0x80;
+			s_spr[PW_SPR_ARM_0].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_ARM, 0, 0, ENEMY_PAL_LINE, 0);
+			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL, 0, 0, BG_PAL_LINE, 0);
 			break;
 
 		case PWAVE_STATE_ON:
@@ -131,6 +140,7 @@ static void main_func(Obj *o)
 				s_spr[PW_SPR_LIGHTR_1].size = SPR_SIZE(3, 1);
 				s_spr[PW_SPR_LIGHTG].y = 26;
 				s_spr[PW_SPR_LIGHTG].size = SPR_SIZE(1, 3);
+				s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL, 0, 0, BG_PAL_LINE, 0);
 			}
 			else
 			{
@@ -142,6 +152,7 @@ static void main_func(Obj *o)
 				s_spr[PW_SPR_LIGHTR_1].size = SPR_SIZE(2, 1);
 				s_spr[PW_SPR_LIGHTG].y = 30;
 				s_spr[PW_SPR_LIGHTG].size = SPR_SIZE(1, 2);
+				s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL + 18, 0, 0, BG_PAL_LINE, 0);
 			}
 			s_spr[PW_SPR_SCREENBACK_0].size &= ~0x80;
 			s_spr[PW_SPR_SCREENBACK_1].size &= ~0x80;
@@ -151,10 +162,15 @@ static void main_func(Obj *o)
 			break;
 
 		case PWAVE_STATE_BROKEN:
+			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL + 27, 0, 0, BG_PAL_LINE, 0);
 			break;
 		default:
 			break;
 	}
+
+	s_spr[PW_SPR_GLASSBALL2].attr = s_spr[PW_SPR_GLASSBALL1].attr + 9;
+	s_spr[PW_SPR_GLASSBALL3].attr = s_spr[PW_SPR_GLASSBALL1].attr + (9*6);
+	s_spr[PW_SPR_GLASSBALL4].attr = s_spr[PW_SPR_GLASSBALL1].attr + (9*6) + 9;
 
 	render(e);
 }
@@ -225,6 +241,20 @@ void o_load_psychowave(Obj *o, uint16_t data)
 	s_spr[PW_SPR_ARM_3].y = -24;
 	s_spr[PW_SPR_ARM_3].size = SPR_SIZE(1, 3);
 	s_spr[PW_SPR_ARM_3].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_ARM + 14, 0, 0, ENEMY_PAL_LINE, 0);
+	// Glass ball
+	s_spr[PW_SPR_GLASSBALL1].x = 9*8;
+	s_spr[PW_SPR_GLASSBALL1].y = -4*8;
+	s_spr[PW_SPR_GLASSBALL1].size = SPR_SIZE(3, 3);
+	s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL, 0, 0, BG_PAL_LINE, 0);
+	s_spr[PW_SPR_GLASSBALL2].x = 9*8 + 24;
+	s_spr[PW_SPR_GLASSBALL2].y = -4*8;
+	s_spr[PW_SPR_GLASSBALL2].size = SPR_SIZE(3, 3);
+	s_spr[PW_SPR_GLASSBALL3].x = 9*8;
+	s_spr[PW_SPR_GLASSBALL3].y = -4*8 + 24;
+	s_spr[PW_SPR_GLASSBALL3].size = SPR_SIZE(3, 3);
+	s_spr[PW_SPR_GLASSBALL4].x = 9*8 + 24;
+	s_spr[PW_SPR_GLASSBALL4].y = -4*8 + 24;
+	s_spr[PW_SPR_GLASSBALL4].size = SPR_SIZE(3, 3);
 
 	// Scope grid on right machine
 	s_spr[PW_SPR_GRID].x = 184;

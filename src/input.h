@@ -12,6 +12,7 @@ typedef uint16_t LyleBtn;
 #define LYLE_BTN_START 0x0010
 #define LYLE_BTN_CUBE  0x0020
 #define LYLE_BTN_JUMP  0x0040
+#define LYLE_BTN_DEBUG 0x0080
 
 LyleBtn input_read(void);
 void input_poll(void);

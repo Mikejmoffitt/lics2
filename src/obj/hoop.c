@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "sfx.h"
 
 #include "obj/exploder.h"
 
@@ -45,7 +46,7 @@ static void main_func(Obj *o)
 			// TODO: Is it fizzle red, or blue?
 			exploder_spawn(o->x, o->y + (o->top / 2), o->dx, o->dy, PARTICLE_TYPE_FIZZLERED, 6, kspawn_rate);
 			obj_erase(o);
-			// TODO: Tsss sand sound (same as fissins2)
+			sfx_play(SFX_SAND, 0);
 		}
 	}
 	int16_t sp_x, sp_y;

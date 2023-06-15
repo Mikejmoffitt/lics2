@@ -604,7 +604,6 @@ static void main_func(Obj *o)
 				sfx_play(SFX_BEEP, 0);
 				keddums_set_state(KEDDUMS_SHAKE);
 				psychowave_set_state(PWAVE_STATE_ON);
-				sfx_play(SFX_MEOW, 1);
 				// TODO: activate big orb thing
 				e->metaframe = 4;
 			}
@@ -612,6 +611,7 @@ static void main_func(Obj *o)
 			                              kvyle_activation_duration_frames))
 			{
 				// Done pushing the button.
+				sfx_play(SFX_MEOW, 1);
 				e->metaframe = 0;
 			}
 			else if (e->state_elapsed >= (kvyle_activation_delay_frames +

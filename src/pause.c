@@ -66,6 +66,7 @@ typedef struct Pause
 	} debug;
 
 	bool window;  // nonzero if window should be shown.
+	bool debug_enabled;
 } Pause;
 
 static Pause s_pause;
@@ -898,6 +899,11 @@ static void maybe_dismiss(LyleBtn buttons, int16_t min_delay)
 
 static void maybe_map(LyleBtn buttons)
 {
+	if (s_pause.debug_enabled && (buttons & LYLE_BTN_DEBUG))
+	{
+		s_pause.screen = PAUSE_SCREEN_DEBUG;
+		s_pause.debug.input_cheat_idx = 0;
+	}
 	if ((buttons & LYLE_BTN_START) && !(s_pause.buttons_prev & LYLE_BTN_START))
 	{
 		s_pause.screen = PAUSE_SCREEN_MAP;
@@ -931,11 +937,13 @@ static void maybe_switch_to_debug(LyleBtn buttons)
 		LYLE_BTN_RIGHT
 	};
 
+
 	if (s_pause.debug.input_cheat_idx >= ARRAYSIZE(kcheat_sequence))
 	{
-		s_pause.screen = PAUSE_SCREEN_DEBUG;
+		s_pause.debug_enabled = true;
+		s_pause.screen = PAUSE_SCREEN_NONE;
 		s_pause.debug.input_cheat_idx = 0;
-		return;
+		sfx_play(SFX_MEOW, 0);
 	}
 
 	const LyleBtn next_btn = kcheat_sequence[s_pause.debug.input_cheat_idx];
@@ -967,7 +975,6 @@ static const DebugOption debug_options[] =
 	{"PROGRESS EDIT", PAUSE_SCREEN_PROGRESS_EDIT},
 	{"VRAM VIEW", PAUSE_SCREEN_VRAM_VIEW},
 	{"BUTTON CHECK", PAUSE_SCREEN_BUTTON_CHECK},
-	{"RAM VIEW", 0},
 	{"EXIT", PAUSE_SCREEN_NONE},
 };
 
@@ -999,6 +1006,7 @@ static void debug_menu_logic(LyleBtn buttons)
 
 	if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.main_cursor--;
 		if (s_pause.debug.main_cursor < 0)
 		{
@@ -1007,6 +1015,7 @@ static void debug_menu_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.main_cursor++;
 		if (s_pause.debug.main_cursor >= (int16_t)ARRAYSIZE(debug_options))
 		{
@@ -1071,6 +1080,7 @@ static void debug_room_select_logic(LyleBtn buttons)
 {
 	if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.room_cursor--;
 		if (s_pause.debug.room_cursor < 0)
 		{
@@ -1079,6 +1089,7 @@ static void debug_room_select_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.room_cursor++;
 		if (s_pause.debug.room_cursor >= map_file_count())
 		{
@@ -1087,6 +1098,7 @@ static void debug_room_select_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_LEFT) && !(s_pause.buttons_prev & LYLE_BTN_LEFT))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.room_cursor = ((s_pause.debug.room_cursor / 16) - 1) * 16;
 		while (s_pause.debug.room_cursor < 0)
 		{
@@ -1095,6 +1107,7 @@ static void debug_room_select_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_RIGHT) && !(s_pause.buttons_prev & LYLE_BTN_RIGHT))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.room_cursor = ((s_pause.debug.room_cursor / 16) + 1) * 16;
 		while (s_pause.debug.room_cursor >= map_file_count())
 		{
@@ -1106,11 +1119,13 @@ static void debug_room_select_logic(LyleBtn buttons)
 
 	if ((buttons & btn_chk) && !(s_pause.buttons_prev & btn_chk))
 	{
+		sfx_play(SFX_SELECT, 1);
 		s_pause.debug.chosen_room_id = s_pause.debug.room_cursor;
 		wake_objects();
 	}
 	else if ((buttons & LYLE_BTN_CUBE) && !(s_pause.buttons_prev & LYLE_BTN_CUBE))
 	{
+		sfx_play(SFX_SELECT, 1);
 		s_pause.screen = PAUSE_SCREEN_DEBUG;
 	}
 }
@@ -1178,6 +1193,7 @@ static void sound_test_logic(LyleBtn buttons)
 {
 	if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.sound_cursor--;
 		if (s_pause.debug.sound_cursor < 0)
 		{
@@ -1186,6 +1202,7 @@ static void sound_test_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 	{
+		sfx_play(SFX_BEEP, 1);
 		s_pause.debug.sound_cursor++;
 		if (s_pause.debug.sound_cursor >= 3)
 		{
@@ -1195,6 +1212,7 @@ static void sound_test_logic(LyleBtn buttons)
 
 	else if ((buttons & LYLE_BTN_RIGHT) && !(s_pause.buttons_prev & LYLE_BTN_RIGHT))
 	{
+		sfx_play(SFX_BEEP, 1);
 		if (s_pause.debug.sound_cursor == 0)
 		{
 			s_pause.debug.bgm_id++;
@@ -1206,6 +1224,7 @@ static void sound_test_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_LEFT) && !(s_pause.buttons_prev & LYLE_BTN_LEFT))
 	{
+		sfx_play(SFX_BEEP, 1);
 		if (s_pause.debug.sound_cursor == 0)
 		{
 			s_pause.debug.bgm_id--;
@@ -1234,6 +1253,7 @@ static void sound_test_logic(LyleBtn buttons)
 	}
 	else if ((buttons & LYLE_BTN_CUBE) && !(s_pause.buttons_prev & LYLE_BTN_CUBE))
 	{
+		sfx_play(SFX_SELECT, 1);
 		s_pause.screen = PAUSE_SCREEN_DEBUG;
 	}
 }
@@ -1368,10 +1388,12 @@ static void progress_edit_logic_and_plot(LyleBtn buttons)
 	{
 		if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 		{
+			sfx_play(SFX_BEEP, 1);
 			s_pause.debug.progress_cursor_main++;
 		}
 		if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 		{
+			sfx_play(SFX_BEEP, 1);
 			s_pause.debug.progress_cursor_main--;
 		}
 
@@ -1404,15 +1426,18 @@ static void progress_edit_logic_and_plot(LyleBtn buttons)
 	{
 		if ((buttons & LYLE_BTN_CUBE) && !(s_pause.buttons_prev & LYLE_BTN_CUBE))
 		{
+			sfx_play(SFX_SELECT, 1);
 			s_pause.debug.progress_cursor_bit = -1;
 		}
 		if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 		{
+			sfx_play(SFX_BEEP, 1);
 			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 0;
 			else (*s->data)--;
 		}
 		else if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 		{
+			sfx_play(SFX_BEEP, 1);
 			if (s->type == PROGRESS_EDIT_BOOL16) *s->data = 1;
 			else (*s->data)++;
 		}
@@ -1421,10 +1446,12 @@ static void progress_edit_logic_and_plot(LyleBtn buttons)
 	{
 		if ((buttons & LYLE_BTN_LEFT) && !(s_pause.buttons_prev & LYLE_BTN_LEFT))
 		{
+			sfx_play(SFX_BEEP, 1);
 			s_pause.debug.progress_cursor_bit++;
 		}
 		else if ((buttons & LYLE_BTN_RIGHT) && !(s_pause.buttons_prev & LYLE_BTN_RIGHT))
 		{
+			sfx_play(SFX_BEEP, 1);
 			s_pause.debug.progress_cursor_bit--;
 		}
 		if (s_pause.debug.progress_cursor_bit < 0)
@@ -1437,14 +1464,17 @@ static void progress_edit_logic_and_plot(LyleBtn buttons)
 		}
 		if ((buttons & (LYLE_BTN_CUBE | btn_chk)) && !(s_pause.buttons_prev & (LYLE_BTN_CUBE | btn_chk)))
 		{
+			sfx_play(SFX_SELECT, 1);
 			s_pause.debug.progress_cursor_bit = -1;
 		}
 		if ((buttons & LYLE_BTN_DOWN) && !(s_pause.buttons_prev & LYLE_BTN_DOWN))
 		{
+			sfx_play(SFX_BEEP, 1);
 			*s->data &= ~(1 << s_pause.debug.progress_cursor_bit);
 		}
 		else if ((buttons & LYLE_BTN_UP) && !(s_pause.buttons_prev & LYLE_BTN_UP))
 		{
+			sfx_play(SFX_BEEP, 1);
 			*s->data |= (1 << s_pause.debug.progress_cursor_bit);
 		}
 	}
@@ -1705,13 +1735,11 @@ static void pause_menu_logic(LyleBtn buttons)
 			if (left_trigger)
 			{
 				s_pause.pause_choice = 0;
-				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 			else if (right_trigger)
 			{
 				s_pause.pause_choice = 1;
-				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 		}
@@ -1720,13 +1748,11 @@ static void pause_menu_logic(LyleBtn buttons)
 			if (left_trigger)
 			{
 				s_pause.pause_choice = 2;
-				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 			else if (right_trigger)
 			{
 				s_pause.pause_choice = 3;
-				sfx_stop(SFX_BEEP);
 				sfx_play(SFX_BEEP, 1);
 			}
 		}
@@ -1937,8 +1963,11 @@ void pause_poll(void)
 		case PAUSE_SCREEN_DEBUG:
 			if (first_frame)
 			{
-				s_pause.debug.main_cursor = 0;
+				screen_reset();
 				clear_window_plane();
+				s_pause.debug.main_cursor = 0;
+				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
+				           sizeof(res_pal_pause_bin) / 2);
 				md_pal_upload(MAP_TILE_CRAM_POSITION, res_pal_debug_bin,
 				           sizeof(res_pal_debug_bin) / 2);
 				plot_debug_menu();
@@ -2045,7 +2074,9 @@ static inline void set_constants(void)
 
 void pause_init()
 {
+	const bool debug_prev = s_pause.debug_enabled;
 	memset(&s_pause, 0, sizeof(s_pause));
+	s_pause.debug_enabled = debug_prev;
 	set_constants();
 
 	wake_objects();
