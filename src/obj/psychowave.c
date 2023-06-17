@@ -6,6 +6,7 @@
 #include "md/megadrive.h"
 #include "cube.h"
 #include "palscale.h"
+#include "particle.h"
 #include "map.h"
 #include "sfx.h"
 
@@ -38,6 +39,7 @@ static O_Psychowave *s_pwave;
 static uint16_t s_vram_pos;
 
 static int kanim_speed;
+static int kwave_emit_delay;
 
 #define PWAVE_OFFS_MARQUEE 0
 #define PWAVE_OFFS_SCREENBACK (PWAVE_OFFS_MARQUEE+(6*2))
@@ -76,6 +78,7 @@ static inline void set_constants(void)
 	// Set constants here.
 
 	kanim_speed = PALSCALE_DURATION(8);
+	kwave_emit_delay = PALSCALE_DURATION(10 * 6.0 / 5.0);
 
 	s_constants_set = true;
 }
@@ -122,6 +125,7 @@ static void main_func(Obj *o)
 			s_spr[PW_SPR_LIGHTG].size |= 0x80;
 			s_spr[PW_SPR_ARM_0].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_ARM, 0, 0, ENEMY_PAL_LINE, 0);
 			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL, 0, 0, BG_PAL_LINE, 0);
+			e->emit_cnt = 0;
 			break;
 
 		case PWAVE_STATE_ON:
@@ -129,6 +133,13 @@ static void main_func(Obj *o)
 			if (e->anim_cnt == 0)
 			{
 //				sfx_play(SFX_LASER, 0);
+			}
+
+			e->emit_cnt++;
+			if (e->emit_cnt >= kwave_emit_delay)
+			{
+				e->emit_cnt = 0;
+				particle_spawn(o->x + INTTOFIX32(-40 + 16), o->y + INTTOFIX32(-40 + 12), PARTICLE_TYPE_PSYCHOWAVE);
 			}
 			if (e->anim_frame == 0)
 			{

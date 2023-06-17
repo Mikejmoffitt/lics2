@@ -22,7 +22,6 @@ static int16_t ktake_anim_start_time;  // when taking anim begins and first soun
 static int16_t ktake_orb_rise_time;  // when orb comes out of lyle and sound plays again
 static fix16_t korb_ddy;
 static int16_t korb_solid_time;
-static int16_t korb_anim_speed;
 
 static int16_t kgive_anim_start_time;  // When CP orb is emitted.
 static int16_t kgive_anim_stop_time;
@@ -49,14 +48,13 @@ static inline void set_constants(void)
 
 	ktake_anim_start_time = PALSCALE_DURATION(30);
 	ktake_orb_rise_time = PALSCALE_DURATION(42);
-	korb_ddy = INTTOFIX16(PALSCALE_1ST(-0.1041666666667));
-	korb_solid_time = ktake_orb_rise_time + PALSCALE_DURATION(24);
-	korb_anim_speed = PALSCALE_DURATION(6);  // TODO: Totally made up, compare to MMF2 one.
+	korb_ddy = INTTOFIX16(PALSCALE_2ND((-1.0 / 8.0) * (5.0 / 6.0) * (5.0 / 6.0)));
+	korb_solid_time = PALSCALE_DURATION(24);
 
 	kgive_anim_start_time = PALSCALE_DURATION(24);
 	kgive_anim_stop_time = PALSCALE_DURATION(36);
 
-	kpowerup_ddy = INTTOFIX16(PALSCALE_1ST(0.16666666667));
+	kpowerup_ddy = INTTOFIX16(PALSCALE_2ND(0.16666666667));
 
 	klyle_center_dx = INTTOFIX16(PALSCALE_1ST(0.83333333334));
 
@@ -105,15 +103,20 @@ static void render(O_CpGiver *e)
 
 	if (e->orb_y >= o->y)
 	{
-		md_spr_put(sp_x,
-		        FIX32TOINT(e->orb_y) + offset_y - yscroll,
-		        SPR_ATTR(s_vram_pos + 12 + (4 * e->orb_anim_frame), 0, 0, LYLE_PAL_LINE, 0),
-		        SPR_SIZE(2, 2));
+		if (e->orb_flicker_cnt >= korb_solid_time || !e->orb_anim_frame)
+		{
+			const uint16_t frame_offs = (e->orb_anim_frame) ? 4 : 0;
+			const uint8_t size = SPR_SIZE(2, 2);
+			const int16_t ty = FIX32TOINT(e->orb_y) + offset_y - yscroll;
+			// Second overlay
+			md_spr_put(sp_x + 1, ty, SPR_ATTR(POWERUP_VRAM_POSITION/32 + 48 + frame_offs, 0, 0, BG_PAL_LINE, 0), size);
+			md_spr_put(sp_x + 1, ty, SPR_ATTR(POWERUP_VRAM_POSITION/32 + 8 + frame_offs, 0, 0, ENEMY_PAL_LINE, 0), size);
+		}
 	}
 
 	if (e->powerup_y >= o->y)
 	{
-		md_spr_put(sp_x,
+		md_spr_put(sp_x + 1,
 		        FIX32TOINT(e->powerup_y) + offset_y - yscroll,
 		        SPR_ATTR(s_vram_pos + 20, 0, 0, ENEMY_PAL_LINE, 0),
 		        SPR_SIZE(2, 2));
@@ -192,7 +195,6 @@ static void main_func(Obj *o)
 				e->orb_y = l->head.y - INTTOFIX32(12);
 				e->orb_dy = 0;
 				e->orb_flicker_cnt = 0;
-				e->orb_anim_cnt = 0;
 				e->orb_anim_frame = 0;
 				sfx_play(SFX_GIVER, 1);
 			}
@@ -201,7 +203,7 @@ static void main_func(Obj *o)
 				e->orb_dy += korb_ddy;
 				e->orb_y += e->orb_dy;
 				e->orb_flicker_cnt++;
-				OBJ_SIMPLE_ANIM(e->orb_anim_cnt, e->orb_anim_frame, 2, korb_anim_speed);
+				e->orb_anim_frame = (e->orb_anim_frame) ? 0 : 1;
 
 				if (e->orb_y <= o->y)
 				{
@@ -265,7 +267,7 @@ static void main_func(Obj *o)
 			}
 
 			e->powerup_dy += kpowerup_ddy;
-			e->powerup_y += e->powerup_dy;
+			e->powerup_y += physics_trunc_fix16(e->powerup_dy);
 
 			if (e->powerup_y >= l->head.y - INTTOFIX32(12))
 			{

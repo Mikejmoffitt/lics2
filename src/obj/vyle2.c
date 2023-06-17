@@ -568,7 +568,7 @@ static void main_func(Obj *o)
 			}
 
 			// Once lyle has gone far enough (and Vyle has reached the machine) proceed.
-			if (l->head.x >= map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS + 52))
+			if (l->head.x >= map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS + 51))
 			{
 				e->state = VYLE2_STATE_VYLE_ACTIVATE_MACHINE;
 			}
@@ -624,10 +624,10 @@ static void main_func(Obj *o)
 				e->head.dx = -klyle_run_dx;
 				e->metaframe = vyle_walk_cycle[e->anim_frame];
 
-				if (e->head.x < map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(40))
+				if (e->head.x < map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(43))
 				{
 					e->state = VYLE2_STATE_VYLE_GROW_1;
-					e->head.x = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(40);
+					e->head.x = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(43);
 				}
 			}
 			map_set_x_scroll(FIX32TOINT(e->xscroll));

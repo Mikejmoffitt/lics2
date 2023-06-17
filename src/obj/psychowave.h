@@ -16,6 +16,7 @@ typedef struct O_Psychowave
 	PsychowaveState state;
 	uint16_t anim_cnt;
 	uint16_t anim_frame;
+	uint16_t emit_cnt;
 } O_Psychowave;
 
 void o_load_psychowave(Obj *o, uint16_t data);

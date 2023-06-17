@@ -11,6 +11,7 @@
 #include "map.h"
 #include "lyle.h"
 #include "pause.h"
+#include "obj.h"
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
@@ -130,16 +131,18 @@ static inline void powerup_render(Powerup *p)
 		size = SPR_SIZE(2, 2);
 		tx -= 7;
 		ty -= 14;
-		tile_offset += ((p->anim_frame / 2) % 2) ? 4 : 0;
+		tile_offset += (p->anim_cnt % 2) ? 4 : 0;
 	}
 	else if (p->type == POWERUP_TYPE_CP_ORB)
 	{
-		pal = LYLE_PAL_LINE;
-		tile_offset = 8;
+		const uint16_t frame_offs = (p->anim_cnt % 2) ? 4 : 0;
+		pal = ENEMY_PAL_LINE;
+		tile_offset = 8 + frame_offs;
 		size = SPR_SIZE(2, 2);
 		tx -= 7;
 		ty -= 14;
-		tile_offset += ((p->anim_frame / 2) % 2) ? 4 : 0;
+		// Second overlay
+		md_spr_put(tx, ty, SPR_ATTR(POWERUP_VRAM_TILE + 48 + frame_offs, 0, 0, BG_PAL_LINE, 0), size);
 	}
 	else
 	{
@@ -321,13 +324,7 @@ static inline void powerup_run(Powerup *p)
 
 	powerup_render(p);
 
-	p->anim_cnt++;
-	if (p->anim_cnt >= kanim_speed)
-	{
-		p->anim_cnt = 0;
-		p->anim_frame++;
-		if (p->anim_frame >= 8) p->anim_frame = 0;
-	}
+	OBJ_SIMPLE_ANIM(p->anim_cnt, p->anim_frame, 8, kanim_speed);
 }
 
 void powerup_poll(void)

@@ -32,7 +32,6 @@ typedef struct O_CpGiver
 	fix32_t orb_y;
 	fix16_t orb_dy;
 	int16_t orb_flicker_cnt;
-	int16_t orb_anim_cnt;
 	int16_t orb_anim_frame;
 
 	// Cube powerup that is given to Lyle.

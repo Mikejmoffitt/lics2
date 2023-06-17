@@ -30,6 +30,8 @@ static int16_t s_spawn_start_index;
 
 static uint16_t s_hibernate;
 
+static uint16_t kpwave_life;
+
 static void set_constants(void)
 {
 	static int16_t s_constants_set;
@@ -42,6 +44,7 @@ static void set_constants(void)
 	kanim_speed_explosion = PALSCALE_DURATION(3.4);
 	kanim_speed_sand = PALSCALE_DURATION(3.3);
 	ksand_life = kanim_speed_sand * 5;
+	kpwave_life = PALSCALE_DURATION(86);
 	kcrumbly_gravity = INTTOFIX16(PALSCALE_1ST(0.1190476));
 	s_constants_set = 1;
 }
@@ -143,6 +146,15 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 		case PARTICLE_TYPE_CRUMBLY:
 			p->dy += kcrumbly_gravity;
 			break;
+
+		case PARTICLE_TYPE_PSYCHOWAVE:
+			if (p->life & 1) return;  // Flicker
+			p->spr.attr ^= SPR_ATTR(0, 1, 0, 0, 0);
+			p->spr.x = px + 24;
+			p->spr.y = py;
+			md_spr_put_st(&p->spr);
+			p->spr.attr ^= SPR_ATTR(0, 1, 0, 0, 0);
+			break;
 	}
 
 	p->spr.x = px;
@@ -200,6 +212,7 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 		[PARTICLE_TYPE_EXPLOSION] = 0,  // Handled at runtime.
 		[PARTICLE_TYPE_SAND] = INTTOFIX32(4),
 		[PARTICLE_TYPE_CRUMBLY] = INTTOFIX32(4),
+		[PARTICLE_TYPE_PSYCHOWAVE] = 0,  // Handled at runtime.
 	};
 
 	Particle *ret = NULL;
@@ -242,12 +255,23 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 				p->spr.size = SPR_SIZE(1, 1);
 				p->spr.attr = SPR_ATTR(0x0060, 0, 0, MAP_PAL_LINE, 1);
 				break;
+			case PARTICLE_TYPE_PSYCHOWAVE:
+				p->life = kpwave_life;
+				p->spr.size = SPR_SIZE(3, 1);
+				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 81, 0, 0, LYLE_PAL_LINE, 0);
+				break;
 		}
 
 		if (type == PARTICLE_TYPE_SPARKLE)
 		{
 			p->x += INTTOFIX32((system_rand() % 16) - 8);
 			p->y += INTTOFIX32((system_rand() % 16) - 8);
+		}
+		else if (type == PARTICLE_TYPE_PSYCHOWAVE)
+		{
+			p->x -= INTTOFIX32(24);
+			p->y -= INTTOFIX32(4);
+			p->dy = INTTOFIX16(PALSCALE_1ST(1.0 * 5.0/6.0));
 		}
 		else if (type != PARTICLE_TYPE_CRUMBLY)
 		{
