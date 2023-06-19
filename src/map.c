@@ -134,6 +134,9 @@ static const MapAssets map_by_id[] =
 	[56] = MAP_ASSETS(56_boss2),
 	[57] = MAP_ASSETS(57_finalboss),
 	[58] = MAP_ASSETS(58_truefinalboss),
+	[59] = MAP_ASSETS(59_end1),
+	[60] = MAP_ASSETS(60_end2),
+	[61] = MAP_ASSETS(61_end3),
 
 	[127] = MAP_ASSETS(127_gameover),
 };

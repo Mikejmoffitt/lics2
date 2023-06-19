@@ -86,11 +86,25 @@ static fix16_t kvyle_superjump_dy;
 static int16_t kvyle_hover_time;
 static int16_t kvyle_superjump_down_dy;
 
+// ------------------------------
+
+static fix16_t kend1_scroll_speed;
+static fix16_t kvyle_end1_fall_dy;
+static fix16_t klyle_end1_fall_dy;
+static fix16_t kvyle_end1_explode_sound_rate;
+
+#define VYLE2_YSCROLL_BASE 32
+
 static inline void set_constants(void)
 {
 	static bool s_constants_set;
 	if (s_constants_set) return;
 	// Set constants here.
+
+	kend1_scroll_speed = INTTOFIX16(PALSCALE_1ST(5 * 5.0 / 6.0));
+	kvyle_end1_fall_dy = INTTOFIX16(PALSCALE_1ST(0.333 * 5.0 / 6.0));
+	klyle_end1_fall_dy = INTTOFIX16(PALSCALE_1ST(1.0 * 5.0 / 6.0));
+	kvyle_end1_explode_sound_rate = PALSCALE_DURATION(8 * 6.0 / 5.0);
 
 	klyle_walk_dx = INTTOFIX16(PALSCALE_1ST(0.9));  // TODO: This is made up
 	klyle_run_dx = INTTOFIX16(PALSCALE_1ST(1.41666666667));
@@ -249,7 +263,7 @@ static void render(O_Vyle2 *e)
 	};
 #undef FULLFRAME
 
-	if (e->metaframe >= ARRAYSIZE(frames)) return;
+	if ((uint16_t)e->metaframe >= ARRAYSIZE(frames) || e->metaframe < 0) return;
 
 	static const int16_t bytes_for_sprite_size[] =
 	{
@@ -332,7 +346,7 @@ static inline void do_lyle_shake_anim(O_Vyle2 *e, O_Lyle *l)
 
 static inline void do_lyle_walk_anim(O_Vyle2 *e)
 {
-	const int16_t lyle_walk_cycle[] = { 25, 26, 27, 26 };
+	static const int16_t lyle_walk_cycle[] = { 25, 26, 27, 26 };
 	const int8_t last_frame = e->lyle_anim_frame;
 	OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame,
 	                4, PALSCALE_DURATION(6.8));
@@ -343,6 +357,29 @@ static inline void do_lyle_walk_anim(O_Vyle2 *e)
 		if (e->lyle_anim_frame == 0) sfx_play(SFX_WALK1, 8);
 		else if (e->lyle_anim_frame == 2) sfx_play(SFX_WALK2, 8);
 	}
+}
+
+static inline void do_lyle_fall_anim(O_Vyle2 *e)
+{
+	O_Lyle *l = lyle_get();
+	if (e->lyle_anim_cnt >= PALSCALE_DURATION(6))
+	{
+		e->lyle_anim_cnt = 0;
+		e->lyle_anim_frame = (e->lyle_anim_frame == 0x0F) ? 0x10 : 0x0F;
+		if (e->lyle_anim_frame == 0x0F)
+		{
+			l->head.direction = (l->head.direction == OBJ_DIRECTION_LEFT) ?
+			                    OBJ_DIRECTION_RIGHT : OBJ_DIRECTION_LEFT;
+		}
+	}
+	else
+	{
+		e->lyle_anim_cnt++;
+	}
+	if (e->lyle_anim_frame < 0x0F) e->lyle_anim_frame = 0x0F;
+	else if (e->lyle_anim_frame > 0x10) e->lyle_anim_frame = 0x10;
+
+	lyle_set_anim_frame(e->lyle_anim_frame);
 }
 
 //
@@ -471,23 +508,32 @@ static void main_func(Obj *o)
 	{
 		default:
 			break;
+		case VYLE2_STATE_INIT:
+			lyle_set_control_en(false);
+			lyle_set_master_en(false);
+			lyle_set_scroll_h_en(false);
+			lyle_set_scroll_v_en(false);
+			e->xscroll = 0;
+			e->yscroll = INTTOFIX32(VYLE2_YSCROLL_BASE);
+
+			e->state = e->first_state;
+			break;
+
+//
+// Final boss fight intro.
+//
+
 		case VYLE2_STATE_LYLE_WALK_ANGRY:
 			if (e->state_elapsed == 0)
 			{
 				o->direction = OBJ_DIRECTION_LEFT;
 				e->metaframe = 0;
-				lyle_set_control_en(false);
-				lyle_set_master_en(false);
-				lyle_set_scroll_h_en(false);
-				lyle_set_scroll_v_en(false);
 				l->head.dx = klyle_walk_dx;
 				l->head.dy = 0;
 				l->head.direction = OBJ_DIRECTION_RIGHT;
-				map_set_x_scroll(0);
 				keddums_set_state(KEDDUMS_FLOAT);
 				psychowave_set_state(PWAVE_STATE_OFF);
 			}
-
 			// Lyle begins by approaching until he reaches a certain point.
 			do_lyle_walk_anim(e);
 
@@ -496,6 +542,7 @@ static void main_func(Obj *o)
 			obj_accurate_physics(&l->head);
 
 			break;
+
 		case VYLE2_STATE_CAMERA_PAN_TO_MACHINE:
 			// Lyle is halted, and the screen pans to show Vyle and his machine.
 			if (e->state_elapsed == 0)
@@ -517,7 +564,6 @@ static void main_func(Obj *o)
 				sfx_play(SFX_MEOW, 1);
 			}
 
-			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
 
 		case VYLE2_STATE_KEDDUMS_MEOW:
@@ -539,7 +585,6 @@ static void main_func(Obj *o)
 				e->xscroll = 0;
 				e->state = VYLE2_STATE_LYLE_APPROACH_MACHINE;
 			}
-			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
 
 		case VYLE2_STATE_LYLE_APPROACH_MACHINE:
@@ -564,7 +609,7 @@ static void main_func(Obj *o)
 				int16_t px = FIX32TOINT(l->head.x);
 				const int16_t left_bound = GAME_SCREEN_W_PIXELS / 2;
 				px -= left_bound;
-				map_set_x_scroll(px);
+				e->xscroll = INTTOFIX32(px);
 			}
 
 			// Once lyle has gone far enough (and Vyle has reached the machine) proceed.
@@ -630,7 +675,6 @@ static void main_func(Obj *o)
 					e->head.x = map_get_right() - INTTOFIX32(GAME_SCREEN_W_PIXELS) + INTTOFIX32(43);
 				}
 			}
-			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
 
 		case VYLE2_STATE_VYLE_GROW_1:
@@ -718,6 +762,7 @@ static void main_func(Obj *o)
 
 			do_lyle_shake_anim(e, l);
 			break;
+
 		case VYLE2_STATE_ENTER_ARENA:
 			// The camera pans back until it reaches the arena.
 			if (e->xscroll > INTTOFIX32(320))
@@ -767,7 +812,6 @@ static void main_func(Obj *o)
 			}
 
 			obj_accurate_physics(&l->head);
-			map_set_x_scroll(FIX32TOINT(e->xscroll));
 			break;
 
 		case VYLE2_STATE_START_DELAY:
@@ -792,9 +836,10 @@ static void main_func(Obj *o)
 				s_ground_y = e->head.y;
 			}
 			break;
-	//
-	// Fight states.
-	//
+
+//
+// Fight states.
+//
 		case VYLE2_STATE_PRE_JUMP:
 			if (vyle2_prejump(e))
 			{
@@ -1145,6 +1190,11 @@ static void main_func(Obj *o)
 					e->jump_count = 0;
 					e->state = VYLE2_STATE_LAND;
 					sfx_play(SFX_SLAM, 5);
+
+					if (l->grounded)
+					{
+						lyle_get_hurt(false);
+					}
 				}
 				else
 				{
@@ -1172,8 +1222,203 @@ static void main_func(Obj *o)
 
 			if (l->head.y >= INTTOFIX32(240+96))
 			{
+				map_set_next_room(59, 0);
 				map_set_exit_trigger(MAP_EXIT_BOTTOM);
 			}
+			break;
+
+//
+// Ending sequence (part 1)
+//
+
+		case VYLE2_STATE_END_FALL_REPEAT:
+			if (e->state_elapsed == 0)
+			{
+				e->head.direction = OBJ_DIRECTION_LEFT;
+				e->head.dy = 0;  // handling this one manually;
+				e->metaframe = 27;
+				l->head.y -= INTTOFIX32(24);
+				l->head.dy = klyle_end1_fall_dy;
+
+				e->fall_cycles = 0;
+			}
+
+			do_lyle_fall_anim(e);
+
+			// Vyle's shaking
+			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, PALSCALE_DURATION(2));
+			if (e->anim_cnt == 0)
+			{
+				e->head.x += e->anim_frame ? INTTOFIX32(1) : INTTOFIX32(-1);
+			}
+
+			e->yscroll += kend1_scroll_speed;
+			e->head.y += kend1_scroll_speed + kvyle_end1_fall_dy;
+			l->head.y += kend1_scroll_speed;
+			if (e->yscroll > INTTOFIX32(240+VYLE2_YSCROLL_BASE))
+			{
+				e->yscroll -= INTTOFIX32(240);
+				e->head.y -= INTTOFIX32(240);
+				l->head.y -= INTTOFIX32(240);
+				e->fall_cycles++;
+			}
+
+			if (e->fall_cycles >= 6)
+			{
+				e->state = VYLE2_STATE_END_FALL_DOWN;
+			}
+
+			obj_accurate_physics(&l->head);
+			break;
+
+		case VYLE2_STATE_END_FALL_DOWN:
+			if (e->state_elapsed == 0)
+			{
+				e->yscroll = INTTOFIX32(480 + VYLE2_YSCROLL_BASE);
+				map_redraw_room();
+
+				l->head.y = e->yscroll - INTTOFIX32(64);
+				l->head.dy = INTTOFIX16(PALSCALE_1ST(5 * 5.0 / 6.0));
+
+				e->head.y = e->yscroll - INTTOFIX32(64);
+				e->head.dy = 0;
+			}
+			else
+			{
+				do_lyle_fall_anim(e);
+				obj_accurate_physics(&l->head);
+				// Lyle tumbles as he falls, until he hits the platform or ground.
+				const int16_t px_x = FIX32TOINT(l->head.x + (l->head.right + l->head.left) / 2);
+				const int16_t py_bottom = FIX32TOINT(l->head.y);
+				if (map_collision(px_x, py_bottom + 1))
+				{
+					const int16_t touching_tile_y = ((py_bottom + 1) / 8) * 8;
+					l->head.y = INTTOFIX32(touching_tile_y) - 1;
+					l->head.dy = 0;
+					e->state = VYLE2_STATE_END_LYLE_LANDED;
+				}
+			}
+			break;
+
+		case VYLE2_STATE_END_LYLE_LANDED:
+			if (e->state_elapsed == 0)
+			{
+				lyle_set_anim_frame(0x11);
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(8 * 6.0/5.0))
+			{
+				lyle_set_anim_frame(0x12);
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(40 * 6.0/5.0))
+			{
+				lyle_set_anim_frame(0x13);
+				// TODO: Shake during standup
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(60 * 6.0/5.0))
+			{
+				lyle_set_anim_frame(0x0D);
+				l->head.direction = OBJ_DIRECTION_LEFT;
+				e->head.dy = INTTOFIX16(PALSCALE_1ST(8 * 5.0/6.0));
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(150 * 6.0/5.0))
+			{
+				e->state = VYLE2_STATE_END_EXPLODING;
+			}
+
+			if (e->head.dy > 0 && e->head.y >= INTTOFIX32(584+48))
+			{
+				e->head.dy = 0;
+				e->head.y = INTTOFIX32(584+48);
+				e->metaframe = 28;
+			}
+			break;
+
+		case VYLE2_STATE_END_EXPLODING:
+			if (e->state_elapsed == 0)
+			{
+				e->shaking = true;
+			}
+
+			// Explosion sounds
+			if (e->state_elapsed < PALSCALE_DURATION(250 * 6.0 / 5.0))
+			{
+				e->anim_cnt++;
+				if (e->anim_cnt >= kvyle_end1_explode_sound_rate)
+				{
+					if (e->state_elapsed < PALSCALE_DURATION(100 * 6.0 / 5.0))
+					{
+						sfx_stop(SFX_OBJ_BURST);
+						sfx_play(SFX_OBJ_BURST, 5);
+						sfx_stop(SFX_OBJ_BURST_HI);
+						sfx_play(SFX_OBJ_BURST_HI, 6);
+						particle_spawn(e->head.x, e->head.y + (e->head.top / 2), PARTICLE_TYPE_FIZZLERED);
+					}
+					else
+					{
+						sfx_stop(SFX_EXPLODE);
+						sfx_play(SFX_EXPLODE, 0);
+						const fix32_t ex = e->head.x + INTTOFIX32((system_rand() % 54) - (54 / 2));
+						const fix32_t ey = e->head.y - INTTOFIX32((system_rand() % 47) + (47 / 2));
+						particle_spawn(ex, ey, PARTICLE_TYPE_EXPLOSION);
+					}
+					e->anim_cnt = 0;
+				}
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(250 * 6.0 / 5.0))
+			{
+				sfx_play(SFX_EXPLODE, 0);
+			}
+			else if (e->state_elapsed < PALSCALE_DURATION(260 * 6.0 / 5.0))
+			{
+				sfx_play(SFX_EXPLODE, 0);
+				for (int16_t i = 0; i < 3; i++)
+				{
+					const fix32_t ex = e->head.x + INTTOFIX32((system_rand() % 54) - (54 / 2));
+					const fix32_t ey = e->head.y + INTTOFIX32((e->head.top / 2) - (system_rand() % 47) + (47 / 2));
+					// TODO: Replace with large explosion
+					Obj *explosion = obj_spawn(FIX32TOINT(ex), FIX32TOINT(ey), OBJ_BIGEXPLOSION, 0);
+					if (!explosion) break;
+					explosion->dx = INTTOFIX16(((system_rand() % 32) - 16) / 4);
+					explosion->dy = INTTOFIX16(((system_rand() % 32) - 16) / 4);
+					particle_spawn(ex, ey, PARTICLE_TYPE_EXPLOSION);
+				}
+			}
+			else
+			{
+				e->state = VYLE2_STATE_END_EXPLODED;
+			}
+			break;
+
+		case VYLE2_STATE_END_EXPLODED:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = -1;  // Disappear
+				l->head.dy = INTTOFIX16(PALSCALE_1ST(-5 * 5.0 / 6.0));
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(20 * 6.0 / 5.0))
+			{
+				map_redraw_room();
+				e->yscroll = INTTOFIX32(VYLE2_YSCROLL_BASE);
+				l->head.dy = 0;
+			}
+			else if (e->state_elapsed == PALSCALE_DURATION(50 * 6.0 / 5.0))
+			{
+				l->head.y = INTTOFIX32(256);
+				l->head.dy = INTTOFIX16(PALSCALE_1ST(-5 * 5.0 / 6.0));
+			}
+			else if (l->head.y < INTTOFIX32(-32))
+			{
+				map_set_next_room(60, 0);
+				map_set_exit_trigger(MAP_EXIT_TOP);
+			}
+			do_lyle_fall_anim(e);
+			obj_accurate_physics(&l->head);
+			break;
+
+//
+// Ending sequence (part 2)
+//
+		case VYLE2_STATE_END_RISE_UP:
 
 			break;
 	}
@@ -1188,6 +1433,9 @@ static void main_func(Obj *o)
 	if (state_prev != e->state) e->state_elapsed = 0;
 	else e->state_elapsed++;
 	obj_mixed_physics_h(o);
+
+	map_set_x_scroll(FIX32TOINT(e->xscroll));
+	map_set_y_scroll(FIX32TOINT(e->yscroll));
 
 	md_pal_set(ENEMY_CRAM_POSITION + 0xC, PALRGB(0x7, 0x3, 0x3));
 	render(e);
@@ -1211,7 +1459,6 @@ void o_load_vyle2(Obj *o, uint16_t data)
 {
 	_Static_assert(sizeof(O_Vyle2) <= sizeof(ObjSlot),
 	               "Object size exceeds sizeof(ObjSlot)");
-	(void)data;
 	set_constants();
 	vram_load();
 
@@ -1227,6 +1474,24 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	lyle_set_scroll_v_en(0);
 	map_set_y_scroll(0x28);
 
+	O_Vyle2 *e = (O_Vyle2 *)o;
+	if (data == 0)
+	{
+		e->first_state = VYLE2_STATE_LYLE_WALK_ANGRY;
+	}
+	else if (data == 1)
+	{
+		e->first_state = VYLE2_STATE_END_FALL_REPEAT;
+
+	}
+	else if (data == 2)
+	{
+		e->first_state = VYLE2_STATE_END_RISE_UP;
+	}
+	else
+	{
+		e->first_state = VYLE2_STATE_PRE_JUMP;
+	}
 }
 
 void o_unload_vyle2(void)

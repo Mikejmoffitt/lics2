@@ -68,6 +68,9 @@ static const Gfx gfx[] =
 	[GFX_ROCKMAN_DOOR] = GFX(obj_54_rockman_door),
 	[GFX_KEDDUMS] = GFX(obj_56_keddums),
 	[GFX_TVSCREEN] = GFX(obj_57_tvscreen),
+	[GFX_POINTYSIGN] = GFX(obj_59_pointysign),
+	[GFX_CLOAK] = GFX(obj_60_cloak),
+	[GFX_BIGEXPLOSION] = GFX(obj_61_bigexplosion),
 
 	[GFX_GAMEOVER] = GFX(obj_118_gameover),
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),

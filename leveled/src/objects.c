@@ -73,6 +73,11 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 
 	[OBJ_KEDDUMS]       = {"Keddums ", 24, 16},
 	[OBJ_TVSCREEN]      = {"TvScreen", 24, 16},
+	[OBJ_SECRETTV]      = {"SecretTv", 24, 16},
+	[OBJ_POINTYSIGN]    = {"PntySign", 48, 32},
+
+	[OBJ_VYLECLOAK]     = {"VylCloak", 32, 16},
+	[OBJ_BIGEXPLOSION]  = {"BigExplo",  1,  1},
 
 	[OBJ_GAMEOVER]      = {"GameOver", 64, 64},
 	[OBJ_TECHNOBG]      = {"TechnoBG", 16, 16},

@@ -206,12 +206,12 @@ static void bg_city_func(void)
 
 static void bg_finalboss_func(void)
 {
-	const int16_t anim_speed = PALSCALE_DURATION(8);
+	const int16_t anim_speed = PALSCALE_DURATION(5.0 * 6.0 / 5.0);
 	OBJ_SIMPLE_ANIM(s_bg.anim_cnt, s_bg.anim_frame, 2, anim_speed);
-	// TODO: Check paralax, it may not be this
 	const int16_t x_scroll = s_bg.x_scroll;
+	const int16_t y_scroll = (s_bg.y_scroll / 2) + (s_bg.anim_frame ? 16 : 0);
 	set_h_scroll_plane(-x_scroll / 2);
-	set_v_scroll_plane(s_bg.anim_frame ? 16 : 0);
+	set_v_scroll_plane(y_scroll);
 }
 
 static void bg_plane_func(void)

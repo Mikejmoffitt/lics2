@@ -5,6 +5,7 @@
 
 typedef enum Vyle2State
 {
+	VYLE2_STATE_INIT,
 	// Introduction states.
 	VYLE2_STATE_LYLE_WALK_ANGRY,
 	VYLE2_STATE_CAMERA_PAN_TO_MACHINE,
@@ -43,6 +44,16 @@ typedef enum Vyle2State
 	VYLE2_STATE_SUPERJUMP_HOVER,
 	VYLE2_STATE_SUPERJUMP_DOWN,  // --> VYLE2_STATE_LAND or VYLE2_STATE_SUPERJUMP_EXIT
 	VYLE2_STATE_SUPERJUMP_EXIT,
+	// Ending (part 1)
+	VYLE2_STATE_END_FALL_REPEAT,
+	VYLE2_STATE_END_FALL_DOWN,
+	VYLE2_STATE_END_LYLE_LANDED,
+	VYLE2_STATE_END_EXPLODING,
+	VYLE2_STATE_END_EXPLODED,
+	// Ending (part 2)
+	VYLE2_STATE_END_RISE_UP,
+	VYLE2_STATE_END_LANDED,
+	VYLE2_STATE_END_ESCAPE,
 
 } Vyle2State;
 
@@ -52,16 +63,18 @@ typedef struct O_Vyle2
 
 	// Position for the camera.
 	fix32_t xscroll;
+	fix32_t yscroll;
 
 	int16_t lyle_anim_cnt;
 	int16_t lyle_anim_frame;
 
+	Vyle2State first_state;
 	Vyle2State state;
 	int16_t state_elapsed;
 
 	uint16_t anim_cnt;
 	uint16_t anim_frame;
-	uint16_t metaframe;
+	int16_t metaframe;
 
 	// jump logic
 	int16_t jump_count;
@@ -72,10 +85,12 @@ typedef struct O_Vyle2
 	int16_t shot_cnt;
 	// superjump phase
 	int16_t crumble_cnt;
-
 	int16_t ground_slams;
 
 	bool shaking;
+
+	// endinng pt1
+	int16_t fall_cycles;
 } O_Vyle2;
 
 void o_load_vyle2(Obj *o, uint16_t data);
