@@ -44,6 +44,8 @@ typedef struct ProgressSlot
 	uint16_t map_explored[PROGRESS_MAP_H][PROGRESS_MAP_W];
 	ProgressAbility abilities;
 
+	uint32_t elapsed_frames;
+
 	uint32_t magic_1;  // For save file sanity.
 } ProgressSlot;
 

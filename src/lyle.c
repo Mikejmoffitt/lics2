@@ -177,12 +177,12 @@ static inline void eval_grounded(O_Lyle *l)
 {
 	if (l->ext_disable)
 	{
-		l->grounded = 1;
+		l->grounded = true;
 		return;
 	}
 	if (l->head.dy < 0)
 	{
-		l->grounded = 0;
+		l->grounded = false;
 		return;
 	}
 
@@ -702,7 +702,7 @@ static inline void cube_collision(O_Lyle *l)
 		else if (obj_touching_cube(&l->head, c))
 		{
 			if (c->status == CUBE_STATUS_AIR && l->throw_cnt == 0 &&
-			         l->kick_cnt == 0 && l->throwdown_cnt == 0)
+			    l->kick_cnt == 0 && l->throwdown_cnt == 0)
 			{
 				if (l->hurt_cnt < khurt_time - khurt_timeout &&
 				    l->tele_out_cnt == 0)
@@ -1036,7 +1036,7 @@ static inline void draw(O_Lyle *l)
 	int16_t yoff = 0;
 	int16_t xoff = 0;
 	int16_t transfer_bytes = 0;
-	int16_t yflip = 0;
+	bool yflip = false;
 
 	// Set sprite size and Y offset based on frame
 	if (l->anim_frame < 16 || (l->anim_frame >= 24 && l->anim_frame < 28))
@@ -1066,7 +1066,7 @@ static inline void draw(O_Lyle *l)
 	if (l->anim_frame >= 0x0F && l->anim_frame <= 0x10 &&
 	    l->head.direction == OBJ_DIRECTION_LEFT)
 	{
-		yflip = 1;
+		yflip = true;
 	}
 
 	if (l->anim_frame >= 0x14 && l->anim_frame <= 0x15)
@@ -1143,9 +1143,9 @@ static void maybe_die(O_Lyle *l)
 		l->head.dy = kdead_dy;
 
 		l->holding_cube = CUBE_TYPE_NULL;
-		l->priority = 1;
+		l->priority = true;
 
-		l->dead = 1;
+		l->dead = true;
 	}
 }
 
@@ -1285,22 +1285,22 @@ void lyle_set_direction(ObjDirection d)
 	s_lyle.head.direction = d;
 }
 
-void lyle_set_scroll_h_en(int16_t en)
+void lyle_set_scroll_h_en(bool en)
 {
 	s_lyle.scroll_disable_h = !en;
 }
 
-void lyle_set_scroll_v_en(int16_t en)
+void lyle_set_scroll_v_en(bool en)
 {
 	s_lyle.scroll_disable_v = !en;
 }
 
-void lyle_set_control_en(int16_t en)
+void lyle_set_control_en(bool en)
 {
 	s_lyle.ext_disable = !en;
 }
 
-void lyle_set_master_en(int16_t en)
+void lyle_set_master_en(bool en)
 {
 	s_lyle.full_disable = !en;
 }

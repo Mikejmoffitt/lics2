@@ -14,8 +14,9 @@ typedef struct O_Laser
 {
 	Obj head;
 
+	bool timer_master;
+
 	int16_t height;  // Height in 16px increments.
-	int16_t timer;
 	int16_t phase;
 	int16_t anim_cnt;
 	int16_t anim_frame;

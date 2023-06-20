@@ -138,7 +138,7 @@ void o_unload_metagrub(void)
 	s_vram_pos = 0;
 }
 
-void metagrub_set_enable(int16_t enable)
+void metagrub_set_enable(bool enable)
 {
 	s_disable = !enable;
 }

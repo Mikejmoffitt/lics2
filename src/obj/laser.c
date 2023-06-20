@@ -14,6 +14,8 @@ static uint16_t s_vram_pos;
 static int16_t ksequence[4];
 static int16_t kanim_delay;
 
+static int16_t s_timer;
+
 // The laser animation sequence goes like this:
 // 0 - start flickering
 // 1 - draw solid, set harmful flag
@@ -44,6 +46,7 @@ static inline void set_constants(void)
 static void render(O_Laser *e)
 {
 	Obj *o = &e->head;
+	if (o->offscreen) return;
 	int16_t sp_x, sp_y;
 	static const int16_t offset_x = -8;
 	static const int16_t offset_y = -16;
@@ -73,41 +76,46 @@ static void main_func(Obj *o)
 		return;
 	}
 
+	const bool was_always_active = o->flags & OBJ_FLAG_ALWAYS_ACTIVE ? true : false;
+
 	if (e->mode == LASER_MODE_ON && (e->phase == 0 || e->phase == 3))
 	{
 		e->phase = 1;
-		e->timer = ksequence[0];
+		s_timer = ksequence[0];
 	}
 
 	else if (e->mode == LASER_MODE_OFF && (e->phase == 1 || e->phase == 2))
 	{
 		e->phase = 3;
-		e->timer = ksequence[2];
+		s_timer = ksequence[2];
 	}
 
-	e->timer++;
-	if (e->timer >= ksequence[3])
+	if (e->timer_master)
 	{
-		e->timer = 0;
+		s_timer++;
+		if (s_timer >= ksequence[3])
+		{
+			s_timer = 0;
+		}
 	}
 
-	if (e->timer < ksequence[0])
+	if (s_timer < ksequence[0])
 	{
 		// Laser is fully off.
 		e->phase = 0;
 		if (e->mode == LASER_MODE_OFF)
 		{
-			e->timer = 0;
+			s_timer = 0;
 		}
 	}
-	else if (e->timer < ksequence[1])
+	else if (s_timer < ksequence[1])
 	{
 		// Laser is flickering on.
 		e->phase = 1;
 	}
-	else if (e->timer < ksequence[2])
+	else if (s_timer < ksequence[2])
 	{
-		if (e->timer == ksequence[1])
+		if (s_timer == ksequence[1] && !o->offscreen)
 		{
 			sfx_play(SFX_LASER, 0);
 		}
@@ -115,7 +123,7 @@ static void main_func(Obj *o)
 		e->phase = 2;
 		if (e->mode == LASER_MODE_ON)
 		{
-			e->timer = ksequence[1];
+			s_timer = ksequence[1];
 		}
 	}
 	else
@@ -140,6 +148,7 @@ static void main_func(Obj *o)
 		o->flags &= ~(OBJ_FLAG_HARMFUL | OBJ_FLAG_BOUNCE_ANY | OBJ_FLAG_ALWAYS_HARMFUL);
 	}
 
+	if (was_always_active) o->flags |= OBJ_FLAG_ALWAYS_ACTIVE;
 
 	OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 4, kanim_delay);
 
@@ -153,11 +162,15 @@ void o_load_laser(Obj *o, uint16_t data)
 	               "Object size exceeds sizeof(ObjSlot)");
 	(void)data;
 	set_constants();
+
+	if (s_vram_pos == 0) e->timer_master = true;
 	vram_load();
 
 	obj_basic_init(o, "Laser", 0,
 	               INTTOFIX16(-8), INTTOFIX16(8), INTTOFIX16(-16), 1);
 	const int16_t x_center = FIX32TOINT(o->x);
+
+	if (e->timer_master) o->flags |= OBJ_FLAG_ALWAYS_ACTIVE;
 
 	// Search to see how tall this laser is.
 	for (int16_t i = 0; i < 16; i++)

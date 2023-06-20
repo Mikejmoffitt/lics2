@@ -1,3 +1,13 @@
+// This object covers Vyle 2 - the final boss - but is also responsible for the
+// scripting of the boss intro and ending scenes.
+//
+// Vyle 2 is placed in different maps with a parameter indicating the scene.
+//
+// Scene 0: Final boss fight intro; transitions to battle.
+// Scene 1: Falling downwards in the "end1" room
+// Scene 2: Lyle is blasted upwards back into the boss arena; Vyle is asbent
+// Scene 3: Lyle boards the rocket and takes off to the credits room
+
 #include "obj/vyle2.h"
 #include <stdlib.h>
 #include "obj.h"
@@ -1475,6 +1485,7 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	map_set_y_scroll(0x28);
 
 	O_Vyle2 *e = (O_Vyle2 *)o;
+
 	if (data == 0)
 	{
 		e->first_state = VYLE2_STATE_LYLE_WALK_ANGRY;
@@ -1482,7 +1493,6 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	else if (data == 1)
 	{
 		e->first_state = VYLE2_STATE_END_FALL_REPEAT;
-
 	}
 	else if (data == 2)
 	{

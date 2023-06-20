@@ -68,7 +68,7 @@ void o_unload_wndwback(void)
 	s_vram_pos = 0;
 }
 
-void wndwback_set_visible(int16_t visible)
+void wndwback_set_visible(bool visible)
 {
 	ObjSlot *s = &g_objects[0];
 	int16_t i = ARRAYSIZE(g_objects);

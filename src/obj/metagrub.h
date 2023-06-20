@@ -3,6 +3,7 @@
 
 #include "obj.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct O_Metagrub
 {
@@ -13,5 +14,5 @@ typedef struct O_Metagrub
 void o_load_metagrub(Obj *o, uint16_t data);
 void o_unload_metagrub(void);
 
-void metagrub_set_enable(int16_t enable);
+void metagrub_set_enable(bool enable);
 #endif  // OBJ_METAGRUB_H

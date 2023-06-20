@@ -27,6 +27,7 @@
 #include "projectile.h"
 #include "pause.h"
 #include "objtile.h"
+#include "timer.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -121,6 +122,7 @@ static void run_frame(void)
 			obj_exec();
 			pause_poll();
 			objtile_poll();
+			timer_poll();
 
 			const int16_t debug_room_id = pause_get_debug_room_id();
 			const MapExitTrigger exit_trigger = map_get_exit_trigger();
@@ -137,10 +139,12 @@ static void run_frame(void)
 				}
 				else if (exit_trigger == MAP_EXIT_DEAD)
 				{
+					timer_stop();
 					persistent_state->next_room_id = 127;
 				}
 				else if (exit_trigger == MAP_EXIT_RESTART)
 				{
+					timer_start();
 					persistent_state_init();
 					persistent_state->next_room_id = map_get_next_room_id();
 					persistent_state->next_room_entrance =

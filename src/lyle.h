@@ -42,18 +42,18 @@ typedef struct O_Lyle
 	int8_t metaframe;
 
 	int8_t action_cnt;
-	int8_t grounded;
+	bool grounded;
 
-	int8_t ext_disable;
+	bool ext_disable;
 	int8_t cube_jump_disable_cnt;
 
 	int8_t cp;
-	int8_t scroll_disable_h;
-	int8_t scroll_disable_v;
+	bool scroll_disable_h;
+	bool scroll_disable_v;
 	int8_t priority;
 
-	int8_t full_disable;
-	int8_t dead;
+	bool full_disable;
+	bool dead;
 } O_Lyle;
 
 // TODO: Params for persistent state
@@ -77,10 +77,10 @@ void lyle_set_hp(int16_t hp);
 int16_t lyle_get_cp(void);
 static inline void lyle_kill(void) { lyle_set_hp(0); }
 
-void lyle_set_scroll_h_en(int16_t en);
-void lyle_set_scroll_v_en(int16_t en);
-void lyle_set_control_en(int16_t en);
-void lyle_set_master_en(int16_t en);
+void lyle_set_scroll_h_en(bool en);
+void lyle_set_scroll_v_en(bool en);
+void lyle_set_control_en(bool en);
+void lyle_set_master_en(bool en);
 void lyle_set_anim_frame(int8_t frame);
 
 void lyle_upload_palette(void);

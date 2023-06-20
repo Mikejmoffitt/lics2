@@ -28,7 +28,7 @@ static inline void set_constants(void)
 	kanim_speed = PALSCALE_DURATION(6);
 	kappear_frame = PALSCALE_DURATION(36.0);
 	ksolid_frame = PALSCALE_DURATION(108.0);
-	kflicker_speed = PALSCALE_DURATION(4);
+	kflicker_speed = PALSCALE_DURATION(3);
 
 	s_constants_set = true;
 }

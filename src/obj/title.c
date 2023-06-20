@@ -19,6 +19,7 @@
 #include "pause.h"
 #include "sfx.h"
 #include "input.h"
+#include "timer.h"
 
 static const fix32_t kfloor_pos = INTTOFIX32(688);
 static const fix32_t kinitial_scroll = INTTOFIX32(360);
@@ -542,24 +543,25 @@ static void main_func(Obj *o)
 			// position, and his scroll control is taken away.
 			e->v_scroll_y = kinitial_scroll;
 			e->cloakdude_x = -INTTOFIX32(130);
-			lyle_set_scroll_h_en(0);
-			lyle_set_scroll_v_en(0);
-			lyle_set_control_en(0);
+			lyle_set_scroll_h_en(false);
+			lyle_set_scroll_v_en(false);
+			lyle_set_control_en(false);
 			lyle_set_pos(o->x - INTTOFIX32(16), lyle_get_y() - INTTOFIX32(8));
 			lyle_set_direction(OBJ_DIRECTION_LEFT);
 			lyle_set_pos(lyle_get_x(), INTTOFIX32(64));
-			wndwback_set_visible(0);
+			wndwback_set_visible(false);
 			map_redraw_room();
+			timer_stop();
 
-			hud_set_visible(0);
-			metagrub_set_enable(0);
+			hud_set_visible(false);
+			metagrub_set_enable(false);
 
 			e->state = TITLE_STATE_INTRO;
 			break;
 		case TITLE_STATE_INTRO:
 			if (e->state_elapsed == 0)
 			{
-				wndwback_set_visible(1);
+				wndwback_set_visible(true);
 				const Gfx *gfx_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
 				s_vram_keddums_pos = gfx_load(gfx_keddums, s_vram_shared_pos);
 			}
@@ -589,7 +591,7 @@ static void main_func(Obj *o)
 						// After the bouncing has stopped, go to next state.
 						e->state = TITLE_STATE_CUTSCENE;
 						e->v_scroll_y = kfloor_pos;
-						wndwback_set_visible(1);
+						wndwback_set_visible(true);
 						sfx_play(SFX_KNOCK, 0);
 					}
 				}
@@ -686,7 +688,7 @@ static void main_func(Obj *o)
 				e->menu_choice = 1;  // Continue.
 				music_play(14);  // Alone in the Dark
 				lyle_set_pos(o->x - INTTOFIX32(32), INTTOFIX32(679));
-				wndwback_set_visible(1);
+				wndwback_set_visible(true);
 			}
 			else if (e->state_elapsed == 1)
 			{
@@ -826,13 +828,14 @@ static void main_func(Obj *o)
 				md_pal_upload(ENEMY_CRAM_POSITION, res_pal_enemy_bin,
 				           sizeof(res_pal_title_bin) / 2);
 				draw_normal_house_tiles();
-				lyle_set_control_en(1);
-				lyle_get()->priority = 0;
+				lyle_set_control_en(true);
+				lyle_get()->priority = false;
 				music_play(1);  // Stage music
 				obj_erase(o);
-				hud_set_visible(1);
-				metagrub_set_enable(1);
+				hud_set_visible(true);
+				metagrub_set_enable(true);
 				obj_scramble_powerup_spawn_index();
+				timer_start();
 				return;
 			}
 			render_title_full(e);
@@ -860,8 +863,8 @@ void o_load_title(Obj *o, uint16_t data)
 	o->cube_func = NULL;
 
 	e->v_scroll_y = INTTOFIX32(360);
-	hud_set_visible(0);
-	metagrub_set_enable(0);
+	hud_set_visible(false);
+	metagrub_set_enable(false);
 }
 
 void o_unload_title(void)
