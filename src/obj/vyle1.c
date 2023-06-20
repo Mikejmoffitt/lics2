@@ -21,11 +21,9 @@ static int16_t kintro_rockman_door_activate_time;
 static int16_t kintro_walk_stop_time;
 static int16_t kintro_reach_frame_time;
 static int16_t kintro_toss_time;
-static int16_t kintro_cloak_flicker_time;
 static int16_t kintro_seek_start_time;
 static int16_t kintro_found_time;
 static int16_t kintro_finished_time;
-// TODO: cloak gravity, dx, dy
 
 static fix16_t kdx;
 static fix16_t kjump_dy[8];
@@ -69,7 +67,6 @@ static inline void set_constants(void)
 	kintro_walk_stop_time = PALSCALE_DURATION(420);
 	kintro_reach_frame_time = PALSCALE_DURATION(444);
 	kintro_toss_time = PALSCALE_DURATION(480);
-	kintro_cloak_flicker_time = PALSCALE_DURATION(516);
 	kintro_seek_start_time = PALSCALE_DURATION(540);
 	kintro_found_time = PALSCALE_DURATION(672);
 	kintro_finished_time = PALSCALE_DURATION(696);
@@ -228,7 +225,7 @@ static void main_func(Obj *o)
 			{
 				sfx_play(SFX_SAND, 1);
 				e->metaframe = 3;
-				// TODO: Spawn discarded cloak
+				obj_spawn(FIX32TOINT(o->x) + 16, FIX32TOINT(o->y) - 12, OBJ_CLOAK, 0);
 			}
 			else if (e->state_elapsed == kintro_seek_start_time)
 			{

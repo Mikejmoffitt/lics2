@@ -64,7 +64,7 @@ typedef enum ObjType
 	OBJ_TVSCREEN      = 57,  // Used in the teleporter room.
 	OBJ_SECRETTV      = 58,  // Used in the hidden blue room.
 	OBJ_POINTYSIGN    = 59,  // Sign cautioning about "LARGE POINTY THING".
-	OBJ_VYLECLOAK     = 60,  // Vyle's discarded cloak.
+	OBJ_CLOAK         = 60,  // Vyle's discarded cloak.
 	OBJ_BIGEXPLOSION  = 61,  // Big explosion.
 
 	OBJ_GAMEOVER     = 118,  // Game over cube / sequence.
