@@ -12,6 +12,7 @@
 #include "lyle.h"
 #include "pause.h"
 #include "obj.h"
+#include "cube_manager.h"
 
 #define POWERUP_MARGIN INTTOFIX32(3)
 
@@ -179,6 +180,24 @@ static inline void newtonian_physics(Powerup *p)
 	else if (p->dy < 0 && map_collision(px, py - 12)) p->dy = kceiling_dy;
 }
 
+static inline void wall_ejection(Powerup *p)
+{
+	const int16_t px = FIX32TOINT(p->x);
+	const int16_t py = FIX32TOINT(p->y);
+
+	if (map_collision(px, py - 12) && map_collision(px, py + 4))
+	{
+		if (!map_collision(px + 4, py))
+		{
+			p->x += INTTOFIX32(4);
+		}
+		else if (!map_collision(px - 4, py))
+		{
+			p->x -= INTTOFIX32(4);
+		}
+	}
+}
+
 static inline void powerup_get(Powerup *p)
 {
 	O_Lyle *l = lyle_get();
@@ -260,7 +279,46 @@ static inline void powerup_get(Powerup *p)
 		
 	}
 
-	p->active = 0;
+	p->active = false;
+}
+
+static inline void cube_collision(Powerup *p)
+{
+	for (uint16_t i = 0; i < ARRAYSIZE(g_cubes); i++)
+	{
+		Cube *c = &g_cubes[i];
+		if (c->status == CUBE_STATUS_NULL) continue;
+		if (p->y < c->y + c->top - 1) continue;
+		if (p->y > c->y) continue;
+		if (p->x + POWERUP_MARGIN < c->x + c->left) continue;
+		if (p->x - POWERUP_MARGIN > c->x + c->right) continue;
+		powerup_cube_bounce(p);
+	}
+}
+
+static inline void lyle_collision(Powerup *p)
+{
+	const O_Lyle *l = lyle_get();
+	const Obj *lh = &lyle_get()->head;
+	if (lh->hp <= 0) return;
+	if (l->holding_cube)
+	{
+		if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
+		      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
+		      (p->y < lh->y + lh->top - INTTOFIX16(16)) ||
+		      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
+		{
+			powerup_cube_bounce(p);
+		}
+	}
+	if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
+	      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
+	      (p->y < lh->y + lh->top) ||
+	      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
+	{
+		powerup_get(p);
+		return;
+	}
 }
 
 static inline void powerup_run(Powerup *p)
@@ -274,44 +332,21 @@ static inline void powerup_run(Powerup *p)
 		case POWERUP_TYPE_CP_ORB:
 		case POWERUP_TYPE_HP_ORB:
 			newtonian_physics(p);
-			// TODO: Scan for cubes and bounce up from them.
+			wall_ejection(p);
+			cube_collision(p);
 			break;
 		default:
 			break;
 	}
 
+	lyle_collision(p);
+
 	// Check for having gone OOB
 	if (p->x > map_get_right() || p->x < 0 ||
 	    p->y > map_get_bottom() || p->y < 0)
 	{
-		p->active = 0;
+		p->active = false;
 		return;
-	}
-
-	const O_Lyle *l = lyle_get();
-	const Obj *lh = &lyle_get()->head;
-
-	// Check for collision with player
-	if (lh->hp > 0)
-	{
-		if (l->holding_cube)
-		{
-			if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
-			      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
-			      (p->y < lh->y + lh->top - INTTOFIX16(16)) ||
-			      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
-			{
-				powerup_cube_bounce(p);
-			}
-		}
-		if (!((p->x + POWERUP_MARGIN < lh->x + lh->left) ||
-		      (p->x - POWERUP_MARGIN > lh->x + lh->right) ||
-		      (p->y < lh->y + lh->top) ||
-		      (p->y - (2 * POWERUP_MARGIN) > lh->y)))
-		{
-			powerup_get(p);
-			return;
-		}
 	}
 
 	// Don't render off-screen.
@@ -351,7 +386,7 @@ void powerup_clear(void)
 	uint16_t i = ARRAYSIZE(g_powerups);
 	while (i--)
 	{
-		g_powerups[i].active = 0;
+		g_powerups[i].active = false;
 	}
 }
 
@@ -400,7 +435,7 @@ Powerup *powerup_spawn(fix32_t x, fix32_t y,
 		Powerup *p = &g_powerups[i];
 		if (p->active) continue;
 
-		p->active = 1;
+		p->active = true;
 		p->orb_id = orb_id;
 		p->type = type;
 		p->x = x;

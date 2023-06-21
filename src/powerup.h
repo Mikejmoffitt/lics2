@@ -30,7 +30,7 @@ typedef enum PowerupType
 
 typedef struct Powerup
 {
-	int8_t active;
+	bool active;
 	int8_t orb_id;
 	uint16_t anim_cnt;
 	uint16_t anim_frame;
