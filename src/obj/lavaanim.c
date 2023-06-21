@@ -96,6 +96,15 @@ void o_load_lavaanim(Obj *o, uint16_t data)
 			/*dest_vram_offset=*/0xEC * 32,
 			/*line_transfer_words=*/(4 * 32) / 2,
 		},
+		[LAVA_ANIM_ROOFTOP] =
+		{
+			/*pal=*/NULL,
+			/*pal_size=*/0,
+			/*src_data_offset=*/32 * 32,
+			/*src_anim_offset=*/8 * 32,
+			/*dest_vram_offset=*/0xEC * 32,
+			/*line_transfer_words=*/(4 * 32) / 2,
+		},
 	};
 
 	SYSTEM_ASSERT(data < ARRAYSIZE(anim_infos));

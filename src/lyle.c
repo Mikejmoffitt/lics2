@@ -336,7 +336,7 @@ static inline void toss_cubes(O_Lyle *l)
 			const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
 			const int16_t py_top = FIX32TOINT(l->head.y + l->head.top) - 8;
 			if (map_collision(px_r, py_top) ||
-			    map_collision(px_L, py_top))
+			    map_collision(px_l, py_top))
 			{
 				c_y += INTTOFIX32(8);
 			}

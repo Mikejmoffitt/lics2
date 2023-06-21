@@ -8,6 +8,7 @@ typedef enum LavaAnimVariant
 	LAVA_ANIM_REGULAR,
 	LAVA_ANIM_GREEN,
 	LAVA_ANIM_TECHNO,
+	LAVA_ANIM_ROOFTOP,
 } LavaAnimVariant;
 
 typedef struct LavaAnimInfo
