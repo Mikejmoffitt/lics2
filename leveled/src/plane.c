@@ -88,6 +88,7 @@ void plane_load_fg(void)
 		[15] = "basketball",
 		[16] = "finalfight",
 		[17] = "gameover",
+		[18] = "outside_start",
 	};
 
 	snprintf(tile, sizeof(tile), "res/gfx/fg/%02d_%s.bin", map_header.tileset, base_fname[map_header.tileset]);

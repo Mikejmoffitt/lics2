@@ -61,6 +61,7 @@ static const TilesetAssets tileset_by_id[] =
 	[15] = TILESET_ASSETS(15_basketball),
 	[16] = TILESET_ASSETS(16_finalfight),
 	[17] = TILESET_ASSETS(17_gameover),
+	[18] = TILESET_ASSETS(18_outside_start),
 };
 #undef TILESET_ASSETS
 

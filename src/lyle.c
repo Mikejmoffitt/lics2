@@ -317,6 +317,8 @@ static inline void toss_cubes(O_Lyle *l)
 	{
 		fix16_t c_dx = 0;
 		fix16_t c_dy = 0;
+		fix32_t c_y = l->head.y - INTTOFIX32(23);
+		fix32_t c_x = l->head.x;
 		// Holding down; short toss
 		if ((buttons & LYLE_BTN_DOWN) && (l->grounded || l->on_cube))
 		{
@@ -327,6 +329,16 @@ static inline void toss_cubes(O_Lyle *l)
 		{
 			c_dx = 0;
 			c_dy = ktoss_cube_dy_up;
+
+			// If lyle is right up against a ceiling, spawn the cube a little
+			// lower so it doesn't go through a ground section.
+			const int16_t px_r = FIX32TOINT(l->head.x + l->head.right);
+			const int16_t px_l = FIX32TOINT(l->head.x + l->head.left);
+			const int16_t py_top = FIX32TOINT(l->head.y + l->head.top) - 8;
+			if (map_collision(px_r, py_top))
+			{
+				c_y += INTTOFIX32(8);
+			}
 		}
 		else if (buttons & (LYLE_BTN_RIGHT | LYLE_BTN_LEFT))
 		{
@@ -341,8 +353,6 @@ static inline void toss_cubes(O_Lyle *l)
 
 		if (l->head.direction == OBJ_DIRECTION_LEFT) c_dx = -c_dx;
 
-		fix32_t c_y = l->head.y - INTTOFIX32(23);
-		fix32_t c_x = l->head.x;
 
 		// Convert a greenblue cube to blue.
 		if (l->holding_cube == CUBE_TYPE_GREENBLUE)
