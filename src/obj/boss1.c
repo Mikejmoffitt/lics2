@@ -103,6 +103,11 @@ static void suppress_spawner_cubes(void)
 		if (g_cubes[i].status != CUBE_STATUS_NULL &&
 		    g_cubes[i].type == CUBE_TYPE_SPAWNER)
 		{
+			if (g_cubes[i].spawned_cube)
+			{
+				g_cubes[i].spawned_cube->status = CUBE_STATUS_NULL;
+				g_cubes[i].spawned_cube = NULL;
+			}
 			g_cubes[i].spawn_count = 1;
 		}
 	}
