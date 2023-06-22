@@ -81,6 +81,7 @@ static void main_func(Obj *o)
 
 static void cube_func(Obj *o, Cube *c)
 {
+	if (o->dy > 0) return;
 	obj_standard_cube_response(o, c);
 	if (o->hp <= 0)
 	{

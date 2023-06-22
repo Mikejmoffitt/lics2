@@ -399,40 +399,33 @@ static void bg_columns_2_func(void)
 	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, s_bg.scratch, (sizeof(s_bg.scratch) / 4) / 2, 2);
 }
 
-static void bg_crazy_city_func(void)
+static void crazy_city_int(int16_t split)
 {
-	const int16_t x_scroll = s_bg.x_scroll;
 	const int16_t y_scroll = s_bg.y_scroll;
-	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
-	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	set_v_scroll_plane(y_scroll);
 
-	const int16_t split = 11 + system_is_ntsc() ? 0 : 2;
-
+	// Purple section
+	const int16_t x_scroll = s_bg.x_scroll % 128;
 	set_h_scroll_plane(-x_scroll / 2);
 
+	// Buildings
+	split += system_is_ntsc() ? 0 : 2;
+	const fix32_t x_fixed = INTTOFIX32(-s_bg.x_scroll);
+	const int16_t building_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
 	for (uint16_t i = split; i < split+5; i++)
 	{
-		s_h_scroll_buffer[i] = purple_x;
+		s_h_scroll_buffer[i] = building_x;
 	}
+}
+
+static void bg_crazy_city_func(void)
+{
+	crazy_city_int(11);
 }
 
 static void bg_crazy_city_low_func(void)
 {
-	const int16_t x_scroll = s_bg.x_scroll;
-	const int16_t y_scroll = s_bg.y_scroll;
-	const fix32_t x_fixed = INTTOFIX32(-x_scroll);
-	const int16_t purple_x = FIX32TOINT(FIX32MUL(x_fixed, INTTOFIX32(0.666666667)));
-	set_v_scroll_plane(y_scroll);
-
-	const int16_t split = 18 + system_is_ntsc() ? 0 : 2;
-
-	set_h_scroll_plane(-x_scroll / 2);
-
-	for (uint16_t i = split; i < split+5; i++)
-	{
-		s_h_scroll_buffer[i] = purple_x;
-	}
+	crazy_city_int(17);
 }
 
 static void bg_elevator_func(void)
