@@ -553,6 +553,25 @@ static void main_func(Obj *o)
 			map_redraw_room();
 			timer_stop();
 
+			// HACK: This shows just the _first_ windowback object, for the
+			// window, while leaving the ones for the door hidden.
+			// TODO: Please make a separate door mask...
+			ObjSlot *s = &g_objects[0];
+			int16_t i = ARRAYSIZE(g_objects);
+			while (i--)
+			{
+				Obj *b = (Obj *)s;
+				s++;
+				if (b->status == OBJ_STATUS_NULL ||
+				    b->type != OBJ_WNDWBACK)
+				{
+					continue;
+				}
+				O_Wndwback *e = (O_Wndwback *)b;
+				e->visible = true;
+				break;
+			}
+
 			hud_set_visible(false);
 			metagrub_set_enable(false);
 
@@ -561,7 +580,6 @@ static void main_func(Obj *o)
 		case TITLE_STATE_INTRO:
 			if (e->state_elapsed == 0)
 			{
-				wndwback_set_visible(true);
 				const Gfx *gfx_keddums = gfx_get(GFX_EX_KEDDUMS_INTRO);
 				s_vram_keddums_pos = gfx_load(gfx_keddums, s_vram_shared_pos);
 			}
