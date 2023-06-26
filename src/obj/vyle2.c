@@ -392,6 +392,20 @@ static inline void do_lyle_fall_anim(O_Vyle2 *e)
 	lyle_set_anim_frame(e->lyle_anim_frame);
 }
 
+static inline void do_periodic_fullscreen_explosions(O_Vyle2 *e)
+{
+	e->anim_cnt++;
+	if (e->anim_cnt >= kvyle_end1_explode_sound_rate)
+	{
+		particle_spawn(e->xscroll + INTTOFIX32(system_rand() % GAME_SCREEN_W_PIXELS),
+		               e->yscroll + INTTOFIX32(system_rand() % GAME_SCREEN_H_PIXELS),
+		               PARTICLE_TYPE_EXPLOSION);
+		sfx_stop(SFX_EXPLODE);
+		sfx_play(SFX_EXPLODE, 0);
+		e->anim_cnt = 0;
+	}
+}
+
 //
 // Fight state helpers
 //
@@ -1241,7 +1255,7 @@ static void main_func(Obj *o)
 // Ending sequence (part 1)
 //
 
-		case VYLE2_STATE_END_FALL_REPEAT:
+		case VYLE2_STATE_END1_FALL_REPEAT:
 			if (e->state_elapsed == 0)
 			{
 				e->head.direction = OBJ_DIRECTION_LEFT;
@@ -1275,13 +1289,13 @@ static void main_func(Obj *o)
 
 			if (e->fall_cycles >= 6)
 			{
-				e->state = VYLE2_STATE_END_FALL_DOWN;
+				e->state = VYLE2_STATE_END1_FALL_DOWN;
 			}
 
 			obj_accurate_physics(&l->head);
 			break;
 
-		case VYLE2_STATE_END_FALL_DOWN:
+		case VYLE2_STATE_END1_FALL_DOWN:
 			if (e->state_elapsed == 0)
 			{
 				e->yscroll = INTTOFIX32(480 + VYLE2_YSCROLL_BASE);
@@ -1305,24 +1319,38 @@ static void main_func(Obj *o)
 					const int16_t touching_tile_y = ((py_bottom + 1) / 8) * 8;
 					l->head.y = INTTOFIX32(touching_tile_y) - 1;
 					l->head.dy = 0;
-					e->state = VYLE2_STATE_END_LYLE_LANDED;
+					e->state = VYLE2_STATE_END1_LYLE_LANDED;
 				}
 			}
 			break;
 
-		case VYLE2_STATE_END_LYLE_LANDED:
+		case VYLE2_STATE_END1_LYLE_LANDED:
 			if (e->state_elapsed == 0)
 			{
 				lyle_set_anim_frame(0x11);
+				e->lyle_anim_cnt = 0;
 			}
-			else if (e->state_elapsed == PALSCALE_DURATION(8 * 6.0/5.0))
+			else if (e->state_elapsed < PALSCALE_DURATION(40 * 6.0 / 5.0))
 			{
-				lyle_set_anim_frame(0x12);
+				e->lyle_anim_cnt++;
+				if (e->lyle_anim_cnt >= PALSCALE_DURATION(11 * 6.0 / 5.0))
+				{
+					lyle_set_anim_frame(0x12);
+				}
 			}
 			else if (e->state_elapsed == PALSCALE_DURATION(40 * 6.0/5.0))
 			{
 				lyle_set_anim_frame(0x13);
-				// TODO: Shake during standup
+			}
+			else if (e->state_elapsed >= PALSCALE_DURATION(40 * 6.0/5.0) &&
+			         e->state_elapsed < PALSCALE_DURATION(60 * 6.0/5.0))
+			{
+				// Shaking as he gets up
+				OBJ_SIMPLE_ANIM(e->lyle_anim_cnt, e->lyle_anim_frame, 2, kvyle_shaking_anim_speed);
+				if (e->lyle_anim_cnt == 0)
+				{
+					l->head.x += e->lyle_anim_frame ? INTTOFIX32(-1) : INTTOFIX32(1);
+				}
 			}
 			else if (e->state_elapsed == PALSCALE_DURATION(60 * 6.0/5.0))
 			{
@@ -1332,7 +1360,7 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed == PALSCALE_DURATION(150 * 6.0/5.0))
 			{
-				e->state = VYLE2_STATE_END_EXPLODING;
+				e->state = VYLE2_STATE_END1_EXPLODING;
 			}
 
 			if (e->head.dy > 0 && e->head.y >= INTTOFIX32(584+48))
@@ -1343,7 +1371,7 @@ static void main_func(Obj *o)
 			}
 			break;
 
-		case VYLE2_STATE_END_EXPLODING:
+		case VYLE2_STATE_END1_EXPLODING:
 			if (e->state_elapsed == 0)
 			{
 				e->shaking = true;
@@ -1385,7 +1413,6 @@ static void main_func(Obj *o)
 				{
 					const fix32_t ex = e->head.x + INTTOFIX32((system_rand() % 54) - (54 / 2));
 					const fix32_t ey = e->head.y + INTTOFIX32((e->head.top / 2) - (system_rand() % 47) + (47 / 2));
-					// TODO: Replace with large explosion
 					Obj *explosion = obj_spawn(FIX32TOINT(ex), FIX32TOINT(ey), OBJ_BIGEXPLOSION, 0);
 					if (!explosion) break;
 					explosion->dx = INTTOFIX16(((system_rand() % 32) - 16) / 4);
@@ -1395,11 +1422,11 @@ static void main_func(Obj *o)
 			}
 			else
 			{
-				e->state = VYLE2_STATE_END_EXPLODED;
+				e->state = VYLE2_STATE_END1_EXPLODED;
 			}
 			break;
 
-		case VYLE2_STATE_END_EXPLODED:
+		case VYLE2_STATE_END1_EXPLODED:
 			if (e->state_elapsed == 0)
 			{
 				e->metaframe = -1;  // Disappear
@@ -1413,7 +1440,7 @@ static void main_func(Obj *o)
 			}
 			else if (e->state_elapsed == PALSCALE_DURATION(50 * 6.0 / 5.0))
 			{
-				l->head.y = INTTOFIX32(256);
+				l->head.y = INTTOFIX32(282);
 				l->head.dy = INTTOFIX16(PALSCALE_1ST(-5 * 5.0 / 6.0));
 			}
 			else if (l->head.y < INTTOFIX32(-32))
@@ -1428,8 +1455,39 @@ static void main_func(Obj *o)
 //
 // Ending sequence (part 2)
 //
-		case VYLE2_STATE_END_RISE_UP:
+		case VYLE2_STATE_END2_LYLE_RISE_UP:
+			if (e->state_elapsed == 0)
+			{
+				e->metaframe = -1;  // Hide vyle
+				l->head.dy = INTTOFIX16(PALSCALE_1ST((-35 / 5.0) * (5.0 / 6.0))); // TODO: Real number
+				l->head.dx = INTTOFIX16(PALSCALE_1ST(2.0 * 5.0 / 6.0));
+				map_redraw_room();
+				psychowave_set_state(PWAVE_STATE_OFF);
+			}
+			
+			do_periodic_fullscreen_explosions(e);
 
+			l->head.dy += INTTOFIX16(PALSCALE_2ND((1.0 / 5.0) * 5.0 / 6.0));
+			e->xscroll = l->head.x - INTTOFIX32(GAME_SCREEN_W_PIXELS / 2);
+			do_lyle_fall_anim(e);
+			if (l->head.dy > 0)
+			{
+				const int16_t px_x = FIX32TOINT(l->head.x + (l->head.right + l->head.left) / 2);
+				const int16_t py_bottom = FIX32TOINT(l->head.y);
+				if (map_collision(px_x, py_bottom + 1))
+				{
+					const int16_t touching_tile_y = ((py_bottom + 1) / 8) * 8;
+					l->head.y = INTTOFIX32(touching_tile_y) - 1;
+					l->head.dx = 0;
+					l->head.dy = 0;
+					e->state = VYLE2_STATE_END2_LYLE_LANDED;
+				}
+			}
+			obj_accurate_physics(&l->head);
+			break;
+
+		case VYLE2_STATE_END2_LYLE_LANDED:
+			do_periodic_fullscreen_explosions(e);
 			break;
 	}
 
@@ -1492,11 +1550,11 @@ void o_load_vyle2(Obj *o, uint16_t data)
 	}
 	else if (data == 1)
 	{
-		e->first_state = VYLE2_STATE_END_FALL_REPEAT;
+		e->first_state = VYLE2_STATE_END1_FALL_REPEAT;
 	}
 	else if (data == 2)
 	{
-		e->first_state = VYLE2_STATE_END_RISE_UP;
+		e->first_state = VYLE2_STATE_END2_LYLE_RISE_UP;
 	}
 	else
 	{
