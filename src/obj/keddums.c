@@ -7,8 +7,10 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "lyle.h"
 
 static uint16_t s_vram_pos;
+static fix16_t kgravity;
 
 static int16_t float_anim_speed;
 static int16_t shake_anim_speed;
@@ -34,6 +36,8 @@ static inline void set_constants(void)
 	float_anim_speed = PALSCALE_DURATION(20);
 	shake_anim_speed = PALSCALE_DURATION(2);
 
+	kgravity = INTTOFIX16(PALSCALE_2ND((1 / 9.0) * (5.0 / 6.0) * (5.0 / 6.0)));
+
 	s_constants_set = true;
 }
 
@@ -54,6 +58,7 @@ static void render(O_Keddums *e)
 			                                LYLE_PAL_LINE, 0), SPR_SIZE(3, 2));
 			break;
 		case KEDDUMS_SHAKE:
+		case KEDDUMS_FLY:
 			md_spr_put(sp_x, sp_y, SPR_ATTR(s_vram_pos+6, 0, 0,
 			                                LYLE_PAL_LINE, 0), SPR_SIZE(3, 2));
 			break;
@@ -63,6 +68,7 @@ static void render(O_Keddums *e)
 static void main_func(Obj *o)
 {
 	O_Keddums *e = (O_Keddums *)o;
+	O_Lyle *l = lyle_get();
 	if (o->hurt_stun > 0)
 	{
 		render(e);
@@ -87,6 +93,7 @@ static void main_func(Obj *o)
 				}
 			}
 			break;
+
 		case KEDDUMS_SHAKE:
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, shake_anim_speed);
 			if (e->anim_cnt == 0)
@@ -100,6 +107,18 @@ static void main_func(Obj *o)
 					e->head.x -= INTTOFIX32(1);
 				}
 			}
+			break;
+
+		case KEDDUMS_FLY:
+			obj_mixed_physics_h(o);
+			o->dy += kgravity;
+			break;
+
+		case KEDDUMS_FOLLOW_LYLE:
+			o->dy = 0;
+			o->dx = 0;
+			o->x = l->head.x - INTTOFIX32(4);
+			o->y = l->head.y - INTTOFIX32(22);
 			break;
 	}
 
@@ -116,7 +135,7 @@ void o_load_keddums(Obj *o, uint16_t data)
 	vram_load();
 
 	obj_basic_init(o, "Keddums", 0,
-	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-16), 1);
+	               INTTOFIX16(-12), INTTOFIX16(12), INTTOFIX16(-16), 127);
 	o->main_func = main_func;
 	o->cube_func = NULL;
 
@@ -131,5 +150,15 @@ void o_unload_keddums(void)
 void keddums_set_state(KeddumsState state)
 {
 	if (!s_keddums) return;
+	if (state != s_keddums->state && state == KEDDUMS_FLY)
+	{
+		s_keddums->head.dx = INTTOFIX16(PALSCALE_1ST(-1.0 * 5.0 / 6.0));
+		s_keddums->head.dy = INTTOFIX16(PALSCALE_1ST((-20 / 9.0) * 5.0 / 6.0));
+	}
 	s_keddums->state = state;
+}
+
+O_Keddums *keddums_get(void)
+{
+	return s_keddums;
 }

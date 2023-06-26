@@ -681,8 +681,8 @@ static inline void cube_collision(O_Lyle *l)
 			if (c->status == CUBE_STATUS_AIR &&
 			    c->x + c->left <= l->head.x + l->head.right + 1 &&
 			    c->x + c->right >= l->head.x + l->head.left - 1 &&
-			    c->y + c->top <= l->head.y - INTTOFIX32(24) &&
-			    c->y >= l->head.y + l->head.top - INTTOFIX32(15))
+			    c->y + c->top <= l->head.y - INTTOFIX32(29) &&
+			    c->y >= l->head.y + l->head.top - INTTOFIX32(20))
 			{
 				if (c->dx == 0)
 				{

@@ -173,7 +173,7 @@ static void main_func(Obj *o)
 			break;
 
 		case PWAVE_STATE_BROKEN:
-			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL + 27, 0, 0, BG_PAL_LINE, 0);
+			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL + 36, 0, 0, BG_PAL_LINE, 0);
 			break;
 		default:
 			break;

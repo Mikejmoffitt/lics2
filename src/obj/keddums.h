@@ -24,4 +24,6 @@ void o_unload_keddums(void);
 
 void keddums_set_state(KeddumsState state);
 
+O_Keddums *keddums_get(void);
+
 #endif  // OBJ_KEDDUMS_H

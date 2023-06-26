@@ -96,6 +96,7 @@ static const Gfx gfx[] =
 	[GFX_EX_PWAVE_LIGHTG] = GFX(ex_pwave_lightg),
 	[GFX_EX_PWAVE_ARM] = GFX(ex_pwave_arm),
 	[GFX_EX_PWAVE_GLASSBALL] = GFX(ex_pwave_glassball),
+	[GFX_EX_ROCKET] = GFX(ex_rocket),
 
 	[GFX_BG_1] = GFX(bg_bg1),
 	[GFX_BG_2] = GFX(bg_bg2),

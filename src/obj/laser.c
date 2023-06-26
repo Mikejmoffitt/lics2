@@ -123,7 +123,7 @@ static void main_func(Obj *o)
 		e->phase = 2;
 		if (e->mode == LASER_MODE_ON)
 		{
-			s_timer = ksequence[1];
+			s_timer = ksequence[1] + 1;
 		}
 	}
 	else
