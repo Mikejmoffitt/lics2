@@ -66,6 +66,7 @@ typedef enum GfxId
 	GFX_CLOAK,
 	GFX_BIGEXPLOSION,
 
+	GFX_STAFFROLL,
 	GFX_GAMEOVER,
 	GFX_PURPLETREE,
 	GFX_WNDWBACK,
@@ -116,6 +117,7 @@ typedef enum GfxId
 	GFX_BG_23_EX,
 	GFX_BG_24,
 	GFX_BG_26,
+	GFX_BG_27,
 } GfxId;
 
 typedef struct Gfx

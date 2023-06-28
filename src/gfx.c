@@ -72,6 +72,7 @@ static const Gfx gfx[] =
 	[GFX_CLOAK] = GFX(obj_60_cloak),
 	[GFX_BIGEXPLOSION] = GFX(obj_61_bigexplosion),
 
+	[GFX_STAFFROLL] = GFX(obj_117_staffroll),
 	[GFX_GAMEOVER] = GFX(obj_118_gameover),
 	[GFX_PURPLETREE] = GFX(obj_123_purpletree),
 	[GFX_WNDWBACK] = GFX(obj_124_wndwback),
@@ -123,6 +124,7 @@ static const Gfx gfx[] =
 	[GFX_BG_23_EX] = GFX(bg_bg23_ex),
 	[GFX_BG_24] = GFX(bg_bg24),
 	[GFX_BG_26] = GFX(bg_bg26),
+	[GFX_BG_27] = GFX(bg_bg27),
 };
 
 int gfx_init(void)

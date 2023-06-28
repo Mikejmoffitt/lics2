@@ -56,6 +56,7 @@ static const BgDescriptor backgrounds[] =
 	[24] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},
 	[25] = {GFX_BG_24, res_pal_bg_bg24_bin, res_bgmap_bg24_bin, sizeof(res_bgmap_bg24_bin)},  // Same as 24, but vertical.
 	[26] = {GFX_BG_26, res_pal_bg_bg26_bin, res_bgmap_bg26_bin, sizeof(res_bgmap_bg26_bin)},
+	[27] = {GFX_BG_27, res_pal_bg_bg26_bin, res_bgmap_bg27_bin, sizeof(res_bgmap_bg27_bin)},
 };
 
 typedef struct Bg
@@ -651,6 +652,29 @@ static void bg_thin_bricks_func(void)
 	set_h_scroll_plane(-x_scroll / 2);
 }
 
+static void bg_staffroll_func(void)
+{
+	static fix16_t y_scroll[2];
+
+	y_scroll[0] += INTTOFIX16(PALSCALE_1ST(2.0 * 5.0 / 6.0));
+	y_scroll[1] += INTTOFIX16(PALSCALE_1ST(1.0 * 5.0 / 6.0));
+
+	if (y_scroll[1] >= INTTOFIX16(16))
+	{
+		y_scroll[1] -= INTTOFIX16(16);
+		y_scroll[0] += INTTOFIX16(16);
+	}
+
+	const int16_t frame = FIX16TOINT(y_scroll[1]);
+	const int16_t y_counter_index = (31 - frame) % 16;
+
+	set_v_scroll_plane(-FIX16TOINT(y_scroll[0]));
+	set_h_scroll_plane(0);
+
+	const Gfx *g = gfx_get(GFX_BG_27);
+	md_dma_transfer_vram(BG_TILE_VRAM_POSITION, g->data + (4 * 2 * 32 * y_counter_index), (4 * 2 * 32) / 2, 2);
+}
+
 static void (*bg_funcs[])(void) =
 {
 	[0] = NULL,
@@ -680,6 +704,7 @@ static void (*bg_funcs[])(void) =
 	[24] = bg_technozone_horizontal_simple_func,
 	[25] = bg_technozone_vertical_simple_func,
 	[26] = bg_finalboss_func,
+	[27] = bg_staffroll_func,
 };
 
 void bg_poll(void)

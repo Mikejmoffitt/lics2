@@ -1670,7 +1670,7 @@ static void main_func(Obj *o)
 				e->state = VYLE2_STATE_END3_LYLE_HOP_DOWN;
 			}
 
-			md_spr_put(160-8, 168,
+			md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 			           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 			           SPR_SIZE(2, 3));
 			break;
@@ -1695,7 +1695,7 @@ static void main_func(Obj *o)
 					e->state = VYLE2_STATE_END3_LYLE_APPROACH;
 				}
 			}
-			md_spr_put(160-8, 168,
+			md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 			           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 			           SPR_SIZE(2, 3));
 			obj_accurate_physics(&l->head);
@@ -1708,7 +1708,7 @@ static void main_func(Obj *o)
 			{
 				e->state = VYLE2_STATE_END3_LYLE_HOP_UP;
 			}
-			md_spr_put(160-8, 168,
+			md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 			           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 			           SPR_SIZE(2, 3));
 			break;
@@ -1739,7 +1739,7 @@ static void main_func(Obj *o)
 					e->state = VYLE2_STATE_END3_LYLE_TAKEOFF;
 				}
 			}
-			md_spr_put(160-8, 168,
+			md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 			           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 			           SPR_SIZE(2, 3));
 			obj_accurate_physics(&l->head);
@@ -1751,14 +1751,14 @@ static void main_func(Obj *o)
 				lyle_set_anim_frame(8);
 				l->head.dy = 0;
 				l->head.dx = 0;
-				md_spr_put(160-8, 168,
+				md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 				           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 				           SPR_SIZE(2, 3));
 			}
 			else if (e->state_elapsed == 20)
 			{
 				// TODO: Play buzzing sound (same as second boss)
-				md_spr_put(160-8, 168,
+				md_spr_put(160-8, 168 - (system_is_ntsc() ? 16 : 0),
 				           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 				           SPR_SIZE(2, 3));
 			}
@@ -1766,14 +1766,14 @@ static void main_func(Obj *o)
 			         e->state_elapsed < PALSCALE_DURATION(60 * 6.0 / 5.0))
 			{
 				const int16_t x = 160 - 8 + (system_rand() % 5) - 2;
-				const int16_t y = 168 + (system_rand() % 5) - 2;
+				const int16_t y = 168 + (system_rand() % 5) - 2 - (system_is_ntsc() ? 16 : 0);
 				md_spr_put(x, y,
 				           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 				           SPR_SIZE(2, 3));
 			}
 			else
 			{
-				md_spr_put(160-8, FIX32TOINT(l->head.y) + 1,
+				md_spr_put(160-8, FIX32TOINT(l->head.y) + 1 - (system_is_ntsc() ? 16 : 0),
 				           SPR_ATTR(s_vram_rocket_pos, 0, 0, ENEMY_PAL_LINE, 0),
 				           SPR_SIZE(2, 3));
 			}

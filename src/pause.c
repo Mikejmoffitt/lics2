@@ -25,6 +25,7 @@
 #include "input.h"
 #include "fixed_vram.h"
 #include "cube_manager.h"
+#include "obj/vyle2.h"
 
 typedef struct Pause
 {
@@ -1795,6 +1796,7 @@ void pause_poll(void)
 		Obj *o = &g_objects[i].obj;
 		if (o->status == OBJ_STATUS_NULL) continue;
 		if (o->type == OBJ_TITLE) return;
+		if (o->type == OBJ_STAFFROLL) return;
 		if (o->type == OBJ_GAMEOVER) return;
 	}
 

@@ -124,7 +124,7 @@ static const BgmEntry bgm_list[] =
 	{res_mus_esf_bgm9_esf, 0xBD},
 	{res_mus_esf_bgm10_esf, 0xBD},
 	{res_mus_esf_bgm11_esf, 0xBD},
-	{NULL, 0xC9},
+	{NULL, 0xC9},  // TODO: Staff roll
 	{res_mus_esf_bgm13_esf, 0xC9},
 	{res_mus_esf_bgm14_esf, 0xC9},
 	{res_mus_esf_bgm15_esf, 0xC7},

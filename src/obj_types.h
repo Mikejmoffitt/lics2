@@ -67,6 +67,7 @@ typedef enum ObjType
 	OBJ_CLOAK         = 60,  // Vyle's discarded cloak.
 	OBJ_BIGEXPLOSION  = 61,  // Big explosion.
 
+	OBJ_STAFFROLL    = 117,  // Staff roll script.
 	OBJ_GAMEOVER     = 118,  // Game over cube / sequence.
 	OBJ_TECHNOBG     = 119,  // Tile DMA for technozone foreground.
 	OBJ_BGTILE       = 120,  // Displays a background tile as a sprite.
