@@ -9,7 +9,6 @@ static uint32_t s_rand_value;
 
 void system_init(void)
 {
-	megadrive_init();
 	g_system_is_ntsc = (md_vdp_get_status() & VDP_STATUS_PAL) ? 0 : 1;
 	md_vdp_set_plane_size(VDP_PLANESIZE_64x64);
 	md_vdp_set_plane_base(VDP_PLANE_A, PLANE_A_NT_VRAM_POSITION);

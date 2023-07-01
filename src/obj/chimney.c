@@ -95,7 +95,7 @@ static void main_func(Obj *o)
 static void cube_func(Obj *o, Cube *c)
 {
 	obj_standard_cube_response(o, c);
-	if (o->hp == 0) o->hp = 127;
+	if (o->hp <= 0) o->hp = 127;
 }
 
 void o_load_chimney(Obj *o, uint16_t data)
