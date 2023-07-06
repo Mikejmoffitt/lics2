@@ -12,6 +12,7 @@
 
 enum
 {
+	PW_SPR_BUTTON,
 	PW_SPR_MARQUEE_0,
 	PW_SPR_MARQUEE_1,
 	PW_SPR_SCREENBACK_0,
@@ -41,7 +42,8 @@ static uint16_t s_vram_pos;
 static int kanim_speed;
 static int kwave_emit_delay;
 
-#define PWAVE_OFFS_MARQUEE 0
+#define PWAVE_OFFS_BUTTON 0
+#define PWAVE_OFFS_MARQUEE (PWAVE_OFFS_BUTTON+2)
 #define PWAVE_OFFS_SCREENBACK (PWAVE_OFFS_MARQUEE+(6*2))
 #define PWAVE_OFFS_CATFACE (PWAVE_OFFS_SCREENBACK+(4*3))
 #define PWAVE_OFFS_LIGHTR (PWAVE_OFFS_CATFACE+(2*2))
@@ -52,9 +54,12 @@ static int kwave_emit_delay;
 static void vram_load(void)
 {
 	if (s_vram_pos) return;
+	const Gfx *g;
 
-	const Gfx *g = gfx_get(GFX_EX_PWAVE_MARQUEE);
+	g = gfx_get(GFX_EX_PWAVE_BUTTON);
 	s_vram_pos = gfx_load(g, obj_vram_alloc(g->size));
+	g = gfx_get(GFX_EX_PWAVE_MARQUEE);
+	gfx_load(g, obj_vram_alloc(g->size));
 	g = gfx_get(GFX_EX_PWAVE_SCREENBACK);
 	gfx_load(g, obj_vram_alloc(g->size));
 	g = gfx_get(GFX_EX_PWAVE_CATFACE);
@@ -125,10 +130,12 @@ static void main_func(Obj *o)
 			s_spr[PW_SPR_LIGHTG].size |= 0x80;
 			s_spr[PW_SPR_ARM_0].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_ARM, 0, 0, ENEMY_PAL_LINE, 0);
 			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL, 0, 0, BG_PAL_LINE, 0);
+			s_spr[PW_SPR_BUTTON].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_BUTTON, 0, 0, ENEMY_PAL_LINE, 0);
 			e->emit_cnt = 0;
 			break;
 
 		case PWAVE_STATE_ON:
+			s_spr[PW_SPR_BUTTON].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_BUTTON + 1, 0, 0, ENEMY_PAL_LINE, 0);
 			OBJ_SIMPLE_ANIM(e->anim_cnt, e->anim_frame, 2, kanim_speed);
 			if (e->anim_cnt == 0)
 			{
@@ -174,6 +181,7 @@ static void main_func(Obj *o)
 
 		case PWAVE_STATE_BROKEN:
 			s_spr[PW_SPR_GLASSBALL1].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_GLASSBALL + 36, 0, 0, BG_PAL_LINE, 0);
+			s_spr[PW_SPR_BUTTON].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_BUTTON, 0, 0, ENEMY_PAL_LINE, 0);
 			break;
 		default:
 			break;
@@ -202,6 +210,11 @@ void o_load_psychowave(Obj *o, uint16_t data)
 
 	s_pwave = e;
 
+	// Button
+	s_spr[PW_SPR_BUTTON].x = 9;
+	s_spr[PW_SPR_BUTTON].y = 32;
+	s_spr[PW_SPR_BUTTON].size = SPR_SIZE(1, 1);
+	s_spr[PW_SPR_BUTTON].attr = SPR_ATTR(s_vram_pos + PWAVE_OFFS_BUTTON, 0, 0, ENEMY_PAL_LINE, 0);
 	// Marquee
 	s_spr[PW_SPR_MARQUEE_0].x = 0;
 	s_spr[PW_SPR_MARQUEE_0].y = 0;
