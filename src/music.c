@@ -101,6 +101,10 @@ static const void * const instrument_list[] =
 	[0x55] = res_mus_eif_55_slowsq_eif,
 	[0x56] = res_mus_eif_56_saw2_detune_eif,
 	[0x57] = res_mus_eif_57_saw_slowswell_eif,
+	[0x58] = res_mus_ewf_58_hatkick1_ewf,
+	[0x59] = res_mus_ewf_59_hatsnare1_ewf,
+	[0x5A] = res_mus_ewf_5a_hat6_ewf,
+	[0x5B] = res_mus_ewf_5b_hat7_ewf,
 	NULL
 };
 
