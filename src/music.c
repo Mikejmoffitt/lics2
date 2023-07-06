@@ -105,6 +105,16 @@ static const void * const instrument_list[] =
 	[0x59] = res_mus_ewf_59_hatsnare1_ewf,
 	[0x5A] = res_mus_ewf_5a_hat6_ewf,
 	[0x5B] = res_mus_ewf_5b_hat7_ewf,
+	[0x5C] = res_mus_ewf_5c_kick11_ewf,
+	[0x5D] = res_mus_ewf_5d_snare9_ewf,
+	[0x5E] = res_mus_ewf_5e_hat6_ewf,
+	[0x5F] = res_mus_ewf_5f_hat7_ewf,
+	[0x60] = res_mus_ewf_60_bgm12_fill1_ewf,
+	[0x61] = res_mus_ewf_61_bgm12_fill2_ewf,
+	[0x62] = res_mus_eif_62_bassfade_eif,
+	[0x63] = res_mus_eif_63_bass10_eif,
+	[0x64] = res_mus_eif_64_bgm12_arp_eif,
+	[0x65] = res_mus_eif_65_bgm12_arp_soft_eif,
 	NULL
 };
 
@@ -128,7 +138,7 @@ static const BgmEntry bgm_list[] =
 	{res_mus_esf_bgm9_esf, 0xBD},
 	{res_mus_esf_bgm10_esf, 0xBD},
 	{res_mus_esf_bgm11_esf, 0xBD},
-	{NULL, 0xC9},  // TODO: Staff roll
+	{res_mus_esf_bgm12_esf, 0xBD},
 	{res_mus_esf_bgm13_esf, 0xC9},
 	{res_mus_esf_bgm14_esf, 0xC9},
 	{res_mus_esf_bgm15_esf, 0xC7},
