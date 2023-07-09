@@ -1,6 +1,6 @@
 
 	.section	.bss
-	.include	"sfx_engine_types.inc"
+	.include	"src/sfx_engine_types.inc"
 
 	.global	SfxChans
 

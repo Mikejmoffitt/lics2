@@ -4,14 +4,27 @@
 #include "obj.h"
 #include <stdbool.h>
 
+typedef struct SecretTvFrame
+{
+	uint16_t code;
+	uint16_t pal;
+} SecretTvFrame;
+
+typedef struct SecretTvAnim
+{
+	const SecretTvFrame *frames;
+	uint16_t len;
+	uint16_t loop;
+	uint16_t delay;
+} SecretTvAnim;
+
 typedef struct O_SecretTv
 {
 	Obj head;
-	uint16_t id;
-	bool active;
+	const SecretTvAnim *anim;
 	uint16_t anim_frame;
 	uint16_t anim_cnt;
-	uint16_t attr;
+	uint16_t anim_delay;
 } O_SecretTv;
 
 void o_load_secrettv(Obj *o, uint16_t data);

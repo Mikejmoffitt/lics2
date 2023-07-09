@@ -1,5 +1,5 @@
 	
-	.include	"sfx_engine_types.inc"
+	.include	"src/sfx_engine_types.inc"
 	.section	.text
 	.global	sfx_engine_sound_list
 	.global	sfx_engine_envelope_default

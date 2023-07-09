@@ -1,5 +1,5 @@
 
-	.include	"sfx_engine_types.inc"
+	.include	"src/sfx_engine_types.inc"
 	.extern	SfxChans
 
 	.section	.text
