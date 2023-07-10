@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "palscale.h"
 #include "map.h"
+#include "particle.h"
 
 #include "lyle.h"
 #include "game.h"
@@ -245,11 +246,10 @@ static void render_kitty(O_Title *e, int16_t sp_x, int16_t sp_y)
 	if (e->kitty_anim_state == 0)
 	{
 		OBJ_SIMPLE_ANIM(e->kitty_anim_cnt, e->kitty_anim_frame,
-		3, kkitty_sleep_anim_speed);
+		                3, kkitty_sleep_anim_speed);
 		md_spr_put(sp_x + 80, sp_y + 168,
 		        SPR_ATTR(s_vram_keddums_pos + (6 * e->kitty_anim_frame),
 		        0, 0, ENEMY_PAL_LINE, 1), SPR_SIZE(3, 2));
-
 	}
 	else if (e->kitty_anim_state == 1)
 	{
@@ -577,6 +577,7 @@ static void main_func(Obj *o)
 
 			e->state = TITLE_STATE_INTRO;
 			break;
+
 		case TITLE_STATE_INTRO:
 			if (e->state_elapsed == 0)
 			{
@@ -617,6 +618,7 @@ static void main_func(Obj *o)
 			maybe_skip_to_menu(e);
 			render_cutscene(e);
 			break;
+
 		case TITLE_STATE_CUTSCENE:
 			if (e->state_elapsed == 0)
 			{
@@ -654,6 +656,7 @@ static void main_func(Obj *o)
 			else if (e->state_elapsed == kcloakdude_seq[5])
 			{
 				e->kitty_anim_state = 1;
+				particle_clear();
 			}
 			else if (e->cloakdude_dx > 0 && e->cloakdude_x >= INTTOFIX32(74))
 			{
@@ -690,6 +693,7 @@ static void main_func(Obj *o)
 				if (e->kitty_anim_cnt == 0 && e->kitty_anim_frame == 2)
 				{
 					sfx_play(SFX_SNORE, 1);
+					particle_spawn(o->x + INTTOFIX32(32), o->y + INTTOFIX32(100), PARTICLE_TYPE_Z);
 				}
 			}
 
@@ -697,6 +701,7 @@ static void main_func(Obj *o)
 
 			maybe_skip_to_menu(e);
 			break;
+
 		case TITLE_STATE_MENU:
 			if (e->state_elapsed == 0)
 			{
@@ -758,6 +763,7 @@ static void main_func(Obj *o)
 			}
 
 			break;
+
 		case TITLE_STATE_BEGIN:
 			if (e->state_elapsed == klyle_seq[0])
 			{

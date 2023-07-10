@@ -149,12 +149,31 @@ static inline void particle_run(Particle *p, int16_t map_x, int16_t map_y)
 
 		case PARTICLE_TYPE_PSYCHOWAVE:
 			if (p->life & 1) return;  // Flicker
+			// Two-sided sprite; the opposite side is drawn here.
 			p->spr.attr ^= SPR_ATTR(0, 1, 0, 0, 0);
 			p->spr.x = px + 24;
 			p->spr.y = py;
+			// The params are then put back and the normal draw routine handles the other half.
 			md_spr_put_st(&p->spr);
 			p->spr.attr ^= SPR_ATTR(0, 1, 0, 0, 0);
 			break;
+
+		case PARTICLE_TYPE_Z:
+			animate(p, kanim_speed * 2);
+			if (p->anim_frame >= 4)
+			{
+				p->anim_frame = 0;
+			}
+			if (p->anim_cnt == 0)
+			{
+				p->x += (p->anim_frame < 2) ? INTTOFIX32(1) : INTTOFIX32(-1);
+			}
+			if ((p->life < PALSCALE_DURATION((6.0 / 5.0) * 30)) && (p->life % 2 == 0))
+			{
+				return;  // flicker
+			}
+			break;
+			
 	}
 
 	p->spr.x = px;
@@ -200,6 +219,18 @@ void particle_clear(void)
 	}
 }
 
+static void set_standard_velocity(Particle *p)
+{
+	// TODO: These don't take palscale into account.
+	p->dy = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
+	p->dx = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
+	// Don't let dx/dy be zero.
+	if (p->dx == 0) p->dx = INTTOFIX16(2);
+	if (p->dy == 0) p->dy = INTTOFIX16(2);
+
+	p->dx /= 2;
+}
+
 Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 {
 	// Particles are offset by their width/height divided by two, so as to avoid
@@ -213,6 +244,7 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 		[PARTICLE_TYPE_SAND] = INTTOFIX32(4),
 		[PARTICLE_TYPE_CRUMBLY] = INTTOFIX32(4),
 		[PARTICLE_TYPE_PSYCHOWAVE] = 0,  // Handled at runtime.
+		[PARTICLE_TYPE_Z] = INTTOFIX32(4),
 	};
 
 	Particle *ret = NULL;
@@ -238,57 +270,50 @@ Particle *particle_spawn(fix32_t x, fix32_t y, ParticleType type)
 				return NULL;
 			case PARTICLE_TYPE_SPARKLE:
 				p->life = ksparkle_life;
+				p->x += INTTOFIX32((system_rand() % 16) - 8);
+				p->y += INTTOFIX32((system_rand() % 16) - 8);
 				break;
+
 			case PARTICLE_TYPE_FIZZLE:
 			case PARTICLE_TYPE_FIZZLERED:
 				p->life = kfizzle_life;
+				set_standard_velocity(p);
 				break;
+
 			case PARTICLE_TYPE_EXPLOSION:
 				p->life = kexplosion_life;
+				set_standard_velocity(p);
 				break;
+
 			case PARTICLE_TYPE_SAND:
 				p->spr.size = SPR_SIZE(1, 1);
 				p->life = ksand_life;
+				set_standard_velocity(p);
+				p->dy -= INTTOFIX32(2);
 				break;
+
 			case PARTICLE_TYPE_CRUMBLY:
 				p->life = kfizzle_life * 4;
 				p->spr.size = SPR_SIZE(1, 1);
 				p->spr.attr = SPR_ATTR(0x0060, 0, 0, MAP_PAL_LINE, 1);
 				break;
+
 			case PARTICLE_TYPE_PSYCHOWAVE:
 				p->life = kpwave_life;
 				p->spr.size = SPR_SIZE(3, 1);
 				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 81, 0, 0, LYLE_PAL_LINE, 0);
+				p->x -= INTTOFIX32(24);
+				p->y -= INTTOFIX32(4);
+				p->dy = INTTOFIX16(PALSCALE_1ST(1.0 * 5.0/6.0));
 				break;
-		}
 
-		if (type == PARTICLE_TYPE_SPARKLE)
-		{
-			p->x += INTTOFIX32((system_rand() % 16) - 8);
-			p->y += INTTOFIX32((system_rand() % 16) - 8);
-		}
-		else if (type == PARTICLE_TYPE_PSYCHOWAVE)
-		{
-			p->x -= INTTOFIX32(24);
-			p->y -= INTTOFIX32(4);
-			p->dy = INTTOFIX16(PALSCALE_1ST(1.0 * 5.0/6.0));
-		}
-		else if (type != PARTICLE_TYPE_CRUMBLY)
-		{
-			// TODO: These don't take palscale into account.
-			p->dy = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
-			p->dx = INTTOFIX16(((system_rand() % 64) - 32)) / 16;
-			// Don't let dx/dy be zero.
-			if (p->dx == 0) p->dx = INTTOFIX16(2);
-			if (p->dy == 0) p->dy = INTTOFIX16(2);
-
-			if (type == PARTICLE_TYPE_SAND)
-			{
-				p->dy -= INTTOFIX32(2);
-			}
-
-			p->dx /= 2;
-			p->dy /= 2;
+			case PARTICLE_TYPE_Z:
+				p->life = PALSCALE_DURATION((6.0 / 5.0) * 60);
+				p->spr.size = SPR_SIZE(1, 1);
+				p->spr.attr = SPR_ATTR(PARTICLE_VRAM_TILE + 84, 0, 0, LYLE_PAL_LINE, 1);
+				p->dx = 0;
+				p->dy = INTTOFIX16(PALSCALE_1ST(-0.25));
+				break;
 		}
 
 		p->anim_cnt = 0;
