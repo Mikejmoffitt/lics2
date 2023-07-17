@@ -782,6 +782,7 @@ static void main_func(Obj *o)
 					                               PROJECTILE_TYPE_BALL2,
 					                               168,
 					                               kspread_shot_speed);
+					sfx_play(SFX_GAXTER_SHOT, 2);
 				}
 				else
 				{

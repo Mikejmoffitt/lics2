@@ -288,6 +288,7 @@ static inline void cube_collision(Powerup *p)
 	{
 		Cube *c = &g_cubes[i];
 		if (c->status == CUBE_STATUS_NULL) continue;
+		if (c->type == CUBE_TYPE_SPAWNER && c->spawn_count != 0) continue;
 		if (p->y < c->y + c->top - 1) continue;
 		if (p->y > c->y) continue;
 		if (p->x + POWERUP_MARGIN < c->x + c->left) continue;
