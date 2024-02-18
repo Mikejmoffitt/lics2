@@ -1,0 +1,7 @@
+input png/end_bg.png
+layout tilemap
+offset 1
+output res/end_bg.chr
+output2 res/end_bg.map
+dumppal res/end_bg.pal
+map 0 0 64 32

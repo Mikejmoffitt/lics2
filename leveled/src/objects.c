@@ -79,6 +79,7 @@ static const ObjInfo s_obj_info_defs[OBJ_INVALID] =
 	[OBJ_CLOAK]         = {"Cloak   ", 32, 16},
 	[OBJ_BIGEXPLOSION]  = {"BigExplo",  1,  1},
 
+	[OBJ_ENDLYLE]       = {"EndLyle",  114, 200},
 	[OBJ_STAFFROLL]     = {"StaffRol", 320, 1},
 	[OBJ_GAMEOVER]      = {"GameOver", 64, 64},
 	[OBJ_TECHNOBG]      = {"TechnoBG", 16, 16},

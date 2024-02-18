@@ -14,6 +14,8 @@ typedef struct O_Staffroll
 
 	fix32_t scroll;
 	fix16_t scroll_acc;
+
+	bool finished;
 } O_Staffroll;
 
 void o_load_staffroll(Obj *o, uint16_t data);

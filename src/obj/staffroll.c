@@ -220,6 +220,7 @@ static const char *kstaffroll_str[] =
 	"",
 	"",
 	"",
+	NULL
 };
 
 static void write_line(O_Staffroll *e)
@@ -233,6 +234,7 @@ static void write_line(O_Staffroll *e)
 
 	if (e->line_idx >= ARRAYSIZE(kstaffroll_str))
 	{
+		const bool ints_en = md_sys_di();
 		md_vdp_set_autoinc(2);
 		for (uint16_t half = 0; half < 2; half++)
 		{
@@ -243,12 +245,19 @@ static void write_line(O_Staffroll *e)
 			}
 			e->vram_write_addr += GAME_PLANE_W_CELLS * 2;
 		}
+		if (ints_en) md_sys_ei();
+		e->finished = true;
+		return;
+	}
+
+	const char *str = kstaffroll_str[e->line_idx];
+	if (!str)
+	{
+		e->finished = true;
 		return;
 	}
 
 	const bool ints_en = md_sys_di();
-
-	const char *str = kstaffroll_str[e->line_idx];
 	const uint16_t x_offs = 2 * (20 - (strlen(str) / 2));
 
 	md_vdp_set_autoinc(2);
@@ -324,13 +333,17 @@ static void main_func(Obj *o)
 		lyle_set_scroll_v_en(false);
 		lyle_set_pos(INTTOFIX32(-32), INTTOFIX32(-32));
 		hud_set_visible(false);
+		md_dma_fill_vram(md_vdp_get_plane_base(VDP_PLANE_A), 0,
+		                 GAME_PLANE_W_CELLS * GAME_PLANE_H_CELLS, 2);
 		e->initialized = true;
-		md_dma_fill_vram(md_vdp_get_plane_base(VDP_PLANE_A), 0, GAME_PLANE_W_CELLS * GAME_PLANE_H_CELLS, 2);
 	}
 
 	scroll(e);
-	write_line(e);
-	if (e->line_idx >= ARRAYSIZE(kstaffroll_str))
+	if (!e->finished)
+	{
+		write_line(e);
+	}
+	else
 	{
 		map_set_next_room(63, 0);
 		map_set_exit_trigger(MAP_EXIT_OTHER);

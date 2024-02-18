@@ -139,6 +139,7 @@ static const MapAssets map_by_id[] =
 	[60] = MAP_ASSETS(60_end2),
 	[61] = MAP_ASSETS(61_end3),
 	[62] = MAP_ASSETS(62_staffroll),
+	[63] = MAP_ASSETS(63_ending),
 
 	[127] = MAP_ASSETS(127_gameover),
 };
