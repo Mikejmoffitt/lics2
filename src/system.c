@@ -18,7 +18,7 @@ void system_init(void)
 	md_vdp_set_hscroll_base(HSCROLL_VRAM_POSITION);
 	md_vdp_set_vmode(g_system_is_ntsc ? VDP_VMODE_V28 : VDP_VMODE_V30);
 
-	system_srand(0x68000);
+	system_srand(0x68000 ^ s_rand_value);
 }
 
 static void rand_step(void)

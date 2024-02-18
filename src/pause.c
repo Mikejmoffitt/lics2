@@ -1797,6 +1797,7 @@ void pause_poll(void)
 		if (o->status == OBJ_STATUS_NULL) continue;
 		if (o->type == OBJ_TITLE) return;
 		if (o->type == OBJ_STAFFROLL) return;
+		if (o->type == OBJ_ENDLYLE) return;
 		if (o->type == OBJ_GAMEOVER) return;
 	}
 
