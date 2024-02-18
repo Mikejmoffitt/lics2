@@ -10,6 +10,7 @@ typedef struct O_EndLyle
 	Obj head;
 	CSprParam cspr[2];
 	bool initialized;
+	int16_t ys[2];
 } O_EndLyle;
 
 void o_load_endlyle(Obj *o, uint16_t data);

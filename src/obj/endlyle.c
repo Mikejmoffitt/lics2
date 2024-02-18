@@ -13,6 +13,11 @@
 #define ENDLYLE_JANKY_VRAM_NT_BASE 0xE000
 #define ENDLYLE_JANKY_VRAM_HS_BASE 0xF800
 
+static int16_t get_y_offs(void)
+{
+	return system_is_ntsc() ? 9 : 0;
+}
+
 static void obliterate_lyle_himself(void)
 {
 	lyle_set_hibernate(true);
@@ -49,6 +54,9 @@ static void main_func(Obj *o)
 
 		md_vdp_poke(ENDLYLE_JANKY_VRAM_HS_BASE, 10);
 
+		e->ys[0] = get_y_offs();
+		e->ys[1] = get_y_offs();
+
 		e->initialized = true;
 	}
 	else
@@ -57,17 +65,16 @@ static void main_func(Obj *o)
 		md_cspr_put_st(&e->cspr[0]);
 		// Cube from bank 1
 		e->cspr[1].x = 19;
-		e->cspr[1].y = 148;
+		e->cspr[1].y = 148 - get_y_offs();
 		e->cspr[1].frame = 0;
 		md_cspr_put_st(&e->cspr[1]);
 		// Keddums from bank 1
 		e->cspr[1].x = 209;
-		e->cspr[1].y = 119;
+		e->cspr[1].y = 119 - get_y_offs();
 		e->cspr[1].frame = 1;
 		md_cspr_put_st(&e->cspr[1]);
 	}
-	static const uint16_t kvs[2] = {0, 0};
-	md_dma_transfer_vsram(0, kvs, sizeof(kvs) / 2, 4);
+	md_dma_transfer_vsram(0, e->ys, sizeof(e->ys) / 2, 4);
 }
 
 
@@ -83,7 +90,7 @@ void o_load_endlyle(Obj *o, uint16_t data)
 	e->cspr[0].cspr_data = res_csp_end_lyle_csp;
 	e->cspr[0].vram_base = VRAM_FREE_START;
 	e->cspr[0].x = 40;
-	e->cspr[0].y = 26;
+	e->cspr[0].y = 26 - get_y_offs();
 	e->cspr[0].attr = SPR_ATTR(0, 0, 0, LYLE_PAL_LINE, 0);
 	e->cspr[0].frame = 0;
 	e->cspr[0].use_dma = false;
