@@ -9,6 +9,7 @@
 #include "map.h"
 #include "lyle.h"
 #include "hud.h"
+#include "input.h"
 
 #define ENDLYLE_JANKY_VRAM_NT_BASE 0xE000
 #define ENDLYLE_JANKY_VRAM_HS_BASE 0xF800
@@ -73,6 +74,14 @@ static void main_func(Obj *o)
 		e->cspr[1].y = 119 - get_y_offs();
 		e->cspr[1].frame = 1;
 		md_cspr_put_st(&e->cspr[1]);
+
+		if (input_read() & LYLE_BTN_START)
+		{
+			md_vdp_set_display_en(false);
+			system_init();
+			map_set_next_room(0, 0);
+			map_set_exit_trigger(MAP_EXIT_OTHER);
+		}
 	}
 	md_dma_transfer_vsram(0, e->ys, sizeof(e->ys) / 2, 4);
 }
